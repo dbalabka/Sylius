@@ -828,6 +828,14 @@ class WebContext extends DefaultContext
     }
 
     /**
+     * @Given /^I fill in guest email with "([^"]*)"$/
+     */
+    public function iFillInGuestEmailNameWith($value)
+    {
+        $this->fillField('sylius_checkout_guest[email]', $value);
+    }
+
+    /**
      * Assert that given code equals the current one.
      *
      * @param integer $code
