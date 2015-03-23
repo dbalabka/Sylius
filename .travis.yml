@@ -4,12 +4,17 @@ php:
     - 5.3
     - 5.4
     - 5.5
+    - hhvm
+    - hhvm-nightly
 
 env:
     - TEST_SUITE=1
     - TEST_SUITE=2
     
 matrix:
+    allow_failures:
+        - php: hhvm
+        - php: hhvm-nightly
     include:
         - php: 5.3
           env: TEST_SUITE=1 COMPOSER_FLAGS="--prefer-lowest"
