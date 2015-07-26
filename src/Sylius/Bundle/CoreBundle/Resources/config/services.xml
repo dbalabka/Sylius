@@ -482,6 +482,12 @@
             <argument type="service" id="doctrine"/>
             <argument>%sylius.route_classes%</argument>
             <call method="setRouteCollectionLimit"><argument>%sylius.route_collection_limit%</argument></call>
+            <call method="setLocaleProvider">
+                <argument type="service" id="sylius.locale_provider"/>
+            </call>
+            <call method="setLocaleContext">
+                <argument type="service" id="sylius.context.locale"/>
+            </call>
         </service>
 
         <service id="sylius.enhancer.controllers_by_class" class="%cmf_routing.enhancer.field_by_class.class%">

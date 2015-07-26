@@ -48,14 +48,15 @@ class LocaleSubscriber implements EventSubscriberInterface
         if (!$request->hasPreviousSession()) {
             return;
         }
-
-        $request->setLocale($this->localeContext->getLocale() ?: $this->localeContext->getDefaultLocale());
+        $locale = $request->attributes->get('_locale', $request->getLocale() ?: $this->localeContext->getDefaultLocale());
+        $request->setLocale($locale);
+        $this->localeContext->setLocale($locale);
     }
 
     public static function getSubscribedEvents()
     {
         return array(
-            KernelEvents::REQUEST => array(array('onKernelRequest', 35)),
+            KernelEvents::REQUEST => array(array('onKernelRequest', 31)),
         );
     }
 }

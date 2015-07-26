@@ -20,6 +20,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
+use Sylius\Component\Locale\Context\LocaleContextInterface;
+use Sylius\Bundle\LocaleBundle\Provider\LocaleProviderInterface;
+use Symfony\Cmf\Bundle\RoutingBundle\Model\Route as CmfRoute;
 
 /**
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
@@ -45,6 +48,21 @@ class RouteProvider extends DoctrineProvider implements RouteProviderInterface
      * @var ObjectRepository[]
      */
     protected $classRepositories = array();
+
+    /**
+     * @var LocaleProviderInterface
+     */
+    protected $localeProvider;
+
+    /**
+     * @var array
+     */
+    private $locales;
+
+    /**
+     * @var LocaleContextInterface
+     */
+    private $context;
 
     /**
      * @param ContainerInterface $container
@@ -128,25 +146,32 @@ class RouteProvider extends DoctrineProvider implements RouteProviderInterface
             return $collection;
         }
 
+
+        $locales = implode('|', $this->getLocales());
+        $locale = null;
         foreach ($this->getRepositories() as $className => $repository) {
-            if ('' === $this->routeConfigs[$className]['prefix']
-                || 0 === strpos($path, $this->routeConfigs[$className]['prefix'])
-            ) {
-                $value = substr($path, strlen($this->routeConfigs[$className]['prefix']));
-                $value = trim($value, '/');
+            if (preg_match('#^/(' . $locales . ')' . preg_quote($this->routeConfigs[$className]['prefix'], '#') . '/?(.+)/?$#', $path, $match)) {
+                $locale = $match[1] ?: $this->localeProvider->getDefaultLocale();
+                $value = $match[2];
                 $entity = $repository->findOneBy(array($this->routeConfigs[$className]['field'] => $value));
 
                 if (!$entity) {
                     continue;
                 }
 
-                $route = $this->createRouteFromEntity($entity, $value);
+                $format = null;
                 if (preg_match('/.+\.([a-z]+)$/i', $value, $matches)) {
-                    $route->setDefault('_format', $matches[1]);
+                    $format = $matches[1];
                 }
+                $route = $this->createRouteFromEntity($entity, $value, $locale, $format);
 
                 $collection->add($value, $route);
             }
+        }
+
+        if (null !== $locale) {
+            $request->setLocale($locale);
+            $request->attributes->set('_locale', $locale);
         }
 
         return $collection;
@@ -199,10 +224,13 @@ class RouteProvider extends DoctrineProvider implements RouteProviderInterface
      *
      * @return Route
      */
-    private function createRouteFromEntity($entity, $value = null)
+    private function createRouteFromEntity($entity, $value = null, $locale = null, $format = null)
     {
         $className = ClassUtils::getClass($entity);
         $fieldName = $this->routeConfigs[$className]['field'];
+        if ($locale === null) {
+            $locale = $this->context->getLocale();
+        }
 
         // Used for matching by translated field
         // eg:
@@ -213,8 +241,43 @@ class RouteProvider extends DoctrineProvider implements RouteProviderInterface
         if (null === $value) {
             $value = $this->getFieldValue($entity, $fieldName);
         }
-        $defaults = array('_sylius_entity' => $entity, $fieldName => $value);
+        $defaults = array(
+            '_sylius_entity' => $entity,
+            $fieldName => $value,
+            '_locale' => $locale
+        );
+        if ($format) {
+            $defaults['_format'] = $format;
+        }
 
-        return new Route($this->routeConfigs[$className]['prefix'].'/'.$value, $defaults);
+        $route = new CmfRoute(
+            array(
+                'add_format_pattern' => (bool) $format,
+                'add_locale_pattern' => true,
+            )
+        );
+        $route->setDefaults($defaults);
+        $route->setStaticPrefix('/' . trim($this->routeConfigs[$className]['prefix'], '/'));
+        $route->setVariablePattern('/' . $value);
+        return $route;
     }
+
+    private function getLocales()
+    {
+        if ($this->locales === null) {
+            $this->locales = $this->localeProvider->getLocales();
+        }
+        return $this->locales;
+    }
+
+    public function setLocaleProvider(LocaleProviderInterface $provider)
+    {
+        $this->localeProvider = $provider;
+    }
+
+    public function setLocaleContext(LocaleContextInterface $context)
+    {
+        $this->context = $context;
+    }
+
 }
