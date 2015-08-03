@@ -77,6 +77,27 @@ doctrine_phpcr:
     odm:
         auto_mapping: true
         auto_generate_proxy_classes: %kernel.debug%
+        locales:
+            en: [lv, ru]
+            lv: [en, ru]
+            ru: [en, lv]
+        locale_fallback: hardcoded
+
+cmf_core:
+    multilang:
+        locales: [en, lv, ru]
+
+cmf_routing:
+    dynamic:
+        locales: [en, lv, ru]
+        auto_locale_pattern: true
+        generic_controller: cmf_content.controller:indexAction
+        persistence:
+            phpcr:
+                enabled: true
+                route_basepaths:
+                    - /cms/routes
+                    - /cms/pages
 
 swiftmailer:
     transport: %sylius.mailer.transport%
