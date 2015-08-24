@@ -153,9 +153,14 @@ class RouteProvider extends DoctrineProvider implements RouteProviderInterface
             if (preg_match('#^/(' . $locales . ')' . preg_quote($this->routeConfigs[$className]['prefix'], '#') . '/?(.+)/?$#', $path, $match)) {
                 $locale = $match[1] ?: $this->localeProvider->getDefaultLocale();
                 $value = $match[2];
+
+                if (empty($value)) {
+                    continue;
+                }
+                
                 $entity = $repository->findOneBy(array($this->routeConfigs[$className]['field'] => $value));
 
-                if (!$entity) {
+                if (null === $entity) {
                     continue;
                 }
 

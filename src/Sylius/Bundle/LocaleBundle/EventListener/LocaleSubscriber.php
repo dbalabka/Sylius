@@ -48,7 +48,7 @@ class LocaleSubscriber implements EventSubscriberInterface
         if (!$request->hasPreviousSession()) {
             return;
         }
-        $locale = $request->attributes->get('_locale', $request->getLocale() ?: $this->localeContext->getDefaultLocale());
+        $locale = $request->attributes->get('_locale', $request->getCurrentLocale() ?: $this->localeContext->getDefaultLocale());
         $request->setLocale($locale);
         $this->localeContext->setLocale($locale);
     }
