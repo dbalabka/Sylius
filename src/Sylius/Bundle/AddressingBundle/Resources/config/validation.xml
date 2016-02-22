@@ -70,12 +70,7 @@
             </constraint>
         </property>
         <property name="city">
-            <constraint name="NotBlank">
-                <option name="message">sylius.address.city.not_blank</option>
-                <option name="groups">sylius</option>
-            </constraint>
             <constraint name="Length">
-                <option name="min">2</option>
                 <option name="max">255</option>
                 <option name="minMessage">sylius.address.city.min_length</option>
                 <option name="maxMessage">sylius.address.city.max_length</option>
