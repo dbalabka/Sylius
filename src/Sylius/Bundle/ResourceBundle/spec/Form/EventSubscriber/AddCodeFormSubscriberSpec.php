@@ -14,6 +14,7 @@ namespace spec\Sylius\Bundle\ResourceBundle\Form\EventSubscriber;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
+use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvent;
@@ -76,7 +77,7 @@ class AddCodeFormSubscriberSpec extends ObjectBehavior
     function it_throws_exception_when_resource_does_not_implement_code_aware_interface(FormEvent $event, $object)
     {
         $event->getData()->willReturn($object);
-        $this->shouldThrow('\UnexpectedTypeException');
+        $this->shouldThrow(UnexpectedTypeException::class)->during('preSetData', [$event]);
     }
 
     function it_sets_code_as_enabled_when_there_is_no_resource(
@@ -120,6 +121,44 @@ class AddCodeFormSubscriberSpec extends ObjectBehavior
 
         $form
             ->add('code', 'text', Argument::withEntry('disabled', true))
+            ->shouldBeCalled()
+        ;
+
+        $this->preSetData($event);
+    }
+
+    function it_adds_code_with_label_sylius_ui_code_by_default(
+        FormEvent $event,
+        FormInterface $form,
+        CodeAwareInterface $resource
+    ) {
+        $event->getData()->willReturn($resource);
+        $event->getForm()->willReturn($form);
+
+        $resource->getCode()->willReturn('banana_resource');
+
+        $form
+            ->add('code', 'text', Argument::withEntry('label', 'sylius.ui.code'))
+            ->shouldBeCalled()
+        ;
+
+        $this->preSetData($event);
+    }
+
+    function it_adds_code_with_specified_type_and_label(
+        FormEvent $event,
+        FormInterface $form,
+        CodeAwareInterface $resource
+    ) {
+        $this->beConstructedWith('currency', 'sylius.ui.name');
+
+        $event->getData()->willReturn($resource);
+        $event->getForm()->willReturn($form);
+
+        $resource->getCode()->willReturn('Code12');
+
+        $form
+            ->add('code', 'currency', Argument::withEntry('label', 'sylius.ui.name'))
             ->shouldBeCalled()
         ;
 

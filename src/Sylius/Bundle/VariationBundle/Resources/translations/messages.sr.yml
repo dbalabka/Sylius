@@ -2,9 +2,6 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    variant:
-      presentation: Приказ
-    option:
-      name: Интерни назив
-      presentation: Приказ
+    form:
+        variant:
+            presentation: Приказ

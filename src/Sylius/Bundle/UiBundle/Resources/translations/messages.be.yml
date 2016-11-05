@@ -2,9 +2,42 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Юзернэйм
-      password: Пароль
-  ui:
-    dashboard: Прыборная панэль
+    form:
+        login:
+            username: Юзернэйм
+            password: Пароль
+        option:
+            presentation: Выгляд
+    ui:
+        add_coupon: Дадаць купон
+        actions: Дзеянні
+        cancel: Адмяніць
+        cancelled: Адменена
+        checkout: Афрмленне замовы
+        countries: Краіны
+        coupons: Купоны
+        coupon_based: Заснавана на купонах
+        create: Стварыць
+        dashboard: Прыборная панэль
+        default_currency: Галоўная валюта
+        delete: Выдаліць
+        description: Апісанне
+        edit: Рэдагаваць
+        enabled: Уключана
+        filter: Фільтр
+        locales: Месцы размяшчэння
+        new: Новы
+        new_country: Новая краіна
+        new_tax_category: Новая катэгорыя падатка
+        "no": false
+        no_taxes: Без падаткаў
+        no_promotion: Прамоцыя не дададзеная
+        no_shipping_charges: Без платы за дастаўку
+        quantity: Колькасць
+        ready: Гатова
+        returned: Вернута
+        save_changes: Захаваць змены
+        shipped: Дастаўлена
+        shipping_methods: Метады дастаўкі
+        success: Поспех
+        "yes": true

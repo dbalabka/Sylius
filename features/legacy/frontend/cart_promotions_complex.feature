@@ -1,4 +1,4 @@
-@legacy_promotions
+@legacy @promotion
 Feature: Checkout promotions with multiple rules and actions
     In order to handle product promotions
     As a store owner
@@ -14,14 +14,12 @@ Feature: Checkout promotions with multiple rules and actions
             | Item total    | Amount: 150   |
             | Cart quantity | Count: 2      |
         And promotion "150 EUR / 2 items" has following actions defined:
-            | type                | configuration |
-            | Fixed discount      | Amount: 20    |
-            | Percentage discount | Percentage: 5 |
-        And there are following taxonomies defined:
-            | code | name     |
-            | RTX1 | Category |
-        And taxonomy "Category" has following taxons:
-            | Clothing[TX1] > Debian T-Shirts[TX2] |
+            | type                      | configuration |
+            | Order fixed discount      | Amount: 20    |
+            | Order percentage discount | Percentage: 5 |
+        And there are following taxons defined:
+            | code | name            |
+            | TX1  | Debian T-Shirts |
         And the following products exist:
             | name   | price | taxons          |
             | Buzz   | 500   | Debian T-Shirts |
@@ -39,8 +37,8 @@ Feature: Checkout promotions with multiple rules and actions
         And I added product "Sarge" to cart, with quantity "5"
         When I add product "Lenny" to cart, with quantity "2"
         Then I should be on the cart summary page
-        And "Promotion total: -€27.75" should appear on the page
-        And "Grand total: €127.25" should appear on the page
+        And "Promotion total: -€26.75" should appear on the page
+        And "Grand total: €128.25" should appear on the page
 
     Scenario: Promotion is not applied when one of the cart does not
             fulfills one of the rule

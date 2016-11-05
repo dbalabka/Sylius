@@ -17,7 +17,7 @@ use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class SharedStorageContext implements Context
+final class SharedStorageContext implements Context
 {
     /**
      * @var SharedStorageInterface
@@ -33,7 +33,7 @@ class SharedStorageContext implements Context
     }
 
     /**
-     * @Transform it
+     * @Transform /^(it|its|theirs)$/
      */
     public function getLatestResource()
     {
@@ -45,6 +45,6 @@ class SharedStorageContext implements Context
      */
     public function getResource($resource)
     {
-        return $this->sharedStorage->get($resource);
+        return $this->sharedStorage->get(str_replace(' ', '_', $resource));
     }
 }

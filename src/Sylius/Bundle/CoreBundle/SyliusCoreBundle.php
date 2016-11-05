@@ -11,26 +11,25 @@
 
 namespace Sylius\Bundle\CoreBundle;
 
-use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\DoctrineSluggablePass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\LazyCacheWarmupPass;
+use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RegisterTaxCalculationStrategiesPass;
 use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RoutingRepositoryPass;
+use Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\SitemapProviderPass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Component\Core\Model\ProductVariantImageInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Sylius core bundle.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
+ * @author Mark McKelvie <mark.mckelvie@reiss.com>
  */
 class SyliusCoreBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function getSupportedDrivers()
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -44,19 +43,10 @@ class SyliusCoreBundle extends AbstractResourceBundle
     {
         parent::build($container);
 
-        $container->addCompilerPass(new DoctrineSluggablePass());
         $container->addCompilerPass(new RoutingRepositoryPass());
         $container->addCompilerPass(new LazyCacheWarmupPass());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelInterfaces()
-    {
-        return [
-            ProductVariantImageInterface::class => 'sylius.model.product_variant_image.class',
-        ];
+        $container->addCompilerPass(new SitemapProviderPass());
+        $container->addCompilerPass(new RegisterTaxCalculationStrategiesPass());
     }
 
     /**

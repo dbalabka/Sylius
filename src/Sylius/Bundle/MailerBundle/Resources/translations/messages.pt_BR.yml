@@ -2,7 +2,12 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    email:
-      enabled: Ativado
-      content: Conteúdo
+    form:
+        email:
+            enabled: Ativado
+            subject: Assunto
+            sender_name: Nome do Remetente
+            sender_address: Endereço do remetente
+            content: Conteúdo
+            template: Modelo
+            no_template: Modelo personalizado de uso

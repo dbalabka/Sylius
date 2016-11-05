@@ -1,4 +1,4 @@
-@legacy_cart
+@legacy @cart
 Feature: Cart
     In order to select products for purchase
     As a visitor
@@ -6,27 +6,27 @@ Feature: Cart
 
     Background:
         Given store has default configuration
-        And there are following taxonomies defined:
+        And there are following taxons defined:
             | code | name     |
             | RTX1 | Category |
-        And taxonomy "Category" has following taxons:
+        And taxon "Category" has following children:
             | Clothing[TX1] > T-Shirts[TX2]     |
             | Clothing[TX1] > PHP T-Shirts[TX3] |
         And there are following options:
-            | code | name          | presentation | values                          |
-            | O1   | T-Shirt color | Color        | Red[OV1], Blue[OV2], Green[OV3] |
-            | O2   | T-Shirt size  | Size         | S[OV4], M[OV5], L[OV6]          |
+            | code | name          | values                          |
+            | O1   | T-Shirt color | Red[OV1], Blue[OV2], Green[OV3] |
+            | O2   | T-Shirt size  | S[OV4], M[OV5], L[OV6]          |
         And the following products exist:
-            | name          | price | options                     | taxons       | variants selection |
-            | Super T-Shirt | 20.00 | T-Shirt size, T-Shirt color | T-Shirts     | match              |
-            | Black T-Shirt | 19.99 | T-Shirt size                | T-Shirts     |                    |
-            | Git T-Shirt   | 29.99 | T-Shirt size                | PHP T-Shirts | match              |
-            | PHP Top       | 5.99  |                             | PHP T-Shirts |                    |
-            | iShirt        | 18.99 |                             | T-Shirts     |                    |
+            | name          | price | options | taxons       | variants selection |
+            | Super T-Shirt | 20.00 | O2, O1  | T-Shirts     | match              |
+            | Black T-Shirt | 19.99 | O2      | T-Shirts     |                    |
+            | Git T-Shirt   | 29.99 | O2      | PHP T-Shirts | match              |
+            | PHP Top       | 5.99  |         | PHP T-Shirts |                    |
+            | iShirt        | 18.99 |         | T-Shirts     |                    |
         And all products are available in all variations
         And all products are assigned to the default channel
         And the default channel has following configuration:
-            | taxonomy |
+            | taxon    |
             | Category |
 
     Scenario: Seeing empty cart
@@ -63,7 +63,7 @@ Feature: Cart
         And I click "PHP Top"
         When I press "Add to cart"
         Then I should be on the cart summary page
-        And I should see item with price "€5.99" in the list
+        And I should see item with unit price "€5.99" in the list
 
     Scenario: Correct cart total is displayed after adding the item
         Given I am on the store homepage
@@ -97,7 +97,7 @@ Feature: Cart
         Given I am on the store homepage
         And I follow "PHP T-Shirts"
         And I click "Git T-Shirt"
-        When I select "M" from "Size"
+        When I select "M" from "T-Shirt size"
         And I press "Add to cart"
         Then I should be on the cart summary page
         And I should see "Item has been added to cart"
@@ -106,8 +106,8 @@ Feature: Cart
         Given I am on the store homepage
         And I follow "T-Shirts"
         And I click "Super T-Shirt"
-        When I select "S" from "Size"
-        And I select "Blue" from "Color"
+        When I select "S" from "T-Shirt size"
+        And I select "Blue" from "T-Shirt color"
         And I press "Add to cart"
         Then I should be on the cart summary page
         And I should see "Item has been added to cart"
@@ -116,8 +116,8 @@ Feature: Cart
         Given I am on the store homepage
         And I follow "T-Shirts"
         And I click "Super T-Shirt"
-        When I select "S" from "Size"
-        And I select "Blue" from "Color"
+        When I select "S" from "T-Shirt size"
+        And I select "Blue" from "T-Shirt color"
         And I press "Add to cart"
         Then I should be on the cart summary page
         And I should see 1 item in the list
@@ -127,18 +127,18 @@ Feature: Cart
         Given I am on the store homepage
         And I follow "T-Shirts"
         And I click "Super T-Shirt"
-        When I select "S" from "Size"
-        And I select "Blue" from "Color"
+        When I select "S" from "T-Shirt size"
+        And I select "Blue" from "T-Shirt color"
         And I press "Add to cart"
         Then I should be on the cart summary page
         And "Grand total: €20.00" should appear on the page
 
     Scenario: Adding same variant twice does not create new item
         Given I am on the product page for "Super T-Shirt"
-        And I select "M" from "Size"
+        And I select "M" from "T-Shirt size"
         And I press "Add to cart"
         When I go to the product page for "Super T-Shirt"
-        And I select "M" from "Size"
+        And I select "M" from "T-Shirt size"
         And I press "Add to cart"
         Then I should be on the cart summary page
         And I should see 1 cart item in the list
@@ -146,11 +146,11 @@ Feature: Cart
 
     Scenario: Adding same variant twice sums the quantities
         Given I am on the product page for "Super T-Shirt"
-        And I select "M" from "Size"
+        And I select "M" from "T-Shirt size"
         And I press "Add to cart"
         When I go to the product page for "Super T-Shirt"
         And I fill in "Quantity" with "5"
-        And I select "M" from "Size"
+        And I select "M" from "T-Shirt size"
         And I press "Add to cart"
         Then I should be on the cart summary page
         And I should see 1 cart item in the list

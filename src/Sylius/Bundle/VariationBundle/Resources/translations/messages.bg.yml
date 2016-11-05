@@ -2,13 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    variant:
-      presentation: Презентация
-    option:
-      name: Вътрешно име
-      presentation: Презентация
-      values: Възможни стойности
-    option_value:
-      add_value: Добавяне на стойност
-      value: Стойност
+    form:
+        variant:
+            presentation: Презентация
+        option:
+            values: Възможни стойности
+        option_value:
+            add_value: Добавяне на стойност
+            value: Стойност

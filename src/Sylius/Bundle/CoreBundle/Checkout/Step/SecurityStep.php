@@ -16,17 +16,15 @@ use Sylius\Bundle\FlowBundle\Process\Step\ActionResult;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\UserInterface;
+use Sylius\Component\Core\OrderCheckoutStates;
 use Sylius\Component\Core\OrderCheckoutTransitions;
 use Sylius\Component\Core\SyliusCheckoutEvents;
 use Sylius\Component\Resource\Event\ResourceEvent;
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Security step.
- *
- * If user is not logged in, displays login & registration form.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 class SecurityStep extends CheckoutStep
@@ -37,7 +35,6 @@ class SecurityStep extends CheckoutStep
     public function displayAction(ProcessContextInterface $context)
     {
         $order = $this->getCurrentCart();
-        $this->applyTransition(OrderCheckoutTransitions::TRANSITION_START, $order);
 
         // If user is already logged in, transparently jump to next step.
         if ($this->isUserLoggedIn()) {
@@ -72,9 +69,19 @@ class SecurityStep extends CheckoutStep
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function complete()
+    {
+        $this->dispatchCheckoutEvent(SyliusCheckoutEvents::SECURITY_COMPLETE, $this->getCurrentCart());
+
+        return parent::complete();
+    }
+
+    /**
      * @param ProcessContextInterface $context
-     * @param FormInterface           $registrationForm
-     * @param null|FormInterface      $guestForm
+     * @param FormInterface $registrationForm
+     * @param null|FormInterface $guestForm
      *
      * @return Response
      */
@@ -102,7 +109,7 @@ class SecurityStep extends CheckoutStep
     }
 
     /**
-     * @return null|FormInterface
+     * @return FormInterface|null
      */
     protected function getGuestForm()
     {
@@ -143,6 +150,7 @@ class SecurityStep extends CheckoutStep
         $order->setCustomer($customer);
         $this->dispatchCheckoutEvent(SyliusCheckoutEvents::SECURITY_PRE_COMPLETE, $order);
         $this->saveResource($order);
+        $this->get('session')->set('sylius_customer_guest_id', $customer->getId());
 
         return $this->complete();
     }
@@ -189,21 +197,11 @@ class SecurityStep extends CheckoutStep
     }
 
     /**
-     * @param $resource
+     * @param ResourceInterface $resource
      */
     protected function saveResource($resource)
     {
         $this->getManager()->persist($resource);
         $this->getManager()->flush();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function complete()
-    {
-        $this->dispatchCheckoutEvent(SyliusCheckoutEvents::SECURITY_COMPLETE, $this->getCurrentCart());
-
-        return parent::complete();
     }
 }

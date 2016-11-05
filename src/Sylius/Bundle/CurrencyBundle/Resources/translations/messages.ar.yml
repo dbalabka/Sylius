@@ -2,6 +2,7 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      exchange_rate: سعر الصرف
+    form:
+        currency:
+            exchange_rate: سعر الصرف
+            code: الاسم

@@ -11,7 +11,7 @@
 
 namespace Sylius\Bundle\CurrencyBundle\Twig;
 
-use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelper;
+use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelperInterface;
 
 /**
  * Sylius currency Twig helper.
@@ -21,16 +21,26 @@ use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelper;
 class CurrencyExtension extends \Twig_Extension
 {
     /**
-     * @var CurrencyHelper
+     * @var CurrencyHelperInterface
      */
     protected $helper;
 
     /**
-     * @param CurrencyHelper $helper
+     * @param CurrencyHelperInterface $helper
      */
-    public function __construct(CurrencyHelper $helper)
+    public function __construct(CurrencyHelperInterface $helper)
     {
         $this->helper = $helper;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFunctions()
+    {
+        return [
+            new \Twig_SimpleFunction('sylius_currency_symbol', [$this->helper, 'getBaseCurrencySymbol']),
+        ];
     }
 
     /**
@@ -39,35 +49,9 @@ class CurrencyExtension extends \Twig_Extension
     public function getFilters()
     {
         return [
-            new \Twig_SimpleFilter('sylius_currency', [$this, 'convertAmount']),
-            new \Twig_SimpleFilter('sylius_price', [$this, 'convertAndFormatAmount']),
+            new \Twig_SimpleFilter('sylius_currency', [$this->helper, 'convertAmount']),
+            new \Twig_SimpleFilter('sylius_price', [$this->helper, 'convertAndFormatAmount']),
         ];
-    }
-
-    /**
-     * Convert amount to target currency.
-     *
-     * @param int     $amount
-     * @param string|null $currency
-     *
-     * @return string
-     */
-    public function convertAmount($amount, $currency = null)
-    {
-        return $this->helper->convertAmount($amount, $currency);
-    }
-
-    /**
-     * Convert and format amount.
-     *
-     * @param int     $amount
-     * @param string|null $currency
-     *
-     * @return string
-     */
-    public function convertAndFormatAmount($amount, $currency = null)
-    {
-        return $this->helper->convertAndFormatAmount($amount, $currency);
     }
 
     /**

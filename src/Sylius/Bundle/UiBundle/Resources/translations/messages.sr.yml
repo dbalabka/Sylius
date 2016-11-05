@@ -2,8 +2,28 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Кросницко име
-  ui:
-    dashboard: Командна Табла
+    form:
+        login:
+            username: Кросницко име
+        option:
+            presentation: Приказ
+    ui:
+        add_coupon: Додај купон
+        cancel: Откажи
+        countries: Земље
+        create: Креирај
+        dashboard: Командна Табла
+        delete: Обриши
+        edit: Измени
+        filter: Филтер
+        new_country: Нова земља
+        new_tax_category: Нова категорија пореза
+        "no": false
+        no_taxes: Нису додати порези
+        no_promotion: Ниједна промоција није додата
+        no_shipping_charges: Нису додати трошкови поруџбине
+        quantity: Количина
+        save_changes: Сачувај измене
+        shipping_methods: Начини доставе
+        success: Успех
+        "yes": true

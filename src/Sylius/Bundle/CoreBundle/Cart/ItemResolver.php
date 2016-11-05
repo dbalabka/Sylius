@@ -17,6 +17,7 @@ use Sylius\Component\Cart\Provider\CartProviderInterface;
 use Sylius\Component\Cart\Resolver\ItemResolverInterface;
 use Sylius\Component\Cart\Resolver\ItemResolvingException;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
+use Sylius\Component\Core\Repository\ProductRepositoryInterface;
 use Sylius\Component\Inventory\Checker\AvailabilityCheckerInterface;
 use Sylius\Component\Pricing\Calculator\DelegatingCalculatorInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -24,52 +25,37 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Item resolver for cart bundle.
- * Returns proper item objects for cart add and remove actions.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Saša Stamenković <umpirsky@gmail.com>
  */
 class ItemResolver implements ItemResolverInterface
 {
     /**
-     * Cart provider.
-     *
      * @var CartProviderInterface
      */
     protected $cartProvider;
 
     /**
-     * Prica calculator.
-     *
      * @var DelegatingCalculatorInterface
      */
     protected $priceCalculator;
 
     /**
-     * Product repository.
-     *
-     * @var RepositoryInterface
+     * @var ProductRepositoryInterface
      */
     protected $productRepository;
 
     /**
-     * Form factory.
-     *
      * @var FormFactoryInterface
      */
     protected $formFactory;
 
     /**
-     * Stock availability checker.
-     *
      * @var AvailabilityCheckerInterface
      */
     protected $availabilityChecker;
 
     /**
-     * Restricted zone checker.
-     *
      * @var RestrictedZoneCheckerInterface
      */
     protected $restrictedZoneChecker;
@@ -80,8 +66,6 @@ class ItemResolver implements ItemResolverInterface
     protected $channelContext;
 
     /**
-     * Constructor.
-     *
      * @param CartProviderInterface          $cartProvider
      * @param RepositoryInterface            $productRepository
      * @param FormFactoryInterface           $formFactory
@@ -116,7 +100,7 @@ class ItemResolver implements ItemResolverInterface
         $id = $this->resolveItemIdentifier($data);
 
         $channel = $this->channelContext->getChannel();
-        if (!$product = $this->productRepository->findOneBy(['id' => $id, 'channels' => $channel])) {
+        if (!$product = $this->productRepository->findOneByIdAndChannel($id, $channel)) {
             throw new ItemResolvingException('Requested product was not found.');
         }
 
@@ -170,8 +154,6 @@ class ItemResolver implements ItemResolverInterface
     }
 
     /**
-     * Here we resolve the item identifier that is going to be added into the cart.
-     *
      * @param mixed $request
      *
      * @return string|int

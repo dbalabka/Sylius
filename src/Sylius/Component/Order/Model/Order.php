@@ -13,7 +13,6 @@ namespace Sylius\Component\Order\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Sylius\Component\Resource\Model\SoftDeletableTrait;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
 /**
@@ -21,7 +20,7 @@ use Sylius\Component\Resource\Model\TimestampableTrait;
  */
 class Order implements OrderInterface
 {
-    use SoftDeletableTrait, TimestampableTrait;
+    use TimestampableTrait;
 
     /**
      * @var mixed
@@ -207,11 +206,10 @@ class Order implements OrderInterface
     public function removeItem(OrderItemInterface $item)
     {
         if ($this->hasItem($item)) {
-            $item->setOrder(null);
             $this->items->removeElement($item);
             $this->itemsTotal -= $item->getTotal();
-
             $this->recalculateTotal();
+            $item->setOrder(null);
         }
     }
 
@@ -296,14 +294,6 @@ class Order implements OrderInterface
     public function getState()
     {
         return $this->state;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTotalItems()
-    {
-        return $this->countItems();
     }
 
     /**
@@ -473,10 +463,12 @@ class Order implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function clearAdjustments()
+    public function removeAdjustmentsRecursively($type = null)
     {
-        $this->adjustments->clear();
-        $this->recalculateAdjustmentsTotal();
+        $this->removeAdjustments($type);
+        foreach ($this->items as $item) {
+            $item->removeAdjustmentsRecursively($type);
+        }
     }
 
     /**

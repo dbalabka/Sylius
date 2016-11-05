@@ -43,8 +43,6 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 class CoreContext extends DefaultContext
 {
     /**
-     * Created orders.
-     *
      * @var OrderInterface[]
      */
     protected $orders = [];
@@ -452,7 +450,7 @@ class CoreContext extends DefaultContext
         $factory = $this->getFactory('shipping_method');
 
         /* @var $method ShippingMethodInterface */
-        if (null === $method = $repository->findOneBy(['name' => $name])) {
+        if (null === $method = $repository->findOneByName($name)) {
             $method = $factory->createNew();
             $method->setName($name);
             $method->setCode($code);
@@ -650,7 +648,7 @@ class CoreContext extends DefaultContext
         $shipmentData = array_map('trim', $shipmentData);
 
         /* @var $shippingMethod ShippingMethodInterface */
-        $shippingMethod = $this->getRepository('shipping_method')->findOneBy(['name' => $shipmentData[0]]);
+        $shippingMethod = $this->getRepository('shipping_method')->findOneByName($shipmentData[0]);
 
         /* @var $shipment ShipmentInterface */
         $shipment = $this->getFactory('shipment')->createNew();

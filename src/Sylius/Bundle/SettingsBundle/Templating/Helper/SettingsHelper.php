@@ -14,7 +14,7 @@ namespace Sylius\Bundle\SettingsBundle\Templating\Helper;
 use Sylius\Bundle\SettingsBundle\Manager\SettingsManagerInterface;
 use Symfony\Component\Templating\Helper\Helper;
 
-class SettingsHelper extends Helper
+final class SettingsHelper extends Helper implements SettingsHelperInterface
 {
     /**
      * @var SettingsManagerInterface
@@ -30,53 +30,11 @@ class SettingsHelper extends Helper
     }
 
     /**
-     * @param string $namespace
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function getSettings($namespace)
+    public function getSettings($schemaAlias)
     {
-        return $this->settingsManager->loadSettings($namespace);
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return mixed
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function getSettingsParameter($name)
-    {
-        if (false === strpos($name, '.')) {
-            throw new \InvalidArgumentException(sprintf('Parameter must be in format "namespace.name", "%s" given.', $name));
-        }
-
-        list($namespace, $name) = explode('.', $name);
-
-        $settings = $this->settingsManager->loadSettings($namespace);
-
-        return $settings->get($name);
-    }
-
-    /**
-     * Checks if settings parameter for given namespace and name exists.
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasSettingsParameter($name)
-    {
-        if (false === strpos($name, '.')) {
-            throw new \InvalidArgumentException(sprintf('Parameter must be in format "namespace.name", "%s" given.', $name));
-        }
-
-        list($namespace, $name) = explode('.', $name);
-
-        $settings = $this->settingsManager->loadSettings($namespace);
-
-        return $settings->has($name);
+        return $this->settingsManager->load($schemaAlias);
     }
 
     /**

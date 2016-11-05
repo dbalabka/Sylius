@@ -21,7 +21,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 
 /**
- * @author Łukasz Chruściel <lchrusciel@gmail.com>
+ * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
 class ReportType extends AbstractResourceType
@@ -97,7 +97,7 @@ class ReportType extends AbstractResourceType
         }
 
         foreach ($this->dataFetcherRegistry->all() as $type => $dataFetcher) {
-            $formType = sprintf('sylius_data_fetcher_%s', $dataFetcher->getType());
+            $formType = $dataFetcher->getType();
 
             if (!$formType) {
                 continue;

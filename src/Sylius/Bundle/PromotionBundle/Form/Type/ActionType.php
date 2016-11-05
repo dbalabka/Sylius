@@ -13,13 +13,9 @@ namespace Sylius\Bundle\PromotionBundle\Form\Type;
 
 use Sylius\Bundle\PromotionBundle\Form\EventListener\BuildActionFormSubscriber;
 use Sylius\Bundle\PromotionBundle\Form\Type\Core\AbstractConfigurationType;
-use Sylius\Component\Promotion\Model\ActionInterface;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Promotion action form type.
- *
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Arnaud Langlade <arn0d.dev@gmail.com>
  */
@@ -38,21 +34,13 @@ class ActionType extends AbstractConfigurationType
                 ],
             ])
             ->addEventSubscriber(
-                new BuildActionFormSubscriber($this->registry, $builder->getFormFactory(), $options['configuration_type'])
+                new BuildActionFormSubscriber(
+                    $this->registry,
+                    $builder->getFormFactory(),
+                    (isset($options['configuration_type'])) ? $options['configuration_type'] : null
+                )
             )
         ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        parent::configureOptions($resolver);
-
-        $resolver->setDefaults([
-            'configuration_type' => ActionInterface::TYPE_FIXED_DISCOUNT,
-        ]);
     }
 
     /**

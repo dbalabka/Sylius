@@ -2,8 +2,22 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Konfiguration
+    menu:
+        admin:
+            main:
+                catalog:
+                    taxons: Taxons
+                    options: Indstillinger
+                configuration:
+                    countries: Lande
+                    header: Konfiguration
+                    locales: Landekoder
+                    payment_methods: Betalingsmetoder
+                    shipping_methods: Fragtmetoder
+                    tax_rates: Momssatser
+                    zones: Zoner
+                marketing:
+                    promotions: Kampagner
+                sales:
+                    header: Salg
+                    orders: Ordrer

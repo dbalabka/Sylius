@@ -143,6 +143,11 @@ interface OrderInterface extends
     public function setPromotionCoupon(BaseCouponInterface $coupon = null);
 
     /**
+     * @return int
+     */
+    public function getPromotionsTotalRecursively();
+
+    /**
      * @return string
      */
     public function getShippingState();
@@ -165,7 +170,7 @@ interface OrderInterface extends
     /**
      * @param $state
      *
-     * @return PaymentInterface|false
+     * @return null|PaymentInterface
      */
     public function getLastPayment($state = PaymentInterface::STATE_NEW);
 

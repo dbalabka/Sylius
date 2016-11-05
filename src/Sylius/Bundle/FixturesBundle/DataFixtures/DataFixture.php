@@ -68,7 +68,7 @@ abstract class DataFixture extends AbstractFixture implements ContainerAwareInte
         $this->container = $container;
 
         if (null !== $container) {
-            $this->defaultLocale = $container->getParameter('sylius.locale');
+            $this->defaultLocale = $container->getParameter('locale');
             $this->fakers[$this->defaultLocale] = FakerFactory::create($this->defaultLocale);
             $this->faker = $this->fakers[$this->defaultLocale];
         }
@@ -84,6 +84,10 @@ abstract class DataFixture extends AbstractFixture implements ContainerAwareInte
         }
         if (preg_match('/^get(.*)Factory$/', $method, $matches)) {
             return $this->get('sylius.factory.'.$matches[1]);
+        }
+        
+        if (!method_exists($this, $method)) {
+            throw new \Exception(sprintf('Method %s does not exist', $method));
         }
 
         return call_user_func_array([$this, $method], $arguments);

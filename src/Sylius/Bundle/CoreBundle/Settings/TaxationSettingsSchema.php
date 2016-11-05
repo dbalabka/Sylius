@@ -19,22 +19,16 @@ use Sylius\Component\Addressing\Model\ZoneInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * Taxation settings schema.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 class TaxationSettingsSchema implements SchemaInterface
 {
     /**
-     * Zone repository.
-     *
      * @var ObjectRepository
      */
     private $zoneRepository;
 
     /**
-     * Constructor.
-     *
      * @param ObjectRepository $zoneRepository
      */
     public function __construct(ObjectRepository $zoneRepository)
@@ -48,13 +42,13 @@ class TaxationSettingsSchema implements SchemaInterface
     public function buildSettings(SettingsBuilderInterface $builder)
     {
         $builder
-            ->setOptional([
-                'default_tax_zone',
+            ->setDefaults([
+                'default_tax_zone' => null,
             ])
-            ->setAllowedTypes([
-                'default_tax_zone' => ['null', ZoneInterface::class],
-            ])
+            ->setAllowedTypes('default_tax_zone', ['null', ZoneInterface::class])
             ->setTransformer('default_tax_zone', new ObjectToIdentifierTransformer($this->zoneRepository))
+            ->setDefault('default_tax_calculation_strategy', 'order_items_based')
+            ->setAllowedTypes('default_tax_calculation_strategy', 'string')
         ;
     }
 
@@ -67,6 +61,10 @@ class TaxationSettingsSchema implements SchemaInterface
             ->add('default_tax_zone', 'sylius_zone_choice', [
                 'required' => false,
                 'label' => 'sylius.form.settings.taxation.default_tax_zone',
+            ])
+            ->add('default_tax_calculation_strategy', 'sylius_tax_calculation_strategy_choice', [
+                'required' => true,
+                'label' => 'sylius.form.settings.taxation.default_tax_calculation_strategy',
             ])
         ;
     }

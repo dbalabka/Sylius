@@ -15,6 +15,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\PromotionBundle\Form\EventListener\AbstractConfigurationSubscriber;
 use Sylius\Bundle\PromotionBundle\Form\EventListener\BuildRuleFormSubscriber;
+use Sylius\Component\Promotion\Checker\ItemTotalRuleChecker;
 use Sylius\Component\Promotion\Checker\RuleCheckerInterface;
 use Sylius\Component\Promotion\Model\RuleInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
@@ -35,12 +36,12 @@ class BuildRuleFormSubscriberSpec extends ObjectBehavior
         FormFactoryInterface $factory
     ) {
         $checker->getConfigurationFormType()->willReturn('sylius_promotion_rule_item_total_configuration');
-        $registry->get(RuleInterface::TYPE_ITEM_TOTAL)->willReturn($checker);
+        $registry->get(ItemTotalRuleChecker::TYPE)->willReturn($checker);
 
         $this->beConstructedWith($registry, $factory);
     }
 
-    function it_is_initializabled()
+    function it_is_initializable()
     {
         $this->shouldHaveType(BuildRuleFormSubscriber::class);
     }
@@ -50,7 +51,7 @@ class BuildRuleFormSubscriberSpec extends ObjectBehavior
         $this->shouldImplement(AbstractConfigurationSubscriber::class);
     }
 
-    function it_subscribes_evetns()
+    function it_subscribes_to_events()
     {
         $this::getSubscribedEvents()->shouldReturn([
             FormEvents::PRE_SET_DATA => 'preSetData',
@@ -69,7 +70,7 @@ class BuildRuleFormSubscriberSpec extends ObjectBehavior
         $event->getData()->willReturn($rule);
         $event->getForm()->willReturn($form);
 
-        $rule->getType()->willReturn(RuleInterface::TYPE_ITEM_TOTAL);
+        $rule->getType()->willReturn(ItemTotalRuleChecker::TYPE);
         $rule->getConfiguration()->willReturn([]);
 
         $factory->createNamed('configuration', 'sylius_promotion_rule_item_total_configuration', Argument::cetera())->shouldBeCalled()->willReturn($field);
@@ -86,7 +87,7 @@ class BuildRuleFormSubscriberSpec extends ObjectBehavior
         Form $field
     ) {
         $event->getForm()->willReturn($form);
-        $event->getData()->willReturn(['type' => RuleInterface::TYPE_ITEM_TOTAL]);
+        $event->getData()->willReturn(['type' => ItemTotalRuleChecker::TYPE]);
 
         $factory->createNamed('configuration', 'sylius_promotion_rule_item_total_configuration', Argument::cetera())->shouldBeCalled()->willReturn($field);
         $form->add($field)->shouldBeCalled();
@@ -101,10 +102,10 @@ class BuildRuleFormSubscriberSpec extends ObjectBehavior
     ) {
         $event->getData()->willReturn($rule);
         $event->getForm()->willReturn($form);
-        $rule->getType()->willReturn(RuleInterface::TYPE_ITEM_TOTAL);
+        $rule->getType()->willReturn(ItemTotalRuleChecker::TYPE);
 
         $form->get('type')->willReturn($form);
-        $form->setData(RuleInterface::TYPE_ITEM_TOTAL)->shouldBeCalled();
+        $form->setData(ItemTotalRuleChecker::TYPE)->shouldBeCalled();
 
         $this->postSetData($event);
     }

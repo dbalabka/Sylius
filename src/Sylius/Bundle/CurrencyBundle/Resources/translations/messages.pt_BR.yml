@@ -2,7 +2,9 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      exchange_rate: Taxa de câmbio
-      enabled: Ativado
+    form:
+        currency:
+            exchange_rate: Taxa de câmbio
+            enabled: Ativado
+            base: Moeda base
+            code: Nome

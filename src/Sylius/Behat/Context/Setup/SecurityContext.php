@@ -12,7 +12,7 @@
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\SecurityServiceInterface;
+use Sylius\Behat\Service\SecurityServiceInterface;
 use Sylius\Component\Core\Test\Factory\TestUserFactoryInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
@@ -82,9 +82,9 @@ final class SecurityContext implements Context
     }
 
     /**
-     * @Given I am logged in as administrator
+     * @Given I am logged in as an administrator
      */
-    public function iAmLoggedInAsAdministrator()
+    public function iAmLoggedInAsAnAdministrator()
     {
         $admin = $this->testUserFactory->createDefaultAdmin();
         $this->userRepository->add($admin);

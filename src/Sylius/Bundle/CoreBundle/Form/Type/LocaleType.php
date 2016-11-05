@@ -11,7 +11,7 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type;
 
-use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Sylius\Bundle\LocaleBundle\Form\Type\LocaleType as BaseLocaleType;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\Intl\Intl;
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-class LocaleType extends AbstractResourceType
+class LocaleType extends BaseLocaleType
 {
     /**
      * @var RepositoryInterface
@@ -46,27 +46,30 @@ class LocaleType extends AbstractResourceType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->addEventListener(
-            FormEvents::PRE_SET_DATA,
-            function (FormEvent $event) {
-                // Adding dynamically created code field
-                $nameOptions = [
-                    'label' => 'sylius.form.locale.name',
+        parent::buildForm($builder, $options);
+
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            // Adding dynamically created code field
+            $nameOptions = [
+                'label' => 'sylius.form.locale.name',
+            ];
+
+            $locale = $event->getData();
+
+            if ($locale instanceof LocaleInterface && null !== $locale->getCode()) {
+                $nameOptions['disabled'] = true;
+                $nameOptions['choices'] = [
+                    $locale->getCode() => $this->getLocaleName($locale->getCode())
                 ];
-
-                $locale = $event->getData();
-                if ($locale instanceof LocaleInterface && null !== $locale->getCode()) {
-                    $nameOptions['disabled'] = true;
-                } else {
-                    $nameOptions['choices'] = $this->getAvailableLocales();
-                }
-
-                $nameOptions['choices_as_values'] = false;
-
-                $form = $event->getForm();
-                $form->add('code', 'locale', $nameOptions);
+            } else {
+                $nameOptions['choices'] = $this->getAvailableLocales();
             }
-        );
+
+            $nameOptions['choices_as_values'] = false;
+
+            $form = $event->getForm();
+            $form->add('code', 'locale', $nameOptions);
+        });
     }
 
     /**
@@ -78,18 +81,25 @@ class LocaleType extends AbstractResourceType
     }
 
     /**
-     * Should be private, used public to support PHP 5.3
+     * @param $code
      *
-     * @internal
-     *
+     * @return null|string
+     */
+    private function getLocaleName($code)
+    {
+        return Intl::getLocaleBundle()->getLocaleName($code);
+    }
+
+    /**
      * @return array
      */
-    public function getAvailableLocales()
+    private function getAvailableLocales()
     {
         $availableLocales = Intl::getLocaleBundle()->getLocaleNames();
 
         /** @var LocaleInterface[] $definedLocales */
         $definedLocales = $this->localeRepository->findAll();
+
         foreach ($definedLocales as $locale) {
             unset($availableLocales[$locale->getCode()]);
         }

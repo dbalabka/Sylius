@@ -14,15 +14,13 @@ namespace Sylius\Bundle\CoreBundle\Checkout\Step;
 use Sylius\Bundle\FlowBundle\Process\Context\ProcessContextInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\OrderCheckoutStates;
 use Sylius\Component\Core\OrderCheckoutTransitions;
 use Sylius\Component\Core\SyliusCheckoutEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * The addressing step of checkout.
- * User enters the shipping and shipping address.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 class AddressingStep extends CheckoutStep
@@ -34,7 +32,9 @@ class AddressingStep extends CheckoutStep
     {
         $order = $this->getCurrentCart();
 
-        $this->applyTransition(OrderCheckoutTransitions::TRANSITION_READDRESS, $order, true);
+        if (OrderCheckoutStates::STATE_CART !== $order->getCheckoutState()) {
+            $this->applyTransition(OrderCheckoutTransitions::TRANSITION_READDRESS, $order);
+        }
 
         $this->dispatchCheckoutEvent(SyliusCheckoutEvents::ADDRESSING_INITIALIZE, $order);
         $form = $this->createCheckoutAddressingForm($order, $this->getCustomer());
@@ -86,8 +86,8 @@ class AddressingStep extends CheckoutStep
     }
 
     /**
-     * @param  OrderInterface    $order
-     * @param  CustomerInterface $customer
+     * @param OrderInterface $order
+     * @param CustomerInterface $customer
      *
      * @return FormInterface
      */
@@ -97,7 +97,7 @@ class AddressingStep extends CheckoutStep
     }
 
     /**
-     * @return null|CustomerInterface
+     * @return CustomerInterface|null
      */
     protected function getCustomer()
     {

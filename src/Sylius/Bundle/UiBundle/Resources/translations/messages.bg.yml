@@ -2,8 +2,30 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Потребителско име
-  ui:
-    dashboard: Табло
+    form:
+        login:
+            username: Потребителско име
+        option:
+            presentation: Презентация
+    ui:
+        add_coupon: Добавяне на купон
+        cancel: Откажи
+        countries: Страни
+        coupons: Купони
+        create: Създай
+        dashboard: Табло
+        delete: Изтрий
+        edit: Редактирай
+        filter: Филтър
+        locales: Езикови променливи
+        new_country: Новата страна
+        new_tax_category: Нова данъчна категория
+        "no": false
+        no_taxes: Няма такси
+        no_promotion: Нама приложена промоция
+        no_shipping_charges: Няма такси за доставка
+        quantity: Количество
+        save_changes: Запиши промените
+        shipping_methods: Начин на доставка
+        success: Успешно
+        "yes": true

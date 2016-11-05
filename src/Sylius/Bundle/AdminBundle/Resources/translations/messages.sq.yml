@@ -2,8 +2,31 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Konfigurimi
+    menu:
+        admin:
+            main:
+                catalog:
+                    header: Katalogu
+                    taxons: Kategoritë
+                    options: Opsionet
+                    attributes: Atributet
+                configuration:
+                    channels: Kanalet
+                    countries: Vendet
+                    currencies: Monedhat
+                    header: Konfigurimi
+                    locales: Rajonet
+                    payment_methods: Mënyrat e pagesës
+                    shipping_methods: Mënyrat e dërgesave
+                    tax_categories: Kategoritë e taksimit
+                    tax_rates: Normat e taksimit
+                    zones: Zonat
+                marketing:
+                    header: Marketingu
+                    promotions: Reklamat
+                customers:
+                    header: Blerësi
+                    customers: Blerësit
+                sales:
+                    header: Shitjet
+                    orders: Porositë

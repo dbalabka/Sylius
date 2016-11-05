@@ -24,7 +24,7 @@ class VariantMatchTypeSpec extends ObjectBehavior
 {
     function let()
     {
-        $this->beConstructedWith('varibale_name');
+        $this->beConstructedWith('variable_name');
     }
 
     function it_is_initializable()
@@ -41,10 +41,10 @@ class VariantMatchTypeSpec extends ObjectBehavior
     {
         $variable->getOptions()->shouldBeCalled()->willReturn([$option]);
         $option->getName()->shouldBeCalled()->willReturn('option_name');
-        $option->getPresentation()->shouldBeCalled()->willReturn('option_presentation');
+        $option->getCode()->shouldBeCalled()->willReturn('option-name-code');
 
-        $builder->add('option-name', 'sylius_varibale_name_option_value_choice', [
-            'label' => 'option_presentation',
+        $builder->add('option-name-code', 'sylius_variable_name_option_value_choice', [
+            'label' => 'option_name',
             'option' => $option,
             'property_path' => '[0]',
         ])->shouldBeCalled();
@@ -69,6 +69,6 @@ class VariantMatchTypeSpec extends ObjectBehavior
 
     function it_has_a_name()
     {
-        $this->getName()->shouldReturn('sylius_varibale_name_variant_match');
+        $this->getName()->shouldReturn('sylius_variable_name_variant_match');
     }
 }

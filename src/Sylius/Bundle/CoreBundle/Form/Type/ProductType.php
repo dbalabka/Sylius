@@ -30,8 +30,8 @@ class ProductType extends BaseProductType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('translations', 'a2lix_translationsForms', [
-                'form_type' => 'sylius_product_translation',
+            ->add('translations', 'sylius_translations', [
+                'type' => 'sylius_product_translation',
                 'label' => 'sylius.form.product.translations',
             ])
             ->add('shippingCategory', 'sylius_shipping_category_choice', [
@@ -39,7 +39,10 @@ class ProductType extends BaseProductType
                 'empty_value' => '---',
                 'label' => 'sylius.form.product.shipping_category',
             ])
-            ->add('taxons', 'sylius_taxon_selection')
+            ->add('taxons', 'sylius_taxon_choice', [
+                'label' => 'sylius.form.product.taxons',
+                'multiple' => true,
+            ])
             ->add('variantSelectionMethod', 'choice', [
                 'label' => 'sylius.form.product.variant_selection_method',
                 'choices' => Product::getVariantSelectionMethodLabels(),

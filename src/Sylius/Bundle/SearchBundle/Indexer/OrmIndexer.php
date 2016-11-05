@@ -87,7 +87,7 @@ class OrmIndexer implements IndexerInterface
     {
         $this->setEntityManager($em);
 
-        $this->addToOutput('Reseting index');
+        $this->addToOutput('Resetting index');
 
         $connection = $em->getConnection();
 
@@ -206,8 +206,8 @@ class OrmIndexer implements IndexerInterface
             ->delete(SearchIndex::class, 'u')
             ->where('u.itemId = :item_id')
             ->andWhere('u.entity = :entity_namespace')
-            ->setParameter(':item_id', $entity->getId())
-            ->setParameter(':entity_namespace', get_class($entity))
+            ->setParameter(':item_id', $entity['id'])
+            ->setParameter(':entity_namespace', get_class($entity['entity']))
         ;
 
         $queryBuilder->getQuery()->getResult();

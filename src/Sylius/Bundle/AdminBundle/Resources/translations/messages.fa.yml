@@ -2,8 +2,31 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: تنظیمات
+    menu:
+        admin:
+            main:
+                catalog:
+                    header: کاتالوگ محصولات
+                    taxons: رده ها
+                    options: آپشن ها
+                    attributes: ویژگی‌ها
+                configuration:
+                    channels: کانال های فروش
+                    countries: كشور‌ها
+                    currencies: واحدهای پول
+                    header: تنظیمات
+                    locales: زبان ها
+                    payment_methods: شیوه های پرداخت
+                    shipping_methods: شیوه های ارسال
+                    tax_categories: رده های مالیات
+                    tax_rates: نرخ های مالیات
+                    zones: منطقه‌ها
+                marketing:
+                    header: بازاریابی
+                    promotions: فروش های ویژه
+                customers:
+                    header: مشتری
+                    customers: مشتریان
+                sales:
+                    header: میزان فروش ماه جاری
+                    orders: سفارش‌ها

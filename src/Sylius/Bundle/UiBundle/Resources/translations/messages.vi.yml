@@ -2,8 +2,17 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      password: Mật khẩu
-  ui:
-    dashboard: Bảng tin
+    form:
+        login:
+            password: Mật khẩu
+    ui:
+        countries: Quốc gia
+        create: Tạo
+        dashboard: Bảng tin
+        locales: Miền địa phương
+        new_country: Tạo quốc gia mới
+        "no": false
+        quantity: Số lượng
+        shipping_methods: Phương thức vận chuyển
+        success: Thành công
+        "yes": true

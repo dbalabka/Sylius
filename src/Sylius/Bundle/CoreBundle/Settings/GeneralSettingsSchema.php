@@ -19,8 +19,6 @@ use Symfony\Component\Validator\Constraints\Locale;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * General settings schema.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 class GeneralSettingsSchema implements SchemaInterface
@@ -52,14 +50,12 @@ class GeneralSettingsSchema implements SchemaInterface
                 'currency' => 'USD',
                 'tracking_code' => '',
             ], $this->defaults))
-            ->setAllowedTypes([
-                'title' => ['string'],
-                'meta_keywords' => ['string'],
-                'meta_description' => ['string'],
-                'locale' => ['string'],
-                'currency' => ['string'],
-                'tracking_code' => ['null', 'string'],
-            ])
+            ->setAllowedTypes('title', 'string')
+            ->setAllowedTypes('meta_keywords', 'string')
+            ->setAllowedTypes('meta_description', 'string')
+            ->setAllowedTypes('locale', 'string')
+            ->setAllowedTypes('currency', 'string')
+            ->setAllowedTypes('tracking_code', ['null', 'string'])
         ;
     }
 

@@ -22,8 +22,6 @@ use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
- * Core extension.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
@@ -57,7 +55,6 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
         'sylius_taxonomy',
         'sylius_user',
         'sylius_variation',
-        'sylius_translation',
         'sylius_rbac',
     ];
 
@@ -66,7 +63,7 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
+        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
@@ -82,6 +79,7 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
             'state_machine.xml',
             'email.xml',
             'metadata.xml',
+            'sitemap.xml',
         ];
 
         $env = $container->getParameter('kernel.environment');
@@ -134,10 +132,12 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
         $container->setParameter('sylius.sylius_by_classes', $syliusByClasses);
         $container->setParameter('sylius.route_collection_limit', $config['route_collection_limit']);
         $container->setParameter('sylius.route_uri_filter_regexp', $config['route_uri_filter_regexp']);
+        $container->setParameter('sylius.sitemap', $config['sitemap']);
+        $container->setParameter('sylius.sitemap_template', $config['sitemap']['template']);
     }
 
     /**
-     * @param array            $config
+     * @param array $config
      * @param ContainerBuilder $container
      */
     protected function loadCheckoutConfiguration(array $config, ContainerBuilder $container)
@@ -146,7 +146,6 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
             $container->setParameter(sprintf('sylius.checkout.step.%s.template', $name), $step['template']);
         }
     }
-
 
     /**
      * @param ContainerBuilder $container

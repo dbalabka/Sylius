@@ -32,13 +32,13 @@ class ProductContext extends DefaultContext
         foreach ($table->getHash() as $data) {
             $product = $factory->createNew();
 
-            $product->setCurrentLocale($this->getContainer()->getParameter('sylius.locale'));
+            $product->setCurrentLocale($this->getContainer()->getParameter('locale'));
             $product->setName(trim($data['name']));
             $product->getMasterVariant()->setPrice((int) round($data['price'] * 100));
 
             if (!empty($data['options'])) {
                 foreach (explode(',', $data['options']) as $option) {
-                    $option = $this->findOneByName('product_option', trim($option));
+                    $option = $this->findOneBy('product_option', ['code' => trim($option)]);
                     $product->addOption($option);
                 }
             }
@@ -85,10 +85,6 @@ class ProductContext extends DefaultContext
                 $product->setTaxons($taxons);
             }
 
-            if (isset($data['deleted']) && 'yes' === $data['deleted']) {
-                $product->setDeletedAt(new \DateTime());
-            }
-
             if (isset($data['pricing calculator']) && '' !== $data['pricing calculator']) {
                 $this->configureProductPricingCalculator($product, $data);
             }
@@ -113,7 +109,8 @@ class ProductContext extends DefaultContext
         $archetype->setCode($data['code']);
 
         foreach (explode(',', $data['options']) as $optionName) {
-            $archetype->addOption($this->findOneByName('product_option', trim($optionName)));
+            $option = $this->findOneBy('product_option', ['code' => trim($optionName)]);
+            $archetype->addOption($option);
         }
 
         foreach (explode(',', $data['attributes']) as $attributeName) {
@@ -143,7 +140,7 @@ class ProductContext extends DefaultContext
     public function thereAreOptions(TableNode $table)
     {
         foreach ($table->getHash() as $data) {
-            $this->thereIsOption($data['name'], $data['values'], $data['code'], $data['presentation'], false);
+            $this->thereIsOption($data['name'], $data['values'], $data['code'], false);
         }
 
         $this->getEntityManager()->flush();
@@ -152,20 +149,19 @@ class ProductContext extends DefaultContext
     /**
      * @Given /^I created option "([^""]*)" with values "([^""]*)" and option code "([^""]*)"$/
      */
-    public function thereIsOption($name, $values, $optionCode, $presentation = null, $flush = true)
+    public function thereIsOption($name, $values, $optionCode, $flush = true)
     {
         $optionValueFactory = $this->getFactory('product_option_value');
 
         $option = $this->getFactory('product_option')->createNew();
         $option->setCode($optionCode);
-        $option->setName($name);
-        $option->setPresentation($presentation ?: $name);
+        $option->setName($name ?: $optionCode );
 
         foreach (explode(',', $values) as $valueData) {
             $valueData = preg_split('[\\[|\\]]', $valueData, -1, PREG_SPLIT_NO_EMPTY);
             $optionValue = $optionValueFactory->createNew();
-            $optionValue->setFallbackLocale($this->getContainer()->getParameter('sylius.locale'));
-            $optionValue->setCurrentLocale($this->getContainer()->getParameter('sylius.locale'));
+            $optionValue->setFallbackLocale($this->getContainer()->getParameter('locale'));
+            $optionValue->setCurrentLocale($this->getContainer()->getParameter('locale'));
             $optionValue->setValue(trim($valueData[0]));
             $optionValue->setCode(trim($valueData[1]));
 
@@ -282,10 +278,10 @@ class ProductContext extends DefaultContext
         $manager = $this->getEntityManager();
 
         foreach ($table->getHash() as $data) {
-            $option = $this->findOneByName('product_option', $data['option']);
+            $option = $this->findOneBy('product_option', ['code' => $data['option']]);
             $option->setCurrentLocale($data['locale']);
             $option->setFallbackLocale($data['locale']);
-            $option->setPresentation($data['presentation']);
+            $option->setName($data['presentation']);
         }
 
         $manager->flush();
@@ -363,7 +359,7 @@ class ProductContext extends DefaultContext
      */
     public function thereIsProduct($enabled, $name)
     {
-        $product = $this->getRepository('product')->findOneBy(['name' => $name]);
+        $product = $this->getRepository('product')->findOneByName($name);
 
         if (null === $product) {
             $product = $this->getRepository('product')->createNew();
@@ -389,5 +385,14 @@ class ProductContext extends DefaultContext
         $tr = $this->assertSession()->elementExists('css', sprintf('table tbody tr:contains("%s")', $productName));
         $locator = 'button:contains("Delete")';
         $tr->find('css', $locator)->press();
+    }
+
+    /**
+     * @When /^I click "([^"]*)" near "([^"]*)" in variant$/
+     */
+    public function iClickNearInVariant($button, $value)
+    {
+        $tr = $this->assertSession()->elementExists('css', sprintf('table#variants tbody tr:contains("%s")', $value));
+        $tr->clickLink($button);
     }
 }

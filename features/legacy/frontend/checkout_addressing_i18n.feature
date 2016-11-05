@@ -1,4 +1,4 @@
-@legacy_i18n
+@legacy @i18n
 Feature: Checkout addressing in preferred language
     In order to select the correct shipping country
     As a visitor
@@ -6,10 +6,10 @@ Feature: Checkout addressing in preferred language
 
     Background:
         Given store has default configuration
-        And there are following taxonomies defined:
+        And there are following taxons defined:
             | code | name     |
             | RTX1 | Category |
-        And taxonomy "Category" has following taxons:
+        And taxon "Category" has following children:
             | Clothing[TX1] > PHP T-Shirts[TX2] |
         And the following products exist:
             | name    | price | taxons       |

@@ -1,0 +1,34 @@
+sylius_grid:
+    grids:
+        sylius_admin_product_attribute:
+            driver:
+                name: doctrine/orm
+                options:
+                    class: "%sylius.model.product_attribute.class%"
+            sorting:
+                code: asc
+            fields:
+                code:
+                    type: string
+                    label: sylius.ui.code
+                name:
+                    type: string
+                    label: sylius.ui.name
+                type:
+                    type: twig
+                    label: sylius.ui.type
+                    options:
+                        template: SyliusAdminBundle:Grid/Field:label.html.twig
+            filters:
+                code:
+                    type: string
+                    label: sylius.ui.code
+            actions:
+                main:
+                    create:
+                        type: create_product_attribute
+                item:
+                    update:
+                        type: update
+                    delete:
+                        type: delete

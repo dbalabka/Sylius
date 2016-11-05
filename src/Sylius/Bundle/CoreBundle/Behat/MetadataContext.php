@@ -181,14 +181,7 @@ class MetadataContext extends DefaultContext
      */
     public function thereIsTheFollowingMetadata($metadataName, TableNode $table)
     {
-        /** @var MetadataContainerInterface $metadata */
-        $metadata = $this->getFactory('metadata_container')->createNew();
-
         $pageMetadata = new PageMetadata();
-
-        $metadata->setId($metadataName);
-        $metadata->setMetadata($pageMetadata);
-
         foreach ($table->getRowsHash() as $key => $value) {
             if ($this->createNewMetadataObjectIfNeeded($pageMetadata, $key, $value)) {
                 continue;
@@ -201,6 +194,11 @@ class MetadataContext extends DefaultContext
             $this->propertyAccessor->setValue($pageMetadata, $key, $value);
         }
 
+        /** @var MetadataContainerInterface $metadata */
+        $metadata = $this->getFactory('metadata_container')->createNew();
+        $metadata->setId($metadataName);
+        $metadata->setMetadata($pageMetadata);
+
         $em = $this->getEntityManager();
         $em->persist($metadata);
         $em->flush();
@@ -212,7 +210,7 @@ class MetadataContext extends DefaultContext
     public function productHasTheFollowingPageMetadata($productName, TableNode $table)
     {
         /** @var ProductInterface $product */
-        $product = $this->getRepository('product')->findOneBy(['name' => $productName]);
+        $product = $this->getRepository('product')->findOneByName($productName);
 
         $this->thereIsTheFollowingMetadata($product->getMetadataIdentifier(), $table);
     }
@@ -274,7 +272,7 @@ class MetadataContext extends DefaultContext
     private function assertItIsMetadataCustomizationPage(ElementInterface $element, $regexp)
     {
         if (!$this->isItMetadataCustomizationPage($element, $regexp)) {
-            throw new \Exception(sprintf('It is not metadata customziation page (regexp: %s)', $regexp));
+            throw new \Exception(sprintf('It is not metadata customization page (regexp: %s)', $regexp));
         }
     }
 

@@ -42,8 +42,8 @@ class VariantMatchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         foreach ($options['variable']->getOptions() as $i => $option) {
-            $builder->add(Urlizer::urlize($option->getName()), sprintf('sylius_%s_option_value_choice', $this->variableName), [
-                'label' => $option->getPresentation(),
+            $builder->add($option->getCode(), sprintf('sylius_%s_option_value_choice', $this->variableName), [
+                'label' => $option->getName(),
                 'option' => $option,
                 'property_path' => '['.$i.']',
             ]);

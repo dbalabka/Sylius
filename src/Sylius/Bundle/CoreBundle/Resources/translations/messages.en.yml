@@ -19,7 +19,7 @@ sylius:
             payment_method: Payment Method
             shipping_method: Shipping Method
         promotion:
-            channels: Channel
+            channels: Channels
         coupon:
             per_customer_usage_limit: Per-Customer Usage Limit
         group:
@@ -73,6 +73,7 @@ sylius:
                 tracking_code: Tracking code (for example: Google Analytics code)
             taxation:
                 default_tax_zone: Default tax zone
+                default_tax_calculation_strategy: Default tax calculation strategy
             security:
                 enabled: Enable?
         shipment_filter:
@@ -127,3 +128,24 @@ sylius:
             type: Association type
         product_association_type:
             name: Name
+        promotion_rule:
+            contains_taxon:
+                taxon: Taxon
+                count: Count
+            taxon:
+                taxons: Taxons
+            total_of_items_from_taxon:
+                taxon: Taxon
+                amount: Amount
+
+    email:
+        order_confirmation:
+            name: Order confirmation
+        order_comment:
+            name: Order comment
+        shipment_confirmation:
+            name: Shipment confirmation
+        user_confirmation:
+            name: User confirmation
+        password_reset:
+            name: Password reset

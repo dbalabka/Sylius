@@ -12,20 +12,16 @@
 namespace Sylius\Component\Promotion\Checker;
 
 use Sylius\Component\Promotion\Model\PromotionInterface;
-use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
 /**
- * Promotion eligibility checker interface.
- *
- * @author Saša Stamenković <umpirsky@gmail.com>
+ * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
 interface PromotionEligibilityCheckerInterface
 {
     /**
-     * @param PromotionSubjectInterface $subject
-     * @param PromotionInterface        $promotion
+     * @param PromotionInterface $promotion
      *
      * @return bool
      */
-    public function isEligible(PromotionSubjectInterface $subject, PromotionInterface $promotion);
+    public function isEligible(PromotionInterface $promotion);
 }

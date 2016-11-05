@@ -12,9 +12,9 @@
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\Channel\ChannelIndexPage;
-use Sylius\Behat\Page\Channel\ChannelUpdatePage;
-use Sylius\Behat\Page\Shop\HomePage;
+use Sylius\Behat\Page\Admin\Channel\IndexPageInterface;
+use Sylius\Behat\Page\Admin\Channel\UpdatePageInterface;
+use Sylius\Behat\Page\Shop\HomePageInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
@@ -30,31 +30,31 @@ final class ThemeContext implements Context
     private $sharedStorage;
 
     /**
-     * @var ChannelIndexPage
+     * @var IndexPageInterface
      */
     private $channelIndexPage;
 
     /**
-     * @var ChannelUpdatePage
+     * @var UpdatePageInterface
      */
     private $channelUpdatePage;
 
     /**
-     * @var HomePage
+     * @var HomePageInterface
      */
     private $homePage;
 
     /**
      * @param SharedStorageInterface $sharedStorage
-     * @param ChannelIndexPage $channelIndexPage
-     * @param ChannelUpdatePage $channelUpdatePage
-     * @param HomePage $homePage
+     * @param IndexPageInterface $channelIndexPage
+     * @param UpdatePageInterface $channelUpdatePage
+     * @param HomePageInterface $homePage
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
-        ChannelIndexPage $channelIndexPage,
-        ChannelUpdatePage $channelUpdatePage,
-        HomePage $homePage
+        IndexPageInterface $channelIndexPage,
+        UpdatePageInterface $channelUpdatePage,
+        HomePageInterface $homePage
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->channelIndexPage = $channelIndexPage;
@@ -69,7 +69,7 @@ final class ThemeContext implements Context
     {
         $this->channelUpdatePage->open(['id' => $channel->getId()]);
         $this->channelUpdatePage->setTheme($theme);
-        $this->channelUpdatePage->update();
+        $this->channelUpdatePage->saveChanges();
 
         $this->sharedStorage->set('channel', $channel);
         $this->sharedStorage->set('theme', $theme);
@@ -82,7 +82,7 @@ final class ThemeContext implements Context
     {
         $this->channelUpdatePage->open(['id' => $channel->getId()]);
         $this->channelUpdatePage->unsetTheme();
-        $this->channelUpdatePage->update();
+        $this->channelUpdatePage->saveChanges();
     }
 
     /**

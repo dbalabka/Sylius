@@ -1,0 +1,18 @@
+# This file is part of the Sylius package.
+# (c) Paweł Jędrzejewski
+
+sylius:
+    menu:
+        admin:
+            main:
+                configuration:
+                    countries: Países
+                    payment_methods: Métodos de pagamento
+                    shipping_methods: Métodos de envio
+                    tax_rates: Impostos
+                    zones: Zonas
+                marketing:
+                    promotions: Promoções
+                sales:
+                    header: Vendas
+                    orders: Encomendas

@@ -31,9 +31,9 @@ class LoadProductOptionData extends DataFixture
     {
         // T-Shirt size option.
         $option = $this->createOption(
-            'O1',
+            't_shirt_size',
             'T-Shirt size',
-            [$this->defaultLocale => 'Size', 'es_ES' => 'Talla'],
+            [$this->defaultLocale => 'T-Shirt Size', 'es_ES' => 'Talla'],
             [
                 'OV1' => [$this->defaultLocale => 'S', 'es_ES' => 'S'],
                 'OV2' => [$this->defaultLocale => 'M', 'es_ES' => 'M'],
@@ -46,9 +46,9 @@ class LoadProductOptionData extends DataFixture
 
         // T-Shirt color option.
         $option = $this->createOption(
-            'O2',
+            't_shirt_color',
             'T-Shirt color',
-            [$this->defaultLocale => 'Color'],
+            [$this->defaultLocale => 'T-Shirt Color'],
             [
                 'OV6' => [$this->defaultLocale => 'Red', 'es_ES' => 'Rojo'],
                 'OV7' => [$this->defaultLocale => 'Blue', 'es_ES' => 'Azul'],
@@ -59,9 +59,9 @@ class LoadProductOptionData extends DataFixture
 
         // Sticker size option.
         $option = $this->createOption(
-            'O3',
+            'sticker_size',
             'Sticker size',
-            [$this->defaultLocale => 'Size', 'es_ES' => 'Talla'],
+            [$this->defaultLocale => 'Sticker Size', 'es_ES' => 'Talla'],
             [
                 'OV9' => [$this->defaultLocale => '3"', 'es_ES' => '3"'],
                 'OV10' => [$this->defaultLocale => '5"', 'es_ES' => '5"'],
@@ -72,9 +72,9 @@ class LoadProductOptionData extends DataFixture
 
         // Mug type option.
         $option = $this->createOption(
-            'O4',
+            'mug_type',
             'Mug type',
-            [$this->defaultLocale => 'Type', 'es_ES' => 'Tipo'],
+            [$this->defaultLocale => 'Mug Type', 'es_ES' => 'Tipo'],
             [
                 'OV12' => [$this->defaultLocale => 'Medium mug', 'es_ES' => 'Taza mediana'],
                 'OV13' => [$this->defaultLocale => 'Double mug', 'es_ES' => 'Taza doble'],
@@ -97,21 +97,21 @@ class LoadProductOptionData extends DataFixture
     /**
      * @param string $optionCode
      * @param string $name
-     * @param array $presentationTranslation
+     * @param array $nameTranslation
      * @param array $valuesData
      *
      * @return OptionInterface
      */
-    protected function createOption($optionCode, $name, array $presentationTranslation, array $valuesData)
+    protected function createOption($optionCode, $name, array $nameTranslation, array $valuesData)
     {
         /* @var $option OptionInterface */
         $option = $this->getProductOptionFactory()->createNew();
-        $option->setName($name);
         $option->setCode($optionCode);
 
-        foreach ($presentationTranslation as $locale => $presentation) {
+        foreach ($nameTranslation as $locale => $name) {
+            $option->setFallbackLocale($locale);
             $option->setCurrentLocale($locale);
-            $option->setPresentation($presentation);
+            $option->setName($name);
         }
         $option->setCurrentLocale($this->defaultLocale);
 
@@ -128,7 +128,7 @@ class LoadProductOptionData extends DataFixture
             $option->addValue($optionValue);
         }
 
-        $this->setReference('Sylius.Option.'.$name, $option);
+        $this->setReference('Sylius.Option.'.$optionCode, $option);
 
         return $option;
     }

@@ -11,84 +11,60 @@
 
 namespace Sylius\Behat\Page\External;
 
-use Behat\Mink\Exception\ElementNotFoundException;
+use Behat\Mink\Session;
+use Payum\Core\Security\TokenInterface;
 use Sylius\Behat\Page\Page;
 use Sylius\Behat\Page\UnexpectedPageException;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class PaypalExpressCheckoutPage extends Page
+class PaypalExpressCheckoutPage extends Page implements PaypalExpressCheckoutPageInterface
 {
     /**
-     * @param string $email
-     * @param string $password
-     *
-     * @throws ElementNotFoundException
+     * @var RepositoryInterface
      */
-    public function logIn($email, $password)
+    private $securityTokenRepository;
+
+    /**
+     * @param Session $session
+     * @param array $parameters
+     * @param RepositoryInterface $securityTokenRepository
+     */
+    public function __construct(Session $session, array $parameters, RepositoryInterface $securityTokenRepository)
     {
-        $hasLoginButton = $this->getDocument()->waitFor(15, function () {
-            return $this->getDocument()->hasButton('login_button');
-        });
+        parent::__construct($session, $parameters);
 
-        if ($hasLoginButton) {
-            $this->getDocument()->pressButton('login_button');
-        }
-
-        $this->getDocument()->waitFor(15, function () {
-            return $this->getDocument()->hasField('login_email');
-        });
-
-        $this->getDocument()->fillField('login_email', $email);
-        $this->getDocument()->fillField('login_password', $password);
-        $this->getDocument()->pressButton('submitLogin');
+        $this->securityTokenRepository = $securityTokenRepository;
     }
 
     /**
-     * @throws ElementNotFoundException
+     * {@inheritdoc}
      */
     public function pay()
     {
-        $this->getDocument()->waitFor(15, function () {
-            return $this->getDocument()->hasButton('continue');
-        });
-        $this->getDocument()->pressButton('continue');
+        $this->getDriver()->visit($this->findCaptureToken()->getTargetUrl() . '?token=EC-2d9EV13959UR209410U&PayerID=UX8WBNYWGBVMG');
     }
 
     /**
-     * @throws ElementNotFoundException
+     * {@inheritdoc}
      */
     public function cancel()
     {
-        $this->getDocument()->waitFor(15, function () {
-            return $this->getDocument()->hasButton('cancel_return');
-        });
-        $this->getDocument()->pressButton('cancel_return');
+        $this->getDriver()->visit($this->findCaptureToken()->getTargetUrl() . '?token=EC-2d9EV13959UR209410U&cancelled=1');
     }
 
     /**
-     * @param array $urlParameters
-     *
-     * @throws UnexpectedPageException
+     * {@inheritdoc}
      */
-    public function verify(array $urlParameters = [])
-    {
-        $this->verifyUrl($urlParameters);
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPath()
+    protected function getUrl(array $urlParameters = [])
     {
         return 'https://www.sandbox.paypal.com';
     }
 
     /**
-     * @param array $urlParameters
-     *
-     * @throws UnexpectedPageException
+     * {@inheritdoc}
      */
     protected function verifyUrl(array $urlParameters = [])
     {
@@ -96,5 +72,23 @@ class PaypalExpressCheckoutPage extends Page
         if (0 !== $position) {
             throw new UnexpectedPageException(sprintf('Expected to be on "%s" but found "%s" instead', $this->getUrl($urlParameters), $this->getSession()->getCurrentUrl()));
         }
+    }
+
+    /**
+     * @return TokenInterface
+     *
+     * @throws \RuntimeException
+     */
+    private function findCaptureToken()
+    {
+        $tokens = $this->securityTokenRepository->findAll();
+
+        foreach ($tokens as $token) {
+            if (strpos($token->getTargetUrl(), 'capture')) {
+                return $token;
+            }
+        }
+
+        throw new \RuntimeException('Cannot find capture token, check if you are after proper checkout steps');
     }
 }

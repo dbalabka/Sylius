@@ -18,13 +18,12 @@ use Sylius\Bundle\AttributeBundle\Form\Type\AttributeValueType;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Bundle\TranslationBundle\Doctrine\ORM\TranslatableResourceRepository;
 use Sylius\Component\Attribute\Model\Attribute;
 use Sylius\Component\Attribute\Model\AttributeInterface;
 use Sylius\Component\Attribute\Model\AttributeTranslation;
 use Sylius\Component\Attribute\Model\AttributeTranslationInterface;
 use Sylius\Component\Resource\Factory\Factory;
-use Sylius\Component\Translation\Factory\TranslatableFactory;
+use Sylius\Component\Resource\Factory\TranslatableFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -81,7 +80,7 @@ class Configuration implements ConfigurationInterface
                                             ->scalarNode('model')->defaultValue(Attribute::class)->cannotBeEmpty()->end()
                                             ->scalarNode('interface')->defaultValue(AttributeInterface::class)->cannotBeEmpty()->end()
                                             ->scalarNode('controller')->defaultValue(AttributeController::class)->cannotBeEmpty()->end()
-                                            ->scalarNode('repository')->defaultValue(TranslatableResourceRepository::class)->cannotBeEmpty()->end()
+                                            ->scalarNode('repository')->cannotBeEmpty()->end()
                                             ->scalarNode('factory')->defaultValue(TranslatableFactory::class)->end()
                                             ->arrayNode('form')
                                                 ->addDefaultsIfNotSet()
@@ -129,10 +128,6 @@ class Configuration implements ConfigurationInterface
                                                         ->defaultValue(['sylius'])
                                                     ->end()
                                                 ->end()
-                                            ->end()
-                                            ->arrayNode('fields')
-                                                ->prototype('scalar')->end()
-                                                ->defaultValue(['name'])
                                             ->end()
                                         ->end()
                                     ->end()

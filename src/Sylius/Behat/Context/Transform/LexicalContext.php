@@ -16,10 +16,10 @@ use Behat\Behat\Context\Context;
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class LexicalContext implements Context
+final class LexicalContext implements Context
 {
     /**
-     * @Transform /^"(?:€|£|\$)((?:\d+\.)?\d+)"$/
+     * @Transform /^"(?:€|£|￥|\$)((?:\d+\.)?\d+)"$/
      */
     public function getPriceFromString($price)
     {
@@ -34,6 +34,14 @@ class LexicalContext implements Context
     public function getPercentageFromString($percentage)
     {
         return ((int) $percentage) / 100;
+    }
+
+    /**
+     * @Transform /^(?:\d+)$/
+     */
+    public function getAmountFromString($amount)
+    {
+        return (int) $amount;
     }
 
     /**

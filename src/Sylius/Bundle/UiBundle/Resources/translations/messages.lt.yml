@@ -2,13 +2,52 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Vartotojo vardas
-      password: Slaptažodis
-      remember_me: Prisiminti mane
-  ui:
-    sign_in: Prisijungti
-    sign_out: Atsijungti
-    dashboard: Skydelis
-    powered_by: Sukurta
+    form:
+        login:
+            username: Vartotojo vardas
+            password: Slaptažodis
+            remember_me: Prisiminti mane
+        option:
+            presentation: Prezentacija
+    ui:
+        add_coupon: Pridėti kuponą
+        actions: Veiksmai
+        cancel: Atšaukti
+        cancelled: Atšaukta
+        checkout: Apmokėjimas
+        color: Spalva
+        countries: Šalys
+        coupons: Kuponai
+        coupon_based: Pagal kuponą
+        create: Sukurti
+        currencies: Valiutos
+        dashboard: Skydelis
+        default_currency: Numatytoji valiuta
+        delete: Šalinti
+        description: Aprašymas
+        edit: Redaguoti
+        empty: Išvalyti
+        enabled: Įjungta
+        exclusive: Išskirtinis
+        expires_at: Nustoja galioti
+        filter: Filtruoti
+        locales: Lokalės
+        new: Naujas
+        new_country: Naujas šalis
+        new_currency: Nauja valiuta
+        new_tax_category: Nauja mokesčių kategorija
+        "no": false
+        no_taxes: Nepritaikyta jokių mokesčių
+        no_promotion: Nepritaikyta jokių nuolaidų
+        no_shipping_charges: Nepritaikyta jokių pristatymo mokesčių
+        powered_by: Sukurta
+        quantity: Kiekis
+        ready: Paruošta
+        returned: Grąžintas
+        save_changes: Išsaugoti pakeitimus
+        shipped: Pristatytas
+        shipping_methods: Pristatymo būdai
+        sign_in: Prisijungti
+        sign_out: Atsijungti
+        success: Pavyko
+        "yes": true

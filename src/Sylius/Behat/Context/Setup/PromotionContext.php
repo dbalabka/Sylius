@@ -13,11 +13,16 @@ namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sylius\Component\Core\Factory\ActionFactoryInterface;
 use Sylius\Component\Core\Factory\RuleFactoryInterface;
 use Sylius\Component\Core\Model\PromotionInterface;
+use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Core\Test\Factory\TestPromotionFactoryInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
-use Sylius\Component\Promotion\Factory\ActionFactoryInterface;
+use Sylius\Component\Promotion\Factory\CouponFactoryInterface;
+use Sylius\Component\Promotion\Model\ActionInterface;
+use Sylius\Component\Promotion\Model\CouponInterface;
+use Sylius\Component\Promotion\Model\RuleInterface;
 use Sylius\Component\Promotion\Repository\PromotionRepositoryInterface;
 
 /**
@@ -34,6 +39,11 @@ final class PromotionContext implements Context
      * @var ActionFactoryInterface
      */
     private $actionFactory;
+
+    /**
+     * @var CouponFactoryInterface
+     */
+    private $couponFactory;
 
     /**
      * @var RuleFactoryInterface
@@ -58,6 +68,7 @@ final class PromotionContext implements Context
     /**
      * @param SharedStorageInterface $sharedStorage
      * @param ActionFactoryInterface $actionFactory
+     * @param CouponFactoryInterface $couponFactory
      * @param RuleFactoryInterface $ruleFactory
      * @param TestPromotionFactoryInterface $testPromotionFactory
      * @param PromotionRepositoryInterface $promotionRepository
@@ -66,6 +77,7 @@ final class PromotionContext implements Context
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ActionFactoryInterface $actionFactory,
+        CouponFactoryInterface $couponFactory,
         RuleFactoryInterface $ruleFactory,
         TestPromotionFactoryInterface $testPromotionFactory,
         PromotionRepositoryInterface $promotionRepository,
@@ -73,6 +85,7 @@ final class PromotionContext implements Context
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->actionFactory = $actionFactory;
+        $this->couponFactory = $couponFactory;
         $this->ruleFactory = $ruleFactory;
         $this->testPromotionFactory = $testPromotionFactory;
         $this->promotionRepository = $promotionRepository;
@@ -81,77 +94,423 @@ final class PromotionContext implements Context
 
     /**
      * @Given there is a promotion :promotionName
+     * @Given there is a promotion :promotionName identified by :promotionCode code
      */
-    public function thereIsPromotion($promotionName)
+    public function thereIsPromotion($promotionName, $promotionCode = null)
     {
         $promotion = $this->testPromotionFactory
             ->createForChannel($promotionName, $this->sharedStorage->get('channel'))
         ;
+
+        if (null !== $promotionCode) {
+            $promotion->setCode($promotionCode);
+        }
 
         $this->promotionRepository->add($promotion);
         $this->sharedStorage->set('promotion', $promotion);
     }
 
     /**
-     * @Given /^([^"]+) gives ("[^"]+") fixed discount to every order$/
+     * @Given the store has promotion :promotionName with coupon :couponCode
+     * @Given the store has also promotion :promotionName with coupon :couponCode
      */
-    public function itGivesFixedDiscountToEveryOrder(PromotionInterface $promotion, $amount)
+    public function thereIsPromotionWithCoupon($promotionName, $couponCode)
     {
-        $action = $this->actionFactory->createFixedDiscount($amount);
-        $promotion->addAction($action);
+        /** @var CouponInterface $coupon */
+        $coupon = $this->couponFactory->createNew();
+        $coupon->setCode($couponCode);
 
-        $this->objectManager->flush();
+        $promotion = $this->testPromotionFactory
+            ->createForChannel($promotionName, $this->sharedStorage->get('channel'))
+        ;
+        $promotion->addCoupon($coupon);
+        $promotion->setCouponBased(true);
+
+        $this->promotionRepository->add($promotion);
+        $this->sharedStorage->set('promotion', $promotion);
+        $this->sharedStorage->set('coupon', $coupon);
     }
 
     /**
-     * @Given /^([^"]+) gives ("[^"]+") percentage discount to every order$/
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") discount to every order$/
+     */
+    public function itGivesFixedDiscountToEveryOrder(PromotionInterface $promotion, $discount)
+    {
+        $this->createFixedPromotion($promotion, $discount);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") discount to every order$/
      */
     public function itGivesPercentageDiscountToEveryOrder(PromotionInterface $promotion, $discount)
     {
-        $action = $this->actionFactory->createPercentageDiscount($discount);
-        $promotion->addAction($action);
-
-        $this->objectManager->flush();
+        $this->createPercentagePromotion($promotion, $discount);
     }
 
     /**
-     * @Given /^([^"]+) gives ("[^"]+") fixed discount to every order with quantity at least ([^"]+)$/
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") discount to every order with quantity at least ([^"]+)$/
      */
-    public function itGivesFixedDiscountToEveryOrderWithQuantityAtLeast(PromotionInterface $promotion, $amount, $quantity)
-    {
-        $action = $this->actionFactory->createFixedDiscount($amount);
-        $promotion->addAction($action);
-
+    public function itGivesFixedDiscountToEveryOrderWithQuantityAtLeast(
+        PromotionInterface $promotion,
+        $discount,
+        $quantity
+    ) {
         $rule = $this->ruleFactory->createCartQuantity((int) $quantity);
-        $promotion->addRule($rule);
 
-        $this->objectManager->flush();
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
     }
 
     /**
-     * @Given /^([^"]+) gives ("[^"]+") fixed discount to every order with items total at least ("[^"]+")$/
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") discount to every order with items total at least ("[^"]+")$/
      */
     public function itGivesFixedDiscountToEveryOrderWithItemsTotalAtLeast(
         PromotionInterface $promotion,
-        $amount,
+        $discount,
         $targetAmount
     ) {
-        $action = $this->actionFactory->createFixedDiscount($amount);
-        $promotion->addAction($action);
-
         $rule = $this->ruleFactory->createItemTotal($targetAmount);
-        $promotion->addRule($rule);
 
-        $this->objectManager->flush();
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
     }
 
     /**
-     * @Given /^([^"]+) gives ("[^"]+") percentage discount on shipping to every order$/
+     * @Given /^([^"]+) gives ("[^"]+%") discount on shipping to every order$/
      */
     public function itGivesPercentageDiscountOnShippingToEveryOrder(PromotionInterface $promotion, $discount)
     {
         $action = $this->actionFactory->createPercentageShippingDiscount($discount);
         $promotion->addAction($action);
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @Given /^([^"]+) gives free shipping to every order$/
+     */
+    public function thePromotionGivesFreeShippingToEveryOrder(PromotionInterface $promotion)
+    {
+        $this->itGivesPercentageDiscountOnShippingToEveryOrder($promotion, 1);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off every product (classified as "[^"]+")$/
+     */
+    public function itGivesPercentageOffEveryProductClassifiedAs(
+        PromotionInterface $promotion,
+        $discount,
+        TaxonInterface $taxon
+    ) {
+        $this->createItemPercentagePromotion($promotion, $discount, $this->getTaxonFilterConfiguration([$taxon->getCode()]));
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off on every product (classified as "[^"]+")$/
+     */
+    public function itGivesFixedOffEveryProductClassifiedAs(
+        PromotionInterface $promotion,
+        $discount,
+        TaxonInterface $taxon
+    ) {
+        $this->createItemFixedPromotion($promotion, $discount, $this->getTaxonFilterConfiguration([$taxon->getCode()]));
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off on every product with minimum price at ("(?:€|£|\$)[^"]+")$/
+     */
+    public function thisPromotionGivesOffOnEveryProductWithMinimumPriceAt(
+        PromotionInterface $promotion,
+        $discount,
+        $amount
+    ) {
+        $this->createItemFixedPromotion($promotion, $discount, $this->getPriceRangeFilterConfiguration($amount));
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off on every product priced between ("(?:€|£|\$)[^"]+") and ("(?:€|£|\$)[^"]+")$/
+     */
+    public function thisPromotionGivesOffOnEveryProductPricedBetween(
+        PromotionInterface $promotion,
+        $discount,
+        $minAmount,
+        $maxAmount
+    ) {
+        $this->createItemFixedPromotion(
+            $promotion,
+            $discount,
+            $this->getPriceRangeFilterConfiguration($minAmount, $maxAmount)
+        );
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off on every product with minimum price at ("(?:€|£|\$)[^"]+")$/
+     */
+    public function thisPromotionPercentageGivesOffOnEveryProductWithMinimumPriceAt(
+        PromotionInterface $promotion,
+        $discount,
+        $amount
+    ) {
+        $this->createItemPercentagePromotion($promotion, $discount, $this->getPriceRangeFilterConfiguration($amount));
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off on every product priced between ("(?:€|£|\$)[^"]+") and ("(?:€|£|\$)[^"]+")$/
+     */
+    public function thisPromotionPercentageGivesOffOnEveryProductPricedBetween(
+        PromotionInterface $promotion,
+        $discount,
+        $minAmount,
+        $maxAmount
+    ) {
+        $this->createItemPercentagePromotion(
+            $promotion,
+            $discount,
+            $this->getPriceRangeFilterConfiguration($minAmount, $maxAmount)
+        );
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off if order contains products (classified as "[^"]+")$/
+     */
+    public function thePromotionGivesOffIfOrderContainsProductsClassifiedAs(
+        PromotionInterface $promotion,
+        $discount,
+        TaxonInterface $taxon
+    ) {
+        $rule = $this->ruleFactory->createTaxon([$taxon->getCode()]);
+
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off if order contains products (classified as "[^"]+" or "[^"]+")$/
+     */
+    public function thePromotionGivesOffIfOrderContainsProductsClassifiedAsOr(
+        PromotionInterface $promotion,
+        $discount,
+        array $taxons
+    ) {
+        $rule = $this->ruleFactory->createTaxon([$taxons[0]->getCode(), $taxons[1]->getCode()]);
+
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off if order contains products (classified as "[^"]+") with a minimum value of ("(?:€|£|\$)[^"]+")$/
+     */
+    public function thePromotionGivesOffIfOrderContainsProductsClassifiedAsAndPricedAt(
+        PromotionInterface $promotion,
+        $discount,
+        TaxonInterface $taxon,
+        $amount
+    ) {
+        $rule = $this->ruleFactory->createItemsFromTaxonTotal($taxon->getCode(), $amount);
+
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off if order contains (\d+) products (classified as "[^"]+")$/
+     */
+    public function thePromotionGivesOffIfOrderContainsNumberOfProductsClassifiedAs(
+        PromotionInterface $promotion,
+        $discount,
+        $count,
+        TaxonInterface $taxon
+    ) {
+        $rule = $this->ruleFactory->createContainsTaxon($taxon->getCode(), $count);
+
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off customer's (\d)(?:st|nd|rd|th) order$/
+     */
+    public function itGivesFixedOffCustomersNthOrder(PromotionInterface $promotion, $discount, $nth)
+    {
+        $rule = $this->ruleFactory->createNthOrder((int) $nth);
+
+        $this->createFixedPromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off on the customer's (\d)(?:st|nd|rd|th) order$/
+     */
+    public function itGivesPercentageOffCustomersNthOrder(PromotionInterface $promotion, $discount, $nth)
+    {
+        $rule = $this->ruleFactory->createNthOrder((int) $nth);
+
+        $this->createPercentagePromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off on every product (classified as "[^"]+") if an order contains any product (classified as "[^"]+")$/
+     */
+    public function itGivesPercentageOffOnEveryProductClassifiedAsIfAnOrderContainsAnyProductClassifiedAs(
+        PromotionInterface $promotion,
+        $discount,
+        TaxonInterface $discountTaxon,
+        TaxonInterface $targetTaxon
+    ) {
+        $rule = $this->ruleFactory->createContainsTaxon($targetTaxon->getCode(), 1);
+
+        $this->createItemPercentagePromotion($promotion, $discount, $this->getTaxonFilterConfiguration([$discountTaxon->getCode()]), $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("(?:€|£|\$)[^"]+") off on every product (classified as "[^"]+") and a free shipping to every order with items total equal at least ("[^"]+")$/
+     */
+    public function itGivesOffOnEveryProductClassifiedAsAndAFreeShippingToEveryOrderWithItemsTotalEqualAtLeast(
+        PromotionInterface $promotion,
+        $discount,
+        TaxonInterface $taxon,
+        $targetAmount
+    ) {
+        $freeShippingAction = $this->actionFactory->createPercentageShippingDiscount(1);
+        $promotion->addAction($freeShippingAction);
+
+        $rule = $this->ruleFactory->createItemTotal($targetAmount);
+
+        $this->createItemFixedPromotion($promotion, $discount, [], $rule);
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off on every product (classified as "[^"]+") and a ("(?:€|£|\$)[^"]+") discount to every order with items total equal at least ("(?:€|£|\$)[^"]+")$/
+     */
+    public function itGivesOffOnEveryProductClassifiedAsAndAFixedDiscountToEveryOrderWithItemsTotalEqualAtLeast(
+        PromotionInterface $promotion,
+        $taxonDiscount,
+        TaxonInterface $taxon,
+        $orderDiscount,
+        $targetAmount
+    ) {
+        $orderDiscountAction = $this->actionFactory->createFixedDiscount($orderDiscount);
+        $promotion->addAction($orderDiscountAction);
+
+        $rule = $this->ruleFactory->createItemTotal($targetAmount);
+
+        $this->createItemPercentagePromotion(
+            $promotion,
+            $taxonDiscount,
+            $this->getTaxonFilterConfiguration([$taxon->getCode()]),
+            $rule
+        );
+    }
+
+    /**
+     * @Given /^([^"]+) gives ("[^"]+%") off on every product (classified as "[^"]+" or "[^"]+") if order contains any product (classified as "[^"]+" or "[^"]+")$/
+     */
+    public function itGivesOffOnEveryProductClassifiedAsOrIfOrderContainsAnyProductClassifiedAsOr(
+        PromotionInterface $promotion,
+        $discount,
+        array $discountTaxons,
+        array $targetTaxons
+    ) {
+        $discountTaxonsCodes = [$discountTaxons[0]->getCode(), $discountTaxons[1]->getCode()];
+        $targetTaxonsCodes = [$targetTaxons[0]->getCode(), $targetTaxons[1]->getCode()];
+
+        $rule = $this->ruleFactory->createTaxon($targetTaxonsCodes);
+
+        $this->createItemPercentagePromotion(
+            $promotion,
+            $discount,
+            $this->getTaxonFilterConfiguration($discountTaxonsCodes),
+            $rule
+        );
+    }
+
+    /**
+     * @Given /^(it) is coupon based promotion$/
+     */
+    public function itIsCouponBasedPromotion(PromotionInterface $promotion)
+    {
+        $promotion->setCouponBased(true);
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @param array $taxonCodes
+     *
+     * @return array
+     */
+    private function getTaxonFilterConfiguration(array $taxonCodes)
+    {
+        return ['filters' => ['taxons' => $taxonCodes]];
+    }
+
+    /**
+     * @param int $minAmount
+     * @param int $maxAmount
+     *
+     * @return array
+     */
+    private function getPriceRangeFilterConfiguration($minAmount, $maxAmount = null)
+    {
+        $configuration = ['filters' => ['price_range' => ['min' => $minAmount]]];
+        if (null !== $maxAmount) {
+            $configuration['filters']['price_range']['max'] = $maxAmount;
+        }
+
+        return $configuration;
+    }
+
+    /**
+     * @param PromotionInterface $promotion
+     * @param int $discount
+     * @param array $configuration
+     */
+    private function createItemFixedPromotion(PromotionInterface $promotion, $discount, array $configuration = [], $rule = null)
+    {
+        $this->persistPromotion($promotion, $this->actionFactory->createItemFixedDiscount($discount), $configuration, $rule);
+    }
+
+    /**
+     * @param PromotionInterface $promotion
+     * @param int $discount
+     * @param array $configuration
+     */
+    private function createItemPercentagePromotion(PromotionInterface $promotion, $discount, array $configuration = [], $rule = null)
+    {
+        $this->persistPromotion($promotion, $this->actionFactory->createItemPercentageDiscount($discount), $configuration, $rule);
+    }
+
+    /**
+     * @param PromotionInterface $promotion
+     * @param int $discount
+     * @param array $configuration
+     * @param RuleInterface $rule
+     */
+    private function createFixedPromotion(PromotionInterface $promotion, $discount, array $configuration = [], RuleInterface $rule = null)
+    {
+        $this->persistPromotion($promotion, $this->actionFactory->createFixedDiscount($discount), $configuration, $rule);
+    }
+
+    /**
+     * @param PromotionInterface $promotion
+     * @param float $discount
+     * @param array $configuration
+     * @param RuleInterface $rule
+     */
+    private function createPercentagePromotion(PromotionInterface $promotion, $discount, array $configuration = [], RuleInterface $rule = null)
+    {
+        $this->persistPromotion($promotion, $this->actionFactory->createPercentageDiscount($discount), $configuration, $rule);
+    }
+
+    /**
+     * @param PromotionInterface $promotion
+     * @param ActionInterface $action
+     * @param array $configuration
+     * @param RuleInterface|null $rule
+     */
+    private function persistPromotion(PromotionInterface $promotion, ActionInterface $action, array $configuration, RuleInterface $rule = null)
+    {
+        $configuration = array_merge($configuration, $action->getConfiguration());
+        $action->setConfiguration($configuration);
+
+        $promotion->addAction($action);
+        if (null !== $rule) {
+            $promotion->addRule($rule);
+        }
 
         $this->objectManager->flush();
     }

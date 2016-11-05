@@ -2,8 +2,29 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Konfiguracija
+    menu:
+        admin:
+            main:
+                catalog:
+                    taxons: Taksoni
+                    options: Možnosti
+                    attributes: Atributi
+                configuration:
+                    channels: Kanali
+                    countries: Države
+                    currencies: Valute
+                    header: Konfiguracija
+                    locales: Področne nastavitve
+                    payment_methods: Načini plačila
+                    shipping_methods: Načini dostave
+                    tax_rates: Davčne stopnje
+                    zones: Cone
+                marketing:
+                    header: Oglaševanje
+                    promotions: Promocije
+                customers:
+                    header: Kupec
+                    customers: Kupci
+                sales:
+                    header: Prodaja
+                    orders: Naročila

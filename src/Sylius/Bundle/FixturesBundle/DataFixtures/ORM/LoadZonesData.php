@@ -35,7 +35,7 @@ class LoadZonesData extends DataFixture
     public function load(ObjectManager $manager)
     {
         $restOfWorldCountries = array_diff(
-            array_keys(Intl::getRegionBundle()->getCountryNames($this->container->getParameter('sylius.locale'))),
+            array_keys(Intl::getRegionBundle()->getCountryNames($this->container->getParameter('locale'))),
             array_merge($this->euCountries, ['US'])
         );
 
@@ -47,9 +47,9 @@ class LoadZonesData extends DataFixture
         $manager->flush();
 
         $settingsManager = $this->get('sylius.settings.manager');
-        $settings = $settingsManager->loadSettings('sylius_taxation');
+        $settings = $settingsManager->load('sylius_taxation');
         $settings->set('default_tax_zone', $eu);
-        $settingsManager->saveSettings('sylius_taxation', $settings);
+        $settingsManager->save($settings);
     }
 
     /**

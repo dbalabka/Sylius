@@ -25,7 +25,6 @@
         <parameter key="sylius.user.code_provider.class">Sylius\Component\User\Security\TokenProvider</parameter>
         <parameter key="sylius.user.user_reloader.class">Sylius\Bundle\UserBundle\Reloader\UserReloader</parameter>
 
-        <parameter key="sylius.security.authentication_utils.class">Sylius\Bundle\UserBundle\Security\Authentication\AuthenticationUtils</parameter>
         <parameter key="sylius.security.user_login.class">Sylius\Bundle\UserBundle\Security\UserLogin</parameter>
 
         <parameter key="sylius.user.token_generator.class">Sylius\Component\User\Security\Generator\TokenGenerator</parameter>
@@ -33,7 +32,6 @@
 
         <parameter key="sylius.user_provider.name.class">Sylius\Bundle\UserBundle\Provider\UsernameProvider</parameter>
         <parameter key="sylius.user_provider.name_or_email.class">Sylius\Bundle\UserBundle\Provider\UsernameOrEmailProvider</parameter>
-        <parameter key="sylius.oauth.user_provider.class">Sylius\Bundle\UserBundle\OAuth\UserProvider</parameter>
         <parameter key="sylius.user_provider.email.class">Sylius\Bundle\UserBundle\Provider\EmailProvider</parameter>
 
         <parameter key="sylius.form.type.user_login.class">Sylius\Bundle\UserBundle\Form\Type\UserLoginType</parameter>
@@ -59,6 +57,7 @@
         <parameter key="sylius.controller.user_security.class">Sylius\Bundle\UserBundle\Controller\SecurityController</parameter>
 
         <parameter key="sylius.user.validator.unique_registered_user.class">Sylius\Bundle\UserBundle\Validator\Constraints\RegisteredUserValidator</parameter>
+        <parameter key="sylius.user.validator.customer_initializer.class">Sylius\Bundle\UserBundle\Validator\Initializer\CustomerInitializer</parameter>
     </parameters>
 
     <services>
@@ -99,9 +98,6 @@
             <argument>%sylius.user.resetting.pin_length%</argument>
         </service>
 
-        <service id="security.authentication_utils" class="%sylius.security.authentication_utils.class%">
-            <argument type="service" id="service_container" />
-        </service>
         <service id="sylius.security.user_login" class="%sylius.security.user_login.class%">
             <argument type="service" id="security.token_storage" />
             <argument type="service" id="security.user_checker" />
@@ -165,16 +161,6 @@
             <argument type="service" id="sylius.repository.user" />
             <argument type="service" id="sylius.user.canonicalizer" />
         </service>
-        <service id="sylius.oauth.user_provider" class="%sylius.oauth.user_provider.class%" lazy="true">
-            <argument type="service" id="sylius.factory.customer" />
-            <argument type="service" id="sylius.repository.customer" />
-            <argument type="service" id="sylius.factory.user" />
-            <argument type="service" id="sylius.repository.user" />
-            <argument type="service" id="sylius.factory.user_oauth" />
-            <argument type="service" id="sylius.repository.user_oauth" />
-            <argument type="service" id="sylius.manager.user" />
-            <argument type="service" id="sylius.user.canonicalizer" />
-        </service>
 
         <!-- Forms -->
         <service id="sylius.form.type.user_login" class="%sylius.form.type.user_login.class%">
@@ -207,6 +193,11 @@
         <service id="validator.unique.registered_user" class="%sylius.user.validator.unique_registered_user.class%">
             <argument type="service" id="sylius.repository.customer" />
             <tag name="validator.constraint_validator" alias="registered_user_validator" />
+        </service>
+
+        <service id="sylius.user.validator.customer_initializer" class="%sylius.user.validator.customer_initializer.class%">
+            <argument type="service" id="sylius.user.canonicalizer" />
+            <tag name="validator.initializer" />
         </service>
     </services>
 

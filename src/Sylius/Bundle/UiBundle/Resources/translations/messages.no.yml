@@ -2,9 +2,42 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Brukernavn
-      password: Passord
-  ui:
-    dashboard: Panel
+    form:
+        login:
+            username: Brukernavn
+            password: Passord
+        option:
+            presentation: Presentasjon
+    ui:
+        add_coupon: Legg til rabattkupong
+        actions: Handlinger
+        cancel: Avbryt
+        cancelled: Avbrutt
+        checkout: Gå til kassen
+        countries: Land
+        coupons: Kuponger
+        coupon_based: Kupongbasert
+        create: Opprett
+        dashboard: Panel
+        default_currency: Standard valuta
+        delete: Slett
+        description: Beskrivelse
+        edit: Rediger
+        enabled: Aktivert
+        filter: Filtrer
+        locales: Nasjonale innstillinger
+        new: Ny
+        new_country: Nytt land
+        new_tax_category: Ny momskategori
+        "no": false
+        no_taxes: Ingen mva lagt til
+        no_promotion: Ingen tilbudskode
+        no_shipping_charges: Ingen fraktkostnader lagt til
+        quantity: Antall
+        ready: Klar
+        returned: Returnert
+        save_changes: Lagre endringer
+        shipped: Sendt
+        shipping_methods: Leveringsmetoder
+        success: Suksess
+        "yes": true

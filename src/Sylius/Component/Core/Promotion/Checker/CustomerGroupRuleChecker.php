@@ -19,8 +19,6 @@ use Sylius\Component\User\Model\GroupableInterface;
 use Sylius\Component\User\Model\GroupInterface;
 
 /**
- * Checks if customer is part of Group.
- *
  * @author Antonio Perić <antonio@locastic.com>
  */
 class CustomerGroupRuleChecker implements RuleCheckerInterface
@@ -37,6 +35,7 @@ class CustomerGroupRuleChecker implements RuleCheckerInterface
         if (null === $customer = $subject->getCustomer()) {
             return false;
         }
+
         if (!$customer instanceof GroupableInterface) {
             return false;
         }

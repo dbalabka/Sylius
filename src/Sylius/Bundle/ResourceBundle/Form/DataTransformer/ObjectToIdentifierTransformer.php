@@ -48,7 +48,29 @@ class ObjectToIdentifierTransformer implements DataTransformerInterface
      */
     public function transform($value)
     {
-        if (null === $value) {
+        if (!$value) {
+            return null;
+        }
+
+        $entity = $this->repository->findOneBy([$this->identifier => $value]);
+        if (null === $entity) {
+            throw new TransformationFailedException(sprintf(
+                'Object "%s" with identifier "%s"="%s" does not exist.',
+                $this->repository->getClassName(),
+                $this->identifier,
+                $value
+            ));
+        }
+
+        return $entity;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reverseTransform($value)
+    {
+        if (empty($value)) {
             return '';
         }
 
@@ -61,26 +83,5 @@ class ObjectToIdentifierTransformer implements DataTransformerInterface
         $accessor = PropertyAccess::createPropertyAccessor();
 
         return $accessor->getValue($value, $this->identifier);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function reverseTransform($value)
-    {
-        if (!$value) {
-            return null;
-        }
-
-        if (null === $entity = $this->repository->findOneBy([$this->identifier => $value])) {
-            throw new TransformationFailedException(sprintf(
-                'Object "%s" with identifier "%s"="%s" does not exist.',
-                $this->repository->getClassName(),
-                $this->identifier,
-                $value
-            ));
-        }
-
-        return $entity;
     }
 }

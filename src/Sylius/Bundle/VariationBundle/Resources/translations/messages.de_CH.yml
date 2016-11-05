@@ -2,9 +2,8 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    variant:
-      presentation: Präsentation
-    option:
-      name: Interner Name
-      presentation: Präsentation
+    form:
+        variant:
+            presentation: Präsentation
+        option:
+            name: Name

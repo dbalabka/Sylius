@@ -22,6 +22,10 @@
             <option name="message">sylius.promotion.code.unique</option>
             <option name="groups">sylius</option>
         </constraint>
+        <constraint name="Sylius\Bundle\PromotionBundle\Validator\Constraints\PromotionDateRange">
+            <option name="message">sylius.promotion.end_date_cannot_be_set_prior_start_date</option>
+            <option name="groups">sylius</option>
+        </constraint>
         <property name="code">
         <constraint name="NotBlank">
             <option name="message">sylius.promotion.code.not_blank</option>
@@ -42,10 +46,6 @@
             </constraint>
         </property>
         <property name="description">
-            <constraint name="NotBlank">
-                <option name="message">sylius.promotion.description.not_blank</option>
-                <option name="groups">sylius</option>
-            </constraint>
             <constraint name="Length">
                 <option name="min">2</option>
                 <option name="max">255</option>
@@ -94,6 +94,7 @@
     </class>
 
     <class name="Sylius\Component\Promotion\Generator\Instruction">
+        <constraint name="Sylius\Bundle\PromotionBundle\Validator\Constraints\CouponPossibleGenerationAmount" />
         <property name="amount">
             <constraint name="NotBlank">
                 <option name="message">sylius.promotion_coupon_generate_instruction.amount.not_blank</option>
@@ -107,6 +108,17 @@
             <constraint name="Range">
                 <option name="min">1</option>
                 <option name="minMessage">sylius.promotion_coupon_generate_instruction.usage_limit.min</option>
+            </constraint>
+        </property>
+        <property name="codeLength">
+            <constraint name="Range">
+                <option name="min">1</option>
+                <option name="minMessage">sylius.promotion_coupon_generate_instruction.code_length.min</option>
+                <option name="max">40</option>
+                <option name="maxMessage">sylius.promotion_coupon_generate_instruction.code_length.max</option>
+            </constraint>
+            <constraint name="NotBlank">
+                <option name="message">sylius.promotion_coupon_generate_instruction.code_length.not_blank</option>
             </constraint>
         </property>
     </class>

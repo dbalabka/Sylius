@@ -5,83 +5,69 @@ env:
         - SYLIUS_CACHE_DIR=$HOME/.sylius-cache
         - SYLIUS_BUILD_DIR=etc/build
 
-cache:
-    directories:
-        - bin
-        - vendor
-        - $SYLIUS_CACHE_DIR
-
 sudo: false
 
-addons:
-    apt:
-        sources:
-            - google-chrome
-        packages:
-            - google-chrome-stable
+matrix:
+    include:
+        -
+            php: 7.0
+            env: SYLIUS_SUITE="application"
+            services:
+                - memcached
+        -
+            php: 7.0
+            env: SYLIUS_SUITE="docs packages"
+            addons:
+                apt:
+                    packages:
+                       - parallel
+        -
+            php: 5.6
+            env: SYLIUS_SUITE="application"
+            services:
+                - memcached
+        -
+            php: 5.5
+            env: SYLIUS_SUITE="application"
+            services:
+                - memcached
+        -
+           php: 5.5
+           env: SYLIUS_SUITE="packages"
+           addons:
+               apt:
+                   packages:
+                      - parallel
 
-services:
-    - memcached
-
-php:
-    - 7.0
-    - 5.6
-    - 5.5
+cache:
+    directories:
+        - ~/.composer/cache/files
+        - ~/.cache/pip
+        - vendor
+        - bin
+        - node_modules
+        - $SYLIUS_CACHE_DIR
 
 before_install:
-    - phpenv config-rm xdebug.ini || true
-
-    - mkdir -p $SYLIUS_CACHE_DIR
-
-    - etc/travis/prepare-memcached-extension
-
-    - phpenv config-add etc/travis/before-install-php.ini
-
-    - composer self-update
-
-    - if [[ -z "$GITHUB_OAUTH_TOKEN" ]]; then export GITHUB_OAUTH_TOKEN="66736022ed66ebbb2be87027ed45a24554cc8344"; fi
-    - composer config -g github-oauth.github.com "$GITHUB_OAUTH_TOKEN" >/dev/null 2>&1
+    - etc/travis/run-suite before_install "${SYLIUS_SUITE}"
 
 install:
-    - composer install --no-interaction --prefer-dist --no-scripts
-    - composer run-script travis-build --no-interaction
+    - etc/travis/run-suite install "${SYLIUS_SUITE}"
 
 before_script:
-    - phpenv config-add etc/travis/before-script-php.ini
-
-    - app/console doctrine:database:create --env=test_cached # have to be run with debug = true, to omit generating proxies before setting up the database
-
-    - app/console cache:warmup --env=test_cached --no-debug
-
-    - app/console doctrine:schema:create --env=test_cached --no-debug
-    - app/console doctrine:phpcr:repository:init --env=test_cached --no-debug
-
-    - app/console assets:install --env=test_cached --no-debug
-    - app/console assetic:dump --env=test_cached --no-debug
-
-    # Debug informations, PHP version & PHP configuration
-    # Its needed to remove the line with secret ariable, as it is listed in _SERVER variables
-    - php -v
-    - php -i | grep -v 'GITHUB_OAUTH_TOKEN\|SYMFONY__'
+    - etc/travis/run-suite before_script "${SYLIUS_SUITE}"
 
 script:
-    - composer validate
-
-    - if [[ $TRAVIS_PHP_VERSION = 7.* ]]; then bin/kawaii gherkin:check --align=left features/; fi;
-
-    - bin/phpspec run --no-interaction -f dot
-    - bin/phpunit
-
-    - etc/travis/prepare-javascript
-    - etc/travis/run-behat
+    - etc/travis/run-suite script "${SYLIUS_SUITE}"
 
 before_cache:
-    - yes 'Y' | rm -fr vendor/symfony-cmf/create-bundle/Resources/public/vendor/*
+    - etc/travis/run-suite before_cache "${SYLIUS_SUITE}"
+
+after_success:
+    - etc/travis/run-suite after_success "${SYLIUS_SUITE}"
 
 after_failure:
-    - export IMGUR_API_KEY=4907fcd89e761c6b07eeb8292d5a9b2a
+    - etc/travis/run-suite after_failure "${SYLIUS_SUITE}"
 
-    - cp app/logs/test_cached.log "$SYLIUS_BUILD_DIR/symfony_app.log"
-
-    - vendor/lakion/mink-debug-extension/travis/tools/upload-textfiles "$SYLIUS_BUILD_DIR/*.log"
-    - vendor/lakion/mink-debug-extension/travis/tools/upload-screenshots "$SYLIUS_BUILD_DIR/*.png"
+after_script:
+    - etc/travis/run-suite after_script "${SYLIUS_SUITE}"

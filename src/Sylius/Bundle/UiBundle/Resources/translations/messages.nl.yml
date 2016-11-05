@@ -2,10 +2,124 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Gebruikersnaam
-      password: Wachtwoord
-      remember_me: Onthoud mijn gegevens
-  ui:
-    dashboard: Dashboard
+    form:
+        login:
+            username: Gebruikersnaam
+            password: Wachtwoord
+            remember_me: Onthoud mijn gegevens
+        option:
+            presentation: Weergave
+    ui:
+        add_coupon: Nieuwe coupon
+        all: Alles
+        actions: Acties
+        administration_panel_login: Beheer
+        an_error_occurred: Er deed zich een fout voor
+        are_your_sure_you_want_to_perform_this_action: Weet u zeker dat u deze actie wilt uitvoeren?
+        available_for_channels: Beschikbaar voor kanalen
+        cancel: Annuleren
+        cancelled: Geannuleerd
+        category_requirements: Categorie vereisten
+        charges_and_taxes: Heffingen en belastingen
+        checkout: Afrekenen
+        clear_filters: Wis filters
+        color: Kleur
+        configure_channels_available_in_your_store: Configureer beschikbare kanalen in uw winkel
+        confirm_your_action: Bevestigen uw actie
+        contains: Bevat
+        countries: Landen
+        coupons: Coupons
+        coupon_based: Coupon gebaseerd
+        create: Creëer
+        currencies: "Valuta's"
+        dashboard: Dashboard
+        date: Datum
+        default_currency: Standaard valuta
+        default_locale: Standaardlandinstelling
+        delete: Verwijderen
+        description: Omschrijving
+        disabled: Inactief
+        edit: Bewerken
+        edit_channel: Bewerk kanaal
+        edit_country: Land bewerken
+        edit_currency: Bewerk valuta
+        edit_customer: Bewerk klant
+        edit_payment_method: Bewerk betaalmethode
+        edit_product_option: Bewerk product-optie
+        edit_product_attribute: Productattribuut bewerken
+        edit_promotion: Bewerk promotie
+        edit_shipping_method: Verzendmethode bewerken
+        edit_tax_category: Bewerk belasting categorie
+        edit_tax_rate: Bewerk belastingtarief
+        edit_taxon: Taxon bewerken
+        edit_zone: Zone bewerken
+        empty: Leeg
+        enabled: Toegestaan
+        ends_with: Eindigt met
+        equal: Gelijk
+        exclusive: Exclusief
+        expires_at: Verloopt op
+        filter: Filter
+        in: In
+        info: Info
+        last_updated: Laatst bijgewerkt
+        locales: "Talen/Regio's"
+        manage_attributes_of_your_products: Beheer kenmerken van uw producten
+        manage_currencies_available_in_the_store: "Beheer beschikbare valuta's in de winkel"
+        manage_your_customers: Klanten beheren
+        manage_languages_available_in_the_store: Beheren van beschikbare talen voor de winkel
+        manage_configuration_options_of_your_products: Beheer configuratie-opties van uw producten
+        manage_payment_methods_available_to_your_customers: Beheer beschikbare betalingsmethoden voor uw klanten
+        manage_shipping_destinations: Beheer van bestemmingen voor verzending
+        manage_categorization_of_your_products: Beheer categorisering van uw producten
+        manage_shipping_methods_for_your_store: Beheer verzendmethoden voor uw winkel
+        manage_taxation_of_your_products: Beheren van belastingen van uw producten
+        manage_geographical_zones: Beheer geografische zones
+        manage_discounts_and_promotional_campaigns: Beheer kortingen en promotionele campagnes
+        new: Nieuw
+        new_channel: Nieuw kanaal
+        new_country: NIeuw land toevoegen
+        new_currency: Nieuwe valuta
+        new_locale: Nieuwe landinstelling
+        new_tax_category: Nieuwe belastingcategorie toevoegen
+        "no": false
+        no_account: geen account
+        no_results_to_display: Er zijn geen resultaten om weer te geven
+        no_taxes: Geen belasting toegepast
+        no_promotion: Geen promotie toegepast
+        no_shipping_charges: Geen verzendkosten
+        not_contains: Bevat niet
+        not_empty: Niet leeg
+        not_in: Niet in
+        or: of
+        powered_by: Mogelijk gemaakt door
+        promotion_configuration: Promotie configuratie
+        promotion_information: Promotie informatie
+        quantity: Hoeveelheid
+        ready: Klaar
+        returned: Geretourneerd
+        save_changes: Aanpassingen opslaan
+        shipped: Verzonden
+        shipping_methods: Verzendmethoden
+        show: Toon
+        sign_in: Aanmelden
+        sign_out: Afmelden
+        starts_with: Begint met
+        status: Status
+        success: Succes
+        tax_categories: Belastingscategorieën
+        values: Waarden
+        "yes": true
+        total_records: Aantal records
+        jump_to_page: Ga naar pagina
+        go: Ga
+        unlimited: Onbeperkt
+        no_requirement: Geen vereiste
+        zone_consisting_of_countries: Zone bestaande uit landen
+        zone_consisting_of_provinces: Zone bestaande uit provincies
+        zone_consisting_of_other_zones: Zone bestaande uit andere zones
+        no_theme: Geen thema
+        usage: Gebruik
+        customer_can_login_to_the_store: Klant kan inloggen op de winkel
+        account_credentials: Logingegevens
+        extra_information: Extra informatie

@@ -2,6 +2,7 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      enabled: Aktiviert
+    form:
+        currency:
+            enabled: Aktiviert
+            code: Name

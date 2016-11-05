@@ -1,0 +1,12 @@
+# This file is part of the Sylius package.
+# (c) Paweł Jędrzejewski
+
+sylius:
+    form:
+        option:
+            presentation: Präsentation
+    ui:
+        default_currency: Standardwährung
+        enabled: Aktiviert
+        "no": false
+        "yes": true

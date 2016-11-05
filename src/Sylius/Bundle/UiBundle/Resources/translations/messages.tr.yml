@@ -2,10 +2,49 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Kullanıcı adı
-      password: Şifre
-      remember_me: Beni hatırla
-  ui:
-    dashboard: Kontrol Paneli
+    form:
+        login:
+            username: Kullanıcı adı
+            password: Şifre
+            remember_me: Beni hatırla
+        option:
+            presentation: Sunum
+    ui:
+        add_coupon: Kupon Ekle
+        actions: Eylemler
+        cancel: İptal
+        cancelled: İptal Edildi
+        checkout: 'Ödeme  yap'
+        color: Renk
+        countries: Ülkeler
+        coupons: Kuponlar
+        coupon_based: Kupona dayalı
+        create: Oluştur
+        currencies: Para birimi
+        dashboard: Kontrol Paneli
+        default_currency: Varsayılan para birimi
+        delete: Sil
+        description: Açıklama
+        edit: Düzenle
+        empty: Boş
+        enabled: Etkin
+        exclusive: Özel
+        expires_at: Süre sonu: 
+        filter: Filtrele
+        locales: Diller
+        new: Yeni
+        new_country: Yeni ülke
+        new_currency: Yeni para birimi
+        new_tax_category: Yeni vergi kategorisi
+        "no": false
+        no_taxes: Vergi uygulanmadı
+        no_promotion: Uygulanan hiçbir promosyon yoktur
+        no_shipping_charges: Uygulanan hiçbir kargo ücreti yoktur
+        quantity: Adet
+        ready: Hazır
+        returned: İade Edildi
+        save_changes: Değişiklikleri kaydet
+        shipped: Kargolandı
+        shipping_methods: Gönderim metodları
+        success: Başarılı
+        "yes": true

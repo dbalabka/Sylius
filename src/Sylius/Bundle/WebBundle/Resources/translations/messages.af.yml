@@ -2,9 +2,13 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  "no": false
-  product_option:
-    presentation: Weergawe
-  "yes": true
-  zone:
-    scope: Gebied
+    ui:
+        city: Stad
+        company: Maatskappy
+        members: Lede
+        postcode: Poskode
+        presentation: Weergawe
+        province: Provinsie
+        provinces: Provinsies
+        scope: Gebied
+        street: Straat

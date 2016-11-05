@@ -15,8 +15,6 @@ use Sylius\Bundle\ChannelBundle\Form\Type\ChannelType as BaseChannelType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * Configurable channel form type.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 class ChannelType extends BaseChannelType
@@ -29,8 +27,8 @@ class ChannelType extends BaseChannelType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('taxonomies', 'sylius_taxonomy_choice', [
-                'label' => 'sylius.form.channel.taxonomies',
+            ->add('taxons', 'sylius_taxon_choice', [
+                'label' => 'sylius.form.channel.taxons',
                 'multiple' => true,
             ])
             ->add('locales', 'sylius_locale_choice', [
@@ -47,10 +45,11 @@ class ChannelType extends BaseChannelType
             ->add('defaultCurrency', 'sylius_currency_choice', [
                 'label' => 'sylius.form.channel.currency_default',
             ])
-            ->add('theme', 'sylius_theme_choice', [
+            ->add('themeName', 'sylius_theme_name_choice', [
                 'label' => 'sylius.form.channel.theme',
                 'required' => false,
                 'empty_data' => null,
+                'empty_value' => 'sylius.ui.no_theme',
             ])
             ->add('shippingMethods', 'sylius_shipping_method_choice', [
                 'label' => 'sylius.form.channel.shipping_methods',

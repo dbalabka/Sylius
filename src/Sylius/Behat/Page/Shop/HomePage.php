@@ -16,10 +16,10 @@ use Sylius\Behat\Page\SymfonyPage;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class HomePage extends SymfonyPage
+class HomePage extends SymfonyPage implements HomePageInterface
 {
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getContents()
     {

@@ -11,15 +11,26 @@
 
 namespace Sylius\Bundle\ShippingBundle\Controller;
 
+use FOS\RestBundle\View\View;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+use Sylius\Component\Resource\ResourceActions;
 use Sylius\Component\Shipping\ShipmentTransitions;
 use Symfony\Component\HttpFoundation\Request;
 
 class ShipmentController extends ResourceController
 {
+    /**
+     * @param Request $request
+     *
+     * @return mixed
+     */
     public function shipAction(Request $request)
     {
-        $shipment = $this->findOr404($request);
+        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
+
+        $this->isGrantedOr403($configuration, ResourceActions::UPDATE);
+        $shipment = $this->findOr404($configuration);
+
         $form = $this->createForm('sylius_shipment_tracking', $shipment);
 
         if ($form->submit($request)->isValid()) {
@@ -29,23 +40,24 @@ class ShipmentController extends ResourceController
                 ->apply(ShipmentTransitions::SYLIUS_SHIP)
             ;
 
-            $this->domainManager->update($shipment);
+            $this->manager->flush();
 
-            $this->flashHelper->setFlash('success', 'sylius.shipment.ship.success');
+            $this->flashHelper->addSuccessFlash($configuration, ResourceActions::UPDATE, $shipment);
 
-            return $this->redirectHandler->redirectTo($shipment);
+            return $this->redirectHandler->redirectToReferer($configuration);
         }
 
-        $view = $this
-            ->view()
-            ->setTemplate($this->config->getTemplate('show.html'))
-            ->setTemplateVar($this->config->getResourceName())
+        $view = View::create()
             ->setData([
+                'configuration' => $configuration,
+                'metadata' => $this->metadata,
+                'resource' => $shipment,
                 'shipment' => $shipment,
                 'shipment_tracking_form' => $form->createView(),
             ])
+            ->setTemplate($configuration->getTemplate(ResourceActions::SHOW))
         ;
 
-        return $this->handleView($view);
+        return $this->viewHandler->handle($configuration, $view);
     }
 }

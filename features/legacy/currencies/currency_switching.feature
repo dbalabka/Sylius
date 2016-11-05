@@ -1,14 +1,14 @@
-@legacy_currencies
+@legacy @currency
 Feature: Currency selection
     In order to pay using my preferred currency
     As a customer
     I want to to select my currency in storefront
 
     Background:
-        Given there are following taxonomies defined:
+        Given there are following taxons defined:
             | code | name     |
             | RTX1 | Category |
-        And taxonomy "Category" has following taxons:
+        And taxon "Category" has following children:
             | Clothing[TX1] > PHP T-Shirts[TX2] |
         And the following products exist:
             | name    | price | taxons       |
@@ -56,4 +56,4 @@ Feature: Currency selection
         And I change the currency to "GBP"
         And I added product "PHP Top" to cart, with quantity "1"
         When I go to the cart summary page
-        Then I should see item with price "£6.83" in the list
+        Then I should see item with unit price "£6.83" in the list

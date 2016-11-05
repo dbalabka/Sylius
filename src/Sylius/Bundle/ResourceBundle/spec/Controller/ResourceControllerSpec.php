@@ -165,12 +165,13 @@ class ResourceControllerSpec extends ObjectBehavior
         $singleResourceProvider->get($configuration, $repository)->willReturn($resource);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::SHOW)->willReturn('SyliusShopBundle:Product:show.html.twig');
+        $configuration->getTemplate(ResourceActions::SHOW . '.html')->willReturn('SyliusShopBundle:Product:show.html.twig');
 
         $eventDispatcher->dispatch(ResourceActions::SHOW, $configuration, $resource)->shouldBeCalled();
 
         $expectedView = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $metadata,
                 'resource' => $resource,
                 'product' => $resource,
@@ -261,11 +262,12 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.index')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::INDEX)->willReturn('SyliusShopBundle:Product:index.html.twig');
+        $configuration->getTemplate(ResourceActions::INDEX . '.html')->willReturn('SyliusShopBundle:Product:index.html.twig');
         $resourcesCollectionProvider->get($configuration, $repository)->willReturn([$resource1, $resource2]);
 
         $expectedView = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $metadata,
                 'resources' => [$resource1, $resource2],
                 'products' => [$resource1, $resource2],
@@ -323,7 +325,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -333,6 +335,7 @@ class ResourceControllerSpec extends ObjectBehavior
 
         $expectedView = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $metadata,
                 'resource' => $newResource,
                 'product' => $newResource,
@@ -371,7 +374,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -383,6 +386,7 @@ class ResourceControllerSpec extends ObjectBehavior
 
         $expectedView = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $metadata,
                 'resource' => $newResource,
                 'product' => $newResource,
@@ -420,7 +424,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(false);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -465,7 +469,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -518,7 +522,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -568,7 +572,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(false);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -619,7 +623,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.create')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(false);
-        $configuration->getTemplate(ResourceActions::CREATE)->willReturn('SyliusShopBundle:Product:create.html.twig');
+        $configuration->getTemplate(ResourceActions::CREATE . '.html')->willReturn('SyliusShopBundle:Product:create.html.twig');
 
         $newResourceFactory->create($configuration, $factory)->willReturn($newResource);
         $resourceFormFactory->create($configuration, $newResource)->willReturn($form);
@@ -710,7 +714,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.update')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::UPDATE)->willReturn('SyliusShopBundle:Product:update.html.twig');
+        $configuration->getTemplate(ResourceActions::UPDATE . '.html')->willReturn('SyliusShopBundle:Product:update.html.twig');
 
         $singleResourceProvider->get($configuration, $repository)->willReturn($resource);
         $resourceFormFactory->create($configuration, $resource)->willReturn($form);
@@ -723,6 +727,7 @@ class ResourceControllerSpec extends ObjectBehavior
 
         $expectedView = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $metadata,
                 'resource' => $resource,
                 'product' => $resource,
@@ -761,7 +766,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.update')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::UPDATE)->willReturn('SyliusShopBundle:Product:update.html.twig');
+        $configuration->getTemplate(ResourceActions::UPDATE . '.html')->willReturn('SyliusShopBundle:Product:update.html.twig');
 
         $singleResourceProvider->get($configuration, $repository)->willReturn($resource);
         $resourceFormFactory->create($configuration, $resource)->willReturn($form);
@@ -776,6 +781,7 @@ class ResourceControllerSpec extends ObjectBehavior
 
         $expectedView = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $metadata,
                 'resource' => $resource,
                 'product' => $resource,
@@ -910,7 +916,7 @@ class ResourceControllerSpec extends ObjectBehavior
         $authorizationChecker->isGranted($configuration, 'sylius.product.update')->willReturn(true);
 
         $configuration->isHtmlRequest()->willReturn(true);
-        $configuration->getTemplate(ResourceActions::UPDATE)->willReturn('SyliusShopBundle:Product:update.html.twig');
+        $configuration->getTemplate(ResourceActions::UPDATE . '.html')->willReturn('SyliusShopBundle:Product:update.html.twig');
 
         $singleResourceProvider->get($configuration, $repository)->willReturn($resource);
         $resourceFormFactory->create($configuration, $resource)->willReturn($form);

@@ -14,11 +14,13 @@ namespace Sylius\Behat\Context\Setup;
 use Behat\Behat\Context\Context;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Addressing\Repository\ZoneRepositoryInterface;
 use Sylius\Component\Core\Model\ShippingMethodInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Shipping\Calculator\DefaultCalculators;
+use Sylius\Component\Shipping\Repository\ShippingMethodRepositoryInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
 /**
@@ -32,12 +34,12 @@ final class ShippingContext implements Context
     private $sharedStorage;
 
     /**
-     * @var RepositoryInterface
+     * @var ShippingMethodRepositoryInterface
      */
     private $shippingMethodRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var ZoneRepositoryInterface
      */
     private $zoneRepository;
 
@@ -53,15 +55,15 @@ final class ShippingContext implements Context
 
     /**
      * @param SharedStorageInterface $sharedStorage
-     * @param RepositoryInterface $shippingMethodRepository
-     * @param RepositoryInterface $zoneRepository
+     * @param ShippingMethodRepositoryInterface $shippingMethodRepository
+     * @param ZoneRepositoryInterface $zoneRepository
      * @param FactoryInterface $shippingMethodFactory
      * @param ObjectManager $shippingMethodManager
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
-        RepositoryInterface $shippingMethodRepository,
-        RepositoryInterface $zoneRepository,
+        ShippingMethodRepositoryInterface $shippingMethodRepository,
+        ZoneRepositoryInterface $zoneRepository,
         FactoryInterface $shippingMethodFactory,
         ObjectManager $shippingMethodManager
     ) {
@@ -92,13 +94,31 @@ final class ShippingContext implements Context
     }
 
     /**
-     * @Given /^the store has "([^"]*)" shipping method with ("[^"]+") fee$/
-     * @Given /^the store has "([^"]*)" shipping method with ("[^"]+") fee within ("([^"]*)" zone)$/
-     * @Given /^the store has "([^"]*)" shipping method with ("[^"]+") fee for (the rest of the world)$/
+     * @Given the store allows shipping with :name
+     * @Given the store allows shipping with :name identified by :code
+     */
+    public function theStoreAllowsShippingMethod($name, $code = null)
+    {
+        $this->createShippingMethod($name, $code);
+    }
+
+    /**
+     * @Given the store allows shipping with :firstName and :secondName
+     */
+    public function theStoreAllowsShippingWithAnd($firstName, $secondName)
+    {
+        $this->createShippingMethod($firstName);
+        $this->createShippingMethod($secondName);
+    }
+
+    /**
+     * @Given /^the store has "([^"]+)" shipping method with ("[^"]+") fee$/
+     * @Given /^the store has "([^"]+)" shipping method with ("[^"]+") fee within ("[^"]+" zone)$/
+     * @Given /^the store has "([^"]+)" shipping method with ("[^"]+") fee for (the rest of the world)$/
      */
     public function storeHasShippingMethodWithFee($shippingMethodName, $fee, ZoneInterface $zone = null)
     {
-        $this->createShippingMethod($shippingMethodName, $zone, 'en', ['amount' => $fee]);
+        $this->createShippingMethod($shippingMethodName, null, $zone, 'en', ['amount' => $fee]);
     }
 
     /**
@@ -111,15 +131,35 @@ final class ShippingContext implements Context
     }
 
     /**
+     * @Given the shipping method :shippingMethod is enabled
+     */
+    public function theShippingMethodIsEnabled(ShippingMethodInterface $shippingMethod)
+    {
+        $shippingMethod->enable();
+        $this->shippingMethodManager->flush();
+    }
+
+    /**
+     * @Given the shipping method :shippingMethod is disabled
+     */
+    public function theShippingMethodIsDisabled(ShippingMethodInterface $shippingMethod)
+    {
+        $shippingMethod->disable();
+        $this->shippingMethodManager->flush();
+    }
+
+    /**
      * @param string $name
+     * @param string|null $code
+     * @param ZoneInterface|null $zone
      * @param string $locale
      * @param array $configuration
      * @param string $calculator
-     * @param ZoneInterface|null $zone
      */
     private function createShippingMethod(
         $name,
-        $zone = null,
+        $code = null,
+        ZoneInterface $zone = null,
         $locale = 'en',
         $configuration = ['amount' => 0],
         $calculator = DefaultCalculators::FLAT_RATE
@@ -127,9 +167,14 @@ final class ShippingContext implements Context
         if (null === $zone) {
             $zone = $this->sharedStorage->get('zone');
         }
+        
+        if (null === $code) {
+            $code = $this->generateCodeFromNameAndZone($name, $zone->getCode());
+        }
 
+        /** @var ShippingMethodInterface $shippingMethod */
         $shippingMethod = $this->shippingMethodFactory->createNew();
-        $shippingMethod->setCode($this->generateCodeFromNameAndZone($name, $zone->getCode()));
+        $shippingMethod->setCode($code);
         $shippingMethod->setName($name);
         $shippingMethod->setCurrentLocale($locale);
         $shippingMethod->setConfiguration($configuration);
@@ -137,6 +182,7 @@ final class ShippingContext implements Context
         $shippingMethod->setZone($zone);
 
         $this->shippingMethodRepository->add($shippingMethod);
+        $this->sharedStorage->set('shipping_method', $shippingMethod);
     }
 
     /**

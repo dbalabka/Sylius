@@ -19,7 +19,7 @@ use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface as BaseShippingMethodInterface;
-use Sylius\Component\Taxonomy\Model\TaxonomyInterface as BaseTaxonomyInterface;
+use Sylius\Component\Taxonomy\Model\TaxonInterface as BaseTaxonInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -57,14 +57,14 @@ class Channel extends BaseChannel implements ChannelInterface
     protected $shippingMethods;
 
     /**
-     * @var BaseTaxonomyInterface[]|Collection
+     * @var BaseTaxonInterface[]|Collection
      */
-    protected $taxonomies;
+    protected $taxons;
 
     /**
-     * @var ThemeInterface
+     * @var string
      */
-    protected $theme;
+    protected $themeName;
 
     public function __construct()
     {
@@ -74,23 +74,23 @@ class Channel extends BaseChannel implements ChannelInterface
         $this->locales = new ArrayCollection();
         $this->paymentMethods = new ArrayCollection();
         $this->shippingMethods = new ArrayCollection();
-        $this->taxonomies = new ArrayCollection();
+        $this->taxons = new ArrayCollection();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTheme()
+    public function getThemeName()
     {
-        return $this->theme;
+        return $this->themeName;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTheme(ThemeInterface $theme = null)
+    public function setThemeName($themeName)
     {
-        $this->theme = $theme;
+        $this->themeName = $themeName;
     }
 
     /**
@@ -139,8 +139,6 @@ class Channel extends BaseChannel implements ChannelInterface
     public function setCurrencies(Collection $currencies)
     {
         $this->currencies = $currencies;
-
-        return $this;
     }
 
     /**
@@ -185,8 +183,6 @@ class Channel extends BaseChannel implements ChannelInterface
     public function setLocales(Collection $locales)
     {
         $this->locales = $locales;
-
-        return $this;
     }
 
     /**
@@ -292,46 +288,44 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function getTaxonomies()
+    public function getTaxons()
     {
-        return $this->taxonomies;
+        return $this->taxons;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTaxonomies(Collection $taxonomies)
+    public function setTaxons(Collection $taxons)
     {
-        $this->taxonomies = $taxonomies;
-
-        return $this;
+        $this->taxons = $taxons;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addTaxonomy(BaseTaxonomyInterface $taxonomy)
+    public function addTaxon(BaseTaxonInterface $taxon)
     {
-        if (!$this->hasTaxonomy($taxonomy)) {
-            $this->taxonomies->add($taxonomy);
+        if (!$this->hasTaxon($taxon)) {
+            $this->taxons->add($taxon);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeTaxonomy(BaseTaxonomyInterface $taxonomy)
+    public function removeTaxon(BaseTaxonInterface $taxon)
     {
-        if ($this->hasTaxonomy($taxonomy)) {
-            $this->taxonomies->removeElement($taxonomy);
+        if ($this->hasTaxon($taxon)) {
+            $this->taxons->removeElement($taxon);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasTaxonomy(BaseTaxonomyInterface $taxonomy)
+    public function hasTaxon(BaseTaxonInterface $taxon)
     {
-        return $this->taxonomies->contains($taxonomy);
+        return $this->taxons->contains($taxon);
     }
 }

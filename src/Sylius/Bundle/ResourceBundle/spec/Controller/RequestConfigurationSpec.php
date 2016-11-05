@@ -72,6 +72,17 @@ class RequestConfigurationSpec extends ObjectBehavior
         $this->getDefaultTemplate('custom.html')->shouldReturn('SyliusAdminBundle:Product:custom.html.twig');
     }
 
+    function it_returns_default_template_names_for_a_directory_based_templates(MetadataInterface $metadata)
+    {
+        $metadata->getTemplatesNamespace()->willReturn('book/Backend');
+
+        $this->getDefaultTemplate('index.html')->shouldReturn('book/Backend/index.html.twig');
+        $this->getDefaultTemplate('show.html')->shouldReturn('book/Backend/show.html.twig');
+        $this->getDefaultTemplate('create.html')->shouldReturn('book/Backend/create.html.twig');
+        $this->getDefaultTemplate('update.html')->shouldReturn('book/Backend/update.html.twig');
+        $this->getDefaultTemplate('custom.html')->shouldReturn('book/Backend/custom.html.twig');
+    }
+
     function it_takes_the_custom_template_if_specified(MetadataInterface $metadata, Parameters $parameters)
     {
         $metadata->getTemplatesNamespace()->willReturn('SyliusAdminBundle:Product');
@@ -472,5 +483,35 @@ class RequestConfigurationSpec extends ObjectBehavior
 
         $parameters->get('section')->willReturn('admin');
         $this->getSection()->shouldReturn('admin');
+    }
+
+    function it_has_vars(Parameters $parameters)
+    {
+        $parameters->get('vars', [])->willReturn(['foo' => 'bar']);
+        $this->getVars()->shouldReturn(['foo' => 'bar']);
+    }
+
+    function it_does_not_have_grid_unless_defined_as_in_parameters(Parameters $parameters)
+    {
+        $parameters->has('grid')->willReturn(false);
+        $this->shouldNotHaveGrid();
+
+        $parameters->has('grid')->willReturn(true);
+        $this->shouldHaveGrid();
+
+        $parameters->has('grid')->willReturn(true);
+        $parameters->get('grid')->willReturn('sylius_admin_tax_category');
+        
+        $this->getGrid()->shouldReturn('sylius_admin_tax_category');
+    }
+
+    function it_throws_an_exception_when_trying_to_retrieve_undefined_grid(Parameters $parameters)
+    {
+        $parameters->has('grid')->willReturn(false);
+
+        $this
+            ->shouldThrow(\LogicException::class)
+            ->during('getGrid')
+        ;
     }
 }

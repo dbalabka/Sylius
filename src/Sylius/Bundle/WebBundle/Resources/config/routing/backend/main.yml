@@ -48,13 +48,9 @@ sylius_backend_product_archetype:
     resource: @SyliusWebBundle/Resources/config/routing/backend/product_archetype.yml
     prefix: /product-archetypes
 
-sylius_backend_taxonomy:
-    resource: @SyliusWebBundle/Resources/config/routing/backend/taxonomy.yml
-    prefix: /taxonomies
-
 sylius_backend_taxon:
     resource: @SyliusWebBundle/Resources/config/routing/backend/taxon.yml
-    prefix: /taxonomies/{taxonomyId}/taxons
+    prefix: /taxons
 
 sylius_backend_user:
     resource: @SyliusWebBundle/Resources/config/routing/backend/user.yml
@@ -92,8 +88,12 @@ sylius_backend_tax_rate:
     type: sylius.resource
 
 sylius_backend_shipping_category:
-    resource: @SyliusWebBundle/Resources/config/routing/backend/shipping_category.yml
-    prefix: /shipping-categories
+    resource: |
+       alias: sylius.shipping_category
+       section: backend
+       except: ['show']
+       templates: SyliusWebBundle:Backend/ShippingCategory
+    type: sylius.resource
 
 sylius_backend_shipping_method:
     resource: @SyliusWebBundle/Resources/config/routing/backend/shipping_method.yml

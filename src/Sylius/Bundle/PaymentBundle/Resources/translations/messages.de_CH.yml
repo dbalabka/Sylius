@@ -2,6 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    payment_method:
-      name: Name
+    form:
+        credit_card:
+            cardholder_name: Name des Karteninhabers
+        payment:
+            state:
+                header: Zahlungsstatus
+        payment_method:
+            name: Name

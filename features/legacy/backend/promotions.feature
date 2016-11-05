@@ -1,4 +1,4 @@
-@legacy_promotions
+@legacy @promotion
 Feature: Promotions
     In order to apply discounts to my products
     As a store owner
@@ -16,17 +16,17 @@ Feature: Promotions
             | type          | configuration |
             | Cart quantity | Count: 3      |
         And promotion "New year" has following actions defined:
-            | type           | configuration |
-            | Fixed discount | Amount: 10    |
+            | type                 | configuration |
+            | Order fixed discount | Amount: 10    |
         And promotion "Christmas" has following rules defined:
             | type       | configuration |
             | Item total | Amount: 100   |
         And promotion "Christmas" has following actions defined:
-            | type           | configuration |
-            | Fixed discount | Amount: 15    |
+            | type                 | configuration |
+            | Order fixed discount | Amount: 15    |
         And promotion "Press Campaign" has following actions defined:
-            | type           | configuration |
-            | Fixed discount | Amount: 5     |
+            | type                | configuration |
+            | Orde fixed discount | Amount: 5     |
         And promotion "Press Campaign" has following coupons:
             | code   | usage limit | used |
             | XD0001 | 1           | 0    |
@@ -35,8 +35,8 @@ Feature: Promotions
             | AD0001 | 3           | 2    |
             | AD0002 | 3           | 0    |
         And promotion "Free orders" has following actions defined:
-            | type                | configuration   |
-            | Percentage discount | Percentage: 100 |
+            | type                      | configuration   |
+            | Order percentage discount | Percentage: 100 |
         And I am logged in as administrator
 
     Scenario: Seeing index of all promotions
@@ -94,8 +94,7 @@ Feature: Promotions
         When I fill in "Code" with "P5"
         And I fill in "Name" with "Behat Training"
         And I fill in "Description" with "Behat Training 100 EUR discount on all orders"
-        And I click "Add action"
-        And I select "Fixed discount" from "Type"
+        And I add "Order fixed discount" action
         And I fill in "Amount" with "100"
         And I press "Create"
         Then I should see "Behat Training"
@@ -107,8 +106,7 @@ Feature: Promotions
         When I fill in "Code" with "P5"
         And I fill in "Name" with "Sylius Training"
         And I fill in "Description" with "Sylius Training 10% discount on all orders"
-        And I click "Add action"
-        And I select "Percentage discount" from "Type"
+        And I add "Order percentage discount" action
         And I fill in "Percentage" with "10"
         And I press "Create"
         Then I should see "Sylius Training"
@@ -156,6 +154,7 @@ Feature: Promotions
         Given I am on the page of promotion "Press Campaign"
         And I follow "Generate coupons"
         When I fill in "Amount" with "50"
+        And I fill in "Code length" with "6"
         And I press "Generate"
         Then I should see "Promotion coupons have been successfully generated"
 
@@ -163,6 +162,7 @@ Feature: Promotions
         Given I am on the page of promotion "Press Campaign"
         And I follow "Generate coupons"
         When I fill in "Amount" with "5"
+        And I fill in "Code length" with "6"
         And I fill in "Usage limit" with "5"
         And I press "Generate"
         Then I should see "Promotion coupons have been successfully generated"
@@ -171,6 +171,7 @@ Feature: Promotions
         Given I am on the page of promotion "Press Campaign"
         And I follow "Generate coupons"
         And I fill in "Amount" with "50"
+        And I fill in "Code length" with "6"
         And I press "Generate"
         Then I should see "Promotion coupons have been successfully generated"
         And I should see "Total: 55"
@@ -202,8 +203,7 @@ Feature: Promotions
         When I fill in "Code" with "P5"
         And I fill in "Name" with "First 5 pay half!"
         And I fill in "Description" with "First 5 orders get 50% discount!"
-        And I click "Add action"
-        And I select "Percentage discount" from "Type"
+        And I add "Order percentage discount" action
         And I fill in "Percentage" with "50"
         And I fill in "Usage limit" with "5"
         And I press "Create"
@@ -277,10 +277,10 @@ Feature: Promotions
     @javascript
     Scenario: Deleting promotion action
         Given I am on the page of promotion "Christmas"
-        When I press "Delete" near "Fixed discount"
+        When I press "Delete" near "Order fixed discount"
         And I click "Delete" from the confirmation modal
         Then I should see "Promotion action has been successfully deleted"
-        And I should not see "Fixed discount"
+        And I should not see "Order fixed discount"
 
     Scenario: Cannot update promotion code
         When I am editing promotion "New Year"

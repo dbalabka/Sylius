@@ -13,7 +13,6 @@ namespace Sylius\Component\Order\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Model\SoftDeletableInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Sequence\Model\SequenceSubjectInterface;
 
@@ -24,7 +23,6 @@ interface OrderInterface extends
     AdjustableInterface,
     CommentAwareInterface,
     ResourceInterface,
-    SoftDeletableInterface,
     SequenceSubjectInterface,
     TimestampableInterface
 {
@@ -94,13 +92,6 @@ interface OrderInterface extends
     public function getTotal();
 
     /**
-     * Alias of {@link countItems()}.
-     *
-     * @deprecated To be removed in 1.0. Use {@link countItems()} instead.
-     */
-    public function getTotalItems();
-
-    /**
      * @return int
      */
     public function getTotalQuantity();
@@ -167,4 +158,9 @@ interface OrderInterface extends
      * @return int
      */
     public function getAdjustmentsTotalRecursively($type = null);
+
+    /**
+     * @param string|null $type
+     */
+    public function removeAdjustmentsRecursively($type = null);
 }

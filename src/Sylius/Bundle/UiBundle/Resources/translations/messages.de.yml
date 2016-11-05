@@ -2,10 +2,81 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Benutzername
-      password: Passwort
-      remember_me: Eingeloggt bleiben
-  ui:
-    dashboard: Dashboard
+    form:
+        login:
+            username: Benutzername
+            password: Passwort
+            remember_me: Eingeloggt bleiben
+        option:
+            presentation: Präsentation
+    ui:
+        add_coupon: Erstellt
+        all: Alle
+        actions: Aktionen
+        administration_panel_login: Administrations-Bereich Anmeldung
+        an_error_occurred: Es ist ein Fehler aufgetreten
+        are_your_sure_you_want_to_perform_this_action: Möchten Sie diese Aktion sicher durchführen?
+        cancel: Abbrechen
+        cancelled: Abgebrochen
+        checkout: Zur Kasse
+        clear_filters: Filter löschen
+        color: Farbe
+        confirm_your_action: Aktion bestätigen
+        contains: Enthält
+        countries: Länder
+        coupons: Gutscheine
+        coupon_based: Gutschein basierend
+        create: Erstellen
+        currencies: Währungen
+        dashboard: Dashboard
+        date: Datum
+        default_currency: Standardwährung
+        default_locale: Standard Lokalisierung
+        delete: Löschen
+        description: Beschreibung
+        disabled: Deaktiviert
+        edit: Bearbeiten
+        edit_tax_category: Steuerkategorien bearbeiten
+        edit_tax_rate: Steuersatz bearbeiten
+        empty: Leeren
+        enabled: Aktiviert
+        ends_with: Endet mit
+        equal: Gleich
+        exclusive: Exklusiv
+        expires_at: Verfällt am
+        filter: Filtern
+        in: In
+        info: Info
+        last_updated: Letzte Aktualisierung
+        locales: Gebietsschemata
+        manage_taxation_of_your_products: Besteuerung der Produkte verwalten
+        new: Neu
+        new_country: Neues Land
+        new_currency: Neue Währung
+        new_locale: Neue Lokalisierung
+        new_tax_category: Neue Steuerkategorie
+        "no": false
+        no_results_to_display: Es gibt keine Ergebnisse zum Anzeigen
+        no_taxes: Keine Steuern
+        no_promotion: Keine Reklame
+        no_shipping_charges: Keine Versandkosten
+        not_contains: Enthält nicht
+        not_empty: Nicht leer
+        not_in: Nicht in
+        or: oder
+        powered_by: Powered by
+        quantity: Anzahl
+        ready: Bereit
+        returned: Zurückgesandt
+        save_changes: Änderungen speichern
+        shipped: Versandt
+        shipping_methods: Versandmethoden
+        show: Anzeigen
+        sign_in: Anmelden
+        sign_out: Abmelden
+        starts_with: Beginnt mit
+        status: Status
+        success: Erfolgreich
+        tax_categories: Steuerkategorien
+        values: Werte
+        "yes": true

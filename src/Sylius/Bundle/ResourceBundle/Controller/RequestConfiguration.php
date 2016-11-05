@@ -98,7 +98,13 @@ class RequestConfiguration
      */
     public function getDefaultTemplate($name)
     {
-        return sprintf('%s:%s.%s', $this->metadata->getTemplatesNamespace() ?: ':', $name, 'twig');
+        $templatesNamespace = $this->metadata->getTemplatesNamespace();
+
+        if (false !== strpos($templatesNamespace, ':')) {
+            return sprintf('%s:%s.%s', $templatesNamespace ?: ':', $name, 'twig');
+        }
+
+        return sprintf('%s/%s.%s', $templatesNamespace, $name, 'twig');
     }
 
     /**
@@ -504,6 +510,11 @@ class RequestConfiguration
         return (bool) $redirect['header'];
     }
 
+    public function getVars()
+    {
+        return $this->parameters->get('vars', []);
+    }
+
     /**
      * @param array  $parameters
      * @param object $resource
@@ -529,5 +540,27 @@ class RequestConfiguration
         }
 
         return $parameters;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasGrid()
+    {
+        return $this->parameters->has('grid');
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \LogicException
+     */
+    public function getGrid()
+    {
+        if (!$this->hasGrid()) {
+            throw new \LogicException('Current action does not use grid.');
+        }
+
+        return $this->parameters->get('grid');
     }
 }

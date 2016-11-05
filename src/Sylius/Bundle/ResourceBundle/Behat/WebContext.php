@@ -51,10 +51,7 @@ class WebContext extends DefaultContext
     {
         $type = str_replace(' ', '_', $type);
 
-        $entityManager = $this->getEntityManager();
-        $entityManager->getFilters()->disable('softdeleteable');
         $resource = $this->findOneBy($type, [$property => $value]);
-        $entityManager->getFilters()->enable('softdeleteable');
 
         $this->getSession()->visit($this->generatePageUrl(
             sprintf('%s_show', $type), ['id' => $resource->getId()]
@@ -73,7 +70,13 @@ class WebContext extends DefaultContext
             return;
         }
 
-        $this->iAmOnTheResourcePage($type, 'name', $name);
+        $type = str_replace(' ', '_', $type);
+
+        $resource = $this->findOneByName($type, $name);
+
+        $this->getSession()->visit($this->generatePageUrl(
+            sprintf('%s_show', $type), ['id' => $resource->getId()]
+        ));
     }
 
     /**
@@ -84,14 +87,9 @@ class WebContext extends DefaultContext
     {
         $type = str_replace(' ', '_', $type);
 
-        $entityManager = $this->getEntityManager();
-        $entityManager->getFilters()->disable('softdeleteable');
-
         $resource = $this->waitFor(function () use ($type, $property, $value) {
             return $this->getRepository($type)->findOneBy([$property => $value]);
         });
-
-        $entityManager->getFilters()->enable('softdeleteable');
 
         $this->assertSession()->addressEquals($this->generatePageUrl(
             sprintf('%s_show', $type), ['id' => $resource->getId()]
@@ -112,7 +110,17 @@ class WebContext extends DefaultContext
             return;
         }
 
-        $this->iShouldBeOnTheResourcePage($type, 'name', $name);
+        $type = str_replace(' ', '_', $type);
+
+        $resource = $this->waitFor(function () use ($type, $name) {
+            return $this->getRepository($type)->findOneByName($name);
+        });
+
+        $this->assertSession()->addressEquals($this->generatePageUrl(
+            sprintf('%s_show', $type), ['id' => $resource->getId()]
+        ));
+
+        $this->assertStatusCodeEquals(200);
     }
 
     /**
@@ -141,7 +149,20 @@ class WebContext extends DefaultContext
             return;
         }
 
-        $this->iAmDoingSomethingWithResource($action, $type, 'name', $name);
+        if('product option' === $type) {
+            $this->iAmDoingSomethingWithResource($action, $type, 'code', $name);
+
+            return;
+        }
+
+        $type = str_replace(' ', '_', $type);
+
+        $action = str_replace(array_keys($this->actions), array_values($this->actions), $action);
+        $resource = $this->findOneByName($type, $name);
+
+        $this->getSession()->visit($this->generatePageUrl(
+            sprintf('%s_%s', $type, $action), ['id' => $resource->getId()]
+        ));
     }
 
     /**
@@ -171,7 +192,15 @@ class WebContext extends DefaultContext
             return;
         }
 
-        $this->iShouldBeDoingSomethingWithResource($action, $type, 'name', $name);
+        $type = str_replace(' ', '_', $type);
+
+        $action = str_replace(array_keys($this->actions), array_values($this->actions), $action);
+        $resource = $this->findOneByName($type, $name);
+
+        $this->assertSession()->addressEquals($this->generatePageUrl(
+            sprintf('%s_%s', $type, $action), ['id' => $resource->getId()]
+        ));
+        $this->assertStatusCodeEquals(200);
     }
 
     /**
@@ -695,16 +724,5 @@ class WebContext extends DefaultContext
         if (null === $select->getAttribute('disabled')) {
             throw new \Exception(sprintf('"%s" %s should be disabled', $name, $fieldType));
         }
-    }
-
-    /**
-     * @Given /^permalink of taxon "([^"]*)" in "([^"]*)" taxonomy has been changed to "([^"]*)"$/
-     */
-    public function permalinkOfTaxonInTaxonomyHasBeenChangedTo($taxon, $taxonomy, $newPermalink)
-    {
-        $this->iAmOnTheResourcePage('taxonomy', 'name', $taxonomy);
-        $this->iClickNear('Edit', $taxon);
-        $this->fillField('Permalink', $newPermalink);
-        $this->pressButton('Save changes');
     }
 }

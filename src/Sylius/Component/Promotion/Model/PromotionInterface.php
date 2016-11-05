@@ -14,13 +14,12 @@ namespace Sylius\Component\Promotion\Model;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Model\SoftDeletableInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
 /**
  * @author Saša Stamenković <umpirsky@gmail.com>
  */
-interface PromotionInterface extends CodeAwareInterface, SoftDeletableInterface, TimestampableInterface, ResourceInterface
+interface PromotionInterface extends CodeAwareInterface, TimestampableInterface, ResourceInterface
 {
     /**
      * @return string

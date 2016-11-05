@@ -2,8 +2,31 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Configuration
+    menu:
+        admin:
+            main:
+                catalog:
+                    header: Catalogue
+                    taxons: Famille de tags
+                    options: Options
+                    attributes: Attributs
+                configuration:
+                    channels: Canaux
+                    countries: Pays
+                    currencies: Devises
+                    header: Configuration
+                    locales: Locales
+                    payment_methods: Moyens de paiement
+                    shipping_methods: Modes de livraison
+                    tax_categories: Catégories de taxe
+                    tax_rates: Taux de taxe
+                    zones: Zones
+                marketing:
+                    header: Marketing
+                    promotions: Promotions
+                customers:
+                    header: Client
+                    customers: Clients
+                sales:
+                    header: Ventes
+                    orders: Commandes

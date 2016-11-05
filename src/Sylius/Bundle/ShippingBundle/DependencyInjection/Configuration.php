@@ -21,6 +21,7 @@ use Sylius\Bundle\ShippingBundle\Form\Type\ShippingCategoryType;
 use Sylius\Bundle\ShippingBundle\Form\Type\ShippingMethodTranslationType;
 use Sylius\Bundle\ShippingBundle\Form\Type\ShippingMethodType;
 use Sylius\Component\Resource\Factory\Factory;
+use Sylius\Component\Resource\Factory\TranslatableFactory;
 use Sylius\Component\Shipping\Model\Rule;
 use Sylius\Component\Shipping\Model\RuleInterface;
 use Sylius\Component\Shipping\Model\Shipment;
@@ -33,7 +34,6 @@ use Sylius\Component\Shipping\Model\ShippingMethod;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodTranslation;
 use Sylius\Component\Shipping\Model\ShippingMethodTranslationInterface;
-use Sylius\Component\Translation\Factory\TranslatableFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -178,10 +178,6 @@ class Configuration implements ConfigurationInterface
                                                     ->defaultValue(['sylius'])
                                                 ->end()
                                             ->end()
-                                        ->end()
-                                        ->arrayNode('fields')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['name'])
                                         ->end()
                                     ->end()
                                 ->end()

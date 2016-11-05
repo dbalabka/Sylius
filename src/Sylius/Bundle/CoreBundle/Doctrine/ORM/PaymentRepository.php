@@ -13,21 +13,18 @@ namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
 use Pagerfanta\Pagerfanta;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
 
-class PaymentRepository extends EntityRepository
+class PaymentRepository extends EntityRepository implements PaymentRepositoryInterface
 {
     /**
-     * Create filter paginator.
-     *
      * @param array $criteria
      * @param array $sorting
      *
      * @return Pagerfanta
      */
-    public function createFilterPaginator($criteria = [], $sorting = [])
+    public function createFilterPaginator(array $criteria = [], array $sorting = [])
     {
-        $this->_em->getFilters()->disable('softdeleteable');
-
         $queryBuilder = $this->getCollectionQueryBuilder();
         $queryBuilder
             ->leftJoin($this->getPropertyName('order'), 'paymentOrder')
@@ -77,10 +74,5 @@ class PaymentRepository extends EntityRepository
         $this->applySorting($queryBuilder, $sorting);
 
         return $this->getPaginator($queryBuilder);
-    }
-
-    protected function getAlias()
-    {
-        return 'p';
     }
 }

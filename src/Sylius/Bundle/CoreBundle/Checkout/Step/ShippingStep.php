@@ -14,21 +14,19 @@ namespace Sylius\Bundle\CoreBundle\Checkout\Step;
 use Sylius\Bundle\FlowBundle\Process\Context\ProcessContextInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\OrderCheckoutStates;
 use Sylius\Component\Core\OrderCheckoutTransitions;
 use Sylius\Component\Core\SyliusCheckoutEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Based on the user address, we present the available shipping methods,
- * and ask him to select his preferred one.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 class ShippingStep extends CheckoutStep
 {
     /**
-     * @var null|ZoneInterface
+     * @var ZoneInterface|null
      */
     private $zones;
 
@@ -40,7 +38,9 @@ class ShippingStep extends CheckoutStep
         $order = $this->getCurrentCart();
         $this->dispatchCheckoutEvent(SyliusCheckoutEvents::SHIPPING_INITIALIZE, $order);
 
-        $this->applyTransition(OrderCheckoutTransitions::TRANSITION_RESELECT_SHIPPING, $order, true);
+        if (OrderCheckoutStates::STATE_ADDRESSED !== $order->getCheckoutState()) {
+            $this->applyTransition(OrderCheckoutTransitions::TRANSITION_RESELECT_SHIPPING, $order);
+        }
 
         $form = $this->createCheckoutShippingForm($order);
 

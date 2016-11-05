@@ -23,6 +23,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class Configuration implements ConfigurationInterface
 {
+    /**
+     * @return TreeBuilder
+     */
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
@@ -39,6 +42,7 @@ class Configuration implements ConfigurationInterface
         $this->addResourcesSection($rootNode);
         $this->addRoutingSection($rootNode);
         $this->addCheckoutSection($rootNode);
+        $this->addSitemapSection($rootNode);
 
         return $treeBuilder;
     }
@@ -134,10 +138,26 @@ class Configuration implements ConfigurationInterface
     }
 
     /**
+     * @param ArrayNodeDefinition $node
+     */
+    private function addSitemapSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('sitemap')
+                    ->children()
+                        ->scalarNode('template')->defaultValue('@SyliusCore/Sitemap/show.xml.twig')->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
      * Helper method to append checkout step nodes.
      *
-     * @param $name
-     * @param $defaultTemplate
+     * @param string $name
+     * @param string $defaultTemplate
      *
      * @return NodeDefinition
      */

@@ -2,8 +2,23 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Configurare
+    menu:
+        admin:
+            main:
+                catalog:
+                    taxons: Categorii
+                    options: Opţiuni
+                    attributes: Atribute
+                configuration:
+                    countries: Țări
+                    header: Configurare
+                    locales: Setări regionale
+                    payment_methods: Metode de plată
+                    shipping_methods: Metode de livrare
+                    tax_rates: Taxe
+                    zones: Zone
+                marketing:
+                    promotions: Promoţii
+                sales:
+                    header: Vânzări
+                    orders: Comenzi

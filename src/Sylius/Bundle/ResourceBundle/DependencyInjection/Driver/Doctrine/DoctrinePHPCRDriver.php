@@ -13,7 +13,7 @@ namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Doctrine;
 
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
-use Sylius\Component\Translation\Repository\TranslatableResourceRepositoryInterface;
+use Sylius\Component\Resource\Repository\TranslatableRepositoryInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
@@ -44,20 +44,16 @@ class DoctrinePHPCRDriver extends AbstractDoctrineDriver
             $repositoryClass = $metadata->getClass('repository');
         }
 
-        $repositoryReflection = new \ReflectionClass($repositoryClass);
-
         $definition = new Definition($repositoryClass);
         $definition->setArguments([
             new Reference($metadata->getServiceId('manager')),
             $this->getClassMetadataDefinition($metadata),
         ]);
-        $definition->setLazy(!$repositoryReflection->isFinal());
 
         if ($metadata->hasParameter('translation')) {
-            $translatableRepositoryInterface = TranslatableResourceRepositoryInterface::class;
             $translationConfig = $metadata->getParameter('translation');
 
-            if (interface_exists($translatableRepositoryInterface) && $repositoryReflection->implementsInterface($translatableRepositoryInterface)) {
+            if (in_array(TranslatableRepositoryInterface::class, class_implements($repositoryClass))) {
                 if (isset($translationConfig['fields'])) {
                     $definition->addMethodCall('setTranslatableFields', [$translationConfig['fields']]);
                 }
@@ -79,7 +75,11 @@ class DoctrinePHPCRDriver extends AbstractDoctrineDriver
      */
     protected function getManagerServiceId(MetadataInterface $metadata)
     {
-        return sprintf('doctrine_phpcr.odm.%s_document_manager', $this->getObjectManagerName($metadata));
+        if ($objectManagerName = $this->getObjectManagerName($metadata)) {
+            return sprintf('doctrine_phpcr.odm.%s_document_manager', $objectManagerName);
+        }
+
+        return 'doctrine_phpcr.odm.document_manager';
     }
 
     /**

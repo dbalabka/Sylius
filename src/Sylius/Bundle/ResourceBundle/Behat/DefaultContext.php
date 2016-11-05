@@ -95,7 +95,15 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
      */
     protected function findOneByName($type, $name)
     {
-        return $this->findOneBy($type, ['name' => trim($name)]);
+        $resource = $this->getRepository($type)->findOneByName(trim($name));
+
+        if (null === $resource) {
+            throw new \InvalidArgumentException(
+                sprintf('%s with name "%s" was not found.', str_replace('_', ' ', ucfirst($type)), $name)
+            );
+        }
+
+        return $resource;
     }
 
     /**
@@ -192,14 +200,18 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
                     break;
 
                 case 'taxons':
-                    $configuration[$key] = new ArrayCollection([$this->getRepository('taxon')->findOneBy(['name' => trim($value)])->getId()]);
+                    $configuration[$key] = [$this->getRepository('taxon')->findOneByName(trim($value))->getCode()];
                     break;
 
                 case 'variant':
-                    $configuration[$key] = $this->getRepository('product')->findOneBy(['name' => trim($value)])->getMasterVariant()->getId();
+                    $configuration[$key] = $this->getRepository('product')->findOneByName($value)->getMasterVariant()->getId();
                     break;
 
                 case 'amount':
+                    $configuration[$key] = (int) $value;
+                    break;
+
+                case 'nth':
                     $configuration[$key] = (int) $value;
                     break;
 
@@ -410,13 +422,13 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
     /**
      * @param NodeElement $table
      * @param array $fields
-     * @param bool $onlyFirstOccurence
+     * @param bool $onlyFirstOccurrence
      *
      * @return NodeElement[]
      *
      * @throws \Exception If columns or rows were not found
      */
-    protected function getRowsWithFields(NodeElement $table, array $fields, $onlyFirstOccurence = false)
+    protected function getRowsWithFields(NodeElement $table, array $fields, $onlyFirstOccurrence = false)
     {
         $rows = $table->findAll('css', 'tr');
 
@@ -458,7 +470,7 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
             if ($found) {
                 $foundRows[] = $row;
 
-                if ($onlyFirstOccurence) {
+                if ($onlyFirstOccurrence) {
                     break;
                 }
             }
@@ -490,7 +502,7 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
     /**
      * @param callable $callback
      * @param int $limit
-     * @param int $delay In miliseconds
+     * @param int $delay In milliseconds
      *
      * @return mixed
      *
@@ -541,16 +553,9 @@ abstract class DefaultContext extends RawMinkContext implements Context, KernelA
      */
     protected function getLocaleCodeByEnglishLocaleName($name)
     {
-        $names = Intl::getLocaleBundle()->getLocaleNames('en');
-        $code = array_search(trim($name), $names);
+        $localeNameConverter = $this->getService('sylius.converter.locale_name');
 
-        if (null === $code) {
-            throw new \InvalidArgumentException(sprintf(
-                'Locale "%s" not found! Available names: %s.', $name, implode(', ', $names)
-            ));
-        }
-
-        return $code;
+        return $localeNameConverter->convertToCode($name);
     }
 
     /**

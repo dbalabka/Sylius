@@ -2,8 +2,29 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Ayarlar
+    menu:
+        admin:
+            main:
+                catalog:
+                    taxons: Kategoriler
+                    options: Ayarlar
+                    attributes: Nitelikler
+                configuration:
+                    channels: Kanallar
+                    countries: Ülkeler
+                    currencies: Para birimi
+                    header: Ayarlar
+                    locales: Diller
+                    payment_methods: Ödeme Yöntemleri
+                    shipping_methods: Gönderim metodları
+                    tax_rates: Vergi oranları
+                    zones: Bölgeler
+                marketing:
+                    header: Pazarlama
+                    promotions: Promosyonlar
+                customers:
+                    header: Müşteri
+                    customers: Müşteriler
+                sales:
+                    header: Satışlar
+                    orders: Siparişler

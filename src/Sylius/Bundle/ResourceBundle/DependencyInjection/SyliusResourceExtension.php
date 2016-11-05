@@ -12,7 +12,6 @@
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\DriverProvider;
-use Sylius\Bundle\TranslationBundle\SyliusTranslationBundle;
 use Sylius\Component\Resource\Metadata\Metadata;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
@@ -25,17 +24,16 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
  * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-class SyliusResourceExtension extends Extension implements PrependExtensionInterface
+class SyliusResourceExtension extends Extension
 {
     /**
      * {@inheritdoc}
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), $config);
-
+        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        
         $configFiles = [
             'services.xml',
             'controller.xml',
@@ -48,6 +46,20 @@ class SyliusResourceExtension extends Extension implements PrependExtensionInter
             $loader->load($configFile);
         }
 
+        $bundles = $container->getParameter('kernel.bundles');
+        if (array_key_exists('SyliusGridBundle', $bundles)) {
+            $loader->load('grid.xml');
+        }
+
+        if ($config['translation']['enabled']) {
+            $loader->load('translation.xml');
+
+            $container->setParameter('sylius.translation.default_locale', $config['translation']['default_locale']);
+            $container->setAlias('sylius.translation.locale_provider', $config['translation']['locale_provider']);
+            $container->setAlias('sylius.translation.available_locales_provider', $config['translation']['available_locales_provider']);
+            $container->setParameter('sylius.translation.available_locales', $config['translation']['available_locales']);
+        }
+
         foreach ($config['resources'] as $alias => $resourceConfig) {
             $metadata = Metadata::fromAliasAndConfiguration($alias, $resourceConfig);
 
@@ -57,7 +69,7 @@ class SyliusResourceExtension extends Extension implements PrependExtensionInter
 
             DriverProvider::get($metadata)->load($container, $metadata);
 
-            if ($metadata->hasParameter('translation') && class_exists(SyliusTranslationBundle::class)) {
+            if ($metadata->hasParameter('translation')) {
                 $alias = $alias.'_translation';
                 $resourceConfig = array_merge(['driver' => $resourceConfig['driver']], $resourceConfig['translation']);
 
@@ -72,20 +84,6 @@ class SyliusResourceExtension extends Extension implements PrependExtensionInter
         }
 
         $container->setParameter('sylius.resource.settings', $config['settings']);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function prepend(ContainerBuilder $container)
-    {
-        $container->setAlias('sylius.resource_controller.authorization_checker', 'sylius.resource_controller.authorization_checker.disabled');
-
-        if ($container->hasExtension('sylius_rbac')) {
-            $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-            $loader->load('rbac.xml');
-
-            $container->setAlias('sylius.resource_controller.authorization_checker', 'sylius.resource_controller.authorization_checker.rbac');
-        }
+        $container->setAlias('sylius.resource_controller.authorization_checker', $config['authorization_checker']);
     }
 }

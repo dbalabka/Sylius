@@ -2,10 +2,43 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Korisničko ime
-      password: Lozinka
-      remember_me: Zapamti me
-  ui:
-    dashboard: Kontrolna ploča
+    form:
+        login:
+            username: Korisničko ime
+            password: Lozinka
+            remember_me: Zapamti me
+        option:
+            presentation: Prezentacija
+    ui:
+        add_coupon: Dodaj kod za popust
+        actions: Akcije
+        cancel: Prekini
+        cancelled: Otkazano
+        checkout: Blagajna
+        countries: Države
+        coupons: Kuponi
+        coupon_based: Promocija bazirana na kuponima za popust
+        create: Kreiraj
+        dashboard: Kontrolna ploča
+        default_currency: Zadana valuta
+        delete: sylius.account.address.action.delete
+        description: Opis
+        edit: Uredi
+        enabled: Omogući
+        filter: Filter
+        locales: Lokaliteti
+        new: Novo
+        new_country: Nova država
+        new_tax_category: Nova kategorija poreza
+        "no": false
+        no_taxes: Bez PDV-a
+        no_promotion: Proizvod nema akciju
+        no_shipping_charges: Nema troškova dostave
+        quantity: Količina
+        ready: Spremno
+        returned: Vraćeno
+        save_changes: Sačuvaj izmjene
+        shipped: Poslano
+        shipping_methods: Načini slanja
+        success: Uspješno
+        "yes": true

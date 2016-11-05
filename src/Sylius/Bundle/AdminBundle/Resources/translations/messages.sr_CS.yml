@@ -1,0 +1,17 @@
+# This file is part of the Sylius package.
+# (c) Paweł Jędrzejewski
+
+sylius:
+    menu:
+        admin:
+            main:
+                configuration:
+                    countries: Zemlje
+                    payment_methods: Opcije plaćanja
+                    shipping_methods: Načini dostave
+                    tax_rates: Poreske stope
+                    zones: Zone
+                marketing:
+                    promotions: Promocije
+                sales:
+                    orders: Narudžbine

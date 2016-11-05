@@ -2,8 +2,28 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Konfigūracija
+    menu:
+        admin:
+            main:
+                catalog:
+                    taxons: Taksonai
+                    options: Parinktys
+                    attributes: Atributai
+                configuration:
+                    channels: Kanalai
+                    countries: Šalys
+                    currencies: Valiutos
+                    header: Konfigūracija
+                    locales: Lokalės
+                    payment_methods: Apmokėjimo būdai
+                    shipping_methods: Pristatymo būdai
+                    tax_rates: Mokesčių tarifai
+                    zones: Zonos
+                marketing:
+                    promotions: Akcijos
+                customers:
+                    header: Klienta
+                    customers: Klientai
+                sales:
+                    header: Pardavimai
+                    orders: Užsakymai

@@ -2,10 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: عنوان
-      comment: نظر
-      author: نويسنده
-      status:
-        new: پرداخت ثبت شده
+    form:
+        review:
+            header: افزودن بررسی جدید
+            rating: امتیازدهی
+            title: عنوان
+            comment: نظر
+            author: نويسنده
+            status:
+                label: وضعیت
+                new: پرداخت ثبت شده
+                approved: تایید شده
+                rejected: رد شده
+            submit: ثبت

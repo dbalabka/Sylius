@@ -15,9 +15,9 @@
         <![endif]-->
 
         {% block stylesheets %}
+            <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+            <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" />
             {% stylesheets output='assets/compiled/backend_login.css' filter='cssrewrite'
-                '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css'
-                '//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css'
                 'bundles/syliusweb/css/backend.css'
             %}
                 <link rel="stylesheet" href="{{ asset_url }}" type="text/css" />
@@ -40,7 +40,7 @@
             <br>
             {{ form_widget(form._password, { 'attr': {'class': 'form-control input-lg', 'placeholder': 'sylius.form.user.password.label'|trans } }) }}
             <hr>
-            <button class="btn btn-block btn-lg btn-success" type="submit">{{ 'sylius.login'|trans }}</button>
+            <button class="btn btn-block btn-lg btn-success" type="submit">{{ 'sylius.ui.login'|trans }}</button>
         </form>
     </body>
 </html>

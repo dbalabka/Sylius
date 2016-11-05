@@ -91,6 +91,7 @@ EOT
         ];
 
         $this->runCommands($commands, $input, $output);
+        $output->writeln('');
 
         $this->commandExecutor->runCommand('sylius:install:sample-data', [], $output);
     }
@@ -137,7 +138,7 @@ EOT
      */
     protected function getDatabaseName()
     {
-        $databaseName = $this->getContainer()->getParameter('sylius.database.name');
+        $databaseName = $this->getContainer()->getParameter('database_name');
 
         if ('prod' !== $this->getEnvironment()) {
             $databaseName = sprintf('%s_%s', $databaseName, $this->getEnvironment());

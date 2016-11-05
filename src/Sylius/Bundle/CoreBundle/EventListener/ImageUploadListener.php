@@ -16,18 +16,26 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Uploader\ImageUploaderInterface;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
-use Sylius\Component\Taxonomy\Model\TaxonomyInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 class ImageUploadListener
 {
+    /**
+     * @var ImageUploaderInterface
+     */
     protected $uploader;
 
+    /**
+     * @param ImageUploaderInterface $uploader
+     */
     public function __construct(ImageUploaderInterface $uploader)
     {
         $this->uploader = $uploader;
     }
 
+    /**
+     * @param GenericEvent $event
+     */
     public function uploadProductImage(GenericEvent $event)
     {
         $subject = $event->getSubject();
@@ -51,6 +59,9 @@ class ImageUploadListener
         }
     }
 
+    /**
+     * @param GenericEvent $event
+     */
     public function uploadTaxonImage(GenericEvent $event)
     {
         $subject = $event->getSubject();
@@ -64,22 +75,6 @@ class ImageUploadListener
 
         if ($subject->hasFile()) {
             $this->uploader->upload($subject);
-        }
-    }
-
-    public function uploadTaxonomyImage(GenericEvent $event)
-    {
-        $subject = $event->getSubject();
-
-        if (!$subject instanceof TaxonomyInterface) {
-            throw new UnexpectedTypeException(
-                $subject,
-                'Sylius\Component\Taxonomy\Model\TaxonomyInterface'
-            );
-        }
-
-        if ($subject->getRoot()->hasFile()) {
-            $this->uploader->upload($subject->getRoot());
         }
     }
 }

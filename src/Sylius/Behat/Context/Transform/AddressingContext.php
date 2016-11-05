@@ -13,10 +13,8 @@ namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Addressing\Converter\CountryNameConverterInterface;
-use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
@@ -37,8 +35,10 @@ final class AddressingContext implements Context
      * @param FactoryInterface $addressFactory
      * @param CountryNameConverterInterface $countryNameConverter
      */
-    public function __construct(FactoryInterface $addressFactory, CountryNameConverterInterface $countryNameConverter)
-    {
+    public function __construct(
+        FactoryInterface $addressFactory,
+        CountryNameConverterInterface $countryNameConverter
+    ) {
         $this->addressFactory = $addressFactory;
         $this->countryNameConverter = $countryNameConverter;
     }
@@ -51,6 +51,18 @@ final class AddressingContext implements Context
         $countryCode = $this->countryNameConverter->convertToCode($countryName);
 
         return $this->createAddress($countryCode);
+    }
+
+    /**
+     * @Transform /^"([^"]+)" addressed it to "([^"]+)", "([^"]+)" "([^"]+)" in the "([^"]+)"$/
+     * @Transform /^of "([^"]+)" in the "([^"]+)", "([^"]+)" "([^"]+)", "([^"]+)"$/
+     */
+    public function createNewAddressWithName($name, $street, $postcode, $city, $countryName)
+    {
+        $countryCode = $this->countryNameConverter->convertToCode($countryName);
+        $names = explode(" ", $name);
+
+        return $this->createAddress($countryCode, $names[0], $names[1], $city, $street, $postcode);
     }
 
     /**

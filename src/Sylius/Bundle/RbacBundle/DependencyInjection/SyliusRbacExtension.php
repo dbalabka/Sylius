@@ -27,7 +27,7 @@ class SyliusRbacExtension extends AbstractResourceExtension implements PrependEx
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
+        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load(sprintf('driver/%s.xml', $config['driver']));
@@ -62,6 +62,15 @@ class SyliusRbacExtension extends AbstractResourceExtension implements PrependEx
      */
     public function prepend(ContainerBuilder $container)
     {
+        $this->prependDoctrineCache($container);
+        $this->prependSyliusResource($container);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     */
+    private function prependDoctrineCache(ContainerBuilder $container)
+    {
         if (!$container->hasExtension('doctrine_cache')) {
             throw new \RuntimeException('DoctrineCacheBundle must be registered!');
         }
@@ -70,6 +79,22 @@ class SyliusRbacExtension extends AbstractResourceExtension implements PrependEx
             'providers' => [
                 'sylius_rbac' => '%sylius.cache%',
             ],
+        ]);
+    }
+    /**
+     * @param ContainerBuilder $container
+     */
+    private function prependSyliusResource(ContainerBuilder $container)
+    {
+        if (!$container->hasExtension('sylius_resource')) {
+            return;
+        }
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('resource_integration.xml');
+
+        $container->prependExtensionConfig('sylius_resource', [
+            'authorization_checker' => 'sylius.resource_controller.authorization_checker.rbac',
         ]);
     }
 }

@@ -17,14 +17,15 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
+use Sylius\Component\Core\Repository\ProductRepositoryInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
  */
 final class ProductContext implements Context
 {
@@ -34,7 +35,7 @@ final class ProductContext implements Context
     private $sharedStorage;
 
     /**
-     * @var RepositoryInterface
+     * @var ProductRepositoryInterface
      */
     private $productRepository;
 
@@ -55,14 +56,14 @@ final class ProductContext implements Context
 
     /**
      * @param SharedStorageInterface $sharedStorage
-     * @param RepositoryInterface $productRepository
+     * @param ProductRepositoryInterface $productRepository
      * @param FactoryInterface $productFactory
      * @param FactoryInterface $productVariantFactory
      * @param ObjectManager $objectManager
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
-        RepositoryInterface $productRepository,
+        ProductRepositoryInterface $productRepository,
         FactoryInterface $productFactory,
         FactoryInterface $productVariantFactory,
         ObjectManager $objectManager
@@ -80,7 +81,9 @@ final class ProductContext implements Context
      */
     public function storeHasAProductPricedAt($productName, $price = 0)
     {
+        /** @var ProductInterface $product */
         $product = $this->productFactory->createNew();
+
         $product->setName($productName);
         $product->setPrice($price);
         $product->setDescription('Awesome '.$productName);
@@ -94,12 +97,32 @@ final class ProductContext implements Context
     }
 
     /**
+     * @Given /^the (product "[^"]+") has "([^"]+)" variant priced at ("[^"]+")$/
+     * @Given /^(this product) has "([^"]+)" variant priced at ("[^"]+")$/
+     */
+    public function theProductHasVariantPricedAt(ProductInterface $product, $productVariantName, $price)
+    {
+        /** @var ProductVariantInterface $variant */
+        $variant = $this->productVariantFactory->createNew();
+
+        $variant->setPresentation($productVariantName);
+        $variant->setPrice($price);
+        $variant->setProduct($product);
+        $product->addVariant($variant);
+
+        $this->objectManager->flush();
+
+        $this->sharedStorage->set('variant', $variant);
+    }
+
+    /**
      * @Given /^there is product "([^"]+)" available in ((?:this|that|"[^"]+") channel)$/
      */
     public function thereIsProductAvailableInGivenChannel($productName, ChannelInterface $channel)
     {
         /** @var ProductInterface $product */
         $product = $this->productFactory->createNew();
+
         $product->setName($productName);
         $product->setPrice(0);
         $product->setDescription('Awesome ' . $productName);
@@ -123,7 +146,9 @@ final class ProductContext implements Context
     public function itComesInTheFollowingVariations(ProductInterface $product, TableNode $table)
     {
         foreach ($table->getHash() as $variantHash) {
+            /** @var ProductVariantInterface $variant */
             $variant = $this->productVariantFactory->createNew();
+
             $variant->setPresentation($variantHash['name']);
             $variant->setPrice($this->getPriceFromString(str_replace(['$', '€', '£'], '', $variantHash['price'])));
             $variant->setProduct($product);
@@ -136,8 +161,10 @@ final class ProductContext implements Context
     /**
      * @Given /^("[^"]+" variant of product "[^"]+") belongs to ("[^"]+" tax category)$/
      */
-    public function productVariantBelongsToTaxCategory(ProductVariantInterface $productVariant, TaxCategoryInterface $taxCategory)
-    {
+    public function productVariantBelongsToTaxCategory(
+        ProductVariantInterface $productVariant,
+        TaxCategoryInterface $taxCategory
+    ) {
         $productVariant->setTaxCategory($taxCategory);
         $this->objectManager->flush($productVariant);
     }

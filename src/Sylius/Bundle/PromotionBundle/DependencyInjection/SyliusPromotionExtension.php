@@ -12,7 +12,6 @@
 namespace Sylius\Bundle\PromotionBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
-use Sylius\Component\Promotion\Factory\ActionFactory;
 use Sylius\Component\Resource\Factory\Factory;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -31,20 +30,21 @@ class SyliusPromotionExtension extends AbstractResourceExtension
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
+        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
         $this->mapFormValidationGroupsParameters($config, $container);
 
         $configFiles = [
             'services.xml',
+            sprintf('driver/%s.xml', $config['driver']),
         ];
 
         foreach ($configFiles as $configFile) {
             $loader->load($configFile);
         }
 
+        $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
         $this->overwriteCouponFactory($container);
         $this->overwriteActionFactory($container);
 

@@ -118,8 +118,6 @@ class Order extends Cart implements OrderInterface
     public function setCustomer(BaseCustomerInterface $customer = null)
     {
         $this->customer = $customer;
-
-        return $this;
     }
 
     /**
@@ -297,12 +295,14 @@ class Order extends Cart implements OrderInterface
     public function getLastPayment($state = BasePaymentInterface::STATE_NEW)
     {
         if ($this->payments->isEmpty()) {
-            return false;
+            return null;
         }
 
-        return $this->payments->filter(function (BasePaymentInterface $payment) use ($state) {
+        $payment = $this->payments->filter(function (BasePaymentInterface $payment) use ($state) {
             return $payment->getState() === $state;
         })->last();
+
+        return $payment !== false ? $payment : null;
     }
 
     /**
@@ -397,8 +397,6 @@ class Order extends Cart implements OrderInterface
     public function setCurrency($currency)
     {
         $this->currency = $currency;
-
-        return $this;
     }
 
     /**
@@ -415,8 +413,6 @@ class Order extends Cart implements OrderInterface
     public function setExchangeRate($exchangeRate)
     {
         $this->exchangeRate = (float) $exchangeRate;
-
-        return $this;
     }
 
     /**
@@ -433,8 +429,6 @@ class Order extends Cart implements OrderInterface
     public function setShippingState($state)
     {
         $this->shippingState = $state;
-
-        return $this;
     }
 
     /**
@@ -500,8 +494,6 @@ class Order extends Cart implements OrderInterface
         if (!$this->hasPromotion($promotion)) {
             $this->promotions->add($promotion);
         }
-
-        return $this;
     }
 
     /**
@@ -512,8 +504,6 @@ class Order extends Cart implements OrderInterface
         if ($this->hasPromotion($promotion)) {
             $this->promotions->removeElement($promotion);
         }
-
-        return $this;
     }
 
     /**
@@ -522,5 +512,16 @@ class Order extends Cart implements OrderInterface
     public function getPromotions()
     {
         return $this->promotions;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPromotionsTotalRecursively()
+    {
+        return
+            $this->getAdjustmentsTotalRecursively(AdjustmentInterface::ORDER_PROMOTION_ADJUSTMENT) +
+            $this->getAdjustmentsTotalRecursively(AdjustmentInterface::ORDER_ITEM_PROMOTION_ADJUSTMENT)
+        ;
     }
 }

@@ -2,29 +2,20 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  block:
-    imagine:
-      id: ID број
-    simple:
-      id: ID број
-    slideshow:
-      id: ID број
-    string:
-      id: ID број
-  contact_request:
-    message: Порака
-    topic: Тема
-  currency:
-    exchange_rate: Курс на конверзија
-  customer:
-    phone_number: Телефонски Број
-  "no": false
-  product_option:
-    presentation: Презентација
-  report:
-    id: ID број
-  ui:
-    id: ID број
-  "yes": true
-  zone:
-    scope: Опсег
+    ui:
+        add_value: Додај вредност
+        city: Град
+        company: Компанија
+        email: Е-пошта
+        exchange_rate: Курс на конверзија
+        id: ID број
+        members: Членови
+        message: Порака
+        phone_number: Телефонски Број
+        postcode: Поштенски Број
+        presentation: Презентација
+        province: Регион
+        provinces: Региони
+        scope: Опсег
+        street: Улица
+        topic: Тема

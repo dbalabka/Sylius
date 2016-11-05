@@ -1,4 +1,4 @@
-@legacy_promotions
+@legacy @promotion
 Feature: Checkout coupon promotions
     In order to handle product promotions
     As a store owner
@@ -17,21 +17,21 @@ Feature: Checkout coupon promotions
             | code   | usage limit | used |
             | XD0001 | 1           | 0    |
         And promotion "Press campaign" has following actions defined:
-            | type           | configuration |
-            | Fixed discount | Amount: 5     |
+            | type                 | configuration |
+            | Order fixed discount | Amount: 5     |
         And promotion "New Year campaign" has following rules defined:
             | type          | configuration |
             | Cart quantity | Count: 2      |
         And promotion "New Year campaign" has following actions defined:
-            | type           | configuration |
-            | Fixed discount | Amount: 10    |
+            | type                 | configuration |
+            | Order fixed discount | Amount: 10    |
         And promotion "New Year campaign" has following coupons:
             | code   | usage limit | used |
             | XD0002 | 1           | 1    |
-        And there are following taxonomies defined:
+        And there are following taxons defined:
             | code | name     |
             | RTX2 | Category |
-        And taxonomy "Category" has following taxons:
+        And taxon "Category" has following children:
             | Clothing[TX1] > Debian T-Shirts[TX2] |
         And the following products exist:
             | name   | price | taxons          |

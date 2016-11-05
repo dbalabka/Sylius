@@ -14,7 +14,6 @@ namespace Sylius\Component\Core\OrderProcessing;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Payment\Factory\PaymentFactoryInterface;
-use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -40,9 +39,44 @@ class PaymentProcessor implements PaymentProcessorInterface
      */
     public function processOrderPayments(OrderInterface $order)
     {
+        if ($order->getLastPayment(PaymentInterface::STATE_NEW)) {
+            return;
+        }
+
         /** @var $payment PaymentInterface */
         $payment = $this->paymentFactory->createWithAmountAndCurrency($order->getTotal(), $order->getCurrency());
+        $this->setPaymentMethodIfNeeded($order, $payment);
 
         $order->addPayment($payment);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    private function setPaymentMethodIfNeeded(OrderInterface $order, PaymentInterface $payment)
+    {
+        $lastPayment = $this->getLastPayment($order);
+
+        if (null === $lastPayment) {
+            return;
+        }
+
+        $payment->setMethod($lastPayment->getMethod());
+    }
+
+    /**
+     * @param OrderInterface $order
+     *
+     * @return null|PaymentInterface
+     */
+    private function getLastPayment(OrderInterface $order)
+    {
+        $lastPayment = $order->getLastPayment(PaymentInterface::STATE_CANCELLED);
+
+        if (null === $lastPayment) {
+            $lastPayment = $order->getLastPayment(PaymentInterface::STATE_FAILED);
+        }
+
+        return $lastPayment;
     }
 }

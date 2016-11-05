@@ -1,0 +1,66 @@
+# This file is part of the Sylius package.
+# (c) Paweł Jędrzejewski
+
+imports:
+    - suites/cli/installer.yml
+
+    - suites/domain/managing_orders.yml
+    - suites/domain/managing_products.yml
+    - suites/domain/promotion/managing_promotions.yml
+    - suites/domain/promotion/managing_promotion_coupons.yml
+
+    - suites/legacy/account.yml
+    - suites/legacy/addressing.yml
+    - suites/legacy/cart.yml
+    - suites/legacy/channel.yml
+    - suites/legacy/checkout.yml
+    - suites/legacy/currency.yml
+    - suites/legacy/dashboard.yml
+    - suites/legacy/email.yml
+    - suites/legacy/homepage.yml
+    - suites/legacy/i18n.yml
+    - suites/legacy/inventory.yml
+    - suites/legacy/locale.yml
+    - suites/legacy/metadata.yml
+    - suites/legacy/oauth.yml
+    - suites/legacy/order.yml
+    - suites/legacy/payment.yml
+    - suites/legacy/pricing.yml
+    - suites/legacy/product.yml
+    - suites/legacy/promotion.yml
+    - suites/legacy/report.yml
+    - suites/legacy/review.yml
+    - suites/legacy/search.yml
+    - suites/legacy/security.yml
+    - suites/legacy/settings.yml
+    - suites/legacy/shipping.yml
+    - suites/legacy/taxation.yml
+    - suites/legacy/taxonomy.yml
+    - suites/legacy/user.yml
+
+    - suites/ui/addressing/managing_countries.yml
+    - suites/ui/addressing/managing_zones.yml
+    - suites/ui/channel/managing_channels.yml
+    - suites/ui/channel/products_accessibility_in_multiple_channels.yml
+    - suites/ui/channel/theming.yml
+    - suites/ui/checkout/paying_for_order.yml
+    - suites/ui/currency/managing_currencies.yml
+    - suites/ui/locale/managing_locales.yml
+    - suites/ui/payment/managing_payment_methods.yml
+    - suites/ui/product/managing_products.yml
+    - suites/ui/product/managing_product_attributes.yml
+    - suites/ui/product/managing_product_options.yml
+    - suites/ui/promotion/applying_promotion_rules.yml
+    - suites/ui/promotion/managing_promotions.yml
+    - suites/ui/promotion/managing_promotion_coupons.yml
+    - suites/ui/promotion/receiving_discount.yml
+    - suites/ui/shipping/applying_shipping_fee.yml
+    - suites/ui/shipping/managing_shipping_methods.yml
+    - suites/ui/taxation/applying_taxes.yml
+    - suites/ui/taxation/managing_tax_categories.yml
+    - suites/ui/taxation/managing_tax_rates.yml
+    - suites/ui/taxonomy/managing_taxons.yml
+    - suites/ui/user/managing_customers.yml
+    - suites/ui/user/managing_users.yml
+    - suites/ui/user/registering.yml
+    - suites/ui/order/managing_orders.yml

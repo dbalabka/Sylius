@@ -16,8 +16,6 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Sequence\Repository\HashSubjectRepositoryInterface;
 
 /**
- * Order repository interface.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface OrderRepositoryInterface extends RepositoryInterface, HashSubjectRepositoryInterface
@@ -35,4 +33,11 @@ interface OrderRepositoryInterface extends RepositoryInterface, HashSubjectRepos
      * @return bool
      */
     public function isNumberUsed($number);
+
+    /**
+     * @param string $orderNumber
+     *
+     * @return OrderInterface|null
+     */
+    public function findOneByNumber($orderNumber);
 }

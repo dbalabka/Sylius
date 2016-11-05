@@ -1,6 +1,90 @@
 UPGRADE
 =======
 
+## From 0.17 to 0.18.x
+
+### Application
+
+* Moved some of the parameters out of parameters.yml.dist file, please check your configurations;
+* Moved parameters are now in ``CoreBundle/Resource/config/app.parameters.yml``, you should import them before your own parameters.yml file;
+* Renamed basic parameters to match Symfony Standard's conventions:
+
+Before:
+
+```yaml
+%sylius.database.host%
+%sylius.locale%
+
+# etc.
+```
+
+After:
+
+```yaml
+%database_host%
+%locale%
+```
+
+### HWIOAuthBundle is now optional 
+
+HWIOAuthBundle for social logins is no longer a required dependency. If you would like to use it in your project, you should add it to composer.json's ``require`` section, install it and add proper configuration for routing:
+
+```yml
+# routing.yml
+
+hwi_oauth_security:
+    resource: "@HWIOAuthBundle/Resources/config/routing/login.xml"
+    prefix: /connect-login
+ 
+hwi_oauth_redirect:
+    resource: "@HWIOAuthBundle/Resources/config/routing/redirect.xml"
+    prefix: /connect
+ 
+amazon_login:
+    path: /connect-login/check-amazon
+ 
+facebook_login:
+    path: /connect-login/check-facebook
+ 
+google_login:
+    path: /connect-login/check-google
+```
+
+And for security:
+
+```yml
+# security.yml
+
+# For your shop firewall, configure "oauth" section:
+
+oauth:
+    resource_owners:
+        amazon:   "/connect-login/check-amazon"
+        facebook: "/connect-login/check-facebook"
+        google:   "/connect-login/check-google"
+        login_path:   /login
+        failure_path: /login
+        oauth_user_provider:
+            service: sylius.oauth.user_provider
+```
+
+### Translation and TranslationBundle
+
+* Merged ``Translation`` component with ``Resource`` component
+* Merged ``TranslationBundle`` with ``ResourceBundle``
+* Renamed ``TranslatableResourceRepository`` to ``TranslatableRepository``
+
+### Core and CoreBundle
+
+* Removed "exclude" option from ``taxon`` rule
+* Changed ``ORDER_PROMOTION_ADJUSTMENT``s to be added on ``OrderItemUnit`` level instead of ``Order`` level, based on distributed promotion amount 
+
+### SettingsBundle
+
+* Renamed `sylius_settings_all()` Twig function to `sylius_settings()`
+* Removed `sylius_settings_get('foo.property')` and `sylius_settings_has('foo.property')` Twig functions, use 
+  `sylius_settings('foo').property` and `sylius_settings('foo').property is defined` instead
+
 ## From 0.16 to 0.17.x
 
 ### Promotion and PromotionBundle
@@ -277,6 +361,26 @@ After:
 ### Currency
 
 ``CurrencyConverterInterface`` ``convert()`` method renamed to ``convertFromBase()``.
+
+### Content
+```bash
+#!/bin/sh
+
+set -ex
+
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\ContentBundle\Doctrine\Phpcr\StaticContent" "Sylius\Bundle\ContentBundle\Document\StaticContent"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\RoutingBundle\Doctrine\Phpcr\Route" "Sylius\Bundle\ContentBundle\Document\Route"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\RoutingBundle\Doctrine\Phpcr\RedirectRoute" "Sylius\Bundle\ContentBundle\Document\RedirectRoute"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\MenuBundle\Doctrine\Phpcr\Menu" "Sylius\Bundle\ContentBundle\Document\Menu"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\MenuBundle\Doctrine\Phpcr\MenuNode" "Sylius\Bundle\ContentBundle\Document\MenuNode"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\SlideshowBlock" "Sylius\Bundle\ContentBundle\Document\SlideshowBlock"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\ImagineBlock" "Sylius\Bundle\ContentBundle\Document\ImagineBlock"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\ActionBlock" "Sylius\Bundle\ContentBundle\Document\ActionBlock"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\MenuBlock" "Sylius\Bundle\ContentBundle\Document\MenuBlock"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\ReferenceBlock" "Sylius\Bundle\ContentBundle\Document\ReferenceBlock"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\SimpleBlock" "Sylius\Bundle\ContentBundle\Document\SimpleBlock"
+app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\StringBlock" "Sylius\Bundle\ContentBundle\Document\StringBlock"
+```
 
 ## From 0.15.0 to 0.16.x
 

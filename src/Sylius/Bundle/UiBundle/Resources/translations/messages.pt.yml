@@ -2,8 +2,32 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Login
-  ui:
-    dashboard: Painel de Instrumentos
+    form:
+        login:
+            username: Login
+        option:
+            presentation: Apresentação
+    ui:
+        add_coupon: Adicionar cupom
+        cancel: Cancelar
+        cancelled: Cancelado
+        checkout: Finalizar compra
+        countries: Países
+        create: Criar
+        dashboard: Painel de Instrumentos
+        delete: Apagar
+        description: Descrição
+        edit: Editar
+        filter: Filtrar
+        new: Novo
+        new_country: Novo país
+        new_tax_category: Nova categoria de imposto
+        "no": false
+        no_taxes: Nenhuma taxa foi aplicada
+        no_promotion: Sem promoções
+        no_shipping_charges: Nenhuma taxa de entrega foi aplicada
+        quantity: Quantidade
+        save_changes: Salvar modificações
+        shipping_methods: Métodos de envio
+        success: Sucesso
+        "yes": true

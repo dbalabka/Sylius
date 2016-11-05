@@ -12,9 +12,9 @@
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver;
 
 use Sylius\Component\Resource\Factory\Factory;
+use Sylius\Component\Resource\Factory\TranslatableFactoryInterface;
 use Sylius\Component\Resource\Metadata\Metadata;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
-use Sylius\Component\Translation\Factory\TranslatableFactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
@@ -89,7 +89,7 @@ abstract class AbstractDriver implements DriverInterface
         $definition = new Definition($metadata->getClass('controller'));
         $definition
             ->setArguments([
-                $this->getMetdataDefinition($metadata),
+                $this->getMetadataDefinition($metadata),
                 new Reference('sylius.resource_controller.request_configuration_factory'),
                 new Reference('sylius.resource_controller.view_handler'),
                 new Reference($metadata->getServiceId('repository')),
@@ -116,15 +116,12 @@ abstract class AbstractDriver implements DriverInterface
      */
     protected function addFactory(ContainerBuilder $container, MetadataInterface $metadata)
     {
-        $translatableFactoryInterface = TranslatableFactoryInterface::class;
-
         $factoryClass = $metadata->getClass('factory');
         $modelClass = $metadata->getClass('model');
 
-        $reflection = new \ReflectionClass($factoryClass);
         $definition = new Definition($factoryClass);
 
-        if (interface_exists($translatableFactoryInterface) && $reflection->implementsInterface($translatableFactoryInterface)) {
+        if (in_array(TranslatableFactoryInterface::class, class_implements($factoryClass))) {
             $decoratedDefinition = new Definition(Factory::class);
             $decoratedDefinition->setArguments([$modelClass]);
 
@@ -195,7 +192,7 @@ abstract class AbstractDriver implements DriverInterface
      *
      * @return Definition
      */
-    protected function getMetdataDefinition(MetadataInterface $metadata)
+    protected function getMetadataDefinition(MetadataInterface $metadata)
     {
         $definition = new Definition(Metadata::class);
         $definition

@@ -15,14 +15,13 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Bundle\FlowBundle\Process\Step\AbstractControllerStep;
 use Sylius\Component\Addressing\Matcher\ZoneMatcherInterface;
 use Sylius\Component\Cart\Provider\CartProviderInterface;
+use Sylius\Component\Core\Exception\InvalidTransitionException;
 use Sylius\Component\Core\Model\OrderInterface;
 use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * Base class for checkout steps.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 abstract class CheckoutStep extends AbstractControllerStep
@@ -73,7 +72,7 @@ abstract class CheckoutStep extends AbstractControllerStep
 
     /**
      * @param string $name
-     * @param Event  $event
+     * @param Event $event
      */
     protected function dispatchEvent($name, Event $event)
     {
@@ -81,7 +80,7 @@ abstract class CheckoutStep extends AbstractControllerStep
     }
 
     /**
-     * @param string         $name
+     * @param string $name
      * @param OrderInterface $order
      */
     protected function dispatchCheckoutEvent($name, OrderInterface $order)
@@ -93,14 +92,16 @@ abstract class CheckoutStep extends AbstractControllerStep
      * @param string $transition
      * @param OrderInterface $order
      * @param bool $flush
+     *
+     * @throws InvalidTransitionException
      */
-    protected function applyTransition($transition, OrderInterface $order, $flush = false)
+    protected function applyTransition($transition, OrderInterface $order, $flush = true)
     {
         $stateMachineFactory = $this->get('sm.factory');
         $cartStateMachine = $stateMachineFactory->get($order, 'sylius_order_checkout');
 
         if (!$cartStateMachine->can($transition)) {
-            return;
+            throw new InvalidTransitionException($transition, $cartStateMachine);
         }
 
         $cartStateMachine->apply($transition);

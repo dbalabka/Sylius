@@ -12,7 +12,6 @@
 namespace Sylius\Component\Payment\Model;
 
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
-use Sylius\Component\Resource\Model\SoftDeletableTrait;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
 /**
@@ -20,7 +19,7 @@ use Sylius\Component\Resource\Model\TimestampableTrait;
  */
 class Payment implements PaymentInterface
 {
-    use SoftDeletableTrait, TimestampableTrait;
+    use TimestampableTrait;
 
     /**
      * @var mixed

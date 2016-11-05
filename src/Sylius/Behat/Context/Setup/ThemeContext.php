@@ -13,6 +13,7 @@ namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sylius\Bundle\ThemeBundle\Configuration\Test\TestThemeConfigurationManagerInterface;
 use Sylius\Bundle\ThemeBundle\Factory\ThemeFactoryInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Sylius\Bundle\ThemeBundle\Repository\ThemeRepositoryInterface;
@@ -51,24 +52,32 @@ final class ThemeContext implements Context
     private $channelManager;
 
     /**
+     * @var TestThemeConfigurationManagerInterface
+     */
+    private $testThemeConfigurationManager;
+
+    /**
      * @param SharedStorageInterface $sharedStorage
      * @param ThemeRepositoryInterface $themeRepository
      * @param ThemeFactoryInterface $themeFactory
      * @param ChannelRepositoryInterface $channelRepository
      * @param ObjectManager $channelManager
+     * @param TestThemeConfigurationManagerInterface $testThemeConfigurationManager
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ThemeRepositoryInterface $themeRepository,
         ThemeFactoryInterface $themeFactory,
         ChannelRepositoryInterface $channelRepository,
-        ObjectManager $channelManager
+        ObjectManager $channelManager,
+        TestThemeConfigurationManagerInterface $testThemeConfigurationManager
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->themeRepository = $themeRepository;
         $this->themeFactory = $themeFactory;
         $this->channelRepository = $channelRepository;
         $this->channelManager = $channelManager;
+        $this->testThemeConfigurationManager = $testThemeConfigurationManager;
     }
 
     /**
@@ -76,16 +85,11 @@ final class ThemeContext implements Context
      */
     public function storeHasTheme($themeName)
     {
-        $theme = $this->themeFactory->createNamed($themeName);
-        $theme->setTitle($themeName);
-        $theme->setPath(sys_get_temp_dir() . '/theme-' . $theme->getCode() . time() . '/');
+        $this->testThemeConfigurationManager->add([
+            'name' => $themeName,
+        ]);
 
-        if (!file_exists($theme->getPath())) {
-            mkdir($theme->getPath(), 0777, true);
-        }
-
-        $this->themeRepository->add($theme);
-        $this->sharedStorage->set('theme', $theme);
+        $this->sharedStorage->set('theme', $this->themeRepository->findOneByName($themeName));
     }
 
     /**
@@ -93,8 +97,9 @@ final class ThemeContext implements Context
      */
     public function channelUsesTheme(ChannelInterface $channel, ThemeInterface $theme)
     {
-        $channel->setTheme($theme);
+        $channel->setThemeName($theme->getName());
 
+        $this->channelManager->persist($channel);
         $this->channelManager->flush();
 
         $this->sharedStorage->set('channel', $channel);
@@ -106,7 +111,7 @@ final class ThemeContext implements Context
      */
     public function channelDoesNotUseAnyTheme(ChannelInterface $channel)
     {
-        $channel->setTheme(null);
+        $channel->setThemeName(null);
 
         $this->channelManager->flush();
 

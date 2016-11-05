@@ -2,8 +2,22 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Канфігурацыя
+    menu:
+        admin:
+            main:
+                catalog:
+                    taxons: Катэгорыі
+                    options: Опцыі
+                configuration:
+                    countries: Краіны
+                    header: Канфігурацыя
+                    locales: Месцы размяшчэння
+                    payment_methods: Метады аплаты
+                    shipping_methods: Метады дастаўкі
+                    tax_rates: Стаўка падатку
+                    zones: Зоны
+                marketing:
+                    promotions: Прамоцыі
+                sales:
+                    header: Продаж
+                    orders: Замовы

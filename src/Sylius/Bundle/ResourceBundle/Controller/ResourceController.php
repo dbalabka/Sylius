@@ -168,9 +168,10 @@ class ResourceController extends Controller
 
         if ($configuration->isHtmlRequest()) {
             $view
-                ->setTemplate($configuration->getTemplate(ResourceActions::SHOW))
+                ->setTemplate($configuration->getTemplate(ResourceActions::SHOW . '.html'))
                 ->setTemplateVar($this->metadata->getName())
                 ->setData([
+                    'configuration' => $configuration,
                     'metadata' => $this->metadata,
                     'resource' => $resource,
                     $this->metadata->getName() => $resource,
@@ -197,9 +198,10 @@ class ResourceController extends Controller
 
         if ($configuration->isHtmlRequest()) {
             $view
-                ->setTemplate($configuration->getTemplate(ResourceActions::INDEX))
+                ->setTemplate($configuration->getTemplate(ResourceActions::INDEX . '.html'))
                 ->setTemplateVar($this->metadata->getPluralName())
                 ->setData([
+                    'configuration' => $configuration,
                     'metadata' => $this->metadata,
                     'resources' => $resources,
                     $this->metadata->getPluralName() => $resources,
@@ -256,12 +258,13 @@ class ResourceController extends Controller
 
         $view = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $this->metadata,
                 'resource' => $newResource,
                 $this->metadata->getName() => $newResource,
                 'form' => $form->createView(),
             ])
-            ->setTemplate($configuration->getTemplate(ResourceActions::CREATE))
+            ->setTemplate($configuration->getTemplate(ResourceActions::CREATE . '.html'))
         ;
 
         return $this->viewHandler->handle($configuration, $view);
@@ -313,12 +316,13 @@ class ResourceController extends Controller
 
         $view = View::create()
             ->setData([
+                'configuration' => $configuration,
                 'metadata' => $this->metadata,
                 'resource' => $resource,
                 $this->metadata->getName() => $resource,
                 'form' => $form->createView(),
             ])
-            ->setTemplate($configuration->getTemplate(ResourceActions::UPDATE))
+            ->setTemplate($configuration->getTemplate(ResourceActions::UPDATE . '.html'))
         ;
 
         return $this->viewHandler->handle($configuration, $view);
@@ -444,6 +448,10 @@ class ResourceController extends Controller
             $position,
             $accessor->getValue($resource, $position) + $movement
         );
+
+        $this->eventDispatcher->dispatchPreEvent(ResourceActions::UPDATE, $configuration, $resource);
+        $this->manager->flush();
+        $this->eventDispatcher->dispatchPostEvent(ResourceActions::UPDATE, $configuration, $resource);
 
         if (!$configuration->isHtmlRequest()) {
             return $this->viewHandler->handle($configuration, View::create($resource, 204));

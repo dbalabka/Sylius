@@ -21,13 +21,9 @@ sylius_api_product_archetype:
     resource: @SyliusApiBundle/Resources/config/routing/product_archetype.yml
     prefix: /product-archetypes
 
-sylius_api_taxonomy:
-    resource: @SyliusApiBundle/Resources/config/routing/taxonomy.yml
-    prefix: /taxonomies
-
 sylius_api_taxon:
     resource: @SyliusApiBundle/Resources/config/routing/taxon.yml
-    prefix: /taxonomies/{taxonomyId}/taxons
+    prefix: /taxons
 
 sylius_api_order:
     resource: @SyliusApiBundle/Resources/config/routing/order.yml
@@ -54,16 +50,21 @@ sylius_api_promotion_coupon:
     prefix: /promotions/{promotionId}/coupons
 
 sylius_api_tax_category:
-    resource: @SyliusApiBundle/Resources/config/routing/tax_category.yml
-    prefix: /tax-categories
+    resource: |
+        alias: sylius.tax_category
+        section: api
+        grid: sylius_admin_tax_category
+    type: sylius.resource_api
 
 sylius_api_tax_rate:
     resource: @SyliusApiBundle/Resources/config/routing/tax_rate.yml
     prefix: /tax-rates
 
 sylius_api_shipping_category:
-    resource: @SyliusApiBundle/Resources/config/routing/shipping_category.yml
-    prefix: /shipping-categories
+    resource: |
+        alias: sylius.shipping_category
+        section: api
+    type: sylius.resource_api
 
 sylius_api_shipping_method:
     resource: @SyliusApiBundle/Resources/config/routing/shipping_method.yml
@@ -110,3 +111,11 @@ sylius_api_customer:
 sylius_api_setting:
     resource: @SyliusApiBundle/Resources/config/routing/setting.yml
     prefix: /settings
+
+sylius_api_locale:
+    resource: @SyliusApiBundle/Resources/config/routing/locale.yml
+    prefix: /locales
+
+sylius_api_currency:
+    resource: @SyliusApiBundle/Resources/config/routing/currency.yml
+    prefix: /currencies

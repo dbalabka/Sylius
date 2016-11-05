@@ -12,14 +12,18 @@
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\Checkout\CheckoutAddressingStep;
-use Sylius\Behat\Page\Checkout\CheckoutFinalizeStep;
-use Sylius\Behat\Page\Checkout\CheckoutPaymentStep;
-use Sylius\Behat\Page\Checkout\CheckoutSecurityStep;
-use Sylius\Behat\Page\Checkout\CheckoutShippingStep;
-use Sylius\Behat\Page\Checkout\CheckoutThankYouPage;
+use Sylius\Behat\Page\Shop\Order\OrderPaymentsPageInterface;
+use Sylius\Behat\Page\Shop\Checkout\AddressingStepInterface;
+use Sylius\Behat\Page\Shop\Checkout\FinalizeStepInterface;
+use Sylius\Behat\Page\Shop\Checkout\PaymentStepInterface;
+use Sylius\Behat\Page\Shop\Checkout\SecurityStepInterface;
+use Sylius\Behat\Page\Shop\Checkout\ShippingStepInterface;
+use Sylius\Behat\Page\Shop\Checkout\ThankYouPageInterface;
+use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\UserInterface;
 use Sylius\Component\Core\Test\Services\SharedStorageInterface;
+use Sylius\Component\Order\Repository\OrderRepositoryInterface;
+use Sylius\Component\Payment\Model\PaymentInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -32,52 +36,66 @@ final class CheckoutContext implements Context
     private $sharedStorage;
 
     /**
-     * @var CheckoutSecurityStep
+     * @var SecurityStepInterface
      */
     private $checkoutSecurityStep;
 
     /**
-     * @var CheckoutAddressingStep
+     * @var AddressingStepInterface
      */
     private $checkoutAddressingStep;
 
     /**
-     * @var CheckoutShippingStep
+     * @var ShippingStepInterface
      */
     private $checkoutShippingStep;
 
     /**
-     * @var CheckoutPaymentStep
+     * @var PaymentStepInterface
      */
     private $checkoutPaymentStep;
 
     /**
-     * @var CheckoutFinalizeStep
+     * @var FinalizeStepInterface
      */
     private $checkoutFinalizeStep;
 
     /**
-     * @var CheckoutThankYouPage
+     * @var ThankYouPageInterface
      */
     private $checkoutThankYouPage;
 
     /**
+     * @var OrderPaymentsPageInterface
+     */
+    private $orderPaymentsPage;
+
+    /**
+     * @var OrderRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
      * @param SharedStorageInterface $sharedStorage
-     * @param CheckoutSecurityStep $checkoutSecurityStep
-     * @param CheckoutAddressingStep $checkoutAddressingStep
-     * @param CheckoutShippingStep $checkoutShippingStep
-     * @param CheckoutPaymentStep $checkoutPaymentStep
-     * @param CheckoutFinalizeStep $checkoutFinalizeStep
-     * @param CheckoutThankYouPage $checkoutThankYouPage
+     * @param SecurityStepInterface $checkoutSecurityStep
+     * @param AddressingStepInterface $checkoutAddressingStep
+     * @param ShippingStepInterface $checkoutShippingStep
+     * @param PaymentStepInterface $checkoutPaymentStep
+     * @param FinalizeStepInterface $checkoutFinalizeStep
+     * @param ThankYouPageInterface $checkoutThankYouPage
+     * @param OrderPaymentsPageInterface $orderPaymentsPage
+     * @param OrderRepositoryInterface $orderRepository
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
-        CheckoutSecurityStep $checkoutSecurityStep,
-        CheckoutAddressingStep $checkoutAddressingStep,
-        CheckoutShippingStep $checkoutShippingStep,
-        CheckoutPaymentStep $checkoutPaymentStep,
-        CheckoutFinalizeStep $checkoutFinalizeStep,
-        CheckoutThankYouPage $checkoutThankYouPage
+        SecurityStepInterface $checkoutSecurityStep,
+        AddressingStepInterface $checkoutAddressingStep,
+        ShippingStepInterface $checkoutShippingStep,
+        PaymentStepInterface $checkoutPaymentStep,
+        FinalizeStepInterface $checkoutFinalizeStep,
+        ThankYouPageInterface $checkoutThankYouPage,
+        OrderPaymentsPageInterface $orderPaymentsPage,
+        OrderRepositoryInterface $orderRepository
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->checkoutSecurityStep = $checkoutSecurityStep;
@@ -86,6 +104,8 @@ final class CheckoutContext implements Context
         $this->checkoutPaymentStep = $checkoutPaymentStep;
         $this->checkoutFinalizeStep = $checkoutFinalizeStep;
         $this->checkoutThankYouPage = $checkoutThankYouPage;
+        $this->orderPaymentsPage = $orderPaymentsPage;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -220,8 +240,45 @@ final class CheckoutContext implements Context
      */
     public function iShouldBeRedirectedBackToTheThankYouPage()
     {
-        $this->checkoutThankYouPage->waitForResponse(10);
+        $this->checkoutThankYouPage->waitForResponse(5);
 
         expect($this->checkoutThankYouPage->isOpen())->toBe(true);
+    }
+
+    /**
+     * @Then I should be redirected back to the order payment page
+     */
+    public function iShouldBeRedirectedBackToTheOrderPaymentPage()
+    {
+        $this->orderPaymentsPage->waitForResponse(5, ['number' => $this->getLastOrder()->getNumber()]);
+
+        expect($this->orderPaymentsPage->isOpen(['number' => $this->getLastOrder()->getNumber()]))->toBe(true);
+    }
+
+    /**
+     * @Then I should see two cancelled payments and new one ready to be paid
+     */
+    public function iShouldSeeTwoCancelledPaymentsAndNewOneReadyToBePaid()
+    {
+        expect($this->orderPaymentsPage->countPaymentWithSpecificState(PaymentInterface::STATE_CANCELLED))->toBe(2);
+        expect($this->orderPaymentsPage->countPaymentWithSpecificState(PaymentInterface::STATE_NEW))->toBe(1);
+    }
+
+    /**
+     * @return OrderInterface
+     *
+     * @throws \RuntimeException
+     */
+    private function getLastOrder()
+    {
+        $customer = $this->sharedStorage->get('user')->getCustomer();
+        $orders = $this->orderRepository->findByCustomer($customer);
+        $lastOrder = end($orders);
+
+        if (false === $lastOrder) {
+            throw new \RuntimeException(sprintf('There is no last order for %s', $customer->getFullName()));
+        }
+
+        return $lastOrder;
     }
 }

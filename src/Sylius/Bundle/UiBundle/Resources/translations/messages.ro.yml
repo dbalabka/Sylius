@@ -2,9 +2,43 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Nume de utilizator
-      password: Parolă
-  ui:
-    dashboard: Panou de administrare
+    form:
+        login:
+            username: Nume de utilizator
+            password: Parolă
+        option:
+            presentation: Prezentare
+    ui:
+        add_coupon: Adaugă cod promoțional
+        actions: Acțiuni
+        cancel: Anulează
+        cancelled: Anulată
+        checkout: Trimite comanda
+        color: Culoare
+        countries: Țări
+        coupons: Coduri promoționale
+        coupon_based: Bazat pe cod promoțional
+        create: Creează
+        dashboard: Panou de administrare
+        default_currency: Moneda implicită
+        delete: Șterge
+        description: Descriere
+        edit: Editare
+        enabled: Activat
+        filter: Filtrează
+        locales: Setări regionale
+        new: Nouă
+        new_country: Țară nouă
+        new_tax_category: Categorie de taxă nouă
+        "no": false
+        no_taxes: Nu se aplică taxe
+        no_promotion: Fără reduceri
+        no_shipping_charges: Nu se aplică taxe pentru livrare
+        quantity: Cantitate
+        ready: Gata
+        returned: Returnată
+        save_changes: Salvează modificările
+        shipped: Expediată
+        shipping_methods: Metode de livrare
+        success: Succes
+        "yes": true

@@ -1,4 +1,4 @@
-@legacy_products
+@legacy @product
 Feature: Products
     In order to create my offer
     As a store owner
@@ -7,20 +7,20 @@ Feature: Products
     Background:
         Given store has default configuration
         And there are following options:
-            | code | name          | presentation | values                          |
-            | O1   | T-Shirt color | Color        | Red[OV1], Blue[OV2], Green[OV3] |
-            | O2   | T-Shirt size  | Size         | S[OV4], M[OV5], L[OV6]          |
+            | code | name          | values                          |
+            | O1   | T-Shirt color | Red[OV1], Blue[OV2], Green[OV3] |
+            | O2   | T-Shirt size  | S[OV4], M[OV5], L[OV6]          |
         And there are following attributes:
             | name               | type     | configuration |
             | T-Shirt fabric     | text     | min:2,max:255 |
             | T-Shirt fare trade | checkbox |               |
             | Size               | integer  |               |
         And the following products exist:
-            | name          | price | options                     | attributes            |
-            | Super T-Shirt | 19.99 | T-Shirt size, T-Shirt color | T-Shirt fabric:Wool   |
-            | Black T-Shirt | 19.99 | T-Shirt size                | T-Shirt fabric:Cotton |
-            | Mug           | 5.99  |                             |                       |
-            | Sticker       | 10.00 |                             |                       |
+            | name          | price | options | attributes            |
+            | Super T-Shirt | 19.99 | O2, O1  | T-Shirt fabric:Wool   |
+            | Black T-Shirt | 19.99 | O1      | T-Shirt fabric:Cotton |
+            | Mug           | 5.99  |         |                       |
+            | Sticker       | 10.00 |         |                       |
         And there are following association types:
             | code | name       |
             | PAs1 | Cross sell |
@@ -31,14 +31,14 @@ Feature: Products
             | TC1  | Clothing    |
             | TC2  | Electronics |
             | TC3  | Print       |
-        And there are following taxonomies defined:
+        And there are following taxons defined:
             | code | name     |
             | RTX1 | Category |
             | RTX2 | Special  |
-        And taxonomy "Category" has following taxons:
+        And taxon "Category" has following children:
             | Clothing[TX1] > T-Shirts[TX2]         |
             | Clothing[TX1] > Premium T-Shirts[TX3] |
-        And taxonomy "Special" has following taxons:
+        And taxon "Special" has following children:
             | Featured[TX4] |
             | New[TX5]      |
         And product "Sticker" has main taxon "New"
@@ -233,9 +233,8 @@ Feature: Products
     Scenario: Selecting the categorization taxons
         Given I am editing product "Black T-Shirt"
         And go to "Categorization" tab
-        When I select "Premium T-Shirts" from "Category"
-        And I select "Featured" from "Special"
-        And I additionally select "New" from "Special"
+        When I select "T-Shirts" from "Taxons"
+        And I additionally select "Featured" from "Taxons"
         And I press "Save changes"
         Then I should be on the page of product "Black T-Shirt"
         And I should see "Product has been successfully updated"

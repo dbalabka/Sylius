@@ -38,6 +38,16 @@ class Configuration implements ConfigurationInterface
 
         $this->addResourcesSection($rootNode);
         $this->addSettingsSection($rootNode);
+        $this->addTranslationsSection($rootNode);
+
+        $rootNode
+            ->children()
+                ->scalarNode('authorization_checker')
+                    ->defaultValue('sylius.resource_controller.authorization_checker.disabled')
+                    ->cannotBeEmpty()
+                ->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }
@@ -139,6 +149,26 @@ class Configuration implements ConfigurationInterface
                         ->variableNode('sorting')->defaultNull()->end()
                         ->booleanNode('filterable')->defaultFalse()->end()
                         ->variableNode('criteria')->defaultNull()->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * @param ArrayNodeDefinition $node
+     */
+    private function addTranslationsSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('translation')
+                    ->canBeEnabled()
+                    ->children()
+                        ->scalarNode('default_locale')->cannotBeEmpty()->end()
+                        ->scalarNode('locale_provider')->defaultValue('sylius.translation.locale_provider.request')->cannotBeEmpty()->end()
+                        ->scalarNode('available_locales_provider')->defaultValue('sylius.translation.locales_provider.array')->cannotBeEmpty()->end()
+                        ->arrayNode('available_locales') ->prototype('scalar')->end()
                     ->end()
                 ->end()
             ->end()

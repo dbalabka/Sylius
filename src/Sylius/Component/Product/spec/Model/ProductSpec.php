@@ -11,6 +11,7 @@
 
 namespace spec\Sylius\Component\Product\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Association\Model\AssociableInterface;
@@ -176,10 +177,9 @@ class ProductSpec extends ObjectBehavior
     function it_should_not_add_master_variant_twice_to_collection(VariantInterface $variant)
     {
         $variant->isMaster()->willReturn(true);
-        $variant->isDeleted()->willReturn(false);
 
-        $variant->setProduct($this)->shouldBeCalled();
-        $variant->setMaster(true)->shouldBeCalled();
+        $variant->setProduct($this)->shouldBeCalledTimes(1);
+        $variant->setMaster(true)->shouldBeCalledTimes(2);
 
         $this->setMasterVariant($variant);
         $this->setMasterVariant($variant);
@@ -195,7 +195,6 @@ class ProductSpec extends ObjectBehavior
     function its_hasVariants_should_return_true_only_if_any_variants_defined(VariantInterface $variant)
     {
         $variant->isMaster()->willReturn(false);
-        $variant->isDeleted()->willReturn(false);
 
         $variant->setProduct($this)->shouldBeCalled();
 
@@ -206,6 +205,51 @@ class ProductSpec extends ObjectBehavior
     function it_should_initialize_variants_collection_by_default()
     {
         $this->getVariants()->shouldHaveType('Doctrine\Common\Collections\Collection');
+        $this->getAvailableVariants()->shouldHaveType('Doctrine\Common\Collections\Collection');
+    }
+
+    function it_does_not_include_unavailable_variants_in_available_variants(VariantInterface $variant)
+    {
+        $variant->isMaster()->willReturn(false);
+        $variant->isAvailable()->willReturn(false);
+
+        $variant->setProduct($this)->shouldBeCalled();
+
+        $this->addVariant($variant);
+        $this->getAvailableVariants()->shouldHaveCount(0);
+    }
+
+    function it_does_not_include_master_variant_in_available_variants(VariantInterface $variant)
+    {
+        $variant->isMaster()->willReturn(true);
+
+        $variant->setProduct($this)->shouldBeCalled();
+
+        $this->addVariant($variant);
+        $this->getAvailableVariants()->shouldHaveCount(0);
+    }
+
+    function it_returns_available_variants(
+        VariantInterface $masterVariant,
+        VariantInterface $unavailableVariant,
+        VariantInterface $variant
+    ) {
+        $masterVariant->isMaster()->willReturn(true);
+        $unavailableVariant->isMaster()->willReturn(false);
+        $unavailableVariant->isAvailable()->willReturn(false);
+        $variant->isMaster()->willReturn(false);
+        $variant->isAvailable()->willReturn(true);
+
+        $masterVariant->setProduct($this)->shouldBeCalled();
+        $unavailableVariant->setProduct($this)->shouldBeCalled();
+        $variant->setProduct($this)->shouldBeCalled();
+
+        $this->addVariant($masterVariant);
+        $this->addVariant($unavailableVariant);
+        $this->addVariant($variant);
+
+        $this->getAvailableVariants()->shouldHaveCount(1);
+        $this->getAvailableVariants()->first()->shouldReturn($variant);
     }
 
     function it_should_initialize_option_collection_by_default()
@@ -269,37 +313,6 @@ class ProductSpec extends ObjectBehavior
 
         $this->setUpdatedAt($date);
         $this->getUpdatedAt()->shouldReturn($date);
-    }
-
-    function it_has_no_deletion_date_by_default()
-    {
-        $this->getDeletedAt()->shouldReturn(null);
-    }
-
-    function it_is_not_be_deleted_by_default()
-    {
-        $this->shouldNotBeDeleted();
-    }
-
-    function its_deletion_date_is_mutable()
-    {
-        $deletedAt = new \DateTime();
-
-        $this->setDeletedAt($deletedAt);
-        $this->getDeletedAt()->shouldReturn($deletedAt);
-    }
-
-    function it_is_deleted_only_if_deletion_date_is_in_past()
-    {
-        $deletedAt = new \DateTime('yesterday');
-
-        $this->setDeletedAt($deletedAt);
-        $this->shouldBeDeleted();
-
-        $deletedAt = new \DateTime('tomorrow');
-
-        $this->setDeletedAt($deletedAt);
-        $this->shouldNotBeDeleted();
     }
 
     function it_is_enabled_by_default()

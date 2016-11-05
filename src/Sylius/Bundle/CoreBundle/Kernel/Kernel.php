@@ -11,21 +11,20 @@
 
 namespace Sylius\Bundle\CoreBundle\Kernel;
 
+use PSS\SymfonyMockerContainer\DependencyInjection\MockerContainer;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
- * Sylius base application kernel.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
 abstract class Kernel extends BaseKernel
 {
-    const VERSION = '0.17.0-dev';
-    const VERSION_ID = '00170';
+    const VERSION = '0.18.0-dev';
+    const VERSION_ID = '00180';
     const MAJOR_VERSION = '0';
-    const MINOR_VERSION = '17';
+    const MINOR_VERSION = '18';
     const RELEASE_VERSION = '0';
     const EXTRA_VERSION = 'DEV';
 
@@ -40,7 +39,6 @@ abstract class Kernel extends BaseKernel
     public function registerBundles()
     {
         $bundles = [
-            new \Sylius\Bundle\TranslationBundle\SyliusTranslationBundle(),
             new \Sylius\Bundle\InstallerBundle\SyliusInstallerBundle(),
             new \Sylius\Bundle\OrderBundle\SyliusOrderBundle(),
             new \Sylius\Bundle\MoneyBundle\SyliusMoneyBundle(),
@@ -78,6 +76,7 @@ abstract class Kernel extends BaseKernel
             new \Sylius\Bundle\CoreBundle\SyliusCoreBundle(),
             new \Sylius\Bundle\WebBundle\SyliusWebBundle(),
             new \Sylius\Bundle\ResourceBundle\SyliusResourceBundle(),
+            new \Sylius\Bundle\GridBundle\SyliusGridBundle(),
             new \winzou\Bundle\StateMachineBundle\winzouStateMachineBundle(),
             new \Sylius\Bundle\ApiBundle\SyliusApiBundle(),
 
@@ -112,11 +111,8 @@ abstract class Kernel extends BaseKernel
             new \Payum\Bundle\PayumBundle\PayumBundle(),
             new \JMS\SerializerBundle\JMSSerializerBundle(),
             new \JMS\TranslationBundle\JMSTranslationBundle(),
-            new \HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
             new \Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new \WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
-
-            new \A2lix\TranslationFormBundle\A2lixTranslationFormBundle(),
 
             new \Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
             new \Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle(),
@@ -126,6 +122,18 @@ abstract class Kernel extends BaseKernel
         ];
 
         return $bundles;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getContainerBaseClass()
+    {
+        if ('test' === $this->environment || 'test_cached' === $this->environment) {
+            return MockerContainer::class;
+        }
+
+        return parent::getContainerBaseClass();
     }
 
     /**

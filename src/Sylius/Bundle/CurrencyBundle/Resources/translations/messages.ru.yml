@@ -2,7 +2,9 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      exchange_rate: Обменный курс
-      enabled: Активен
+    form:
+        currency:
+            exchange_rate: Обменный курс
+            enabled: Активен
+            base: Базовая валюта
+            code: Название

@@ -11,7 +11,7 @@
 
 namespace Sylius\Component\Contact\Model;
 
-use Sylius\Component\Translation\Model\AbstractTranslation;
+use Sylius\Component\Resource\Model\AbstractTranslation;
 
 /**
  * Contact topic translation model.
@@ -39,7 +39,7 @@ class TopicTranslation extends AbstractTranslation implements TopicTranslationIn
      */
     public function __toString()
     {
-        return $this->title;
+        return (string) $this->title;
     }
 
     public function getId()

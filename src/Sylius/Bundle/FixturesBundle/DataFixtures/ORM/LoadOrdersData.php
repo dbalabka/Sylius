@@ -39,7 +39,7 @@ class LoadOrdersData extends DataFixture
             'EUR' => 1.0,
         ];
 
-        for ($i = 1; $i <= 50; ++$i) {
+        for ($i = 1; $i <= 15; ++$i) {
             /* @var $order OrderInterface */
             $order = $orderFactory->createNew();
             $channel = $this->getReference('Sylius.Channel.DEFAULT');
@@ -104,7 +104,7 @@ class LoadOrdersData extends DataFixture
         /* @var $payment PaymentInterface */
         $payment = $this->getPaymentFactory()->createNew();
         $payment->setOrder($order);
-        $payment->setMethod($this->getReference('Sylius.PaymentMethod.Offline'));
+        $payment->setMethod($this->getReference('Sylius.PaymentMethod.offline'));
         $payment->setAmount($order->getTotal());
         $payment->setCurrency($order->getCurrency());
         $payment->setState(null === $state ? $this->getPaymentState() : $state);
@@ -119,7 +119,7 @@ class LoadOrdersData extends DataFixture
     {
         /* @var $shipment ShipmentInterface */
         $shipment = $this->getShipmentFactory()->createNew();
-        $shipment->setMethod($this->getReference('Sylius.ShippingMethod.UPS Ground'));
+        $shipment->setMethod($this->getReference('Sylius.ShippingMethod.ups_ground'));
         $shipment->setState($this->getShipmentState());
 
         foreach ($order->getItemUnits() as $item) {

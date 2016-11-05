@@ -67,12 +67,13 @@ class ShippingMethodType extends AbstractResourceType
         $builder
             ->addEventSubscriber(new BuildShippingMethodFormSubscriber($this->calculatorRegistry, $builder->getFormFactory(), $this->formRegistry))
             ->addEventSubscriber(new AddCodeFormSubscriber())
-            ->add('translations', 'a2lix_translationsForms', [
-                'form_type' => 'sylius_shipping_method_translation',
-                'label' => 'sylius.form.shipping_method.name',
+            ->add('translations', 'sylius_translations', [
+                'type' => 'sylius_shipping_method_translation',
+                'label' => 'sylius.form.shipping_method.translations',
             ])
             ->add('category', 'sylius_shipping_category_choice', [
                 'required' => false,
+                'empty_value' => 'sylius.ui.no_requirement',
                 'label' => 'sylius.form.shipping_method.category',
             ])
             ->add('categoryRequirement', 'choice', [
@@ -83,6 +84,9 @@ class ShippingMethodType extends AbstractResourceType
             ])
             ->add('calculator', 'sylius_shipping_calculator_choice', [
                 'label' => 'sylius.form.shipping_method.calculator',
+            ])
+            ->add('enabled', 'checkbox', [
+                'label' => 'sylius.form.locale.enabled',
             ])
         ;
 

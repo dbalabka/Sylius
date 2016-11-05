@@ -2,11 +2,14 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    priceable:
-      price: ราคา
-      calculator: การกำหนดราคา
-      configuration: ตั้งค่า
-    pricing:
-      volume_based:
-        price: ราคา
+    form:
+        priceable:
+            price: ราคา
+            calculator: การกำหนดราคา
+            configuration: ตั้งค่า
+        pricing:
+            volume_based:
+                label: การกำหนดค่าราคา
+                min: ระดับต่ำสุด
+                max: ระดับสูงสุด
+                price: ราคา

@@ -13,7 +13,7 @@ namespace spec\Sylius\Component\Promotion\Processor;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Promotion\Action\PromotionApplicatorInterface;
-use Sylius\Component\Promotion\Checker\PromotionEligibilityCheckerInterface;
+use Sylius\Component\Promotion\Checker\PromotionSubjectEligibilityCheckerInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Promotion\Processor\PromotionProcessorInterface;
@@ -26,7 +26,7 @@ class PromotionProcessorSpec extends ObjectBehavior
 {
     function let(
         PreQualifiedPromotionsProviderInterface $activePromotionsProvider,
-        PromotionEligibilityCheckerInterface $checker,
+        PromotionSubjectEligibilityCheckerInterface $checker,
         PromotionApplicatorInterface $applicator
     ) {
         $this->beConstructedWith($activePromotionsProvider, $checker, $applicator);
@@ -82,18 +82,18 @@ class PromotionProcessorSpec extends ObjectBehavior
         $applicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion,
-        PromotionInterface $exlusivePromotion
+        PromotionInterface $exclusivePromotion
     ) {
         $subject->getPromotions()->shouldBeCalled()->willReturn([]);
-        $activePromotionsProvider->getPromotions($subject)->willReturn([$promotion, $exlusivePromotion]);
+        $activePromotionsProvider->getPromotions($subject)->willReturn([$promotion, $exclusivePromotion]);
 
-        $exlusivePromotion->isExclusive()->shouldBeCalled()->willReturn(true);
+        $exclusivePromotion->isExclusive()->shouldBeCalled()->willReturn(true);
         $checker->isEligible($subject, $promotion)->shouldBeCalled()->willReturn(true);
-        $checker->isEligible($subject, $exlusivePromotion)->shouldBeCalled()->willReturn(true);
-        $applicator->apply($subject, $exlusivePromotion)->shouldBeCalled();
+        $checker->isEligible($subject, $exclusivePromotion)->shouldBeCalled()->willReturn(true);
+        $applicator->apply($subject, $exclusivePromotion)->shouldBeCalled();
         $applicator->apply($subject, $promotion)->shouldNotBeCalled();
         $applicator->revert($subject, $promotion)->shouldNotBeCalled();
-        $applicator->revert($subject, $exlusivePromotion)->shouldNotBeCalled();
+        $applicator->revert($subject, $exclusivePromotion)->shouldNotBeCalled();
 
         $this->process($subject);
     }

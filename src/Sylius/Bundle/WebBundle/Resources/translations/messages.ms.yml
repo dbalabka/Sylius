@@ -2,5 +2,7 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  "no": false
-  "yes": true
+    ui:
+        city: Bandar
+        company: Syarikat
+        postcode: Poskod

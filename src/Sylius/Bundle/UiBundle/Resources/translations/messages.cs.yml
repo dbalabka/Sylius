@@ -2,10 +2,50 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    login:
-      username: Uživatelské jméno
-      password: Heslo
-      remember_me: Pamatuj si mě
-  ui:
-    dashboard: Nástěnka
+    form:
+        login:
+            username: Uživatelské jméno
+            password: Heslo
+            remember_me: Pamatuj si mě
+        option:
+            presentation: Prezentace
+    ui:
+        add_coupon: Přidat kupón
+        actions: Akce
+        cancel: Zrušit
+        cancelled: Zrušeno
+        checkout: Objednat
+        color: Barva
+        countries: Země
+        coupons: Kupóny
+        coupon_based: Kupón na bázi
+        create: Vytvořit
+        currencies: Měny
+        dashboard: Nástěnka
+        date: Datum
+        default_currency: Výchozí měna
+        delete: Odstranit
+        description: Popis
+        edit: Úpravy
+        empty: Prázdné
+        enabled: Povoleno
+        exclusive: Exkluzivní
+        expires_at: Končí v
+        filter: Filtr
+        locales: Lokalizace
+        new: Nový
+        new_country: Nové země
+        new_currency: Nová měna
+        new_tax_category: Nová kategorie daně
+        "no": false
+        no_taxes: Nejsou aplikovány žádné daně
+        no_promotion: Nejsou aplikovány žádné akce
+        no_shipping_charges: Nejsou aplikovány žádné poplatky za dopravu
+        quantity: Množství
+        ready: Připraven
+        returned: Vráceno
+        save_changes: Uložit změny
+        shipped: Dodáno
+        shipping_methods: Způsoby dopravy
+        success: Úspěch
+        "yes": true
