@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
 use Sylius\Bundle\PromotionBundle\Doctrine\ORM\PromotionRepository as BasePromotionRepository;
@@ -23,22 +25,12 @@ class PromotionRepository extends BasePromotionRepository implements PromotionRe
     /**
      * {@inheritdoc}
      */
-    public function findActiveByChannel(ChannelInterface $channel)
+    public function findActiveByChannel(ChannelInterface $channel): array
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('o')
-            ->orderBy($this->getPropertyName('priority'), 'DESC')
-        ;
-
-        $this->filterByActive($queryBuilder);
-
-        $queryBuilder
-            ->innerJoin($this->getPropertyName('channels'), 'channel')
-            ->andWhere($queryBuilder->expr()->eq('channel', ':channel'))
+        return $this->filterByActive($this->createQueryBuilder('o'))
+            ->andWhere(':channel MEMBER OF o.channels')
             ->setParameter('channel', $channel)
-        ;
-
-        return $queryBuilder
+            ->addOrderBy('o.priority', 'DESC')
             ->getQuery()
             ->getResult()
         ;

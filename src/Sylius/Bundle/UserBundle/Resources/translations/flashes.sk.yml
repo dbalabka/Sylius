@@ -3,15 +3,11 @@
 
 sylius:
     user:
-        email:
-            not_exist: Používateľ s týmto e-mailom neexistuje.
-        password:
-            invalid: Nesprávne heslo.
-            request:
-                success: Poslali sme Vám e-mail s pokynmi na obnovenie hesla!
-            reset:
-                success: Vaše heslo bolo úspešne zmenené!
-            change:
-                success: Vaše heslo bolo úspešne zmenené!
-        reset_password:
-            requested: Ak zadaný e-mail existuje v našom systéme, poslali sme naň inštrukcie ako si obnoviť Vaše heslo.
+        expire_password_reset_token: 'Kód na obnovenie hesla vypršal.'
+        change_password: 'Vaše heslo bolo úspešne zmenené!'
+        reset_password: 'Vaše heslo bolo úspešne obnovené!'
+        reset_password_request: 'Ak e-mail, ktorý ste zadali, existuje v našom systéme, pošleme vám inštrukcie ako si môžete heslo obnoviť.'
+        verify_email: 'Váš e-mail bol úspešne overený.'
+        verify_email_by_invalid_token: 'Verifikačný kód je neplatný.'
+        verify_email_request: 'E-mail s potvrdzujúcim odkazom bol odoslaný na vašu e-mailovú adresu.'
+        verify_verified_email: 'Váš e-mail je už overený.'

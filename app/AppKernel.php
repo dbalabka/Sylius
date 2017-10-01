@@ -9,28 +9,28 @@
  * file that was distributed with this source code.
  */
 
-use Sylius\Bundle\CoreBundle\Kernel\Kernel;
+declare(strict_types=1);
+
+use Sylius\Bundle\CoreBundle\Application\Kernel;
 
 /**
- * Sylius application kernel.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
+ * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
 class AppKernel extends Kernel
 {
     /**
      * {@inheritdoc}
      */
-    public function registerBundles()
+    public function registerBundles(): array
     {
-        $bundles = array(
-            // Put here your own bundles!
-        );
+        $bundles = [
+            new \Sylius\Bundle\AdminBundle\SyliusAdminBundle(),
+            new \Sylius\Bundle\ShopBundle\SyliusShopBundle(),
 
-        if (in_array($this->environment, array('dev', 'test'))) {
-            $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
-        }
+            new \FOS\OAuthServerBundle\FOSOAuthServerBundle(), // Required by SyliusAdminApiBundle.
+            new \Sylius\Bundle\AdminApiBundle\SyliusAdminApiBundle(),
+        ];
 
         return array_merge(parent::registerBundles(), $bundles);
     }

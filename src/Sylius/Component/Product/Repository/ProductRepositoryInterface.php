@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Repository;
 
 use Sylius\Component\Product\Model\ProductInterface;
@@ -21,15 +23,17 @@ interface ProductRepositoryInterface extends RepositoryInterface
 {
     /**
      * @param string $name
+     * @param string $locale
      *
-     * @return ProductInterface|null
+     * @return array|ProductInterface[]
      */
-    public function findOneByName($name);
+    public function findByName(string $name, string $locale): array;
 
     /**
-     * @param string $slug
+     * @param string $phrase
+     * @param string $locale
      *
-     * @return ProductInterface|null
+     * @return array|ProductInterface[]
      */
-    public function findOneBySlug($slug);
+    public function findByNamePart(string $phrase, string $locale): array;
 }

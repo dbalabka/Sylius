@@ -9,70 +9,58 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
-use Sylius\Component\User\Model\CustomerInterface as BaseCustomerInterface;
+use Sylius\Component\Customer\Model\CustomerInterface as BaseCustomerInterface;
+use Sylius\Component\User\Model\UserAwareInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-interface CustomerInterface extends BaseCustomerInterface
+interface CustomerInterface extends BaseCustomerInterface, UserAwareInterface, ProductReviewerInterface
 {
-    /**
-     * @param string $currency
-     */
-    public function setCurrency($currency);
-
-    /**
-     * @return string
-     */
-    public function getCurrency();
-
     /**
      * @return Collection|OrderInterface[]
      */
-    public function getOrders();
+    public function getOrders(): Collection;
 
     /**
-     * @param AddressInterface $billingAddress
+     * @return AddressInterface|null
      */
-    public function setBillingAddress(AddressInterface $billingAddress = null);
+    public function getDefaultAddress(): ?AddressInterface;
 
     /**
-     * @return AddressInterface
+     * @param AddressInterface|null $defaultAddress
      */
-    public function getBillingAddress();
-
-    /**
-     * @param AddressInterface $shippingAddress
-     */
-    public function setShippingAddress(AddressInterface $shippingAddress = null);
-
-    /**
-     * @return AddressInterface
-     */
-    public function getShippingAddress();
+    public function setDefaultAddress(?AddressInterface $defaultAddress): void;
 
     /**
      * @param AddressInterface $address
      */
-    public function addAddress(AddressInterface $address);
+    public function addAddress(AddressInterface $address): void;
 
     /**
      * @param AddressInterface $address
      */
-    public function removeAddress(AddressInterface $address);
+    public function removeAddress(AddressInterface $address): void;
 
     /**
      * @param AddressInterface $address
      *
      * @return bool
      */
-    public function hasAddress(AddressInterface $address);
+    public function hasAddress(AddressInterface $address): bool;
 
     /**
      * @return Collection|AddressInterface[]
      */
-    public function getAddresses();
+    public function getAddresses(): Collection;
+
+    /**
+     * @return bool
+     */
+    public function hasUser(): bool;
 }

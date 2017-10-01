@@ -9,8 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\ShippingMethod;
 
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
 /**
@@ -23,7 +26,25 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
      */
     public function isCodeDisabled();
 
+    /**
+     * @param string $channelName
+     *
+     * @return bool
+     */
+    public function isAvailableInChannel($channelName);
+
     public function enable();
 
     public function disable();
+
+    public function removeZone();
+
+    /**
+     * @param string $channelCode
+     *
+     * @return string
+     *
+     * @throws ElementNotFoundException
+     */
+    public function getValidationMessageForAmount($channelCode);
 }

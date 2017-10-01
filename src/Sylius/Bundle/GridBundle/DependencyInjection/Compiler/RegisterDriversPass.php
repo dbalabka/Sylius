@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -18,12 +20,12 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class RegisterDriversPass implements CompilerPassInterface
+final class RegisterDriversPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('sylius.registry.grid_driver')) {
             return;
@@ -32,7 +34,7 @@ class RegisterDriversPass implements CompilerPassInterface
         $registry = $container->findDefinition('sylius.registry.grid_driver');
 
         foreach ($container->findTaggedServiceIds('sylius.grid_driver') as $id => $attributes) {
-            if (!isset($attributes[0]['alias']))  {
+            if (!isset($attributes[0]['alias'])) {
                 throw new \InvalidArgumentException('Tagged grid drivers needs to have `alias` attribute.');
             }
 

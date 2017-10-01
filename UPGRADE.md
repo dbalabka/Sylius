@@ -1,708 +1,894 @@
-UPGRADE
-=======
+# UPGRADE FROM 1.0.0-beta.3 to 1.0.0
 
-## From 0.17 to 0.18.x
+## Application:
 
-### Translation and TranslationBundle
+* Parameter `locale` has been removed from `parameters.yml.dist` and `parameters.yml` file and is now configured as default in `app/config/config.yml`. 
+  If you would like to use a different default locale you should modify it there and commit such change to your project repository.
 
-* Merged ``Translation`` component with ``Resource`` component
-* Merged ``TranslationBundle`` with ``ResourceBundle``
-* Renamed ``TranslatableResourceRepository`` to ``TranslatableRepository``
+* `\DateTimeInterface` is used for typehints instead of `\DateTime` to allow for compatibility with `\DateTimeImmutable`.
+  Do not rely on mutable behaviour and set changes directly on the model.
+  
+* `WebServerBundle` which is used to run PHP's internal web server is no longer loaded in the production environment.
+   You can re-add the bundle if you need to by adding the following code to your AppKernel.php:
+  ```php
+  public function registerBundles()
+  {
+        // Other registrered bundles
+    
+	    if (in_array($this->getEnvironment(), ['prod']))
+        {
+            $bundles[] = new \Symfony\Bundle\WebServerBundle\WebServerBundle();
+        }
 
-### Core and CoreBundle
+        return array_merge(parent::registerBundles(), $bundles);
+  }
+  ```
 
-* Removed "exclude" option from ``taxon`` rule
+* Scalar and return typehints have been introduced in the codebase. Please introduce these in your codebase for classes 
+  that implement Sylius interfaces or extend Sylius classes. It is also highly recommended to add `declare(strict_types=1);` declaration to your PHP files.
+  Learn more about PHP 7.1 features here: http://php.net/manual/de/migration71.new-features.php
 
+* Starting with Symfony version 3.3.8, the custom autoloader is not needed anymore and therefore it has been removed in favour of the Composer
+  autoloader. Apply the following changes (reference: https://github.com/Sylius/Sylius/pull/8340):
 
-## From 0.16 to 0.17.x
+  * Remove `app/autoload.php`
+  * Change autoload path in `bin/console`: replace 'app' with 'vendor'
+  * Change autoload path in `web/app.php`: replace 'app' with 'vendor'
+  * Change autoload path in `web/app_dev.php`: replace 'app' with 'vendor'
+  * Change autoload path in `phpunit.xml.dist`: replace 'app' with 'vendor'
+  * Remove `"Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",` from composer.json scripts
 
-### Promotion and PromotionBundle
+* Model classes now return ArrayCollections instead of arrays, so if you want to mock it in PHPSpec, 
+  you need to wrap the mocked object like this:
 
-* Changed "item_count" promotion type into "cart_quantity". It now checks cart quantity instead different items number.
-
-### Resource and SyliusResourceBundle
-
- * All resources must implement ``Sylius\Component\Resource\Model\ResourceInterface``;
- * ResourceController has been rewritten from scratch but should maintain 100% of previous functionality;
- * ``$this->config`` is no longer available and you should create it manually in every action;
-
-Before:
-
-```php
-<?php
-
-namespace AppBundle\Controller;
-
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
-
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        return $this->render($this->config->getTemplate('custom.html'));
+    ```php
+    function it_does_something(
+         ReviewableInterface $reviewable,
+         ReviewInterface $review
+    ): void {
+         $reviewable->getReviews()->willReturn(new ArrayCollection([$review->getWrappedObject()]));
     }
-}
-```
+    ```
 
-After:
+* Moreover remember that you will have to change typehints from array to ArrayCollection in you classes, not only in tests.
 
-```php
-<?php
+* Due to new Twig version, macros in included templates need to be imported in the child template. 
+  Read more here: https://stackoverflow.com/questions/41590051/twig-2-0-error-message-accessing-twig-template-attributes-is-forbidden/41590052
 
-namespace AppBundle\Controller;
+* Check the differences between `TestAppKernel` you have and the one from Sylius/Sylius repository, as it was changed.
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+* The issue `Warning: Cannot bind closure to scope of internal class ReflectionProperty` should be fixed by clearing the cache.
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
+## Packages:
 
-        return $this->render($configuration->getTemplate('custom.html'));
-    }
-}
-```
+### Addressing / AddressingBundle
 
- * Custom view handler has been introduced and ResourceController no longer extends FOSRestController:
+* `ZoneMatcher` has been made final, use decoration instead of extending it.
 
-Before:
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+  
+  * `AddressInterface::setCountryCode`
+  * `AddressInterface::setProviceCode`
+  * `AddressInterface::setProviceName`
+  * `ProvinceInterface::setCountry`
+  * `ZoneMemberInterface::setBelongsTo`
+  
+### Attribute / AttributeBundle
 
-```php
-<?php
+* `SelectAttributeType` has been made final, use decoration instead of extending it.
+* `AttributeFactory` has been made final, use decoration instead of extending it.
+* `ProductAttributeValueInterface::setProduct` method no longer has a default null argument and requires one to be explicitly passed.
+* The `AttributeTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
 
-namespace AppBundle\Controller;
+### AdminBundle
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+* `CustomerStatisticsController` has been made final, use decoration instead of extending it.
+* `DashboardController` has been made final, use decoration instead of extending it.
+* `ImpersonateUserController` has been made final, use decoration instead of extending it.
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        return $this->handleView($this->view(null, 204));
-    }
-}
-```
+### AdminApiBundle
 
-After:
+* `CreateClientCommand` has been made final, use decoration instead of extending it.
 
-```php
-<?php
+### Channel / ChannelBundle
 
-namespace AppBundle\Controller;
+* `ChannelFactory` has been made final, use decoration instead of extending it.
 
-use FOS\RestBundle\View\View;
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+* `ChannelAwareInterface::setChannel` no longer has a default null argument and requires one to be explicitly passed.
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
+### Core / CoreBundle
 
-        return $this->viewHandler->handle($configuration, View::create(null, 204));
-    }
-}
-```
+* Method `OrderInterface::isShippingRequired` added, used in place of similar methods in `OrderShippingMethodSelectionRequirementChecker` and `OrderShipmentProcessor`
+* `createByCustomerAndChannelIdQueryBuilder($customerId, $channelId)` method added to `OrderRepositoryInterface`
+* The following classes have been made final, use decoration instead of extending them:
 
- * DomainManager has been replaced with standard manager and also repository is injected into the controller;
+    * `CartItemTypeExtension`
+    * `CartTypeExtension`
+    * `HandleException`
+    * `IntegerDistributor`
+    * `MissingChannelConfigurationException`
+    * `PromotionActionFactory`
+    * `PromotionRuleFactory`
+    * `ReviewerReviewsRemover`
+    * `TestPromotionFactory`
+    * `UnsupportedTaxCalculationStrategyException`
+    * `CheckoutStepsHelper`
+    * `PriceHelper`
+    * `ProductVariantsPricesHelper`
+    * `VariantResolverHelper`
+    
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+  
+    * `ChannelPricingInterface::setProductVariant`
+    * `CustomerInterface::setDefaultAddress`
+    * `OrderInterface::setPromotionCoupon`
+    * `ProductInterface::setMainTaxon`
+    * `ProductVariantInterface::setTaxCategory`
+    * `ShippingMethodInterface::setTaxCategory`
+    * `ShippingMethodInterface::setZone`
+    * `TaxRateInterface::setZone`
 
-Before:
+* Constructor of `Sylius\Bundle\CoreBundle\Context\SessionAndChannelBasedCartContext` has been changed to use `Sylius\Component\Core\Storage\CartStorageInterface`
 
-```php
-<?php
+* `SessionCartSubscriber` and `ShopUserLogoutHandler` has been moved to ShopBundle. If you used them, you need to add ShopBundle to your Kernel or define this services by your own.
 
-namespace AppBundle\Controller;
+* The service definition of `session_and_channel_based` has been moved to ShopBundle. If you used it, you need to add ShopBundle to your Kernel or define this services by your own.
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+* `AssociationHydrator` was moved to `sylius-labs/association-hydrator` package.
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        // ...
+* Protected methods `ShopUser::assignUser` and `Customer::assignCustomer` were deleted.
 
-        $this->domainManager->create($book);
-        $this->domainManager->update($book);
-        $this->domainManager->delete($book);
-    }
-}
-```
+### Customer / CustomerBundle
 
-After:
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+  
+  * `CustomerInterface::setBirthday`
+  * `CustomerInterface::setGroup`
+  * `CustomerAwareInterface::setCustomer`
 
-```php
-<?php
+### Inventory / InventoryBundle
 
-namespace AppBundle\Controller;
+* `InventoryHelper` has been made final, use decoration instead of extending it.
+
+### Mailer / MailerBundle
+
+* `Email` has been made final, use decoration instead of extending it.
+* `SenderInterface::send` method has been changed: `replyTo` argument was added.
+
+### Order / OrderBundle
+
+* In order to be compatibile with Doctrine ORM 2.6+ and be more consistent,
+  `OrderRepositoryInterface::count()` signature was changed to `OrderRepositoryInterface::countPlacedOrders()`.
+  
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+
+  * `AdjustableInterface::getAdjustments`
+  * `AdjustmentInterface::setAdjustable`
+  * `OrderAwareInterace::setOrder`
+  * `OrderInterface::setCheckoutCompletedAt`
+  
+* `OrderInterface::getAdjustmentsRecursively` and `OrderItemInterface::getAdjustmentsRecursively` return types changed from `array` to `Collection`.
+
+* In order to display information only about fulfilled orders in the dashboard statistics
+  the `OrderRepositoryInterface::countByChannel()` method's signature was changed to `OrderRepositoryInterface::countFulfilledByChannel()`.
+
+* The service definition of `sylius.context.cart.session_based` has been removed. Declare it by your own if you want to use `SessionBasedCartContext`
+
+    ```xml
+        <service id="sylius.context.cart.session_based" class="Sylius\Bundle\OrderBundle\Context\SessionBasedCartContext">
+            <argument type="service" id="session" />
+            <argument>_sylius.cart</argument>
+            <argument type="service" id="sylius.repository.order" />
+            <tag name="sylius.context.cart" priority="-777" />
+        </service>
+    ```
+### Payment / PaymentBundle
+
+* In `PaymentInterface::setMethod` the `PaymentMethodInterface $method` parameter no longer has a default value.
+* The `PaymentMethodTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
+
+### Product / ProductBundle
+
+* `ProductVariantCombination` has been made final, use decoration instead of extending it.
+* `ProductVariantCombinationValidator` has been made final, use decoration instead of extending it.
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+  
+  * `ProductAssociationInterface::setOwner`
+  * `ProductAttributeValueInterface::setProduct`
+  * `ProductOptionValueInterface::setOption`
+  * `ProductVariantInterface::setProduct`
+  
+* `Sylius\Component\Product\Repository\ProductVariantRepositoryInterface` definition changed.
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+  * `findByCodeAndProductCode(string $code, string $productCode)` was changed to
+    `findByCodesAndProductCode(array $codes, string $productCode)`.
+    
+* The `ProductAssociationTypeTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
+* The `ProductOptionTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
+* The `ProductOptionValueTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
+* The `ProductVariantTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        // ...
+### Promotion / PromotionBundle
+
+* `ActivePromotionsProvider` has been made final, use decoration instead of extending it.
+* The following methods no longer have a default null argument and require one to be explicitly passed:  
+    * `PromotionCouponGeneratorInstructionInterface::setExpiresAt`
+    * `PromotionCouponInterface::setPromotion`
+    * `PromotionCouponInterface::setExpiresAt`
+    * `PromotionInterface::setStartsAt`
+    * `PromotionInterface::setEndsAt`
+    * `PromotionRuleInterface::setPromotion`
+* `createPaginatorForPromotion(string $promotionCode)` added to `PromotionCouponRepositoryInterface`
 
-        $this->repository->add($book);
-        $this->manager->flush();
-        $this->repository->remove($book);
-    }
-}
-```
+### Registry
 
- * ``getForm()`` has been removed in favor of properly injected service;
+* `PrioritizedServiceRegistryInterface::all` method return type changed from Zend's `PriorityQueue` to `iterable`.
 
-Before:
+### Resource / ResourceBundle
 
-```php
-<?php
+* The following methods no longer have a default null argument and require one to be explicitly passed:
 
-namespace AppBundle\Controller;
+  * `TranslationInterface::setTranslatable`
+  * `Archivable::setArchivedAt`
+  * `SlugAwareInterface::setSlug`
+  
+* `dispatchMultiple(string $eventName, RequestConfiguration $requestConfiguration, $resources)` added to `EventDispatcherInterface`
+  
+### Review / ReviewBundle
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+* The `ReviewInterface::setAuthor` method no longer has a default null argument and requires one to be explicitly passed.
+* The `ReviewFactoryInterface::createForSubjectWithReviewer` method no longer has a default null value for `$reviewer` argument and requires one to be explicitly passed.
+* Default null value of `ReviewFactoryInterface::createForSubjectWithReviewer` was removed. To create a review without reviewer use `createForSubject` method from the same interface instead. 
+  
+### ShopBundle
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        // ...
+* `ContactController` has been made final, use decoration instead of extending it.
 
-        $form = $this->getForm($book);
-    }
-}
-```
+* `_liip_imagine` routing import has been moved to the main routing of Sylius app. If you are not importing `app/config/routing.yml` you need to add this import by your own:
 
-After:
+    ```yml
+        _liip_imagine:
+            resource: "@LiipImagineBundle/Resources/config/routing.xml"
+     ```
+     
+* ImagineBundle has been upgraded from ^1.6 to ^1.9.1 to move past a BC break in console commands: https://github.com/liip/LiipImagineBundle/releases/tag/1.9.1.
 
-```php
-<?php
+* If `sylius_shop.locale_switcher` is set to `storage`, `LocaleStrippingRouter` is loaded, which strips out `_locale` parameter
+  from the URL if it's the same as the one already in the storage. In order to disable localized urls, follow this cookbook entry: http://docs.sylius.org/en/latest/cookbook/disabling-localised-urls.html
+ 
+* `ShopUserLogoutHandler` has different parameters in constructor:
+    * `HttpUtils $httpUtils`
+    * `string $targetUrl`
+    * `ChannelContextInterface $channelContext`
+    * `CartStorageInterface $cartStorage`
+
+* Last constructor parameter of `SessionCartSubscriber` is now `CartStorageInterface $cartStorage` instead of `string $sessionKeyName`
+
+### Shipping / ShippingBundle
+
+* `UnresolvedDefaultShippingMethodException` has been made final, use decoration instead of extending it.
+* `setShippable(?ShippableInterface $shippable)` method has been added to `ShipmentUnitInterface`.
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+
+    * `ShipmentInterface::setMethod`
+    * `ShipmentUnitInterface::setShipment`
+    * `ShipmentMethodInterface::setCategory`
+    
+* static `getCategoryRequirementLabels` method was removed from `ShippingMethod`
+* `getCategoryRequirementLabel` method was removed from `ShippingMethodInterface`
+    
+* The `ShippingMethodTranslationInterface` now extends the `Sylius\Component\Resource\Model\TranslationInterface`.
+
+### Taxation / TaxationBundle
+
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+
+  * `TaxRateInterface::setTranslatable`
+  * `TaxRateInterface::setCategory`
+
+### Taxonomy / TaxonomyBundle
+
+* `TaxonInterface::getParents` method was renamed to `TaxonInterface::getAncestors`.
+
+### ThemeBundle
+
+* `ThemeHierarchyProviderInterface::getThemeHierarchy` no longer accepts null as the passed argument.
+
+### User / UserBundle
+
+* The following classes have been made final, use decoration instead of extending them:
+
+  * `UserDeleteListener`
+  * `UserLastLoginSubscriber`
+  * `UserReloaderListener`
+
+* The following methods no longer have a default null argument and require one to be explicitly passed:
+
+  * `UserAwareInterface::setUser`
+  * `UserInterface::setPasswordRequestedAt`
+  * `UserInterface::setVerifiedAt`
+  * `UserInterface::setExpiresAt`
+  * `UserInterface::setLastLogin`
+
+# UPGRADE FROM 1.0.0-beta.2 to 1.0.0-beta.3
+
+## Packages:
+
+* The following tag attributes were renamed in order to keep consistency with Symfony
+  (changes not needed if using XML for service definitions):
 
-namespace AppBundle\Controller;
+  * from `form-type` to `form_type`
+  * from `attribute-type` to `attribute_type`
+  * from `configuration-form-type` to `configuration_form_type`
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+### PayumBundle
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
+* Constructor of `CapturePaymentAction` now takes a `PaymentDescriptionProviderInterface` as first argument. This allows granular customisation of the payment description.
 
-        // ...
+### Taxonomy / TaxonomyBundle
 
-        $form = $this->resourceFormFactory->create($configuration, $book);
-    }
-}
-```
+* `Sylius\Bundle\TaxonomyBundle\Controller\TaxonSlugController` has been made final, decorate it or copy instead of extending it.
 
- * Events are no longer dispatched by the removed "DomainManager".
+* `Sylius\Component\Taxonomy\Generator\TaxonSlugGeneratorInterface::generate` signature has changed from `generate(string $name, ?mixed $parentId = null): string` to `generate(TaxonInterface $taxon, ?string $locale = null): string`.
 
-Before:
+### Core / CoreBundle
 
-```php
-<?php
+* The following serialization configuration was moved from CoreBundle/Resources/config/app/config.yml to AdminApiBundle/Resources/config/app/config.yml
 
-namespace AppBundle\Controller;
+  ```yaml
+      jms_serializer:
+         metadata:
+             directories:
+                 sylius-core:
+                     namespace_prefix: "Sylius\\Component\\Core"
+                     path: "@SyliusCoreBundle/Resources/config/serializer"
+  ```
+  to
+  ```yaml
+      jms_serializer:
+         metadata:
+             directories:
+                 sylius-core:
+                     namespace_prefix: "Sylius\\Component\\Core"
+                     path: "@SyliusAdminApiBundle/Resources/config/serializer"
+  ```
+* Relations in serializations files were moved from Sylius bundles to SyliusAdminApiBundle
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+  Example of relation for SyliusOrderBundle/Resources/config/serializer/Model.OrderItem.yml
+  ```yaml
+      relations:
+        -   rel: order
+            href:
+                route: sylius_admin_api_order_show
+                parameters:
+                    id: expr(object.getOrder().getId())
+                    version: 1
+            exclusion:
+                groups: [Default, Detailed, DetailedCart]
+  ```
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        $this->domainManager->create($book);
-    }
-}
-```
+* The following serialization configurations files were moved:
 
-After:
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.AdminUser.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.AdminUser.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Channel.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Channel.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.ChannelPricing.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.ChannelPricing.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Customer.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Customer.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Image.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Image.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Order.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Order.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.OrderItem.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.OrderItem.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.OrderItemUnit.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.OrderItemUnit.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Payment.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Payment.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.PaymentMethod.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.PaymentMethod.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Product.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Product.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.ProductImage.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.ProductImage.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.ProductTaxon.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.ProductTaxon.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.ProductVariant.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.ProductVariant.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Promotion.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Promotion.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.PromotionCoupon.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.PromotionCoupon.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Property.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Property.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Shipment.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Shipment.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.ShippingMethod.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.ShippingMethod.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.ShopUser.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.ShopUser.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.TaxRate.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.TaxRate.yml`
+  * from `SyliusCoreBundle/Resources/config/serializer/Model.Taxon.yml` to `SyliusAdminApiBundle/Resources/config/serializer/Model.Taxon.yml`
 
-```php
-<?php
+# UPGRADE FROM 1.0.0-beta.1 to 1.0.0-beta.2
 
-namespace AppBundle\Controller;
+* Bundles, container extensions and bundles configurations were made final and can't be extended anymore, follow Symfony
+  best practices and do not extend them.
 
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+## Packages:
 
-class BookController extends ResourceController
-{
-    public function customAction(Request $request)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
+### Addressing / AddressingBundle
 
-        $event = $this->eventDispatcher->dispatchPreEvent(ResourceActions::CREATE, $configuration, $book);
-        $this->repository->add($book);
-        $event = $this->eventDispatcher->dispatchPostEvent(ResourceActions::CREATE, $configuration, $book);
-    }
-}
-```
+### AdminBundle
 
-### Core and CoreBundle
+* Route `sylius_admin_order_shipment_ship` has been added to have specific endpoint only for updating via HTTP PUT method and `sylius_admin_partial_shipment_ship` route is only for rendering the form.
 
-* Moved ``taxCategory`` from ``Product`` to ``ProductVariant``;
-* ``OrderItem`` model from Core component no longer implements ``PromotionSubjectInterface``. Remove all usages of ``addPromotion``, etc. from your custom code. Custom actions targeting items need to be adjusted - see ``ContainsProductRuleChecker`` for reference.
+* Route `sylius_admin_address_log_entry_index` was renamed to `sylius_admin_partial_log_entry_index`.
 
-### Addressing and SyliusAddressingBundle
+* Class `Sylius\Bundle\AdminBundle\Controller\NotificationController` has been made final and can't be extended anymore, follow Symfony best practices and do not extend it.
 
-* Extracted ``Country`` ISO code to name translation, from model to a twig extension: ``CountryNameExtension``;
-* Removed ``Address`` relations to ``Country`` and ``Province`` objects, their unique ``code`` is used instead;
-* Removed specific ``ZoneMembers`` i.e. ``ProvinceZoneMember`` in favor of a dynamic ``ZoneMember``;
-* https://github.com/Sylius/Sylius/pull/3696
-* ``exchangeRate`` is now recorded for ``Order`` at time of purchase for accurate cross-currency reporting.
+### AdminApiBundle (former ApiBundle)
 
-### Order and SyliusOrderBundle
+* Bundle was renamed from `ApiBundle` to `AdminApiBundle`. Routing and config was changed from `sylius_api` to `sylius_admin_api`.
 
-* Introduced ``OrderItemUnit``, which represents every single unit in ``Order``;
-* Replaced ``InventoryUnit`` with ``OrderItemUnit`` in the core. This entity will be used as ``InventoryUnit`` and ``ShipmentItem``;
-* Removed ``setQuantity()`` method from ``OrderItem``;
-* Introduced ``OrderItemUnitFactory`` creating unit for specific ``OrderItem`` by ``createForItem()`` method;
-* Introduced ``OrderItemQuantityModifier`` that is used to control ``OrderItem`` quantity and units;
-* Introduced ``OrderItemQuantityDataMapper``, which attached to ``OrderItemType`` uses proper service to modify ``OrderItem`` quantity;
-* Changed ``Adjustment`` ``description`` field to ``label``;
+* Change the import path of your API config from `@SyliusApiBundle/Resources/config/app/config.yml` to `@SyliusAdminApiBundle/Resources/config/app/config.yml` (in file `app/config/config.yml`).
 
-### Shipping and ShippingBundle
+* Change the import path of your API routing from `src/Sylius/Bundle/ApiBundle/Resources/config/routing/main.yml` to `src/Sylius/Bundle/AdminApiBundle/Resources/config/routing.yml`. API became versioned, so you need to prefix them accordingly (e.g. `/api/customer` -> `/api/v1/customer`).
 
-* Renamed ``ShipmentItem`` to ``ShipmentUnit`` to align with full-stack ``OrderItemUnit`` that it represents and avoid confusion
-against the similarly named ``OrderItem``.
-* Also renamed all associated 'item' wording to 'unit' in forms and form configuration (e.g. ``DefaultCalculators::PER_UNIT_RATE`` and ``RuleInterface::TYPE_UNIT_TOTAL``).
-* Shipping resources config must be updated:
+* Routing for the following resources has been changed to use code instead of id:
 
-Before:
+    * `Products`
+    * `Product Variants`
+    * `Taxons`
+
+  You can bring back previous configuration by overriding current routing with your definition.
+
+* Routing for the following resources has been removed and replaced with the auto generated routing:
+
+    * `Channels`, which are now resolved by code instead of id and only index and show endpoint are available.
+    * `Countries`, which are now resolved by code instead of id.
+    * `Locales`, which  are now resolved by code instead of id.
+    * `Product Attributes`, which are now by code instead of id and only index and show endpoint are available.
+    * `Product Options`, which are now resolved by code instead of id and only index and show endpoint are available.
+    * `Promotions`, which are now resolved by code instead of id.
+    * `Promotions Coupons`, which are now resolved by code instead of id and only index and show endpoint are available.
+    * `Shipping Categories`, which are now resolved by code instead of id.
+    * `Tax Categories`, which are now resolved by code instead of id.
+    * `Tax Rates`, which have now only index and show endpoint available.
+    * `Payment Methods`, which have now only show endpoint available.
+
+  You can bring back previous configuration by overriding current routing with your definition.
+
+### Attribute / AttributeBundle
+
+* `AttributeValue::$localeCode` property was added to make it translatable. Now, every attribute value has a locale code
+  to be displayed properly in different locales. All attribute values are migrated to the new concept with migration
+  `Version20170109143010`. Look at [this PR](https://github.com/Sylius/Sylius/pull/7219) if you have any problems with upgrade.
+
+* `Sylius\Component\Attribute\Repository\AttributeRepositoryInterface` and its implementations were removed due to not being
+  used anymore. You can bring back missing `findByName` method by copying it from Git history to your codebase.
+
+### Channel / ChannelBundle
+
+### Core / CoreBundle
+
+* `ImageUniqueCode` and `ImageUniqueCodeValidator` were deleted and replaced by `UniqueWithinCollectionConstraint` and
+  `UniqueWithinCollectionConstraintValidator` from `ResourceBundle`.
+  To use it replace name of constraint in constraint mapping file from `Sylius\Bundle\CoreBundle\Validator\Constraints\ImageUniqueCode`
+  to `Sylius\Bundle\ResourceBundle\Validator\Constraints\UniqueWithinCollectionConstraint`
+
+* Renamed ``getLastNewPayment()`` on ``OrderInterface`` to ``getLastPayment($state)``, where ``$state`` is target last payment state.
+  Every ``getLastNewPayment()`` method should be replaced with ``getLastPayment(PaymentInterface::STATE_NEW)``.
+
+* `Sylius\Component\Core\OrderProcessing\OrderTaxesProcessor` and `Sylius\Component\Core\Resolver\ZoneAndChannelBasedShippingMethodsResolver`
+  have become a zone scope aware. From now, only zones with scope `shipping` or `all` will be considered in
+  `Sylius\Component\Core\Resolver\ZoneAndChannelBasedShippingMethodsResolver` and a scope `tax` or `all` is required by
+  `Sylius\Component\Core\OrderProcessing\OrderTaxesProcessor`. A migration file has been prepared which fill in `all`
+  as scope for zones that didn't have it specified, so they will be resolved by new implementation.
+
+* State resolvers have been made final. In order to change theirs behavior please decorate them or provide your own implementation.
+
+* `Sylius\Bundle\CoreBundle\DependencyInjection\Compiler\RoutingRepositoryPass` was removed, implement it yourself.
+
+* Method `createQueryBuilderByChannelAndTaxonSlug` from `Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductRepositoryInterface`
+  was renamed to `createShopListQueryBuilder` and receives taxon object instead of taxon slug string as the second parameter.
+
+* `Sylius\Bundle\CoreBundle\Test\MySqlDriver` and `Sylius\Bundle\CoreBundle\Test\PgSqlDriver` were removed in favour of
+  `dama/doctrine-test-bundle` package.
+
+* `Sylius\Component\Core\Test\Services\RandomInvoiceNumberGenerator` was moved to `Sylius\Component\Core\Payment\RandomInvoiceNumberGenerator`,
+  change your usages accordingly.
+
+* `Sylius\Component\Core\Payment\RandomInvoiceNumberGenerator` and `Sylius\Component\Core\Payment\IdBasedInvoiceNumberGenerator`
+  were made final, use decoration and implement `Sylius\Component\Core\Payment\InvoiceNumberGeneratorInterface` instead of
+  extending them.
+
+* `Sylius\Component\Core\Currency\SessionBasedCurrencyStorage` was removed and replaced by more generic `Sylius\Component\Core\Currency\CurrencyStorage`
+
+* The following classes were removed due to being no longer used in current implementation:
+
+  * `Sylius\Bundle\CoreBundle\Handler\ShopCurrencyChangeHandler`
+  * `Sylius\Component\Core\Currency\Handler\CompositeCurrencyChangeHandler`
+  * `Sylius\Component\Core\Currency\Handler\CurrencyChangeHandlerInterface`
+  * `Sylius\Component\Core\Provider\ChannelBasedCurrencyProvider`
+  * `Sylius\Component\Core\SyliusCurrencyEvents`
+
+* The following classes and interfaces was removed due to changes in locales handling (prepending them in URLs):
+
+  * `Sylius\Bundle\CoreBundle\Handler\CartLocaleChangeHandler`
+  * `Sylius\Bundle\CoreBundle\Handler\ShopLocaleChangeHandler`
+  * `Sylius\Component\Core\Locale\Handler\CompositeLocaleChangeHandler`
+  * `Sylius\Component\Core\Locale\Handler\LocaleChangeHandlerInterface`
+
+* `Sylius\Component\Core\Repository\ProductRepositoryInterface` definition changed.
+
+  * `findLatestByChannel(ChannelInterface $channel, int $count)` was changed to
+    `findLatestByChannel(ChannelInterface $channel, string $locale, int $count)`.
+    Please provide your current locale to fetch products together with their translations.
+
+  * `findOneBySlugAndChannel(string $slug, ChannelInterface $channel)` was changed to
+    `findOneByChannelAndSlug(ChannelInterface $channel, string $locale, string $slug)`.
+    Please provide your current locale to fetch product together with its translations.
+
+  * `findOneBySlug(string $slug)` was removed and replaced with more specific
+    `findOneByChannelAndSlug(ChannelInterface $channel, string $locale, string $slug)`.
+
+* Added `Payment::$gatewayConfig` property (with corresponding getter and setter) to allow dynamic gateways. Use it instead of old `Payment::$gateway` property.
+
+* The following methods were added to `Sylius\Component\Core\Repository\OrderRepositoryInterface`:
+
+  * `findCartForSummary($id): ?OrderInterface`
+  * `findCartForAddressing($id): ?OrderInterface`
+  * `findCartForSelectingShipping($id): ?OrderInterface`
+  * `findCartForSelectingPayment($id): ?OrderInterface`
+
+* `Channel` relation was removed from `ChannelPricing` model. `ChannelPricing::$channelCode` should be used instead.
+
+* The following classes were moved:
+
+  * from `Sylius\Bundle\CoreBundle\EmailManager\ShipmentEmailManager` to `Sylius\Bundle\AdminBundle\EmailManager\ShipmentEmailManager`
+  * from `Sylius\Bundle\CoreBundle\EmailManager\ShipmentEmailManagerInterface` to `Sylius\Bundle\AdminBundle\EmailManager\ShipmentEmailManagerInterface`
+  * from `Sylius\Bundle\CoreBundle\EmailManager\ContactEmailManager` to `Sylius\Bundle\ShopBundle\EmailManager\ContactEmailManager`
+  * from `Sylius\Bundle\CoreBundle\EmailManager\ContactEmailManagerInterface` to `Sylius\Bundle\ShopBundle\EmailManager\ContactEmailManagerInterface`
+  * from `Sylius\Bundle\CoreBundle\EmailManager\OrderEmailManager` to `Sylius\Bundle\ShopBundle\EmailManager\OrderEmailManager`
+  * from `Sylius\Bundle\CoreBundle\EmailManager\OrderEmailManagerInterface` to `Sylius\Bundle\ShopBundle\EmailManager\OrderEmailManagerInterface`
+  * from `Sylius\Bundle\CoreBundle\EventListener\UserMailerListener` to `Sylius\Bundle\ShopBundle\EventListener\UserMailerListener`
+
+* The following email templates were moved:
+
+  * from `SyliusCoreBundle:Email:shipmentConfirmation.html.twig` to `SyliusAdminBundle:Email:shipmentConfirmation.html.twig`
+  * from `SyliusCoreBundle:Email:contactRequest.html.twig` to `SyliusShopBundle:Email:contactRequest.html.twig`
+  * from `SyliusCoreBundle:Email:orderConfirmation.html.twig` to `SyliusShopBundle:Email:orderConfirmation.html.twig`
+  * from `SyliusCoreBundle:Email:userRegistration.html.twig` to `SyliusShopBundle:Email:userRegistration.html.twig`
+  * from `SyliusCoreBundle:Email:passwordReset.html.twig` to `SyliusShopBundle:Email:passwordReset.html.twig`
+  * from `SyliusCoreBundle:Email:verification.html.twig` to `SyliusShopBundle:Email:verification.html.twig`
+
+* Removed class `Sylius\Bundle\CoreBundle\Form\Type\ProductTaxonChoiceType`, use `Sylius\Bundle\CoreBundle\Form\Type\Taxon\ProductTaxonAutocompleteChoiceType` instead.
+
+* Removed `Sylius\Bundle\CoreBundle\Form\Type\Promotion\PromotionConfigurationType` class as it has no behaviour and is not used.
+
+* Removed `filterProductTaxonsByTaxon` method from `ProductTaxonAwareInterface`, added `getTaxons` and `hasTaxon` methods.
+  If you used the removed method to determine whether product belongs to a given taxon, use `hasTaxon` instead.
+
+* Removed `Sylius\Component\Core\Promotion\Action\ChannelBasedPromotionActionCommandInterface` and
+  `Sylius\Component\Core\Promotion\Checker\Rule\ChannelBasedRuleCheckerInterface` interfaces together with
+  `Sylius\Bundle\CoreBundle\Form\EventSubscriber\BuildChannelBasedPromotionActionFormSubscriber` and
+  `Sylius\Bundle\CoreBundle\Form\EventSubscriber\BuildChannelBasedPromotionRuleFormSubscriber` event subscribers,
+  which magically resolved channel-based configurations, look at `ChannelBased*Type` to implement your own channel-based configs.
+
+* Services tagged with `sylius.promotion_action` and `sylius.promotion_rule_checker` must include `form-type` parameter
+  being the FQCN of configuration type.
+
+* Removed class `Sylius\Component\Core\TokenAssigner\UniqueTokenGenerator`, use `Sylius\Component\Resource\Generator\RandomnessGenerator` instead.
+
+### Currency / CurrencyBundle
+
+* The following classes were removed due to being no longer used in current implementation:
+
+  * `Sylius\Component\Currency\Provider\CurrencyProviderInterface`
+  * `Sylius\Component\Currency\Context\ProviderBasedCurrencyContext`
+  * `Sylius\Component\Currency\Provider\CurrencyProvider`
+
+* `sylius_currency.currency` configuration option was removed as well as `sylius_currency.currency` parameter.
+
+### Customer / CustomerBundle
+
+### FixturesBundle
+
+### Grid / GridBundle
+
+* Custom options for filter form types was extracted from ``options`` to ``form_options`` in grid configuration.
+
+  Before:
+  ```yaml
+      sylius_grid:
+          grids:
+              app_order:
+                  filters:
+                      channel:
+                          type: entity
+                          options:
+                              class: "%app.model.channel%"
+                              fields: [channel]
+  ```
+
+  After:
+  ```yaml
+      sylius_grid:
+          grids:
+              app_order:
+                  filters:
+                      channel:
+                          type: entity
+                          options:
+                              fields: [channel]
+                          form_options:
+                              class: "%app.model.channel%"
+  ```
+
+* Grid configuration was upgraded to allow setting the number of maximum visible items per page on index.
+
+  ```yaml
+      sylius_grid:
+          grids:
+              app_order:
+                  limits: [15, 20, 30]
+  ```
+
+### Inventory / InventoryBundle
+
+### Locale / LocaleBundle
+
+* `Locale` model's `$enabled` field has been removed along with all logic depending on it.
+
+### Mailer / MailerBundle
+
+### MoneyBundle
+
+### Order / OrderBundle
+
+* The `ExpiredCartsRemover` service has been moved from the component and into the bundle.
+  In addition it dispatches the `sylius.carts.pre_remove` and `sylius.carts.post_remove` events, both of which hold
+  the collection of carts to be, or already removed, depending on the event.
+  Also, as of now, it depends on the `sylius.manager.order` to remove the carts instead of
+  the repository in order to not flush every outdated `cart`, but the whole collection.
+
+* Moved `Sylius\Component\Order\Factory\AddToCartCommandFactoryInterface` to `Sylius\Bundle\OrderBundle\Factory\AddToCartCommandFactoryInterface`.
+
+### Payment / PaymentBundle
+
+* Changed default ``Payment::$state`` from *new* to *cart*.
+
+* Credit Card model and all related code have been removed.
+
+* `PaymentInterface::getSource()` and `PaymentInterface::setSource(PaymentSourceInterface $source)` were removed.
+
+* `PaymentSourceInterface` has been removed.
+
+* `void` transition and state has been removed due to being not used.
+
+### PayumBundle
+
+* There were changes made with handling payment states:
+
+  * *authorized* is treated as *processing*
+  * *payedout* is treated as *refunded*
+
+* Removed `Payment::$gateway` property and corresponding methods.
+
+* Introduced `PaypalGatewayConfigurationType` and `StripeGatewayConfigurationType` for dynamic gateways configuration.
+
+### Product / ProductBundle
+
+* `ProductVariant::$name` property (and corresponding getter and setter) was removed to make it translatable.
+  Therefore, `ProductVariantTranslation` was introduced with one `$name` property.
+  All product variants names are migrated to new concept with migration `Version2016121415313`.
+  Look at [this PR](https://github.com/Sylius/Sylius/pull/7091) if you have any problems with upgrade.
+
+* `ProductAssociationType::$name` property (and corresponding getter and setter) was removed to make it translatable.
+  Therefore, `ProductAssociationTypeTranslation` was introduced with one `$name` property.
+  All product association types names are migrated to new concept with migration `Version20161219160441`.
+  Look at [this PR](https://github.com/Sylius/Sylius/pull/7134) if you have any problems with upgrade.
+
+* `Product::$availableOn` and `Product::$availableUntil` properties (and corresponding getters and setters) were removed.
+  Look at [this PR](https://github.com/Sylius/Sylius/pull/7451) if you have any problems with upgrade.
+
+* `ProductVariant::$availableOn` and `ProductVariant::$availableUntil` properties (and corresponding getters and setters) were removed.
+
+* `ProductInterface::getAvailableVariants()` method was removed as well.
+
+* `ProductVariantRepositoryInterface::findOneByCode($code)` method has been replaced with `ProductVariantRepositoryInterface::findOneByCodeAndProductCode($code, $productCode)`.
+
+* `ProductVariantRepositoryInterface::findOneByIdAndProductId($id, $productId)` method signature was added.
+
+### Promotion / PromotionBundle
+
+* Removed `Sylius\Bundle\PromotionBundle\Form\EventListener\AbstractConfigurationSubscriber`,
+  `Sylius\Bundle\PromotionBundle\Form\EventListener\BuildPromotionActionFormSubscriber` and
+  `Sylius\Bundle\PromotionBundle\Form\EventListener\BuildPromotionRuleFormSubscriber` event subscribers,
+  use `Sylius\Bundle\PromotionBundle\Form\Type\ConfigurablePromotionElementType` as parent type instead.
+
+### Registry / RegistryBundle
+
+### Resource / ResourceBundle
+
+* Removed `sylius_resource.resources.*.translation.fields` configuration key, it was not used at all - if causing issues,
+  remove your configuration under it.
+
+* Moved `Sylius\Bundle\ResourceBundle\Model\ResourceLogEntry` to `Sylius\Component\Resource\Model\ResourceLogEntry`.
+
+### Review / ReviewBundle
+
+* Service `sylius.average_rating_updater` name has been changed to `sylius.product_review.average_rating_updater` and
+  service `sylius.listener.review_change` name has been changed to `sylius.listener.product_review_change`
+  These services will be generated automatically based on subject name.
+
+### Shipping / ShippingBundle
+
+### ShopBundle
+
+* The following templates were moved:
+
+  * `@SyliusShop/Homepage/_header.html.twig` -> `@SyliusShop/_header.html.twig`
+  * `@SyliusShop/Homepage/_footer.html.twig` -> `@SyliusShop/_footer.html.twig`
+  * `@SyliusShop/Homepage/Menu/_security.html.twig` -> `@SyliusShop/Menu/_security.html.twig`
+  * `@SyliusShop/_currencySwitch.html.twig` -> `@SyliusShop/Menu/_currencySwitch.html.twig`
+  * `@SyliusShop/_localeSwitch.html.twig` -> `@SyliusShop/Menu/_localeSwitch.html.twig`
+
+* `HomepageController` has been made final and can't be extended anymore, follow Symfony best practices and do not extend it.
+  Instead extend the `Symfony\Bundle\FrameworkBundle\Controller\Controller` and override the `sylius.controller.shop.homepage` service definition.
+
+### Taxation / TaxationBundle
+
+* Signature of method `findChildren(string $parentCode)` in `Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface`
+  was changed to `findChildren(string $parentCode, string $locale)`.
+
+* Removed `Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonChoiceType` and `Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonCodeChoiceType` form types.
+  Use `Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType` instead.
+
+* Removed method `findNodesTreeSorted()` from `Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface` - provide your own implementation instead.
+
+### Taxonomy / TaxonomyBundle
+
+### ThemeBundle
+
+* `Sylius\Bundle\ThemeBundle\Translation\Provider\Locale\FallbackLocalesProvider` and `Sylius\Bundle\ThemeBundle\Translation\Provider\Locale\FallbackLocalesProviderInterface` have been removed.
+
+* The fallback locales generation of `Sylius\Bundle\ThemeBundle\Translation\Translator` has been nerfed to more strongly rely on symfony's default logic.
+  From now on it won't compute every possible permutation of fallback locales from the given one, but only the themeless version,
+  the base locale with and without theme's modifier, and every pre-configured fallback with and without the modifier.
+
+### UiBundle
+
+* `Sylius\Bundle\UiBundle\Menu\AbstractMenuBuilder` was removed, you should add the following code to classes previously extending it:
+
+  ```php
+  use Knp\Menu\FactoryInterface;
+  use Symfony\Component\EventDispatcher\EventDispatcher;
+
+  /**
+   * @var FactoryInterface
+   */
+  private $factory;
+
+  /**
+   * @var EventDispatcher
+   */
+  private $eventDispatcher;
+
+  /**
+   * @param FactoryInterface $factory
+   * @param EventDispatcher $eventDispatcher
+   */
+  public function __construct(FactoryInterface $factory, EventDispatcher $eventDispatcher)
+  {
+      $this->factory = $factory;
+      $this->eventDispatcher = $eventDispatcher;
+  }
+  ```
+
+  Also `sylius.menu_builder` service was removed, you should add the following code to services previously extending it:
+
+  ```xml
+  <argument type="service" id="knp_menu.factory" />
+  <argument type="service" id="event_dispatcher" />
+  ```
+
+### User / UserBundle
+
+## Application:
+
+* `sylius_admin_dashboard_redirect` route was removed, use `sylius_admin_dashboard` instead.
+
+* All shop routes became prepended with locale code, see below for required routing and security changes.
+
+* Shop only shows products / taxons having translations in current language.
+
+### Configuration
+
+* Move `sylius_shop` routing below `sylius_admin` and `sylius_admin_api` in `app/config/routing.yml` and replace it with the following one:
+
+  ```yaml
+  sylius_shop:
+      resource: "@SyliusShopBundle/Resources/config/routing.yml"
+      prefix: /{_locale}
+      requirements:
+          _locale: ^[a-z]{2}(?:_[A-Z]{2})?$
+
+  sylius_shop_default_locale:
+      path: /
+      methods: [GET]
+      defaults:
+          _controller: sylius.controller.shop.locale_switch:switchAction
+  ```
+
+* Payum gateways configuration is now done in Admin panel. Don't use `yml` file to configure your custom gateways.
+
+* While providing multiple locales you need to insert the two letter base (i.e. `en`), along with the `%locale%` parameter, to the fallbacks array in `app/config/config.yml`.
+
+  ```yaml
+  framework:
+      translator: { fallbacks: ["%locale%", "en"] }
+  ```
+
+* Payum routes were made independent of the current locale. Add the following code to `app/config/routing.yml`:
+
+  ```yaml
+  sylius_shop_payum:
+      resource: "@SyliusShopBundle/Resources/config/routing/payum.yml"
+  ```
+
+* Add exception config to `fos_rest` in `config.yml`:
 
 ```yml
- sylius_shipping:
-     resources:
-         shipment_item:
-              classes:
-                  model: %sylius.model.order_item_unit.class%
+fos_rest:
+    exception: ~
 ```
 
-After:
-
-```yml
- sylius_shipping:
-     resources:
-         shipment_unit:
-              classes:
-                  model: %sylius.model.order_item_unit.class%
-```
-
-### Currency
-
-``CurrencyConverterInterface`` ``convert()`` method renamed to ``convertFromBase()``.
-
-### Content
-```bash
-#!/bin/sh
-
-set -ex
-
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\ContentBundle\Doctrine\Phpcr\StaticContent" "Sylius\Bundle\ContentBundle\Document\StaticContent"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\RoutingBundle\Doctrine\Phpcr\Route" "Sylius\Bundle\ContentBundle\Document\Route"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\RoutingBundle\Doctrine\Phpcr\RedirectRoute" "Sylius\Bundle\ContentBundle\Document\RedirectRoute"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\MenuBundle\Doctrine\Phpcr\Menu" "Sylius\Bundle\ContentBundle\Document\Menu"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\MenuBundle\Doctrine\Phpcr\MenuNode" "Sylius\Bundle\ContentBundle\Document\MenuNode"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\SlideshowBlock" "Sylius\Bundle\ContentBundle\Document\SlideshowBlock"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\ImagineBlock" "Sylius\Bundle\ContentBundle\Document\ImagineBlock"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\ActionBlock" "Sylius\Bundle\ContentBundle\Document\ActionBlock"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\MenuBlock" "Sylius\Bundle\ContentBundle\Document\MenuBlock"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\ReferenceBlock" "Sylius\Bundle\ContentBundle\Document\ReferenceBlock"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\SimpleBlock" "Sylius\Bundle\ContentBundle\Document\SimpleBlock"
-app/console doctrine:phpcr:document:migrate-class "Symfony\Cmf\Bundle\BlockBundle\Doctrine\Phpcr\StringBlock" "Sylius\Bundle\ContentBundle\Document\StringBlock"
-```
-
-## From 0.15.0 to 0.16.x
-
-### General
-
- * Configuration structure for all bundles has changed:
-
-Before:
-
-```yml
-sylius_taxation:
-    validation_groups:
-        tax_category: [sylius, custom]
-    classes:
-        tax_category:
-            model: AppBundle\Entity\TaxCategory
-            form: AppBundle\Form\Type\TaxCategoryType
-```
-
-After:
-
-```yml
-sylius_taxation:
-    resources:
-        tax_category:
-            classes:
-                model: AppBundle\Entity\TaxCategory
-                form:
-                    default: AppBundle\Form\Type\TaxCategoryType
-            validation_groups:
-                default: [sylius, custom]
-```
-
- * Validation groups parameters have been renamed:
-
-Before:
-
-```
-%sylius.validation_group.product%
-```
-
-After:
-
-```
-%sylius.validation_group**s**.product%
-```
-
-### Attribute and SyliusAttributeBundle
-
- * Attribute system has been reworked and now every ``type`` is represented by ``AttributeTypeInterface`` instance;
- * https://github.com/Sylius/Sylius/pull/3608.
-
-### SyliusPayumBundle
-
- * Changed configuration key `sylius_payum.classes.payment_config` to `sylius_payum.classes.gateway_config`;
- * ``PaymentConfig`` renamed to ``GatewayConfig``;
-
-### Resource & SyliusResourceBundle
-
- * ``RepositoryInterface`` now has two additional methods `add` and `remove`;
- * Added ``InMemoryRepository`` which stores resources in memory;
- * Added ``DriverInterface`` which replaced previously used abstractions;
- * Reworked ``AbstractResourceExtension`` to be much simpler.
-
-## From 0.14.0 to 0.15.x
-
-### General
-
- * We no longer use FOSUserBundle;
- * User provider has been changed https://github.com/Sylius/Sylius/pull/2717/files#diff-da1af97fca8a5fcb6fb7053584105ba7R6;
- * Everything related to e-commerce (orders, addresses, groups and coupons) are now associated with Customer;
- * Everything related to system account remains on User entity;
- * Email no longer exist on Order;
- * All order are associated with Customer (even guest orders - during guest checkout Customer is created based on email);
- * User must have associated Customer;
- * Email no longer exist on User. It is on Customer now;
- * In the checkout we depend on Customer not User;
- * In templates in many places we use Customer instead of User entity now.
-
-### Channel & SyliusChannelBundle
-
-https://github.com/Sylius/Sylius/pull/2752
-
-### User & SyliusUserBundle
-
-https://github.com/Sylius/Sylius/pull/2717
-
-### Database
-
- * Call ``` sylius:rbac:initialize ``` to create new roles in your system;
- * Execute migration script to migrate your data into the new model schema.
-
-**The migration script migrates only default data, if you have some customizations on any of affected entities you should take care of them yourself!**
-
-### API Client
-
-https://github.com/Sylius/Sylius/pull/2887
-
-### SyliusApiBundle
-
-When you create server client in Sylius, it's public id was a combination of Client internal id and it's random id. For example:
-
-```
-client_id: 1_mpO5ZJ35hx
-```
-
-now it is simply random id, so it will be changed to:
-
-```
-client_id: mpO5ZJ35hx
-```
-
-**Remember to update your API clients using Sylius!**
-
-Related discussion https://github.com/FriendsOfSymfony/FOSOAuthServerBundle/issues/328.
-
-### Addressing
-
-* Removed `CountryTranslation`, using `Intl` Symfony component instead to provide translated country names based on ISO country code. https://github.com/Sylius/Sylius/pull/3035
-
-## From 0.9.0 to 0.10.x
-
-Version 0.10.x includes the new Sylius e-commerce components.
-All classes without Symfony dependency have been moved to separate ``Sylius\Component`` namespace.
-
-VariableProductBundle has been merged into ProductBundle.
-Its functionality extracted into two separate bundles - SyliusAttributeBundle & SyliusVariationBundle.
-
-Property model has been renamed to Attribute.
-
-Before performing this procedure, please create a safe backup of your database.
-This upgrade changes significantly the way product attributes and options are stored in the database.
-We do provide a way to migrate your data, but no rollback will be possible in case of a problem.
-
-In addition to the components split, we have switched to state-machine in order to deal with states, instead of
-hard-coded states. You can now configure all the states you want and the transitions between them. Please refer to
-`state-machine.yml` that you can find in the bundles using it. *Most events have been replaced by state-machine events,
-much more powerful. Please update your listeners to make them callbacks of state-machine transitions. Again, please
-refer to the state-machine configuration files to do so.*
-
-The signature of `PaymentInterface::setDetails` method was changed. Now it allows either array or instance of \Traversable.
-
-### Addressing
-
-Model classes and ZoneMatcher services have been moved to ``Sylius\Component\Addressing`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\AddressingBundle\\Model/Sylius\\Component\\Addressing\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\AddressingBundle\\ZoneMatcher/Sylius\\Component\\Addressing\\ZoneMatcher/g' {} \;
-```
-
-### Cart
-
-Model classes and several services have been moved to ``Sylius\Component\Cart`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CartBundle\\Model/Sylius\\Component\\Cart\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CartBundle\\Provider\\CartProviderInterface/Sylius\\Component\\Cart\\Provider\\CartProviderInterface/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CartBundle\\Storage\\CartStorageInterface/Sylius\\Component\\Cart\\Storage\\CartStorageInterface/g' {} \;
-```
-
-Twig extension class name & service were changed:
-
-* `SyliusCartExtension` into `CartExtension`,
-* `sylius.cart_twig` into `sylius.twig.extension.cart`
-
-### Core
-
-All Symfony independent code has been moved to ``Sylius\Component\Core`` namespace.
-Variant model has been renamed to ProductVariant and VariantImage to ProductVariantImage.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CoreBundle\\Model\\Variant/Sylius\\Component\\Core\\Model\\ProductVariant/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CoreBundle\\Model/Sylius\\Component\\Core\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CoreBundle\\Calculator/Sylius\\Component\\Core\\Calculator/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CoreBundle\\OrderProcessing/Sylius\\Component\\Core\\OrderProcessing/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CoreBundle\\Promotion/Sylius\\Component\\Core\\Promotion/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\CoreBundle\\Uploader/Sylius\\Component\\Core\\Uploader/g' {} \;
-```
-
-Twig extension class name & service were changed:
-
-* `SyliusMoneyExtension` into `SyliusMoneyExtension`,
-* `SyliusRestrictedZoneExtension` into `RestrictedZoneExtension`,
-* `sylius.twig.restricted_zone_extension` into `sylius.twig.extension.restricted_zone`
-
-### Inventory
-
-Model classes and all Symfony-agnostic services have been moved to ``Sylius\Component\Inventory`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\InventoryBundle\\Model/Sylius\\Component\\Inventory\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\InventoryBundle\\Checker/Sylius\\Component\\Inventory\\Checker/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\InventoryBundle\\Factory/Sylius\\Component\\Inventory\\Factory/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\InventoryBundle\\Operator/Sylius\\Component\\Inventory\\Operator/g' {} \;
-```
-
-Twig extension class name & service were changed:
-
-* `SyliusInventoryExtension` into `InventoryExtension`,
-* `sylius.inventory_twig` into `sylius.twig.extension.inventory`
-
-### Money
-
-Model classes and interfaces have been moved to ``Sylius\Component\Money`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\MoneyBundle\\Model/Sylius\\Component\\Money\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\MoneyBundle\\Converter/Sylius\\Component\\Money\\Converter/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\MoneyBundle\\Context\\CurrencyContextInterface/Sylius\\Component\\Money\\Context\\CurrencyContextInterface/g' {} \;
-```
-
-Twig extension class name & service were changed:
-
-* `SyliusMoneyExtension` into `MoneyExtension`,
-* `sylius.twig.money` into `sylius.twig.extension.money`
-
-### Order
-
-Model classes and repository interfaces have been moved to ``Sylius\Component\Order`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\OrderBundle\\Model/Sylius\\Component\\Order\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\OrderBundle\\Generator/Sylius\\Component\\Order\\Generator/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\OrderBundle\\Repository/Sylius\\Component\\Order\\Repository/g' {} \;
-```
-
-### Payment
-
-PaymentsBundle has been renamed to PaymentBundle.
-Model classes interfaces have been moved to ``Sylius\Component\Order`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\PaymentsBundle\\Model/Sylius\\Component\\Payment\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/PaymentsBundle/PaymentBundle/g' {} \;
-```
-
-Configuration root node has been adjusted as well.
-
-Before:
-
-```yaml
-sylius_payments:
-    driver: doctrine/orm
-```
-
-After:
-
-```yaml
-sylius_payment:
-    driver: doctrine/orm
-```
-
-### Product
-
-Previously, ProductBundle provided basic product model with properties support.
-VariableProductBundle, with its options and variants support, has been merged into the basic bundle.
-From now on, Sylius product catalog ships with variations support by default.
-
-The concept of properties has been renamed to attributes.
-
-* Property model becomes Attribute.
-* ProductProperty becomes AttributeValue.
-
-Attributes can be attached to any object and can be configured under ``sylius_attribute`` node.
-The product bundle configures its attributes automatically.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\VariableProductBundle\\Model/Sylius\\Component\\Product\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/sylius.repository.option/sylius.repository.product_option/g' {} \;
-$ find ./src -type f -exec sed -i 's/sylius.repository.option_value/sylius.repository.product_option_value/g' {} \;
-$ find ./src -type f -exec sed -i 's/sylius.repository.product_property/sylius.repository.product_attribute_value/g' {} \;
-$ find ./src -type f -exec sed -i 's/sylius.repository.property/sylius.repository.product_attribute/g' {} \;
-$ find ./src -type f -exec sed -i 's/sylius.repository.prototype/sylius.repository.product_prototype/g' {} \;
-$ find ./src -type f -exec sed -i 's/sylius.repository.variant/sylius.repository.product_variant/g' {} \;
-```
-
-Beware, the Doctrine relationship name has changed as well between `Variant` (now, `ProductVariant`) and `Product`. If you use it in custom repository methods, you need to adapt accordingly:
-
-Before:
-
-```yaml
-variant.product
-```
-
-After:
-
-```yaml
-product_variant.object
-```
-
-### Promotion
-
-PromotionsBundle has been renamed to PromotionBundle.
-Model classes interfaces have been moved to ``Sylius\Component\Promotion`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/PromotionsBundle/PromotionBundle/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\PromotionBundle\\Model/Sylius\\Component\\Promotion\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\PromotionBundle\\Action/Sylius\\Component\\Promotion\\Action/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\PromotionBundle\\Checker/Sylius\\Component\\Promotion\\Checker/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\PromotionBundle\\Generator/Sylius\\Component\\Promotion\\Generator/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\PromotionBundle\\Processor/Sylius\\Component\\Promotion\\Processor/g' {} \;
-```
-
-Configuration root node has been adjusted as well.
-
-Before:
-
-```yaml
-sylius_promotions:
-    driver: doctrine/orm
-```
-
-After:
-
-```yaml
-sylius_promotion:
-    driver: doctrine/orm
-```
-
-### Resource
-
-ResourceBundle model interfaces have been moved to ``Sylius\Component\Resource`` namespace.
-``RepositoryInterface`` has been moved to ``Repository`` namespace under the component.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\ResourceBundle\\Model/Sylius\\Component\\Resource\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Component\\Resource\\Model\\RepositoryInterface/Sylius\\Component\\Resource\\Repository\\RepositoryInterface/g' {} \;
-```
-
-Twig extension class name & service were changed:
-
-* `SyliusResourceExtension` into `SyliusResourceExtension`,
-* `sylius.twig.resource` into `sylius.twig.extension.resource`
-
-### Settings
-
-Twig extension class name & service were changed:
-
-* `SyliusSettingsExtension` into `SettingsExtension`,
-* `sylius.settings.twig` into `sylius.twig.extension.settings`
-
-### Shipping
-
-Model classes and Symfony agnostic services & interfaces have been moved to ``Sylius\Component\Shipping`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\ShippingBundle\\Model/Sylius\\Component\\Shipping\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\ShippingBundle\\Calculator/Sylius\\Component\\Shipping\\Calculator/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\ShippingBundle\\Checker/Sylius\\Component\\Shipping\\Checker/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\ShippingBundle\\Resolver/Sylius\\Component\\Shipping\\Resolver/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\ShippingBundle\\Processor/Sylius\\Component\\Shipping\\Processor/g' {} \;
-```
-
-### Taxation
-
-Model classes and Symfony agnostic services have been moved to ``Sylius\Component\Taxation`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\TaxationBundle\\Model/Sylius\\Component\\Taxation\\Model/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\TaxationBundle\\Calculator/Sylius\\Component\\Taxation\\Calculator/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\TaxationBundle\\Resolver/Sylius\\Component\\Taxation\\Resolver/g' {} \;
-```
-
-### Taxonomy
-
-TaxonomiesBundle has been renamed to TaxonomyBundle.
-Model classes interfaces have been moved to ``Sylius\Component\Taxonomy`` namespace.
-
-```bash
-$ find ./src -type f -exec sed -i 's/TaxonomiesBundle/TaxonomyBundle/g' {} \;
-$ find ./src -type f -exec sed -i 's/Sylius\\Bundle\\TaxonomyBundle\\Model/Sylius\\Component\\Taxonomy\\Model/g' {} \;
-```
-
-Configuration root node has been adjusted as well.
-
-Before:
-
-```yaml
-sylius_taxonomies:
-    driver: doctrine/orm
-```
-
-After:
-
-```yaml
-sylius_taxonomy:
-    driver: doctrine/orm
-```
-
-### Web
-
-Twig extension service name was changed:
-
-* `sylius.twig.text_extension` into `sylius.twig.extension.text`
+### Security
+
+* Firewalls configuration was changed to provide better CSRF protection and turn on remember me feature, update your `app/config/security.yml`:
+
+  ```yaml
+  security:
+      firewalls:
+          admin:
+              form_login:
+                  csrf_token_generator: security.csrf.token_manager
+                  csrf_parameter: _csrf_admin_security_token
+                  csrf_token_id: admin_authenticate
+              remember_me:
+                  secret: "%secret%"
+                  path: /admin
+                  name: APP_ADMIN_REMEMBER_ME
+                  lifetime: 31536000
+                  remember_me_parameter: _remember_me
+          shop:
+              form_login:
+                  csrf_token_generator: security.csrf.token_manager
+                  csrf_parameter: _csrf_shop_security_token
+                  csrf_token_id: shop_authenticate
+              remember_me:
+                  secret: "%secret%"
+                  name: APP_SHOP_REMEMBER_ME
+                  lifetime: 31536000
+                  remember_me_parameter: _remember_me
+  ```
+
+  From now on you need to pass CSRF token to your login-check request so you need to add `<input type="hidden" value={{ csrf_token('csrf_token_id') }} name="csrf_parameter">` into your login form.
+  Example input for admin login looks like `<input type="hidden" name="_csrf_admin_security_token" value="{{ csrf_token('admin_authenticate') }}">`.
+
+  The remember me feature did not work properly due to missing additional configuration.
+
+* Securing partial routes and prepending shop URLs with locales need changes in `access_control` section of your `app/config/security.yml`:
+
+  ```yaml
+    security:
+        access_control:
+            - { path: "^/[^/]++/_partial", role: IS_AUTHENTICATED_ANONYMOUSLY, ips: [127.0.0.1, ::1] }
+            - { path: "^/[^/]++/_partial", role: ROLE_NO_ACCESS }
+
+            - { path: "^/[^/]++/login", role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+            - { path: "^/(?!admin|api)[^/]++/register", role: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: "^/(?!admin|api)[^/]++/verify", role: IS_AUTHENTICATED_ANONYMOUSLY }
+
+            - { path: "^/admin", role: ROLE_ADMINISTRATION_ACCESS }
+            - { path: "^/api/.*", role: ROLE_API_ACCESS }
+            - { path: "^/(?!admin|api)[^/]++/account", role: ROLE_USER }
+  ```
+### Database Migrations
+
+* Check if the Sylius migrations are in your `app/migrations` directory. If not, then add to this directory
+  the migrations from the `vendor/sylius/sylius/app/migrations/` directory.
+
+  If you've got your own migrations here, please run the migrations carefully. The doctrine migrations system is comparing dates of the migrations,
+  then if some of your migrations have the same dates as migrations in Sylius, then they may corrupt the sequence of running Sylius migrations.
+
+  In such situations we suggest running migrations one by one, instead of all at once.
+
+### Behat
+
+* `Sylius\Behat\Page\Admin\Crud\IndexPage`, `Sylius\Behat\Page\Admin\Crud\CreatePage`, `Sylius\Behat\Page\Admin\Crud\UpdatePage` now accepts route name instead of resource name.

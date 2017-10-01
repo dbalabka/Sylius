@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\LocaleBundle\Templating\Helper;
 
 use Symfony\Component\Templating\Helper\HelperInterface;
@@ -19,14 +21,9 @@ use Symfony\Component\Templating\Helper\HelperInterface;
 interface LocaleHelperInterface extends HelperInterface
 {
     /**
-     * @return string
-     */
-    public function getCurrentLocale();
-
-    /**
      * @param string $localeCode
      *
      * @return string|null
      */
-    public function convertToName($localeCode);
+    public function convertCodeToName(string $localeCode): ?string;
 }

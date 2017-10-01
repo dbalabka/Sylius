@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Model;
 
 use Sylius\Component\Resource\Model\AbstractTranslation;
@@ -16,32 +18,31 @@ use Sylius\Component\Resource\Model\AbstractTranslation;
 class PaymentMethodTranslation extends AbstractTranslation implements PaymentMethodTranslationInterface
 {
     /**
-     * Payments method identifier.
-     *
      * @var mixed
      */
     protected $id;
 
     /**
-     * Name.
-     *
      * @var string
      */
     protected $name;
 
     /**
-     * Description.
-     *
      * @var string
      */
     protected $description;
 
     /**
-     * {@inheritdoc}
+     * @var string
      */
-    public function __toString()
+    protected $instructions;
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
     {
-        return $this->name;
+        return (string) $this->getName();
     }
 
     /**
@@ -55,7 +56,7 @@ class PaymentMethodTranslation extends AbstractTranslation implements PaymentMet
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -63,17 +64,15 @@ class PaymentMethodTranslation extends AbstractTranslation implements PaymentMet
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
-
-        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -81,10 +80,24 @@ class PaymentMethodTranslation extends AbstractTranslation implements PaymentMet
     /**
      * {@inheritdoc}
      */
-    public function setDescription($description)
+    public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
 
-        return $this;
+    /**
+     * {@inheritdoc}
+     */
+    public function getInstructions(): ?string
+    {
+        return $this->instructions;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setInstructions(?string $instructions): void
+    {
+        $this->instructions = $instructions;
     }
 }

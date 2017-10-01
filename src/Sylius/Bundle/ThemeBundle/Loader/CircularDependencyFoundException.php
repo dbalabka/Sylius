@@ -9,21 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Loader;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class CircularDependencyFoundException extends \DomainException
+final class CircularDependencyFoundException extends \DomainException
 {
     /**
      * @param ThemeInterface[] $themes
-     * @param int $code
      * @param \Exception $previous
      */
-    public function __construct(array $themes, $code = 0, \Exception $previous = null)
+    public function __construct(array $themes, ?\Exception $previous = null)
     {
         $cycle = $this->getCycleFromArray($themes);
 
@@ -33,7 +34,7 @@ class CircularDependencyFoundException extends \DomainException
             $this->formatCycleToString($cycle)
         );
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, 0, $previous);
     }
 
     /**
@@ -41,7 +42,7 @@ class CircularDependencyFoundException extends \DomainException
      *
      * @return array
      */
-    private function getCycleFromArray(array $themes)
+    private function getCycleFromArray(array $themes): array
     {
         while (reset($themes) !== end($themes) || 1 === count($themes)) {
             array_shift($themes);
@@ -59,7 +60,7 @@ class CircularDependencyFoundException extends \DomainException
      *
      * @return string
      */
-    private function formatCycleToString(array $themes)
+    private function formatCycleToString(array $themes): string
     {
         $themesNames = array_map(function (ThemeInterface $theme) {
             return $theme->getName();

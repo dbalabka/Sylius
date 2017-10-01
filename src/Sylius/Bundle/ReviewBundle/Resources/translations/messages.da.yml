@@ -4,7 +4,14 @@
 sylius:
     form:
         review:
-            title: Titel
             author: Forfatter
+            comment: Kommentar
+            header: Tilføj en anmeldelse
+            rating: Vurdering
             status:
+                approved: Godkendt
+                label: Status
                 new: Ny
+                rejected: Afvist
+            submit: Indsend
+            title: Titel

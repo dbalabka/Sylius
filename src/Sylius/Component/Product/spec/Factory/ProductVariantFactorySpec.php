@@ -9,67 +9,51 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Product\Factory;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Product\Factory\ProductVariantFactoryInterface;
 use Sylius\Component\Product\Model\ProductInterface;
-use Sylius\Component\Product\Model\VariantInterface;
+use Sylius\Component\Product\Model\ProductVariantInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ProductVariantFactorySpec extends ObjectBehavior
+final class ProductVariantFactorySpec extends ObjectBehavior
 {
-    function let(FactoryInterface $factory, RepositoryInterface $productRepository)
+    function let(FactoryInterface $factory): void
     {
-        $this->beConstructedWith($factory, $productRepository);
+        $this->beConstructedWith($factory);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Product\Factory\ProductVariantFactory');
-    }
-
-    function it_is_a_resource_factory()
+    function it_is_a_resource_factory(): void
     {
         $this->shouldImplement(FactoryInterface::class);
     }
 
-    function it_implements_variant_factory_interface()
+    function it_implements_variant_factory_interface(): void
     {
         $this->shouldImplement(ProductVariantFactoryInterface::class);
     }
 
-    function it_creates_new_variant(FactoryInterface $factory, VariantInterface $variant)
+    function it_creates_new_variant(FactoryInterface $factory, ProductVariantInterface $variant): void
     {
         $factory->createNew()->willReturn($variant);
 
         $this->createNew()->shouldReturn($variant);
     }
 
-    function it_throws_an_exception_when_product_is_not_found(RepositoryInterface $productRepository)
-    {
-        $productRepository->find(15)->willReturn(null);
-
-        $this
-            ->shouldThrow(\InvalidArgumentException::class)
-            ->during('createForProductWithId', [15])
-        ;
-    }
-
-    function it_creates_a_variant_and_assigns_a_product_to_id(
+    function it_creates_a_variant_and_assigns_a_product_to_it(
         FactoryInterface $factory,
-        RepositoryInterface $productRepository,
         ProductInterface $product,
-        VariantInterface $variant
-    ) {
+        ProductVariantInterface $variant
+    ): void {
         $factory->createNew()->willReturn($variant);
-        $productRepository->find(13)->willReturn($product);
         $variant->setProduct($product)->shouldBeCalled();
 
-        $this->createForProductWithId(13)->shouldReturn($variant);
+        $this->createForProduct($product)->shouldReturn($variant);
     }
 }

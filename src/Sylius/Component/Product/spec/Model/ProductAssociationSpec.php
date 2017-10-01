@@ -9,30 +9,52 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Product\Model;
 
 use PhpSpec\ObjectBehavior;
-use Sylius\Component\Association\Model\Association;
 use Sylius\Component\Product\Model\ProductAssociationInterface;
+use Sylius\Component\Product\Model\ProductAssociationType;
+use Sylius\Component\Product\Model\ProductInterface;
 
 /**
  * @author Leszek Prabucki <leszek.prabucki@gmail.com>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class ProductAssociationSpec extends ObjectBehavior
+final class ProductAssociationSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Product\Model\ProductAssociation');
-    }
-
-    function it_extends_an_association()
-    {
-        $this->shouldHaveType(Association::class);
-    }
-
-    function it_implements_product_association_interface()
+    function it_implements_ProductAssociation_interface(): void
     {
         $this->shouldHaveType(ProductAssociationInterface::class);
+    }
+
+    function it_has_owner(ProductInterface $product): void
+    {
+        $this->setOwner($product);
+        $this->getOwner()->shouldReturn($product);
+    }
+
+    function it_has_type(ProductAssociationType $associationType): void
+    {
+        $this->setType($associationType);
+        $this->getType()->shouldReturn($associationType);
+    }
+
+    function it_adds_association_product(ProductInterface $product): void
+    {
+        $this->addAssociatedProduct($product);
+        $this->getAssociatedProducts()->shouldHaveCount(1);
+    }
+
+    function it_checks_if_product_is_associated(ProductInterface $product): void
+    {
+        $this->hasAssociatedProduct($product)->shouldReturn(false);
+
+        $this->addAssociatedProduct($product);
+        $this->hasAssociatedProduct($product)->shouldReturn(true);
+
+        $this->removeAssociatedProduct($product);
+        $this->hasAssociatedProduct($product)->shouldReturn(false);
     }
 }

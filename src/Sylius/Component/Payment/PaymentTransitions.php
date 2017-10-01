@@ -9,17 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment;
 
-class PaymentTransitions
+/**
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
+ */
+final class PaymentTransitions
 {
-    const GRAPH = 'sylius_payment';
+    public const GRAPH = 'sylius_payment';
 
-    const SYLIUS_CREATE = 'create';
-    const SYLIUS_PROCESS = 'process';
-    const SYLIUS_COMPLETE = 'complete';
-    const SYLIUS_FAIL = 'fail';
-    const SYLIUS_CANCEL = 'cancel';
-    const SYLIUS_REFUND = 'refund';
-    const SYLIUS_VOID = 'void';
+    public const TRANSITION_CREATE = 'create';
+    public const TRANSITION_PROCESS = 'process';
+    public const TRANSITION_COMPLETE = 'complete';
+    public const TRANSITION_FAIL = 'fail';
+    public const TRANSITION_CANCEL = 'cancel';
+    public const TRANSITION_REFUND = 'refund';
+    public const TRANSITION_VOID = 'void';
+
+    private function __construct()
+    {
+    }
 }

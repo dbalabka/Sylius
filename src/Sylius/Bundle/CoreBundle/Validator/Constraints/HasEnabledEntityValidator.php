@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Validator\Constraints;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -19,22 +21,22 @@ use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Gustavo Perdomo <gperdomor@gmail.com>
  */
-class HasEnabledEntityValidator extends ConstraintValidator
+final class HasEnabledEntityValidator extends ConstraintValidator
 {
     /**
      * @var ManagerRegistry
      */
-    protected $registry;
+    private $registry;
 
     /**
      * @var PropertyAccessor
      */
-    protected $accessor;
+    private $accessor;
 
     /**
      * @param ManagerRegistry $registry
@@ -46,17 +48,14 @@ class HasEnabledEntityValidator extends ConstraintValidator
     }
 
     /**
-     * @param object     $entity
-     * @param Constraint $constraint
+     * {@inheritdoc}
      *
-     * @throws UnexpectedTypeException
+     * @throws \InvalidArgumentException
      * @throws ConstraintDefinitionException
      */
-    public function validate($entity, Constraint $constraint)
+    public function validate($entity, Constraint $constraint): void
     {
-        if (!$constraint instanceof HasEnabledEntity) {
-            throw new UnexpectedTypeException($constraint, __NAMESPACE__.'\HasEnabledEntity');
-        }
+        Assert::isInstanceOf($constraint, HasEnabledEntity::class);
 
         $enabled = $this->accessor->getValue($entity, $constraint->enabledPath);
 
@@ -86,7 +85,7 @@ class HasEnabledEntityValidator extends ConstraintValidator
         if ($this->isLastEnabledEntity($results, $entity)) {
             $errorPath = null !== $constraint->errorPath ? $constraint->errorPath : $constraint->enabledPath;
 
-            $this->context->addViolationAt($errorPath, $constraint->message);
+            $this->context->buildViolation($constraint->message)->atPath($errorPath)->addViolation();
         }
     }
 
@@ -95,23 +94,23 @@ class HasEnabledEntityValidator extends ConstraintValidator
      * validated, the entity is the last enabled entity available.
      *
      * @param array|\Iterator $result
-     * @param object          $entity
+     * @param object $entity
      *
      * @return bool
      */
-    private function isLastEnabledEntity($result, $entity)
+    private function isLastEnabledEntity($result, $entity): bool
     {
         return !$result || 0 === count($result)
         || (1 === count($result) && $entity === ($result instanceof \Iterator ? $result->current() : current($result)));
     }
 
     /**
-     * @param string $manager
+     * @param string|null $manager
      * @param object $entity
      *
      * @return ObjectManager|null
      */
-    private function getProperObjectManager($manager, $entity)
+    private function getProperObjectManager(?string $manager, $entity): ?ObjectManager
     {
         if ($manager) {
             $objectManager = $this->registry->getManager($manager);
@@ -134,9 +133,11 @@ class HasEnabledEntityValidator extends ConstraintValidator
 
     /**
      * @param ObjectManager|null $objectManager
-     * @param string             $exceptionMessage
+     * @param string $exceptionMessage
+     *
+     * @throws ConstraintDefinitionException
      */
-    private function validateObjectManager($objectManager, $exceptionMessage)
+    private function validateObjectManager(?ObjectManager $objectManager, string $exceptionMessage): void
     {
         if (!$objectManager) {
             throw new ConstraintDefinitionException($exceptionMessage);
@@ -145,10 +146,12 @@ class HasEnabledEntityValidator extends ConstraintValidator
 
     /**
      * @param ObjectManager $objectManager
-     * @param object        $entity
-     * @param string        $enabledPropertyPath
+     * @param object $entity
+     * @param string $enabledPropertyPath
+     *
+     * @throws ConstraintDefinitionException
      */
-    private function ensureEntityHasProvidedEnabledField(ObjectManager $objectManager, $entity, $enabledPropertyPath)
+    private function ensureEntityHasProvidedEnabledField(ObjectManager $objectManager, $entity, string $enabledPropertyPath): void
     {
         /* @var ClassMetadata $class */
         $class = $objectManager->getClassMetadata(get_class($entity));

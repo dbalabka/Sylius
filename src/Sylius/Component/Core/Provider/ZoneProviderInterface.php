@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Provider;
 
 use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Core\Model\OrderInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -19,7 +22,9 @@ use Sylius\Component\Addressing\Model\ZoneInterface;
 interface ZoneProviderInterface
 {
     /**
+     * @param OrderInterface $order
+     *
      * @return ZoneInterface|null
      */
-    public function getZone();
+    public function getZone(OrderInterface $order): ?ZoneInterface;
 }

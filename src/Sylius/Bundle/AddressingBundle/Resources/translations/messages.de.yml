@@ -11,8 +11,9 @@ sylius:
             last_name: Nachname
             phone_number: Telefonnummer
             postcode: PLZ
-            street: Straße
+            street: Straße und Hausnummer
             province: Bundesland
+            zone: Versandgebiet
         country:
             add_province: Bundesland hinzufügen
             name: Name
@@ -33,6 +34,8 @@ sylius:
                 province: Bundesland
                 zone: Versandgebiet
             scope: Umfang
+            scopes:
+                all: Alle
             select: Bundesland auswählen
             select_scope: Bereich wählen
         zone_member:

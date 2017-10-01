@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Definition;
 
 /**
@@ -32,15 +34,43 @@ class Filter
     private $label;
 
     /**
+     * @var bool
+     */
+    private $enabled = true;
+
+    /**
+     * @var string
+     */
+    private $template;
+
+    /**
      * @var array
      */
     private $options = [];
 
     /**
+     * @var array
+     */
+    private $formOptions = [];
+
+    /**
+     * @var mixed
+     */
+    private $criteria;
+
+    /**
+     * @var int
+     *
+     * Position equals to 100 to ensure that wile sorting filters by position ASC
+     * the filters positioned by default will be last
+     */
+    private $position = 100;
+
+    /**
      * @param string $name
      * @param string $type
      */
-    private function __construct($name, $type)
+    private function __construct(string $name, string $type)
     {
         $this->name = $name;
         $this->type = $type;
@@ -52,17 +82,17 @@ class Filter
      * @param string $name
      * @param string $type
      *
-     * @return Filter
+     * @return self
      */
-    public static function fromNameAndType($name, $type)
+    public static function fromNameAndType(string $name, string $type): self
     {
-        return new Filter($name, $type);
+        return new self($name, $type);
     }
 
     /**
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
@@ -70,13 +100,13 @@ class Filter
     /**
      * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
-     * @return string
+     * @return mixed
      */
     public function getLabel()
     {
@@ -84,17 +114,49 @@ class Filter
     }
 
     /**
-     * @param string $label
+     * @param mixed $label
      */
-    public function setLabel($label)
+    public function setLabel($label): void
     {
         $this->label = $label;
     }
 
     /**
+     * @return bool
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTemplate(): ?string
+    {
+        return $this->template;
+    }
+
+    /**
+     * @param string $template
+     */
+    public function setTemplate(string $template): void
+    {
+        $this->template = $template;
+    }
+
+    /**
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -102,8 +164,56 @@ class Filter
     /**
      * @param array $options
      */
-    public function setOptions($options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFormOptions(): array
+    {
+        return $this->formOptions;
+    }
+
+    /**
+     * @param array $formOptions
+     */
+    public function setFormOptions(array $formOptions): void
+    {
+        $this->formOptions = $formOptions;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param int $position
+     */
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCriteria()
+    {
+        return $this->criteria;
+    }
+
+    /**
+     * @param mixed $criteria
+     */
+    public function setCriteria($criteria)
+    {
+        $this->criteria = $criteria;
     }
 }

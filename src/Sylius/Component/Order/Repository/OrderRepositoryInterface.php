@@ -9,28 +9,61 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Repository;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
-use Sylius\Component\Sequence\Repository\HashSubjectRepositoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-interface OrderRepositoryInterface extends RepositoryInterface, HashSubjectRepositoryInterface
+interface OrderRepositoryInterface extends RepositoryInterface
 {
     /**
-     * @param int $amount
-     *
-     * @return OrderInterface[]
+     * @return int
      */
-    public function findRecentOrders($amount = 10);
+    public function countPlacedOrders(): int;
 
     /**
-     * @param int|string $number
+     * @param int $count
      *
-     * @return bool
+     * @return array|OrderInterface[]
      */
-    public function isNumberUsed($number);
+    public function findLatest(int $count): array;
+
+    /**
+     * @param string $number
+     *
+     * @return OrderInterface|null
+     */
+    public function findOneByNumber(string $number): ?OrderInterface;
+
+    /**
+     * @param string $tokenValue
+     *
+     * @return OrderInterface|null
+     */
+    public function findOneByTokenValue(string $tokenValue): ?OrderInterface;
+
+    /**
+     * @param mixed $id
+     *
+     * @return OrderInterface|null
+     */
+    public function findCartById($id): ?OrderInterface;
+
+    /**
+     * @param \DateTimeInterface $terminalDate
+     *
+     * @return array|OrderInterface[]
+     */
+    public function findCartsNotModifiedSince(\DateTimeInterface $terminalDate): array;
+
+    /**
+     * @return QueryBuilder
+     */
+    public function createCartQueryBuilder(): QueryBuilder;
 }

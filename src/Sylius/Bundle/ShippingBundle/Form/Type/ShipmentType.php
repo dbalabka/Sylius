@@ -9,35 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ShippingBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Sylius\Component\Shipping\Model\ShipmentInterface;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * Shipping form type.
- */
-class ShipmentType extends AbstractResourceType
+final class ShipmentType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('state', 'choice', [
-                'label' => 'sylius.form.shipment.state',
+            ->add('state', ChoiceType::class, [
                 'choices' => [
-                    ShipmentInterface::STATE_CHECKOUT => 'sylius.form.shipment.states.checkout',
-                    ShipmentInterface::STATE_PENDING => 'sylius.form.shipment.states.pending',
-                    ShipmentInterface::STATE_READY => 'sylius.form.shipment.states.ready',
-                    ShipmentInterface::STATE_SHIPPED => 'sylius.form.shipment.states.shipped',
-                    ShipmentInterface::STATE_RETURNED => 'sylius.form.shipment.states.returned',
-                    ShipmentInterface::STATE_CANCELLED => 'sylius.form.shipment.states.cancelled',
+                    'sylius.form.shipment.states.cart' => ShipmentInterface::STATE_CART,
+                    'sylius.form.shipment.states.ready' => ShipmentInterface::STATE_READY,
+                    'sylius.form.shipment.states.shipped' => ShipmentInterface::STATE_SHIPPED,
+                    'sylius.form.shipment.states.cancelled' => ShipmentInterface::STATE_CANCELLED,
                 ],
+                'label' => 'sylius.form.shipment.state',
             ])
-            ->add('tracking', 'text', [
+            ->add('tracking', TextType::class, [
                 'label' => 'sylius.form.shipment.tracking_code',
                 'required' => false,
             ])
@@ -47,7 +46,7 @@ class ShipmentType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_shipment';
     }

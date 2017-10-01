@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\InventoryBundle\Validator\Constraints;
 
 use PhpSpec\ObjectBehavior;
@@ -19,27 +21,22 @@ use Sylius\Component\Inventory\Model\StockableInterface;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 use Symfony\Component\Validator\ConstraintValidator;
 
-class InStockValidatorSpec extends ObjectBehavior
+final class InStockValidatorSpec extends ObjectBehavior
 {
-    function let(AvailabilityCheckerInterface $availabilityChecker)
+    function let(AvailabilityCheckerInterface $availabilityChecker): void
     {
         $this->beConstructedWith($availabilityChecker);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\InventoryBundle\Validator\Constraints\InStockValidator');
-    }
-
-    function it_is_a_constraint_validator()
+    function it_is_a_constraint_validator(): void
     {
         $this->shouldHaveType(ConstraintValidator::class);
     }
 
-    function it_should_not_add_violation_if_there_is_no_stockable(
-        PropertyAccessor $propertyAccessor,
-        InventoryUnitInterface $inventoryUnit
-    ) {
+    function it_does_not_add_violation_if_there_is_no_stockable(
+        InventoryUnitInterface $inventoryUnit,
+        PropertyAccessor $propertyAccessor
+    ): void {
         $propertyAccessor->getValue($inventoryUnit, 'stockable')->willReturn(null);
 
         $constraint = new InStock();
@@ -47,11 +44,11 @@ class InStockValidatorSpec extends ObjectBehavior
         $this->validate($inventoryUnit, $constraint);
     }
 
-    function it_should_not_add_violation_if_there_is_no_quantity(
-        PropertyAccessor $propertyAccessor,
+    function it_does_not_add_violation_if_there_is_no_quantity(
         InventoryUnitInterface $inventoryUnit,
+        PropertyAccessor $propertyAccessor,
         StockableInterface $stockable
-    ) {
+    ): void {
         $propertyAccessor->getValue($inventoryUnit, 'stockable')->willReturn($stockable);
         $propertyAccessor->getValue($inventoryUnit, 'quantity')->willReturn(null);
 
@@ -60,12 +57,12 @@ class InStockValidatorSpec extends ObjectBehavior
         $this->validate($inventoryUnit, $constraint);
     }
 
-    function it_should_not_add_violation_if_stock_is_sufficient(
-        PropertyAccessor $propertyAccessor,
+    function it_does_not_add_violation_if_stock_is_sufficient(
+        AvailabilityCheckerInterface $availabilityChecker,
         InventoryUnitInterface $inventoryUnit,
-        StockableInterface $stockable,
-        AvailabilityCheckerInterface $availabilityChecker
-    ) {
+        PropertyAccessor $propertyAccessor,
+        StockableInterface $stockable
+    ): void {
         $propertyAccessor->getValue($inventoryUnit, 'stockable')->willReturn($stockable);
         $propertyAccessor->getValue($inventoryUnit, 'quantity')->willReturn(1);
 

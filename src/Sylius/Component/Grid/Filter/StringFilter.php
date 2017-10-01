@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Filter;
 
 use Sylius\Component\Grid\Data\DataSourceInterface;
@@ -18,26 +20,31 @@ use Sylius\Component\Grid\Filtering\FilterInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class StringFilter implements FilterInterface
+final class StringFilter implements FilterInterface
 {
-    const NAME = 'string';
+    public const NAME = 'string';
 
-    const TYPE_EQUAL = 'equal';
-    const TYPE_EMPTY = 'empty';
-    const TYPE_NOT_EMPTY = 'not_empty';
-    const TYPE_CONTAINS = 'contains';
-    const TYPE_NOT_CONTAINS = 'not_contains';
-    const TYPE_STARTS_WITH = 'starts_with';
-    const TYPE_ENDS_WITH = 'ends_with';
-    const TYPE_IN = 'in';
-    const TYPE_NOT_IN = 'not_in';
+    public const TYPE_EQUAL = 'equal';
+    public const TYPE_NOT_EQUAL = 'not_equal';
+    public const TYPE_EMPTY = 'empty';
+    public const TYPE_NOT_EMPTY = 'not_empty';
+    public const TYPE_CONTAINS = 'contains';
+    public const TYPE_NOT_CONTAINS = 'not_contains';
+    public const TYPE_STARTS_WITH = 'starts_with';
+    public const TYPE_ENDS_WITH = 'ends_with';
+    public const TYPE_IN = 'in';
+    public const TYPE_NOT_IN = 'not_in';
 
     /**
      * {@inheritdoc}
      */
-    public function apply(DataSourceInterface $dataSource, $name, $data, array $options)
+    public function apply(DataSourceInterface $dataSource, string $name, $data, array $options): void
     {
         $expressionBuilder = $dataSource->getExpressionBuilder();
+
+        if (is_array($data) && !isset($data['type'])) {
+            $data['type'] = isset($options['type']) ? $options['type'] : self::TYPE_CONTAINS;
+        }
 
         if (!is_array($data)) {
             $data = ['type' => self::TYPE_CONTAINS, 'value' => $data];
@@ -48,56 +55,69 @@ class StringFilter implements FilterInterface
         $type = $data['type'];
         $value = array_key_exists('value', $data) ? $data['value'] : null;
 
-        if (1 === count($fields)) {
-            $expression = $this->getExpression($expressionBuilder, $type, $name, $value);
-        } else {
-            $expressions = [];
-
-            foreach ($fields as $field) {
-                $expressions[] = $this->getExpression($expressionBuilder, $type, $field, $value);
-            }
-
-            $expression = $expressionBuilder->orX($expressions);
+        if (!in_array($type, [self::TYPE_NOT_EMPTY, self::TYPE_EMPTY], true) && '' === trim($value)) {
+            return;
         }
 
-        $dataSource->restrict($expression);
+        if (1 === count($fields)) {
+            $dataSource->restrict($this->getExpression($expressionBuilder, $type, current($fields), $value));
+
+            return;
+        }
+
+        $expressions = [];
+        foreach ($fields as $field) {
+            $expressions[] = $this->getExpression($expressionBuilder, $type, $field, $value);
+        }
+
+        if (self::TYPE_NOT_EQUAL === $type) {
+            $dataSource->restrict($expressionBuilder->andX(...$expressions));
+
+            return;
+        }
+
+        $dataSource->restrict($expressionBuilder->orX(...$expressions));
     }
 
     /**
+     * @param ExpressionBuilderInterface $expressionBuilder
      * @param string $type
      * @param string $field
-     * @param mixed  $value
+     * @param mixed $value
+     *
+     * @return mixed
+     *
+     * @throws \InvalidArgumentException
      */
-    private function getExpression(ExpressionBuilderInterface $expressionBuilder, $type, $field, $value)
-    {
+    private function getExpression(
+        ExpressionBuilderInterface $expressionBuilder,
+        string $type,
+        string $field,
+        $value
+    ) {
         switch ($type) {
             case self::TYPE_EQUAL:
                 return $expressionBuilder->equals($field, $value);
-                break;
+            case self::TYPE_NOT_EQUAL:
+                return $expressionBuilder->notEquals($field, $value);
             case self::TYPE_EMPTY:
                 return $expressionBuilder->isNull($field);
-                break;
             case self::TYPE_NOT_EMPTY:
                 return $expressionBuilder->isNotNull($field);
-                break;
             case self::TYPE_CONTAINS:
                 return $expressionBuilder->like($field, '%'.$value.'%');
-                break;
             case self::TYPE_NOT_CONTAINS:
                 return $expressionBuilder->notLike($field, '%'.$value.'%');
-                break;
             case self::TYPE_STARTS_WITH:
                 return $expressionBuilder->like($field, $value.'%');
-                break;
             case self::TYPE_ENDS_WITH:
                 return $expressionBuilder->like($field, '%'.$value);
-                break;
             case self::TYPE_IN:
                 return $expressionBuilder->in($field, array_map('trim', explode(',', $value)));
-                break;
             case self::TYPE_NOT_IN:
                 return $expressionBuilder->notIn($field, array_map('trim', explode(',', $value)));
-                break;
+            default:
+                throw new \InvalidArgumentException(sprintf('Could not get an expression for type "%s"!', $type));
         }
     }
 }

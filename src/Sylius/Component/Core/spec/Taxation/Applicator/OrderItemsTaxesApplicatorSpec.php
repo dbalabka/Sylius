@@ -9,20 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\Taxation\Applicator;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
-use Sylius\Component\Core\Distributor\IntegerDistributorInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Core\Distributor\IntegerDistributorInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\OrderItemUnitInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
-use Sylius\Component\Core\Taxation\Applicator\OrderItemsTaxesApplicator;
 use Sylius\Component\Core\Taxation\Applicator\OrderTaxesApplicatorInterface;
 use Sylius\Component\Order\Factory\AdjustmentFactoryInterface;
 use Sylius\Component\Taxation\Calculator\CalculatorInterface;
@@ -30,37 +30,30 @@ use Sylius\Component\Taxation\Model\TaxRateInterface;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
 
 /**
- * @mixin OrderItemsTaxesApplicator
- *
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  * @author Mark McKelvie <mark.mckelvie@reiss.com>
  */
-class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
+final class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
 {
     function let(
         CalculatorInterface $calculator,
         AdjustmentFactoryInterface $adjustmentsFactory,
         IntegerDistributorInterface $distributor,
         TaxRateResolverInterface $taxRateResolver
-    ) {
+    ): void {
         $this->beConstructedWith($calculator, $adjustmentsFactory, $distributor, $taxRateResolver);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Core\Taxation\Applicator\OrderItemsTaxesApplicator');
-    }
-
-    function it_implements_order_shipment_taxes_applicator_interface()
+    function it_implements_an_order_shipment_taxes_applicator_interface(): void
     {
         $this->shouldImplement(OrderTaxesApplicatorInterface::class);
     }
 
     function it_applies_taxes_on_units_based_on_item_total_and_rate(
-        $adjustmentsFactory,
-        $calculator,
-        $distributor,
-        $taxRateResolver,
+        CalculatorInterface $calculator,
+        AdjustmentFactoryInterface $adjustmentsFactory,
+        IntegerDistributorInterface $distributor,
+        TaxRateResolverInterface $taxRateResolver,
         AdjustmentInterface $taxAdjustment1,
         AdjustmentInterface $taxAdjustment2,
         Collection $items,
@@ -72,7 +65,7 @@ class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
         ProductVariantInterface $productVariant,
         TaxRateInterface $taxRate,
         ZoneInterface $zone
-    ) {
+    ): void {
         $order->getItems()->willReturn($items);
 
         $items->count()->willReturn(1);
@@ -105,11 +98,11 @@ class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
         $this->apply($order, $zone);
     }
 
-    function it_throws_invalid_argument_exception_if_order_item_has_0_quantity(
+    function it_throws_an_invalid_argument_exception_if_order_item_has_0_quantity(
         OrderInterface $order,
         OrderItemInterface $orderItem,
         ZoneInterface $zone
-    ) {
+    ): void {
         $items = new ArrayCollection([$orderItem->getWrappedObject()]);
         $order->getItems()->willReturn($items);
 
@@ -119,14 +112,14 @@ class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
     }
 
     function it_does_nothing_if_tax_rate_cannot_be_resolved(
-        $taxRateResolver,
+        TaxRateResolverInterface $taxRateResolver,
         Collection $items,
         \Iterator $iterator,
         OrderInterface $order,
         OrderItemInterface $orderItem,
         ProductVariantInterface $productVariant,
         ZoneInterface $zone
-    ) {
+    ): void {
         $order->getItems()->willReturn($items);
 
         $items->count()->willReturn(1);
@@ -147,10 +140,10 @@ class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
     }
 
     function it_does_not_apply_taxes_with_amount_0(
-        $adjustmentsFactory,
-        $calculator,
-        $distributor,
-        $taxRateResolver,
+        CalculatorInterface $calculator,
+        AdjustmentFactoryInterface $adjustmentsFactory,
+        IntegerDistributorInterface $distributor,
+        TaxRateResolverInterface $taxRateResolver,
         Collection $items,
         Collection $units,
         OrderInterface $order,
@@ -160,7 +153,7 @@ class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
         ProductVariantInterface $productVariant,
         TaxRateInterface $taxRate,
         ZoneInterface $zone
-    ) {
+    ): void {
         $order->getItems()->willReturn($items);
 
         $items->count()->willReturn(1);
@@ -182,7 +175,10 @@ class OrderItemsTaxesApplicatorSpec extends ObjectBehavior
 
         $distributor->distribute(0, 2)->willReturn([0, 0]);
 
-        $adjustmentsFactory->createWithData(AdjustmentInterface::TAX_ADJUSTMENT, 'Simple tax (0%)', 0, false)->shouldNotBeCalled();
+        $adjustmentsFactory
+            ->createWithData(AdjustmentInterface::TAX_ADJUSTMENT, 'Simple tax (0%)', 0, false)
+            ->shouldNotBeCalled()
+        ;
 
         $this->apply($order, $zone);
     }

@@ -9,17 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Hateoas\Configuration\Route;
 use Hateoas\Representation\Factory\PagerfantaFactory;
 use Pagerfanta\Pagerfanta;
+use Sylius\Bundle\ResourceBundle\Grid\View\ResourceGridView;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ResourcesCollectionProvider implements ResourcesCollectionProviderInterface
+final class ResourcesCollectionProvider implements ResourcesCollectionProviderInterface
 {
     /**
      * @var ResourcesResolverInterface
@@ -47,19 +50,57 @@ class ResourcesCollectionProvider implements ResourcesCollectionProviderInterfac
     public function get(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
     {
         $resources = $this->resourcesResolver->getResources($requestConfiguration, $repository);
+        $paginationLimits = [];
 
-        if ($resources instanceof Pagerfanta) {
+        if ($resources instanceof ResourceGridView) {
+            $paginator = $resources->getData();
+            $paginationLimits = $resources->getDefinition()->getLimits();
+        } else {
+            $paginator = $resources;
+        }
+
+        if ($paginator instanceof Pagerfanta) {
             $request = $requestConfiguration->getRequest();
-            $resources->setMaxPerPage($requestConfiguration->getPaginationMaxPerPage());
-            $resources->setCurrentPage($request->query->get('page', 1));
+
+            $paginator->setMaxPerPage($this->resolveMaxPerPage(
+                $request->query->has('limit') ? $request->query->getInt('limit') : null,
+                $requestConfiguration->getPaginationMaxPerPage(),
+                $paginationLimits
+            ));
+            $paginator->setCurrentPage($request->query->get('page', 1));
+
+            // This prevents Pagerfanta from querying database from a template
+            $paginator->getCurrentPageResults();
 
             if (!$requestConfiguration->isHtmlRequest()) {
                 $route = new Route($request->attributes->get('_route'), array_merge($request->attributes->get('_route_params'), $request->query->all()));
 
-                return $this->pagerfantaRepresentationFactory->createRepresentation($resources, $route);
+                return $this->pagerfantaRepresentationFactory->createRepresentation($paginator, $route);
             }
         }
 
         return $resources;
+    }
+
+    /**
+     * @param int|null $requestLimit
+     * @param int $configurationLimit
+     * @param int[] $gridLimits
+     *
+     * @return int
+     */
+    private function resolveMaxPerPage(?int $requestLimit, int $configurationLimit, array $gridLimits = []): int
+    {
+        if (null === $requestLimit) {
+            return reset($gridLimits) ?: $configurationLimit;
+        }
+
+        if (!empty($gridLimits)) {
+            $maxGridLimit = max($gridLimits);
+
+            return $requestLimit > $maxGridLimit ? $maxGridLimit : $requestLimit;
+        }
+
+        return $requestLimit;
     }
 }

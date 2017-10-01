@@ -9,33 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\CoreBundle\Form\DataTransformer;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Sylius\Component\Core\Model\TaxonInterface;
-use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class TaxonsToCodesTransformerSpec extends ObjectBehavior
+final class TaxonsToCodesTransformerSpec extends ObjectBehavior
 {
-    function let(TaxonRepositoryInterface $taxonRepository)
+    function let(TaxonRepositoryInterface $taxonRepository): void
     {
         $this->beConstructedWith($taxonRepository);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Form\DataTransformer\TaxonsToCodesTransformer');
-    }
-
-    function it_implements_data_transformer_interface()
+    function it_implements_data_transformer_interface(): void
     {
         $this->shouldImplement(DataTransformerInterface::class);
     }
@@ -44,34 +38,30 @@ class TaxonsToCodesTransformerSpec extends ObjectBehavior
         TaxonRepositoryInterface $taxonRepository,
         TaxonInterface $bows,
         TaxonInterface $swords
-    ) {
+    ): void {
         $taxonRepository->findBy(['code' => ['bows', 'swords']])->willReturn([$bows, $swords]);
 
-        $taxons = new ArrayCollection([$bows->getWrappedObject(), $swords->getWrappedObject()]);
-
-        $this->transform(['taxons' => ['bows', 'swords']])->shouldBeCollection($taxons);
+        $this->transform(['bows', 'swords'])->shouldIterateAs([$bows, $swords]);
     }
 
     function it_transforms_only_existing_taxons(
         TaxonRepositoryInterface $taxonRepository,
         TaxonInterface $bows
-    ) {
+    ): void {
         $taxonRepository->findBy(['code' => ['bows', 'swords']])->willReturn([$bows]);
 
-        $taxons = new ArrayCollection([$bows->getWrappedObject()]);
-
-        $this->transform(['taxons' => ['bows', 'swords']])->shouldBeCollection($taxons);
+        $this->transform(['bows', 'swords'])->shouldIterateAs([$bows]);
     }
-    
-    function it_transforms_empty_array_into_empty_collection()
+
+    function it_transforms_empty_array_into_empty_collection(): void
     {
-        $this->transform([])->shouldBeCollection(new ArrayCollection([]));
+        $this->transform([])->shouldIterateAs([]);
     }
 
-    function it_throws_exception_if_value_to_transform_is_not_array()
+    function it_throws_exception_if_value_to_transform_is_not_array(): void
     {
         $this
-            ->shouldThrow(new UnexpectedTypeException('badObject', 'array'))
+            ->shouldThrow(\InvalidArgumentException::class)
             ->during('transform', ['badObject'])
         ;
     }
@@ -79,65 +69,26 @@ class TaxonsToCodesTransformerSpec extends ObjectBehavior
     function it_reverse_transforms_into_array_of_taxons_codes(
         TaxonInterface $axes,
         TaxonInterface $shields
-    ) {
+    ): void {
         $axes->getCode()->willReturn('axes');
         $shields->getCode()->willReturn('shields');
 
         $this
-            ->reverseTransform(new ArrayCollection(['taxons' => [$axes->getWrappedObject(), $shields->getWrappedObject()]]))
-            ->shouldReturn(['taxons' => ['axes', 'shields']])
+            ->reverseTransform(new ArrayCollection([$axes->getWrappedObject(), $shields->getWrappedObject()]))
+            ->shouldIterateAs(['axes', 'shields'])
         ;
     }
 
-    function it_throws_exception_if_reverse_transformed_object_is_not_collection()
+    function it_throws_exception_if_reverse_transformed_object_is_not_collection(): void
     {
         $this
-            ->shouldThrow(new UnexpectedTypeException('badObject', Collection::class))
+            ->shouldThrow(\InvalidArgumentException::class)
             ->during('reverseTransform', ['badObject'])
         ;
     }
 
-    function it_returns_empty_array_if_passed_collection_is_empty()
+    function it_returns_empty_array_if_passed_collection_is_empty(): void
     {
         $this->reverseTransform(new ArrayCollection())->shouldReturn([]);
-    }
-
-    function it_returns_empty_array_if_passed_collection_has_no_taxon_element()
-    {
-        $this->reverseTransform(new ArrayCollection(['test' => ['test']]))->shouldReturn([]);
-    }
-
-    function it_throws_exception_while_reverse_transform_if_taxons_element_is_not_an_array(TaxonInterface $axes)
-    {
-        $this
-            ->shouldThrow(new \InvalidArgumentException('"taxons" element of collection should be Traversable'))
-            ->during('reverseTransform', [new ArrayCollection(['taxons' => $axes->getWrappedObject()])])
-        ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMatchers()
-    {
-        return [
-            'beCollection' => function ($subject, $key) {
-                if (!$subject instanceof Collection || !$key instanceof Collection) {
-                    return false;
-                }
-
-                if ($subject->count() !== $key->count()) {
-                    return false;
-                }
-
-                foreach ($subject as $subjectElement) {
-                    if (!$key->contains($subjectElement)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            },
-        ];
     }
 }

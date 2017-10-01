@@ -9,10 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Command;
 
 use Sylius\Component\User\Model\UserInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -24,16 +27,17 @@ class DemoteUserCommand extends AbstractRoleCommand
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('sylius:user:demote')
-            ->setDescription('Promotes a user by adding a role.')
-            ->setDefinition(array(
+            ->setDescription('Demotes a user by removing a role.')
+            ->setDefinition([
                 new InputArgument('email', InputArgument::REQUIRED, 'Email'),
-                new InputArgument('roles', InputArgument::IS_ARRAY, 'RBAC roles'),
+                new InputArgument('roles', InputArgument::IS_ARRAY, 'Security roles'),
                 new InputOption('super-admin', null, InputOption::VALUE_NONE, 'Unset the user as super admin'),
-            ))
+                new InputOption('user-type', null, InputOption::VALUE_REQUIRED, 'Use shop or admin user type'),
+            ])
             ->setHelp(<<<EOT
 The <info>sylius:user:demote</info> command demotes a user by removing security roles
 
@@ -45,7 +49,7 @@ EOT
     /**
      * {@inheritdoc}
      */
-    protected function executeRoleCommand(OutputInterface $output, UserInterface $user, array $securityRoles)
+    protected function executeRoleCommand(InputInterface $input, OutputInterface $output, UserInterface $user, array $securityRoles): void
     {
         $error = false;
 
@@ -61,7 +65,7 @@ EOT
         }
 
         if (!$error) {
-            $this->getEntityManager()->flush();
+            $this->getEntityManager($input->getOption('user-type'))->flush();
         }
     }
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Product\Model\ProductTranslation as BaseProductTranslation;
@@ -19,9 +21,6 @@ use Sylius\Component\Product\Model\ProductTranslation as BaseProductTranslation;
 class ProductTranslation extends BaseProductTranslation implements ProductTranslationInterface
 {
     /**
-     * Short product description.
-     * For lists displaying.
-     *
      * @var string
      */
     protected $shortDescription;
@@ -29,16 +28,16 @@ class ProductTranslation extends BaseProductTranslation implements ProductTransl
     /**
      * {@inheritdoc}
      */
-    public function setShortDescription($shortDescription)
+    public function getShortDescription(): ?string
     {
-        $this->shortDescription = $shortDescription;
+        return $this->shortDescription;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getShortDescription()
+    public function setShortDescription(?string $shortDescription): void
     {
-        return $this->shortDescription;
+        $this->shortDescription = $shortDescription;
     }
 }

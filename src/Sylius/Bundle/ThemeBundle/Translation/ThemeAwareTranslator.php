@@ -9,15 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Translation;
 
 use Sylius\Bundle\ThemeBundle\Context\ThemeContextInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
+use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagInterface, WarmableInterface
 {
@@ -55,15 +58,18 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
      *
      * @return mixed
      */
-    public function __call($method, array $arguments)
+    public function __call(string $method, array $arguments)
     {
-        return call_user_func_array([$this->translator, $method], $arguments);
+        $translator = $this->translator;
+        $arguments = array_values($arguments);
+
+        return $translator->$method(...$arguments);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function trans($id, array $parameters = [], $domain = null, $locale = null)
+    public function trans($id, array $parameters = [], $domain = null, $locale = null): string
     {
         return $this->translator->trans($id, $parameters, $domain, $this->transformLocale($locale));
     }
@@ -71,7 +77,7 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
     /**
      * {@inheritdoc}
      */
-    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null)
+    public function transChoice($id, $number, array $parameters = [], $domain = null, $locale = null): string
     {
         return $this->translator->transChoice($id, $number, $parameters, $domain, $this->transformLocale($locale));
     }
@@ -79,7 +85,7 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
     /**
      * {@inheritdoc}
      */
-    public function getLocale()
+    public function getLocale(): string
     {
         return $this->translator->getLocale();
     }
@@ -87,15 +93,15 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
     /**
      * {@inheritdoc}
      */
-    public function setLocale($locale)
+    public function setLocale($locale): void
     {
-        $this->translator->setLocale($locale);
+        $this->translator->setLocale($this->transformLocale($locale));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCatalogue($locale = null)
+    public function getCatalogue($locale = null): MessageCatalogueInterface
     {
         return $this->translator->getCatalogue($locale);
     }
@@ -103,7 +109,7 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
     /**
      * {@inheritdoc}
      */
-    public function warmUp($cacheDir)
+    public function warmUp($cacheDir): void
     {
         if ($this->translator instanceof WarmableInterface) {
             $this->translator->warmUp($cacheDir);
@@ -111,11 +117,11 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
     }
 
     /**
-     * @param string $locale
+     * @param string|null $locale
      *
-     * @return string
+     * @return string|null
      */
-    private function transformLocale($locale)
+    private function transformLocale(?string $locale): ?string
     {
         $theme = $this->themeContext->getTheme();
 
@@ -127,8 +133,6 @@ final class ThemeAwareTranslator implements TranslatorInterface, TranslatorBagIn
             $locale = $this->getLocale();
         }
 
-        $locale = $locale . '_' . $theme->getCode();;
-
-        return $locale;
+        return $locale . '@' . str_replace('/', '-', $theme->getName());
     }
 }

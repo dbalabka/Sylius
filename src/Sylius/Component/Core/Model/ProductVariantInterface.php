@@ -9,14 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Inventory\Model\StockableInterface;
-use Sylius\Component\Metadata\Model\MetadataSubjectInterface;
-use Sylius\Component\Pricing\Model\PriceableInterface;
-use Sylius\Component\Product\Model\VariantInterface as BaseVariantInterface;
+use Sylius\Component\Product\Model\ProductVariantInterface as BaseVariantInterface;
+use Sylius\Component\Resource\Model\VersionedInterface;
 use Sylius\Component\Shipping\Model\ShippableInterface;
+use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxableInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
@@ -27,109 +29,103 @@ interface ProductVariantInterface extends
     BaseVariantInterface,
     ShippableInterface,
     StockableInterface,
-    PriceableInterface,
-    MetadataSubjectInterface,
-    TaxableInterface
+    TaxableInterface,
+    VersionedInterface,
+    ProductImagesAwareInterface
 {
-    const METADATA_CLASS_IDENTIFIER = 'ProductVariant';
-
     /**
-     * @return Collection|ProductVariantImageInterface[]
+     * @return float|null
      */
-    public function getImages();
+    public function getWeight(): ?float;
 
     /**
-     * Get variant main image if any.
-     * Fall-back on product master variant
+     * @param float|null $weight
+     */
+    public function setWeight(?float $weight): void;
+
+    /**
+     * @return float|null
+     */
+    public function getWidth(): ?float;
+
+    /**
+     * @param float|null $width
+     */
+    public function setWidth(?float $width): void;
+
+    /**
+     * @return float|null
+     */
+    public function getHeight(): ?float;
+
+    /**
+     * @param float|null $height
+     */
+    public function setHeight(?float $height): void;
+
+    /**
+     * @return float|null
+     */
+    public function getDepth(): ?float;
+
+    /**
+     * @param float|null $depth
+     */
+    public function setDepth(?float $depth): void;
+
+    /**
+     * @param TaxCategoryInterface|null $category
+     */
+    public function setTaxCategory(?TaxCategoryInterface $category): void;
+
+    /**
+     * @param ShippingCategoryInterface|null $shippingCategory
+     */
+    public function setShippingCategory(?ShippingCategoryInterface $shippingCategory): void;
+
+    /**
+     * @return Collection|ChannelPricingInterface[]
+     */
+    public function getChannelPricings(): Collection;
+
+    /**
+     * @param ChannelInterface $channel
      *
-     * @return ImageInterface
+     * @return ChannelPricingInterface|null
      */
-    public function getImage();
+    public function getChannelPricingForChannel(ChannelInterface $channel): ?ChannelPricingInterface;
 
     /**
-     * @param ProductVariantImageInterface $image
+     * @param ChannelInterface $channel
      *
      * @return bool
      */
-    public function hasImage(ProductVariantImageInterface $image);
+    public function hasChannelPricingForChannel(ChannelInterface $channel): bool;
 
     /**
-     * @param ProductVariantImageInterface $image
+     * @param ChannelPricingInterface $channelPricing
+     *
+     * @return bool
      */
-    public function addImage(ProductVariantImageInterface $image);
+    public function hasChannelPricing(ChannelPricingInterface $channelPricing): bool;
 
     /**
-     * @param ProductVariantImageInterface $image
+     * @param ChannelPricingInterface $channelPricing
      */
-    public function removeImage(ProductVariantImageInterface $image);
+    public function addChannelPricing(ChannelPricingInterface $channelPricing): void;
 
     /**
-     * @return int
+     * @param ChannelPricingInterface $channelPricing
      */
-    public function getSold();
-
-    /**
-     * @param int $sold
-     */
-    public function setSold($sold);
-
-    /**
-     * @return float
-     */
-    public function getWeight();
-
-    /**
-     * @param float $weight
-     */
-    public function setWeight($weight);
-
-    /**
-     * @return float
-     */
-    public function getWidth();
-
-    /**
-     * @param float $width
-     */
-    public function setWidth($width);
-
-    /**
-     * @return float
-     */
-    public function getHeight();
-
-    /**
-     * @param float $height
-     */
-    public function setHeight($height);
-
-    /**
-     * @return float
-     */
-    public function getDepth();
-
-    /**
-     * @param float $depth
-     */
-    public function setDepth($depth);
-
-    /**
-     * @return int
-     */
-    public function getOriginalPrice();
-
-    /**
-     * @param int|null $originalPrice
-     */
-    public function setOriginalPrice($originalPrice);
+    public function removeChannelPricing(ChannelPricingInterface $channelPricing): void;
 
     /**
      * @return bool
      */
-    public function isPriceReduced();
+    public function isShippingRequired(): bool;
 
     /**
-     * @param TaxCategoryInterface $category
+     * @param bool $shippingRequired
      */
-    public function setTaxCategory(TaxCategoryInterface $category = null);
+    public function setShippingRequired(bool $shippingRequired): void;
 }

@@ -9,34 +9,59 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Resource\Model\TimestampableInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
 
-interface ImageInterface extends TimestampableInterface
+/**
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
+ */
+interface ImageInterface extends ResourceInterface
 {
-    /**
-     * @return bool
-     */
-    public function hasFile();
-
-    /**
-     * @return null|\SplFileInfo
-     */
-    public function getFile();
-
-    /**
-     * @param \SplFileInfo $file
-     */
-    public function setFile(\SplFileInfo $file);
-
     /**
      * @return string
      */
-    public function getPath();
+    public function getType(): ?string;
 
     /**
-     * @param string $path
+     * @param string|null $type
      */
-    public function setPath($path);
+    public function setType(?string $type): void;
+
+    /**
+     * @return \SplFileInfo|null
+     */
+    public function getFile(): ?\SplFileInfo;
+
+    /**
+     * @param \SplFileInfo|null $file
+     */
+    public function setFile(?\SplFileInfo $file): void;
+
+    /**
+     * @return bool
+     */
+    public function hasFile(): bool;
+
+    /**
+     * @return string|null
+     */
+    public function getPath(): ?string;
+
+    /**
+     * @param string|null $path
+     */
+    public function setPath(?string $path): void;
+
+    /**
+     * @return object
+     */
+    public function getOwner();
+
+    /**
+     * @param object|null $owner
+     */
+    public function setOwner($owner): void;
 }

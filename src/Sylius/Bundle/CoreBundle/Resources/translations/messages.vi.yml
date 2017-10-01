@@ -8,6 +8,8 @@ sylius:
             title: Tiêu đề
         cart:
             coupon: Phiếu giảm giá
+        promotion:
+            channels: Kênh
         group:
             name: Tên
             roles: Vai trò
@@ -15,20 +17,23 @@ sylius:
             locales: Miền địa phương
             payment_methods: Phương thức thanh toán
         image:
+            type: Phân loại
             file: Hình ảnh
         locale:
             code: Mã
         page:
             id: ID
             title: Tiêu đề
+        product:
+            images: Hình ảnh
+            channels: Kênh
         product_filter:
             name: Tên
-            sku: MÃ SẢN PHẨM
-        settings:
-            general:
-                locale: Ngôn ngữ
+            code: Mã
         taxon:
+            code: Mã
             file: Chọn ảnh
+            images: Hình ảnh
         taxonomy:
             file: Chọn ảnh
         user:
@@ -39,9 +44,17 @@ sylius:
             query: Tìm kiếm
         variant:
             height: Chiều cao
-            images: Hình ảnh
             price: Giá
             sku: MÃ SẢN PHẨM
             width: Chiều rộng
         product_association_type:
             name: Tên
+        payment_method:
+            channels: Kênh
+    installer:
+        extensions:
+            "off": false
+            "on": true
+        settings:
+            "off": false
+            "on": true

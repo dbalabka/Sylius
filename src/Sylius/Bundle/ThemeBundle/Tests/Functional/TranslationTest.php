@@ -9,16 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Tests\Functional;
 
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class TranslationTest extends ThemeBundleTestCase
+final class TranslationTest extends WebTestCase
 {
-    public function testTranslations()
+    /**
+     * @test
+     */
+    public function it_respects_theming_logic_while_translating_messages(): void
     {
-        $client = $this->getClient();
+        $client = self::createClient();
 
         $crawler = $client->request('GET', '/template/:Translation:translationsTest.txt.twig');
 

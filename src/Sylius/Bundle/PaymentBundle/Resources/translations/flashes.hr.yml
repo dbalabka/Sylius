@@ -3,6 +3,9 @@
 
 sylius:
     payment:
-        complete: Uplata je dovršena.
-        cancel: Uplata je odbijena.
-        transition_fail: Akcija se ne može izvršiti s obzirom na trenutno stanje uplate.
+        cancelled: 'Uplata je prekinuta.'
+        completed: 'Plaćanje je uspješno dovršeno.'
+        failed: 'Plaćanje nije uspjelo.'
+        processing: 'Plaćanje je trenutno u obradi.'
+        refunded: 'Uplata je uspješno vraćena.'
+        unknown: 'Došlo je do nepoznatog problema pri uplati.'

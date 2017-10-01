@@ -1,17 +1,18 @@
-@order
+@managing_orders
 Feature: Deleting an order
     In order to to remove test, obsolete or incorrect orders
     As an Administrator
     I want to be able to delete an order with all it's details from the registry
 
     Background:
-        Given the store operates on a single channel in "France"
+        Given the store operates on a single channel in "United States"
         And the store has a product "PHP T-Shirt"
         And the store ships everywhere for free
         And the store allows paying with "Cash on Delivery"
-        And the customer "john.doe@gmail.com" placed an order "#00000022"
-        And the customer chose "Free" shipping method to "France" with "Cash on Delivery" payment
-        And the customer bought single "PHP T-Shirt"
+        And there is a customer "john.doe@gmail.com" that placed an order "#00000022"
+        And the customer bought a single "PHP T-Shirt"
+        And the customer chose "Free" shipping method to "United States" with "Cash on Delivery" payment
+        And I am logged in as an administrator
 
     @domain
     Scenario: Deleted order should disappear from the registry

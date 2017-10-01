@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Exception;
 
 use Sylius\Behat\NotificationType;
@@ -18,7 +20,6 @@ use Sylius\Behat\NotificationType;
  */
 final class NotificationExpectationMismatchException extends \RuntimeException
 {
-
     public function __construct(
         NotificationType $expectedType,
         $expectedMessage,

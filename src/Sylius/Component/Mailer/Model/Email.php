@@ -9,18 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Component\Mailer\Model;
+declare(strict_types=1);
 
-use Sylius\Component\Resource\Model\TimestampableTrait;
-use Sylius\Component\Resource\Model\ToggleableTrait;
+namespace Sylius\Component\Mailer\Model;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class Email implements EmailInterface
+final class Email implements EmailInterface
 {
-    use TimestampableTrait, ToggleableTrait;
-
     /**
      * @var mixed
      */
@@ -30,6 +27,11 @@ class Email implements EmailInterface
      * @var string
      */
     protected $code;
+
+    /**
+     * @var bool
+     */
+    protected $enabled = true;
 
     /**
      * @var string
@@ -56,13 +58,8 @@ class Email implements EmailInterface
      */
     protected $senderAddress;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
-
     /**
-     * @return mixed
+     * {@inheritdoc}
      */
     public function getId()
     {
@@ -72,7 +69,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -80,7 +77,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(string $code): void
     {
         $this->code = $code;
     }
@@ -88,7 +85,33 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getSubject()
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
+    }
+
+    public function enable(): void
+    {
+        $this->enabled = true;
+    }
+
+    public function disable(): void
+    {
+        $this->enabled = false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSubject(): ?string
     {
         return $this->subject;
     }
@@ -96,7 +119,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setSubject($subject)
+    public function setSubject(string $subject): void
     {
         $this->subject = $subject;
     }
@@ -104,7 +127,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getContent()
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -112,7 +135,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setContent($content)
+    public function setContent(string $content): void
     {
         $this->content = $content;
     }
@@ -120,7 +143,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getTemplate()
+    public function getTemplate(): ?string
     {
         return $this->template;
     }
@@ -128,7 +151,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setTemplate($template)
+    public function setTemplate(string $template): void
     {
         $this->template = $template;
     }
@@ -136,7 +159,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getSenderName()
+    public function getSenderName(): ?string
     {
         return $this->senderName;
     }
@@ -144,7 +167,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setSenderName($senderName)
+    public function setSenderName(string $senderName): void
     {
         $this->senderName = $senderName;
     }
@@ -152,7 +175,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function getSenderAddress()
+    public function getSenderAddress(): ?string
     {
         return $this->senderAddress;
     }
@@ -160,7 +183,7 @@ class Email implements EmailInterface
     /**
      * {@inheritdoc}
      */
-    public function setSenderAddress($senderAddress)
+    public function setSenderAddress(string $senderAddress): void
     {
         $this->senderAddress = $senderAddress;
     }

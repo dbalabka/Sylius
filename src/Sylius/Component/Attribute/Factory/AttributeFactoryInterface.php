@@ -9,9 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Factory;
 
-use Sylius\Component\Product\Model\AttributeInterface;
+use Sylius\Component\Attribute\Model\AttributeInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
@@ -24,5 +26,5 @@ interface AttributeFactoryInterface extends FactoryInterface
      *
      * @return AttributeInterface
      */
-    public function createTyped($type);
+    public function createTyped(string $type): AttributeInterface;
 }

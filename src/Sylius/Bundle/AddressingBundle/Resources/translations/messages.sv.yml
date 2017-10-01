@@ -13,15 +13,19 @@ sylius:
             postcode: Postnummer
             street: Gatuadress
             province: Län
+            zone: Zon
         country:
+            add_province: Lägg till provins
             name: Namn
             provinces: Län
             select: Välj
             enabled: Aktiverad
         province:
             name: Namn
+            abbreviation: Förkortning
             select: Välj
         zone:
+            add_member: Lägg till medlem
             members: Medlemmar
             name: Namn
             type: Typ
@@ -30,6 +34,9 @@ sylius:
                 province: Län
                 zone: Zon
             scope: Omfattning
+            scopes:
+                all: Alla
             select: Välj
+            select_scope: Välj omfattning
         zone_member:
             select: Välj

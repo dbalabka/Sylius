@@ -9,69 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\ExpressionLanguage;
 
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage as BaseExpressionLanguage;
+use Symfony\Component\DependencyInjection\ExpressionLanguage as BaseExpressionLanguage;
+use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
 
 /**
- * Adds some function to the default ExpressionLanguage.
- *
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
+ * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class ExpressionLanguage extends BaseExpressionLanguage implements ContainerAwareInterface
+final class ExpressionLanguage extends BaseExpressionLanguage
 {
     /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
      * {@inheritdoc}
      */
-    public function setContainer(ContainerInterface $container = null)
+    public function __construct(?ParserCacheInterface $parser = null, array $providers = [])
     {
-        $this->container = $container;
+        array_unshift($providers, new NotNullExpressionFunctionProvider());
 
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function evaluate($expression, $values = [])
-    {
-        $values['container'] = $this->container;
-
-        return parent::evaluate($expression, $values);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function registerFunctions()
-    {
-        parent::registerFunctions();
-
-        $this->register(
-            'service',
-            function ($arg) {
-                return sprintf('$this->get(%s)', $arg);
-            },
-            function (array $variables, $value) {
-                return $variables['container']->get($value);
-            }
-        );
-
-        $this->register(
-            'parameter',
-            function ($arg) {
-                return sprintf('$this->getParameter(%s)', $arg);
-            },
-            function (array $variables, $value) {
-                return $variables['container']->getParameter($value);
-            }
-        );
+        parent::__construct($parser, $providers);
     }
 }

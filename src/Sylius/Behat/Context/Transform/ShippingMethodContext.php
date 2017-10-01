@@ -9,10 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Shipping\Repository\ShippingMethodRepositoryInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
@@ -39,11 +42,14 @@ final class ShippingMethodContext implements Context
      */
     public function getShippingMethodByName($shippingMethodName)
     {
-        $shippingMethod = $this->shippingMethodRepository->findOneByName($shippingMethodName);
-        if (null === $shippingMethod) {
-            throw new \Exception('Shipping method with name "'.$shippingMethodName.'" does not exist');
-        }
+        $shippingMethods = $this->shippingMethodRepository->findByName($shippingMethodName, 'en_US');
 
-        return $shippingMethod;
+        Assert::eq(
+            count($shippingMethods),
+            1,
+            sprintf('%d shipping methods have been found with name "%s".', count($shippingMethods), $shippingMethodName)
+        );
+
+        return $shippingMethods[0];
     }
 }

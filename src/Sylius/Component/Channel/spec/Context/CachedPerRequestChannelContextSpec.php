@@ -9,33 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Channel\Context;
 
+use Pamil\ProphecyCommon\Promise\CompositePromise;
 use PhpSpec\ObjectBehavior;
-use Sylius\Component\Channel\Context\CachedPerRequestChannelContext;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
+use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @mixin CachedPerRequestChannelContext
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class CachedPerRequestChannelContextSpec extends ObjectBehavior
+final class CachedPerRequestChannelContextSpec extends ObjectBehavior
 {
-    function let(ChannelContextInterface $decoratedChannelContext, RequestStack $requestStack)
+    function let(ChannelContextInterface $decoratedChannelContext, RequestStack $requestStack): void
     {
         $this->beConstructedWith($decoratedChannelContext, $requestStack);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Channel\Context\CachedPerRequestChannelContext');
-    }
-
-    function it_implements_channel_context_interface()
+    function it_implements_channel_context_interface(): void
     {
         $this->shouldImplement(ChannelContextInterface::class);
     }
@@ -45,7 +41,7 @@ class CachedPerRequestChannelContextSpec extends ObjectBehavior
         RequestStack $requestStack,
         Request $request,
         ChannelInterface $channel
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn($request, $request);
 
         $decoratedChannelContext->getChannel()->willReturn($channel)->shouldBeCalledTimes(1);
@@ -61,7 +57,7 @@ class CachedPerRequestChannelContextSpec extends ObjectBehavior
         Request $secondRequest,
         ChannelInterface $firstChannel,
         ChannelInterface $secondChannel
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn($firstRequest, $secondRequest);
 
         $decoratedChannelContext->getChannel()->willReturn($firstChannel, $secondChannel);
@@ -77,7 +73,7 @@ class CachedPerRequestChannelContextSpec extends ObjectBehavior
         Request $secondRequest,
         ChannelInterface $firstChannel,
         ChannelInterface $secondChannel
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn($firstRequest, $secondRequest, $firstRequest);
 
         $decoratedChannelContext->getChannel()->willReturn($firstChannel, $secondChannel)->shouldBeCalledTimes(2);
@@ -92,12 +88,42 @@ class CachedPerRequestChannelContextSpec extends ObjectBehavior
         RequestStack $requestStack,
         ChannelInterface $firstChannel,
         ChannelInterface $secondChannel
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn(null, null);
 
         $decoratedChannelContext->getChannel()->willReturn($firstChannel, $secondChannel)->shouldBeCalledTimes(2);
 
         $this->getChannel()->shouldReturn($firstChannel);
         $this->getChannel()->shouldReturn($secondChannel);
+    }
+
+    function it_caches_channel_not_found_exceptions_for_the_same_request(
+        ChannelContextInterface $decoratedChannelContext,
+        RequestStack $requestStack,
+        Request $request
+    ): void {
+        $requestStack->getMasterRequest()->willReturn($request, $request);
+
+        $decoratedChannelContext->getChannel()->willThrow(ChannelNotFoundException::class)->shouldBeCalledTimes(1);
+
+        $this->shouldThrow(ChannelNotFoundException::class)->during('getChannel');
+        $this->shouldThrow(ChannelNotFoundException::class)->during('getChannel');
+    }
+
+    function it_does_not_cache_channel_not_found_exceptions_for_null_master_requests(
+        ChannelContextInterface $decoratedChannelContext,
+        RequestStack $requestStack,
+        ChannelInterface $channel
+    ): void {
+        $requestStack->getMasterRequest()->willReturn(null, null);
+
+        $decoratedChannelContext
+            ->getChannel()
+            ->will(CompositePromise::it()->willThrow(ChannelNotFoundException::class)->andThenReturn($channel))
+            ->shouldBeCalledTimes(2)
+        ;
+
+        $this->shouldThrow(ChannelNotFoundException::class)->during('getChannel');
+        $this->getChannel()->shouldReturn($channel);
     }
 }

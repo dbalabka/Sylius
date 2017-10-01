@@ -9,71 +9,97 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Form\Type;
 
-use Sylius\Component\Resource\Provider\AvailableLocalesProviderInterface;
-use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\ResourceTranslationsSubscriber;
-use Sylius\Component\Resource\Provider\LocaleProviderInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
+use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Anna Walasek <anna.walasek@lakion.com>
  */
-class ResourceTranslationsType extends AbstractType
+final class ResourceTranslationsType extends AbstractType
 {
     /**
-     * @var LocaleProviderInterface
+     * @var string[]
      */
-    protected $localeProvider;
+    private $definedLocalesCodes;
 
     /**
-     * @var AvailableLocalesProviderInterface
+     * @var string
      */
-    protected $availableLocalesProvider;
+    private $defaultLocaleCode;
 
     /**
-     * @param LocaleProviderInterface $localeProvider
-     * @param AvailableLocalesProviderInterface $availableLocalesProvider
+     * @param TranslationLocaleProviderInterface $localeProvider
      */
-    public function __construct(LocaleProviderInterface $localeProvider, AvailableLocalesProviderInterface $availableLocalesProvider)
+    public function __construct(TranslationLocaleProviderInterface $localeProvider)
     {
-        $this->localeProvider = $localeProvider;
-        $this->availableLocalesProvider = $availableLocalesProvider;
+        $this->definedLocalesCodes = $localeProvider->getDefinedLocalesCodes();
+        $this->defaultLocaleCode = $localeProvider->getDefaultLocaleCode();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $locales = $this->availableLocalesProvider->getAvailableLocales();
-        $localesWithRequirement = [];
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
+            /** @var TranslationInterface[] $translations */
+            $translations = $event->getData();
+            $translatable = $event->getForm()->getParent()->getData();
 
-        foreach ($locales as $locale) {
-            $localesWithRequirement[$locale] = false;
-            if ($this->localeProvider->getDefaultLocale() === $locale) {
-                $localesWithRequirement[$locale] = true;
-                $localesWithRequirement = array_reverse($localesWithRequirement, true);
+            foreach ($translations as $localeCode => $translation) {
+                if (null === $translation) {
+                    unset($translations[$localeCode]);
+
+                    continue;
+                }
+
+                $translation->setLocale($localeCode);
+                $translation->setTranslatable($translatable);
             }
-        }
 
-        $builder->addEventSubscriber(new ResourceTranslationsSubscriber($localesWithRequirement));
+            $event->setData($translations);
+        });
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        return 'collection';
+        $resolver->setDefaults([
+            'entries' => $this->definedLocalesCodes,
+            'entry_name' => function (string $localeCode): string {
+                return $localeCode;
+            },
+            'entry_options' => function (string $localeCode): array {
+                return [
+                    'required' => $localeCode === $this->defaultLocaleCode,
+                ];
+            }
+        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getParent(): string
+    {
+        return FixedCollectionType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_translations';
     }

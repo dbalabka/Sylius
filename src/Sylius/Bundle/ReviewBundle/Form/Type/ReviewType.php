@@ -9,55 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ReviewBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Valid;
 
 /**
  * @author Daniel Richter <nexyz9@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-class ReviewType extends AbstractResourceType
+abstract class ReviewType extends AbstractResourceType
 {
-    /**
-     * @var string
-     */
-    protected $subject;
-
-    /**
-     * @param string $dataClass
-     * @param array  $validationGroups
-     * @param string $subject
-     */
-    public function __construct($dataClass, array $validationGroups = [], $subject)
-    {
-        parent::__construct($dataClass, $validationGroups);
-
-        $this->subject = $subject;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('rating', 'choice', [
+            ->add('rating', ChoiceType::class, [
                 'choices' => $this->createRatingList($options['rating_steps']),
                 'label' => 'sylius.form.review.rating',
                 'expanded' => true,
                 'multiple' => false,
+                'constraints' => [new Valid()],
             ])
-            ->add('author', 'sylius_customer_guest', [
-                'label' => false,
-            ])
-            ->add('title', 'text', [
+            ->add('title', TextType::class, [
                 'label' => 'sylius.form.review.title',
             ])
-            ->add('comment', 'textarea', [
+            ->add('comment', TextareaType::class, [
                 'label' => 'sylius.form.review.comment',
             ])
         ;
@@ -66,20 +53,13 @@ class ReviewType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
+        parent::configureOptions($resolver);
+
         $resolver->setDefaults([
             'rating_steps' => 5,
-            'validation_groups' => $this->validationGroups,
         ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return sprintf('sylius_%s_review', $this->subject);
     }
 
     /**
@@ -87,7 +67,7 @@ class ReviewType extends AbstractResourceType
      *
      * @return array
      */
-    private function createRatingList($maxRate)
+    private function createRatingList(int $maxRate): array
     {
         $ratings = [];
         for ($i = 1; $i <= $maxRate; ++$i) {

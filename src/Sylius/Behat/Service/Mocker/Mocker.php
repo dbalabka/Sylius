@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Mocker;
 
 use PSS\SymfonyMockerContainer\DependencyInjection\MockerContainer;
@@ -45,5 +47,22 @@ class Mocker implements MockerInterface
     public function mockService($serviceId, $className)
     {
         return $this->container->mock($serviceId, $className);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function unmockService($serviceId)
+    {
+        $this->container->unmock($serviceId);
+    }
+
+    public function unmockAll()
+    {
+        $mockedServices = $this->container->getMockedServices();
+
+        foreach ($mockedServices as $mockedServiceId => $mockedService) {
+            $this->container->unmock($mockedServiceId);
+        }
     }
 }

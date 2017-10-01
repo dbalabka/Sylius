@@ -9,49 +9,41 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ResourceBundle\Grid\View;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
-use Sylius\Bundle\ResourceBundle\Grid\View\ResourceGridView;
 use Sylius\Component\Grid\Definition\Grid;
 use Sylius\Component\Grid\Parameters;
 use Sylius\Component\Grid\View\GridView;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 
 /**
- * @mixin ResourceGridView
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ResourceGridViewSpec extends ObjectBehavior
+final class ResourceGridViewSpec extends ObjectBehavior
 {
     function let(
         Grid $gridDefinition,
-        Parameters $parameters,
         MetadataInterface $resourceMetadata,
         RequestConfiguration $requestConfiguration
-    ) {
-        $this->beConstructedWith(['foo', 'bar'], $gridDefinition, $parameters, $resourceMetadata, $requestConfiguration);
+    ): void {
+        $this->beConstructedWith(['foo', 'bar'], $gridDefinition, new Parameters(), $resourceMetadata, $requestConfiguration);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ResourceBundle\Grid\View\ResourceGridView');
-    }
-
-    function it_extends_default_GridView()
+    function it_extends_default_GridView(): void
     {
         $this->shouldHaveType(GridView::class);
     }
 
-    function it_has_resource_metadata(MetadataInterface $resourceMetadata)
+    function it_has_resource_metadata(MetadataInterface $resourceMetadata): void
     {
         $this->getMetadata()->shouldReturn($resourceMetadata);
     }
-    
-    function it_has_request_configuration(RequestConfiguration $requestConfiguration)
+
+    function it_has_request_configuration(RequestConfiguration $requestConfiguration): void
     {
         $this->getRequestConfiguration()->shouldReturn($requestConfiguration);
     }

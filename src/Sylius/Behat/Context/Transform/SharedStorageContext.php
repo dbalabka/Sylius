@@ -9,10 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Formatter\StringInflector;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -33,7 +36,7 @@ final class SharedStorageContext implements Context
     }
 
     /**
-     * @Transform /^(it|its|theirs)$/
+     * @Transform /^(it|its|theirs|them)$/
      */
     public function getLatestResource()
     {
@@ -45,6 +48,6 @@ final class SharedStorageContext implements Context
      */
     public function getResource($resource)
     {
-        return $this->sharedStorage->get(str_replace(' ', '_', $resource));
+        return $this->sharedStorage->get(StringInflector::nameToCode($resource));
     }
 }

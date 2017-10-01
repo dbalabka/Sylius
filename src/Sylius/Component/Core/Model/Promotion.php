@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,8 +24,6 @@ use Sylius\Component\Promotion\Model\Promotion as BasePromotion;
 class Promotion extends BasePromotion implements PromotionInterface
 {
     /**
-     * Channels in which this product is available.
-     *
      * @var ChannelInterface[]|Collection
      */
     protected $channels;
@@ -31,13 +31,14 @@ class Promotion extends BasePromotion implements PromotionInterface
     public function __construct()
     {
         parent::__construct();
+
         $this->channels = new ArrayCollection();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getChannels()
+    public function getChannels(): Collection
     {
         return $this->channels;
     }
@@ -45,15 +46,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function setChannels(Collection $channels)
-    {
-        $this->channels = $channels;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addChannel(BaseChannelInterface $channel)
+    public function addChannel(BaseChannelInterface $channel): void
     {
         if (!$this->hasChannel($channel)) {
             $this->channels->add($channel);
@@ -63,7 +56,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeChannel(BaseChannelInterface $channel)
+    public function removeChannel(BaseChannelInterface $channel): void
     {
         if ($this->hasChannel($channel)) {
             $this->channels->removeElement($channel);
@@ -73,7 +66,7 @@ class Promotion extends BasePromotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasChannel(BaseChannelInterface $channel)
+    public function hasChannel(BaseChannelInterface $channel): bool
     {
         return $this->channels->contains($channel);
     }

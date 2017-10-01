@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Doctrine;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\AbstractDriver;
@@ -29,7 +31,7 @@ abstract class AbstractDoctrineDriver extends AbstractDriver
      *
      * @return Definition
      */
-    protected function getClassMetadataDefinition(MetadataInterface $metadata)
+    protected function getClassMetadataDefinition(MetadataInterface $metadata): Definition
     {
         $definition = new Definition($this->getClassMetadataClassname());
         $definition
@@ -44,7 +46,7 @@ abstract class AbstractDoctrineDriver extends AbstractDriver
     /**
      * {@inheritdoc}
      */
-    protected function addManager(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addManager(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $container->setAlias(
             $metadata->getServiceId('manager'),
@@ -53,13 +55,16 @@ abstract class AbstractDoctrineDriver extends AbstractDriver
     }
 
     /**
+     * Return the configured object managre name, or NULL if the default
+     * manager should be used.
+     *
      * @param MetadataInterface $metadata
      *
-     * @return string
+     * @return string|null
      */
-    protected function getObjectManagerName(MetadataInterface $metadata)
+    protected function getObjectManagerName(MetadataInterface $metadata): ?string
     {
-        $objectManagerName = 'default';
+        $objectManagerName = null;
 
         if ($metadata->hasParameter('options') && isset($metadata->getParameter('options')['object_manager'])) {
             $objectManagerName = $metadata->getParameter('options')['object_manager'];
@@ -73,10 +78,10 @@ abstract class AbstractDoctrineDriver extends AbstractDriver
      *
      * @return string
      */
-    abstract protected function getManagerServiceId(MetadataInterface $metadata);
+    abstract protected function getManagerServiceId(MetadataInterface $metadata): string;
 
     /**
      * @return string
      */
-    abstract protected function getClassMetadataClassname();
+    abstract protected function getClassMetadataClassname(): string;
 }

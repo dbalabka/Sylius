@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Doctrine;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ODM\MongoDB\TranslatableRepository;
@@ -24,12 +26,12 @@ use Symfony\Component\DependencyInjection\Reference;
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Arnaud Langlade <aRn0D.dev@gmail.com>
  */
-class DoctrineODMDriver extends AbstractDoctrineDriver
+final class DoctrineODMDriver extends AbstractDoctrineDriver
 {
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): string
     {
         return SyliusResourceBundle::DRIVER_DOCTRINE_MONGODB_ODM;
     }
@@ -37,7 +39,7 @@ class DoctrineODMDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $modelClass = $metadata->getClass('model');
 
@@ -49,8 +51,6 @@ class DoctrineODMDriver extends AbstractDoctrineDriver
         if ($metadata->hasClass('repository')) {
             $repositoryClass = $metadata->getClass('repository');
         }
-
-        $repositoryReflection = new \ReflectionClass($repositoryClass);
 
         $unitOfWorkDefinition = new Definition('Doctrine\\ODM\\MongoDB\\UnitOfWork');
         $unitOfWorkDefinition
@@ -64,7 +64,6 @@ class DoctrineODMDriver extends AbstractDoctrineDriver
             $unitOfWorkDefinition,
             $this->getClassMetadataDefinition($metadata),
         ]);
-        $definition->setLazy(!$repositoryReflection->isFinal());
 
         $container->setDefinition($metadata->getServiceId('repository'), $definition);
     }
@@ -72,22 +71,19 @@ class DoctrineODMDriver extends AbstractDoctrineDriver
     /**
      * {@inheritdoc}
      */
-    protected function addDefaultForm(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function getManagerServiceId(MetadataInterface $metadata): string
     {
+        if ($objectManagerName = $this->getObjectManagerName($metadata)) {
+            return sprintf('doctrine_mongodb.odm.%s_document_manager', $objectManagerName);
+        }
+
+        return 'doctrine_mongodb.odm.document_manager';
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getManagerServiceId(MetadataInterface $metadata)
-    {
-        return sprintf('doctrine_mongodb.odm.%s_document_manager', $this->getObjectManagerName($metadata));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getClassMetadataClassname()
+    protected function getClassMetadataClassname(): string
     {
         return 'Doctrine\\ODM\\MongoDB\\Mapping\\ClassMetadata';
     }

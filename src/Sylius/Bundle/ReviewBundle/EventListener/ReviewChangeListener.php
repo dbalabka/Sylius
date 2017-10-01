@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ReviewBundle\EventListener;
 
 use Sylius\Bundle\ReviewBundle\Updater\ReviewableRatingUpdaterInterface;
@@ -17,9 +19,9 @@ use Sylius\Component\Review\Model\ReviewInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 /**
- * @author Mateusz Zalewski <mateusz.p.zalewski@gmail.com>
+ * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class ReviewChangeListener
+final class ReviewChangeListener
 {
     /**
      * @var ReviewableRatingUpdaterInterface
@@ -37,7 +39,7 @@ class ReviewChangeListener
     /**
      * @param GenericEvent $event
      */
-    public function recalculateSubjectRating(GenericEvent $event)
+    public function recalculateSubjectRating(GenericEvent $event): void
     {
         $subject = $event->getSubject();
         if (!$subject instanceof ReviewInterface) {

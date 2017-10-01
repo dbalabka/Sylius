@@ -9,10 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -35,13 +38,34 @@ final class TaxonContext implements Context
     /**
      * @Transform /^classified as "([^"]+)"$/
      * @Transform /^belongs to "([^"]+)"$/
+     * @Transform /^"([^"]+)" taxon$/
+     * @Transform /^"([^"]+)" as a parent taxon$/
+     * @Transform /^"([^"]+)" parent taxon$/
+     * @Transform /^parent taxon to "([^"]+)"$/
+     * @Transform /^taxon with "([^"]+)" name/
+     * @Transform /^taxon "([^"]+)"$/
+     * @Transform :taxon
      */
-    public function getTaxonByName($taxonName)
+    public function getTaxonByName($name)
     {
-        $taxon = $this->taxonRepository->findOneByName($taxonName);
-        if (null === $taxon) {
-            throw new \InvalidArgumentException(sprintf('Taxon with name "%s" does not exist.', $taxonName));
-        }
+        $taxons = $this->taxonRepository->findByName($name, 'en_US');
+
+        Assert::eq(
+            count($taxons),
+            1,
+            sprintf('%d taxons has been found with name "%s".', count($taxons), $name)
+        );
+
+        return $taxons[0];
+    }
+
+    /**
+     * @Transform /^taxon with "([^"]+)" code$/
+     */
+    public function getTaxonByCode($code)
+    {
+        $taxon = $this->taxonRepository->findOneBy(['code' => $code]);
+        Assert::notNull($taxon, sprintf('Taxon with code "%s" does not exist.', $code));
 
         return $taxon;
     }

@@ -9,33 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PaymentBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * Payment method form type.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class PaymentMethodType extends AbstractResourceType
+final class PaymentMethodType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('translations', 'sylius_translations', [
-                'type' => 'sylius_payment_method_translation',
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => PaymentMethodTranslationType::class,
                 'label' => 'sylius.form.payment_method.name',
             ])
-            ->add('gateway', 'sylius_payment_gateway_choice', [
-                'label' => 'sylius.form.payment_method.gateway',
+            ->add('position', IntegerType::class, [
+                'required' => false,
+                'label' => 'sylius.form.shipping_method.position',
             ])
-            ->add('enabled', 'checkbox', [
+            ->add('enabled', CheckboxType::class, [
                 'required' => false,
                 'label' => 'sylius.form.payment_method.enabled',
             ])
@@ -46,7 +50,7 @@ class PaymentMethodType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_payment_method';
     }

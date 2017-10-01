@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Doctrine\ODM\MongoDB;
 
 use Doctrine\MongoDB\Query\Builder as QueryBuilder;
-use Sylius\Component\Resource\Provider\LocaleProviderInterface;
 use Sylius\Component\Resource\Repository\TranslatableRepositoryInterface;
 
 /**
@@ -23,37 +24,7 @@ use Sylius\Component\Resource\Repository\TranslatableRepositoryInterface;
 class TranslatableRepository extends DocumentRepository implements TranslatableRepositoryInterface
 {
     /**
-     * @var LocaleProviderInterface
-     */
-    protected $localeProvider;
-
-    /**
-     * @var array
-     */
-    protected $translatableFields = [];
-
-    /**
      * {@inheritdoc}
-     */
-    public function setLocaleProvider(LocaleProviderInterface $localeProvider)
-    {
-        $this->localeProvider = $localeProvider;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setTranslatableFields(array $translatableFields)
-    {
-        $this->translatableFields = $translatableFields;
-
-        return $this;
-    }
-
-    /**
-     * {inheritdoc}.
      */
     protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria = null)
     {
@@ -64,18 +35,18 @@ class TranslatableRepository extends DocumentRepository implements TranslatableR
         foreach ($criteria as $property => $value) {
             if (is_array($value)) {
                 $queryBuilder
-                    ->field($this->getPropertyName($property))->in($value)
+                    ->field($property)->in($value)
                 ;
             } elseif ('' !== $value) {
                 $queryBuilder
-                    ->field($this->getPropertyName($property))->equals($value)
+                    ->field($property)->equals($value)
                 ;
             }
         }
     }
 
     /**
-     * {inheritdoc}.
+     * {@inheritdoc}
      */
     protected function applySorting(QueryBuilder $queryBuilder, array $sorting = null)
     {
@@ -84,21 +55,7 @@ class TranslatableRepository extends DocumentRepository implements TranslatableR
         }
 
         foreach ($sorting as $property => $order) {
-            $queryBuilder->sort($this->getPropertyName($property), $order);
+            $queryBuilder->sort($property, $order);
         }
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getPropertyName($name)
-    {
-        if (in_array($name, $this->translatableFields)) {
-            return 'translations.'.$this->localeProvider->getCurrentLocale().'.'.$name;
-        }
-
-        return $name;
     }
 }

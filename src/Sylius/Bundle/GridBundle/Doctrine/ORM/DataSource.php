@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\Doctrine\ORM;
 
 use Doctrine\ORM\QueryBuilder;
@@ -21,7 +23,7 @@ use Sylius\Component\Grid\Parameters;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class DataSource implements DataSourceInterface
+final class DataSource implements DataSourceInterface
 {
     /**
      * @var QueryBuilder
@@ -36,7 +38,7 @@ class DataSource implements DataSourceInterface
     /**
      * @param QueryBuilder $queryBuilder
      */
-    function __construct(QueryBuilder $queryBuilder)
+    public function __construct(QueryBuilder $queryBuilder)
     {
         $this->queryBuilder = $queryBuilder;
         $this->expressionBuilder = new ExpressionBuilder($queryBuilder);
@@ -45,7 +47,7 @@ class DataSource implements DataSourceInterface
     /**
      * {@inheritdoc}
      */
-    public function restrict($expression, $condition = DataSourceInterface::CONDITION_AND)
+    public function restrict($expression, string $condition = DataSourceInterface::CONDITION_AND): void
     {
         switch ($condition) {
             case DataSourceInterface::CONDITION_AND:
@@ -60,7 +62,7 @@ class DataSource implements DataSourceInterface
     /**
      * {@inheritdoc}
      */
-    public function getExpressionBuilder()
+    public function getExpressionBuilder(): ExpressionBuilderInterface
     {
         return $this->expressionBuilder;
     }
@@ -70,8 +72,9 @@ class DataSource implements DataSourceInterface
      */
     public function getData(Parameters $parameters)
     {
-        // Use output walkers option in DoctrineORMAdapter should be false as it affects performance greatly (see #3775)
-        $paginator = new Pagerfanta(new DoctrineORMAdapter($this->queryBuilder, true, false));
+        // Use output walkers option in DoctrineORMAdapter should be false as it affects performance greatly. (see #3775)
+        $paginator = new Pagerfanta(new DoctrineORMAdapter($this->queryBuilder, false, false));
+        $paginator->setNormalizeOutOfRangePages(true);
         $paginator->setCurrentPage($parameters->get('page', 1));
 
         return $paginator;

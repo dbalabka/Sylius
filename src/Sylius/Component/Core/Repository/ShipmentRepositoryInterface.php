@@ -9,9 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
-use Pagerfanta\PagerfantaInterface;
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
@@ -21,17 +23,23 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 interface ShipmentRepositoryInterface extends RepositoryInterface
 {
     /**
-     * @param string $name
+     * @return QueryBuilder
+     */
+    public function createListQueryBuilder(): QueryBuilder;
+
+    /**
+     * @param mixed $shipmentId
+     * @param mixed $orderId
      *
      * @return ShipmentInterface|null
      */
-    public function findOneByName($name);
+    public function findOneByOrderId($shipmentId, $orderId): ?ShipmentInterface;
 
     /**
-     * @param array $criteria
-     * @param array $sorting
+     * @param string $name
+     * @param string $locale
      *
-     * @return PagerfantaInterface
+     * @return array|ShipmentInterface[]
      */
-    public function createFilterPaginator(array $criteria = null, array $sorting = null);
+    public function findByName(string $name, string $locale): array;
 }

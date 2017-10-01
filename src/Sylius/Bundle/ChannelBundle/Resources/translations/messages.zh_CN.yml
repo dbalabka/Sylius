@@ -4,7 +4,8 @@
 sylius:
     form:
         channel:
-            name: 名称
+            color: 颜色
             description: 描述
             enabled: 已启用
-            color: 颜色
+            name: 名称
+            url: URI

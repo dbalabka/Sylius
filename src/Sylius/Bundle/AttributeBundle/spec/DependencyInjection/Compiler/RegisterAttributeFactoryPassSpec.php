@@ -9,10 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\AttributeBundle\DependencyInjection\Compiler;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\AttributeBundle\DependencyInjection\Compiler\RegisterAttributeFactoryPass;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -20,11 +23,11 @@ use Symfony\Component\DependencyInjection\Definition;
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class RegisterAttributeFactoryPassSpec extends ObjectBehavior
+final class RegisterAttributeFactoryPassSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    function it_is_initializable(): void
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\DependencyInjection\Compiler\RegisterAttributeFactoryPass');
+        $this->shouldHaveType(RegisterAttributeFactoryPass::class);
     }
 
     function it_implements_compiler_pass_interface()
@@ -37,7 +40,7 @@ class RegisterAttributeFactoryPassSpec extends ObjectBehavior
         Definition $attributeTypeRegistryDefinition,
         Definition $oldAttributeFactoryDefinition,
         Definition $newAttributeFactoryDefinition
-    ) {
+    ): void {
         $container->hasDefinition('sylius.registry.attribute_type')->willReturn(true);
         $container->getDefinition('sylius.registry.attribute_type')->willReturn($attributeTypeRegistryDefinition);
 
@@ -45,14 +48,20 @@ class RegisterAttributeFactoryPassSpec extends ObjectBehavior
 
         $container->getDefinition('sylius.factory.product_attribute')->willReturn($oldAttributeFactoryDefinition);
 
-        $container->setDefinition('sylius.factory.product_attribute', Argument::type('Symfony\Component\DependencyInjection\Definition'))->willReturn($newAttributeFactoryDefinition);
+        $container
+            ->setDefinition(
+                'sylius.factory.product_attribute',
+                Argument::type('Symfony\Component\DependencyInjection\Definition')
+            )
+            ->willReturn($newAttributeFactoryDefinition)
+        ;
         $newAttributeFactoryDefinition->addArgument($oldAttributeFactoryDefinition)->shouldBeCalled();
         $newAttributeFactoryDefinition->addArgument($attributeTypeRegistryDefinition)->shouldBeCalled();
 
         $this->process($container);
     }
 
-    function it_does_not_process_if_container_has_not_proper_definition(ContainerBuilder $container)
+    function it_does_not_process_if_container_has_not_proper_definition(ContainerBuilder $container): void
     {
         $container->hasDefinition('sylius.registry.attribute_type')->willReturn(false);
         $container->getDefinition('sylius.registry.attribute_type')->shouldNotBeCalled();

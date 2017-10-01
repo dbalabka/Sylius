@@ -9,13 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Setter;
 
 use Behat\Mink\Session;
-use Behat\Symfony2Extension\Driver\KernelDriver;
+use FriendsOfBehat\SymfonyExtension\Driver\SymfonyDriver;
+use Symfony\Component\BrowserKit\Cookie;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class CookieSetter implements CookieSetterInterface
 {
@@ -46,12 +49,22 @@ final class CookieSetter implements CookieSetterInterface
     {
         $this->prepareMinkSessionIfNeeded();
 
+        $driver = $this->minkSession->getDriver();
+
+        if ($driver instanceof SymfonyDriver) {
+            $driver->getClient()->getCookieJar()->set(
+                new Cookie($name, $value, null, null, parse_url($this->minkParameters['base_url'], PHP_URL_HOST))
+            );
+
+            return;
+        }
+
         $this->minkSession->setCookie($name, $value);
     }
 
     private function prepareMinkSessionIfNeeded()
     {
-        if ($this->minkSession->getDriver() instanceof KernelDriver) {
+        if ($this->minkSession->getDriver() instanceof SymfonyDriver) {
             return;
         }
 

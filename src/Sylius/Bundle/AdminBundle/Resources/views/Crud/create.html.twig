@@ -1,25 +1,32 @@
 {% extends 'SyliusAdminBundle::layout.html.twig' %}
 
-{% import 'SyliusUiBundle:Macro:headers.html.twig' as headers %}
-
 {% set header = configuration.vars.header|default(metadata.applicationName~'.ui.new_'~metadata.name) %}
+{% set event_prefix = metadata.applicationName ~ '.admin.' ~ metadata.name ~ '.create' %}
 
-{% block title %}{{ parent() }} {{ header|trans }}{% endblock %}
+{% block title %}{{ header|trans }} {{ parent() }}{% endblock %}
 
-{% form_theme form 'SyliusUiBundle:Form:theme.html.twig' %}
+{% form_theme form '@SyliusAdmin/Form/theme.html.twig' %}
 
 {% block content %}
-{{ headers.default(header|trans, configuration.vars.icon|default('plus'), configuration.vars.subheader|default(null)|trans) }}
+{{ sonata_block_render_event(event_prefix ~ '.before_header', {'resource': resource}) }}
 
-{{ form_start(form, {'action': path(configuration.getRouteName('create')), 'attr': {'class': 'ui form', 'novalidate': 'novalidate'}}) }}
-    <div class="ui segment">
-        {% if configuration.vars.templates.form is defined %}
-            {% include configuration.vars.templates.form %}
-        {% else %}
-            {{ form_widget(form) }}
-        {% endif %}
-        {% include 'SyliusUiBundle:Form:_create.html.twig' with {'cancel_path': path(configuration.getRouteName('index'))} %}
-    </div>
-{{ form_row(form._token) }}
-{{ form_end(form, {'render_rest': false}) }}
+{% include '@SyliusAdmin/Crud/Create/_header.html.twig' %}
+
+{{ sonata_block_render_event(event_prefix ~ '.after_header', {'resource': resource}) }}
+
+{% include '@SyliusAdmin/Crud/Create/_content.html.twig' %}
+
+{{ sonata_block_render_event(event_prefix ~ '.after_content', {'resource': resource}) }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+
+    {{ sonata_block_render_event(event_prefix ~ '.stylesheets') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ sonata_block_render_event(event_prefix ~ '.javascripts') }}
 {% endblock %}

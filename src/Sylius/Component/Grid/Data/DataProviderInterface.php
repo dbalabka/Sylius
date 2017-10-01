@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Data;
 
 use Sylius\Component\Grid\Definition\Grid;
@@ -21,7 +23,7 @@ interface DataProviderInterface
 {
     /**
      * @param Grid $grid
-     * @param array $parameters
+     * @param Parameters $parameters
      *
      * @return mixed
      */

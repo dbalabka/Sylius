@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Translation;
 
-use Sylius\Bundle\ThemeBundle\Translation\Provider\TranslatorLoaderProviderInterface;
-use Sylius\Bundle\ThemeBundle\Translation\Provider\TranslatorResourceProviderInterface;
+use Sylius\Bundle\ThemeBundle\Translation\Provider\Loader\TranslatorLoaderProviderInterface;
+use Sylius\Bundle\ThemeBundle\Translation\Provider\Resource\TranslatorResourceProviderInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\MessageSelector;
 use Symfony\Component\Translation\Translator as BaseTranslator;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class Translator extends BaseTranslator implements WarmableInterface
 {
@@ -56,7 +58,7 @@ final class Translator extends BaseTranslator implements WarmableInterface
         TranslatorLoaderProviderInterface $loaderProvider,
         TranslatorResourceProviderInterface $resourceProvider,
         MessageSelector $messageSelector,
-        $locale,
+        string $locale,
         array $options = []
     ) {
         $this->assertOptionsAreKnown($options);
@@ -75,7 +77,7 @@ final class Translator extends BaseTranslator implements WarmableInterface
     /**
      * {@inheritdoc}
      */
-    public function warmUp($cacheDir)
+    public function warmUp($cacheDir): void
     {
         // skip warmUp when translator doesn't use cache
         if (null === $this->options['cache_dir']) {
@@ -100,7 +102,7 @@ final class Translator extends BaseTranslator implements WarmableInterface
     /**
      * {@inheritdoc}
      */
-    protected function initializeCatalogue($locale)
+    protected function initializeCatalogue($locale): void
     {
         $this->initialize();
 
@@ -110,26 +112,57 @@ final class Translator extends BaseTranslator implements WarmableInterface
     /**
      * {@inheritdoc}
      */
-    protected function computeFallbackLocales($locale)
+    protected function computeFallbackLocales($locale): array
     {
-        $locales = parent::computeFallbackLocales($locale);
+        $themeModifier = $this->getLocaleModifier($locale);
+        $localeWithoutModifier = $this->getLocaleWithoutModifier($locale, $themeModifier);
 
-        while (strrchr($locale, '_') !== false) {
-            $locale = substr($locale, 0, -strlen(strrchr($locale, '_')));
+        $computedFallbackLocales = parent::computeFallbackLocales($locale);
+        array_unshift($computedFallbackLocales, $localeWithoutModifier);
 
-            array_unshift($locales, $locale);
+        $fallbackLocales = [];
+        foreach (array_diff($computedFallbackLocales, [$locale]) as $computedFallback) {
+            $fallback = $computedFallback . $themeModifier;
+            if (null !== $themeModifier && $locale !== $fallback) {
+                $fallbackLocales[] = $fallback;
+            }
+
+            $fallbackLocales[] = $computedFallback;
         }
 
-        return array_unique($locales);
+        return array_unique($fallbackLocales);
     }
 
-    private function initialize()
+    /**
+     * @param string $locale
+     *
+     * @return string
+     */
+    private function getLocaleModifier(string $locale): string
+    {
+        $modifier = strrchr($locale, '@');
+
+        return $modifier ?: '';
+    }
+
+    /**
+     * @param string $locale
+     * @param string $modifier
+     *
+     * @return string
+     */
+    private function getLocaleWithoutModifier(string $locale, string $modifier): string
+    {
+        return str_replace($modifier, '', $locale);
+    }
+
+    private function initialize(): void
     {
         $this->addResources();
         $this->addLoaders();
     }
 
-    private function addResources()
+    private function addResources(): void
     {
         if ($this->resourcesLoaded) {
             return;
@@ -148,7 +181,7 @@ final class Translator extends BaseTranslator implements WarmableInterface
         $this->resourcesLoaded = true;
     }
 
-    private function addLoaders()
+    private function addLoaders(): void
     {
         $loaders = $this->loaderProvider->getLoaders();
         foreach ($loaders as $alias => $loader) {
@@ -159,7 +192,7 @@ final class Translator extends BaseTranslator implements WarmableInterface
     /**
      * @param array $options
      */
-    private function assertOptionsAreKnown(array $options)
+    private function assertOptionsAreKnown(array $options): void
     {
         if ($diff = array_diff(array_keys($options), array_keys($this->options))) {
             throw new \InvalidArgumentException(sprintf('The Translator does not support the following options: \'%s\'.', implode('\', \'', $diff)));

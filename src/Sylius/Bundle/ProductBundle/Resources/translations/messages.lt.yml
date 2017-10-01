@@ -10,13 +10,22 @@ sylius:
             options: Parinktys
             meta_keywords: Meta raktažodžiai
             meta_description: Meta aprašymas
+            slug: Šliužas (nuorodos dalis)
             taxons: Taksonai
         product_variant:
-            available_on: Prieinamas nuo
-        product_archetype:
             name: Pavadinimas
-            parent: Motininis elementas
-            attributes: Atributai
-            options: Parinktys
         association_type:
             name: Pavadinimas
+            translations: Vertimai
+        association:
+            type: Sąryšio tipas
+            product: Susijusi prekė
+        variant:
+            name: Pavadinimas
+        option:
+            name: Pavadinimas
+            position: Pozicija
+            values: Galimos reikšmės
+        option_value:
+            add_value: Pridėti reikšmę
+            value: Reikšmė

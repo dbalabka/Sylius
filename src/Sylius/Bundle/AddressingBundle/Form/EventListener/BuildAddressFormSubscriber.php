@@ -9,25 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\EventListener;
 
 use Doctrine\Common\Persistence\ObjectRepository;
+use Sylius\Bundle\AddressingBundle\Form\Type\ProvinceCodeChoiceType;
 use Sylius\Component\Addressing\Model\AddressInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
-use Sylius\Component\Addressing\Model\ProvinceInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 
 /**
- * This listener adds the province field to form if needed.
+ * @internal
  *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Jan Góralski <jan.goralski@lakion.com>
+ * @author Anna Walasek <anna.walasek@lakion.com>
  */
-class BuildAddressFormSubscriber implements EventSubscriberInterface
+final class BuildAddressFormSubscriber implements EventSubscriberInterface
 {
     /**
      * @var ObjectRepository
@@ -52,7 +56,7 @@ class BuildAddressFormSubscriber implements EventSubscriberInterface
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SET_DATA => 'preSetData',
@@ -61,11 +65,9 @@ class BuildAddressFormSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * Removes or adds a province field based on the country set.
-     *
      * @param FormEvent $event
      */
-    public function preSetData(FormEvent $event)
+    public function preSetData(FormEvent $event): void
     {
         /* @var AddressInterface $address */
         $address = $event->getData();
@@ -84,17 +86,21 @@ class BuildAddressFormSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $form = $event->getForm();
+
         if ($country->hasProvinces()) {
-            $event->getForm()->add($this->createProvinceCodeChoiceForm($country, $address->getProvinceCode()));
+            $form->add($this->createProvinceCodeChoiceForm($country, $address->getProvinceCode()));
+
+            return;
         }
+
+        $form->add($this->createProvinceNameTextForm($address->getProvinceName()));
     }
 
     /**
-     * Removes or adds a province field based on the country set on submitted form.
-     *
      * @param FormEvent $event
      */
-    public function preSubmit(FormEvent $event)
+    public function preSubmit(FormEvent $event): void
     {
         $data = $event->getData();
         if (!is_array($data) || !array_key_exists('countryCode', $data)) {
@@ -111,9 +117,15 @@ class BuildAddressFormSubscriber implements EventSubscriberInterface
             return;
         }
 
+        $form = $event->getForm();
+
         if ($country->hasProvinces()) {
-            $event->getForm()->add($this->createProvinceCodeChoiceForm($country));
+            $form->add($this->createProvinceCodeChoiceForm($country));
+
+            return;
         }
+
+        $form->add($this->createProvinceNameTextForm());
     }
 
     /**
@@ -122,15 +134,27 @@ class BuildAddressFormSubscriber implements EventSubscriberInterface
      *
      * @return FormInterface
      */
-    private function createProvinceCodeChoiceForm(CountryInterface $country, $provinceCode = null)
+    private function createProvinceCodeChoiceForm(CountryInterface $country, ?string $provinceCode = null): FormInterface
     {
-        return
-            $this
-                ->formFactory
-                    ->createNamed('provinceCode', 'sylius_province_code_choice', $provinceCode, [
-                    'country' => $country,
-                    'auto_initialize' => false,
-            ])
-        ;
+        return $this->formFactory->createNamed('provinceCode', ProvinceCodeChoiceType::class, $provinceCode, [
+            'country' => $country,
+            'auto_initialize' => false,
+            'label' => 'sylius.form.address.province',
+            'placeholder' => 'sylius.form.province.select',
+        ]);
+    }
+
+    /**
+     * @param string|null $provinceName
+     *
+     * @return FormInterface
+     */
+    private function createProvinceNameTextForm(?string $provinceName = null): FormInterface
+    {
+        return $this->formFactory->createNamed('provinceName', TextType::class, $provinceName, [
+            'required' => false,
+            'auto_initialize' => false,
+            'label' => 'sylius.form.address.province',
+        ]);
     }
 }

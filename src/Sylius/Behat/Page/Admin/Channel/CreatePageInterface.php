@@ -9,32 +9,82 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
-use Behat\Mink\Exception\ElementNotFoundException;
-use Sylius\Behat\Page\PageInterface;
+use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-interface CreatePageInterface extends PageInterface
+interface CreatePageInterface extends BaseCreatePageInterface
 {
+    public function enable();
+
+    public function disable();
+
     /**
      * @param string $name
-     *
-     * @throws ElementNotFoundException
      */
-    public function fillName($name);
+    public function nameIt($name);
 
     /**
      * @param string $code
-     *
-     * @throws ElementNotFoundException
      */
-    public function fillCode($code);
+    public function specifyCode($code);
 
     /**
-     * @throws ElementNotFoundException
+     * @param string $description
      */
-    public function create();
+    public function describeItAs($description);
+
+    /**
+     * @param string $hostname
+     */
+    public function setHostname($hostname);
+
+    /**
+     * @param string $contactEmail
+     */
+    public function setContactEmail($contactEmail);
+
+    /**
+     * @param string $color
+     */
+    public function defineColor($color);
+
+    /**
+     * @param string $language
+     */
+    public function chooseLocale($language);
+
+    /**
+     * @param string $currencyCode
+     */
+    public function chooseCurrency($currencyCode);
+
+    /**
+     * @param string $taxZone
+     */
+    public function chooseDefaultTaxZone($taxZone);
+
+    /**
+     * @param string $locale
+     */
+    public function chooseDefaultLocale($locale);
+
+    /**
+     * @param string $currency
+     */
+    public function chooseBaseCurrency($currency);
+
+    /**
+     * @param string $taxCalculationStrategy
+     */
+    public function chooseTaxCalculationStrategy($taxCalculationStrategy);
+
+    public function allowToSkipShippingStep();
+
+    public function allowToSkipPaymentStep();
 }

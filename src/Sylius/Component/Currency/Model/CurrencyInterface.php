@@ -9,12 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Currency\Model;
 
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
-use Sylius\Component\Resource\Model\ToggleableInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -22,33 +23,10 @@ use Sylius\Component\Resource\Model\ToggleableInterface;
 interface CurrencyInterface extends
     CodeAwareInterface,
     TimestampableInterface,
-    ToggleableInterface,
     ResourceInterface
 {
     /**
-     * Get the human-friendly name.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getName();
-
-    /**
-     * @return float
-     */
-    public function getExchangeRate();
-
-    /**
-     * @param float $rate
-     */
-    public function setExchangeRate($rate);
-
-    /**
-     * @return bool
-     */
-    public function isBase();
-
-    /**
-     * @param bool $base
-     */
-    public function setBase($base);
+    public function getName(): ?string;
 }

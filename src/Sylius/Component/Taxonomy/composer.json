@@ -20,12 +20,14 @@
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.1",
 
-        "sylius/resource": "^0.18"
+        "behat/transliterator": "^1.1",
+        "sylius/resource": "^1.0",
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4"
+        "phpspec/phpspec": "^4.0"
     },
     "config": {
         "bin-dir": "bin"
@@ -46,7 +48,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "0.18-dev"
+            "dev-master": "1.0-dev"
         }
     }
 }

@@ -9,54 +9,54 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Grid\Provider;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Sylius\Component\Grid\Definition\ArrayToDefinitionConverterInterface;
 use Sylius\Component\Grid\Definition\Grid;
-use Sylius\Component\Grid\Provider\ArrayGridProvider;
+use Sylius\Component\Grid\Exception\UndefinedGridException;
 use Sylius\Component\Grid\Provider\GridProviderInterface;
-use Sylius\Component\Grid\Provider\UndefinedGridException;
 
 /**
- * @mixin ArrayGridProvider
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ArrayGridProviderSpec extends ObjectBehavior
+final class ArrayGridProviderSpec extends ObjectBehavior
 {
-    function let(ArrayToDefinitionConverterInterface $converter, Grid $firstGrid, Grid $secondGrid, Grid $thirdGrid)
+    function let(ArrayToDefinitionConverterInterface $converter, Grid $firstGrid, Grid $secondGrid, Grid $thirdGrid, Grid $fourthGrid): void
     {
         $converter->convert('sylius_admin_tax_category', ['configuration1'])->willReturn($firstGrid);
-        $converter->convert('sylius_admin_product', ['configuration2'])->willReturn($secondGrid);
+        $converter->convert('sylius_admin_product', ['configuration2' => 'foo'])->willReturn($secondGrid);
         $converter->convert('sylius_admin_order', ['configuration3'])->willReturn($thirdGrid);
+        $converter->convert('sylius_admin_product_from_taxon', ['configuration4' => 'bar', 'configuration2' => 'foo'])->willReturn($fourthGrid);
 
         $this->beConstructedWith($converter, [
             'sylius_admin_tax_category' => ['configuration1'],
-            'sylius_admin_product' => ['configuration2'],
+            'sylius_admin_product' => ['configuration2' => 'foo'],
             'sylius_admin_order' => ['configuration3'],
+            'sylius_admin_product_from_taxon' => ['extends' => 'sylius_admin_product', 'configuration4' => 'bar'],
         ]);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Grid\Provider\ArrayGridProvider');
-    }
-    
-    function it_implements_grid_provider_interface()
+    function it_implements_grid_provider_interface(): void
     {
         $this->shouldImplement(GridProviderInterface::class);
     }
 
-    function it_returns_grid_definition_by_name(Grid $firstGrid, Grid $secondGrid, Grid $thirdGrid)
+    function it_returns_cloned_grid_definition_by_name(Grid $firstGrid, Grid $secondGrid, Grid $thirdGrid): void
     {
-        $this->get('sylius_admin_tax_category')->shouldReturn($firstGrid);
-        $this->get('sylius_admin_product')->shouldReturn($secondGrid);
-        $this->get('sylius_admin_order')->shouldReturn($thirdGrid);
+        $this->get('sylius_admin_tax_category')->shouldBeLike($firstGrid);
+        $this->get('sylius_admin_product')->shouldBeLike($secondGrid);
+        $this->get('sylius_admin_order')->shouldBeLike($thirdGrid);
     }
 
-    function it_throws_an_exception_if_grid_does_not_exist()
+    function it_supports_grid_inheritance(Grid $fourthGrid): void
+    {
+        $this->get('sylius_admin_product_from_taxon')->shouldBeLike($fourthGrid);
+    }
+
+    function it_throws_an_exception_if_grid_does_not_exist(): void
     {
         $this
             ->shouldThrow(new UndefinedGridException('sylius_admin_order_item'))

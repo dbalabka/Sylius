@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
@@ -18,32 +20,34 @@ use Sylius\Component\Resource\Model\ResourceInterface;
  */
 interface AttributeValueInterface extends ResourceInterface
 {
-    const STORAGE_TEXT = 'text';
-    const STORAGE_BOOLEAN = 'boolean';
-    const STORAGE_DATE = 'date';
-    const STORAGE_DATETIME = 'datetime';
-    const STORAGE_INTEGER = 'integer';
-    const STORAGE_FLOAT = 'float';
+    public const STORAGE_BOOLEAN = 'boolean';
+    public const STORAGE_DATE = 'date';
+    public const STORAGE_DATETIME = 'datetime';
+    public const STORAGE_FLOAT = 'float';
+    public const STORAGE_INTEGER = 'integer';
+    public const STORAGE_JSON = 'json';
+    public const STORAGE_TEXT = 'text';
 
     /**
-     * @return AttributeSubjectInterface
+     * @return AttributeSubjectInterface|null
      */
-    public function getSubject();
+    public function getSubject(): ?AttributeSubjectInterface;
 
     /**
      * @param AttributeSubjectInterface|null $subject
      */
-    public function setSubject(AttributeSubjectInterface $subject = null);
+    public function setSubject(?AttributeSubjectInterface $subject): void;
 
     /**
-     * @return AttributeInterface
+     *
+     * @return AttributeInterface|null
      */
-    public function getAttribute();
+    public function getAttribute(): ?AttributeInterface;
 
     /**
-     * @param AttributeInterface $attribute
+     * @param AttributeInterface|null $attribute
      */
-    public function setAttribute(AttributeInterface $attribute);
+    public function setAttribute(?AttributeInterface $attribute): void;
 
     /**
      * @return mixed
@@ -53,24 +57,32 @@ interface AttributeValueInterface extends ResourceInterface
     /**
      * @param mixed $value
      */
-    public function setValue($value);
+    public function setValue($value): void;
 
     /**
-     * Proxy method to access the code from real attribute.
+     * @return string|null
+     */
+    public function getCode(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getName(): ?string;
+
+    /**
+     * @return string|null
+     */
+    public function getType(): ?string;
+
+    /**
+     * @return string|null
      *
-     * @return string
+     * @throws \InvalidArgumentException
      */
-    public function getCode();
+    public function getLocaleCode(): ?string;
 
     /**
-     * Proxy method to access the name from real attribute.
-     *
-     * @return string
+     * @param string|null $localeCode
      */
-    public function getName();
-
-    /**
-     * @return string
-     */
-    public function getType();
+    public function setLocaleCode(?string $localeCode): void;
 }

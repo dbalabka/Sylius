@@ -4,6 +4,7 @@
 sylius:
     currency:
         code:
+            exact_length: Kodi i monedhes duhet te jete i gjate saktesisht 3 karaktere.
             not_blank: Zgjidh kodin e monedhës.
             unique: Kodi i monedhës duhet të jetë unik.
         exchange_rate:

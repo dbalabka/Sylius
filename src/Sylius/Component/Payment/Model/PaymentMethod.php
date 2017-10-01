@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Model;
 
 use Sylius\Component\Resource\Model\TimestampableTrait;
@@ -38,22 +40,12 @@ class PaymentMethod implements PaymentMethodInterface
     /**
      * @var string
      */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $description;
-
-    /**
-     * @var string
-     */
-    protected $gateway;
-
-    /**
-     * @var string
-     */
     protected $environment;
+
+    /**
+     * @var int
+     */
+    protected $position;
 
     public function __construct()
     {
@@ -63,11 +55,11 @@ class PaymentMethod implements PaymentMethodInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->translate()->__toString();
+        return (string) $this->getName();
     }
 
     /**
@@ -81,7 +73,7 @@ class PaymentMethod implements PaymentMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -89,7 +81,7 @@ class PaymentMethod implements PaymentMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -97,55 +89,55 @@ class PaymentMethod implements PaymentMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
-        return $this->translate()->getName();
+        return $this->getTranslation()->getName();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
-        $this->translate()->setName($name);
+        $this->getTranslation()->setName($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDescription()
+    public function getDescription(): ?string
     {
-        return $this->translate()->getDescription();
+        return $this->getTranslation()->getDescription();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setDescription($description)
+    public function setDescription(?string $description): void
     {
-        $this->translate()->setDescription($description);
+        $this->getTranslation()->setDescription($description);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getGateway()
+    public function getInstructions(): ?string
     {
-        return $this->gateway;
+        return $this->getTranslation()->getInstructions();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setGateway($gateway)
+    public function setInstructions(?string $instructions): void
     {
-        $this->gateway = $gateway;
+        $this->getTranslation()->setInstructions($instructions);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getEnvironment()
+    public function getEnvironment(): ?string
     {
         return $this->environment;
     }
@@ -153,8 +145,32 @@ class PaymentMethod implements PaymentMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setEnvironment($environment)
+    public function setEnvironment(?string $environment): void
     {
         $this->environment = $environment;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition(?int $position): void
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation(): PaymentMethodTranslationInterface
+    {
+        return new PaymentMethodTranslation();
     }
 }

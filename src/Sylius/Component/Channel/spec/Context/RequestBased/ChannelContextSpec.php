@@ -9,35 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Channel\Context\RequestBased;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
-use Sylius\Component\Channel\Context\RequestBased\ChannelContext;
 use Sylius\Component\Channel\Context\RequestBased\RequestResolverInterface;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @mixin ChannelContext
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class ChannelContextSpec extends ObjectBehavior
+final class ChannelContextSpec extends ObjectBehavior
 {
-    function let(RequestResolverInterface $requestResolver, RequestStack $requestStack)
+    function let(RequestResolverInterface $requestResolver, RequestStack $requestStack): void
     {
         $this->beConstructedWith($requestResolver, $requestStack);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Channel\Context\RequestBased\ChannelContext');
-    }
-
-    function it_implements_channel_context_interface()
+    function it_implements_channel_context_interface(): void
     {
         $this->shouldImplement(ChannelContextInterface::class);
     }
@@ -47,7 +41,7 @@ class ChannelContextSpec extends ObjectBehavior
         RequestStack $requestStack,
         Request $masterRequest,
         ChannelInterface $channel
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn($masterRequest);
 
         $requestResolver->findChannel($masterRequest)->willReturn($channel);
@@ -59,7 +53,7 @@ class ChannelContextSpec extends ObjectBehavior
         RequestResolverInterface $requestResolver,
         RequestStack $requestStack,
         Request $masterRequest
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn($masterRequest);
 
         $requestResolver->findChannel($masterRequest)->willReturn(null);
@@ -69,7 +63,7 @@ class ChannelContextSpec extends ObjectBehavior
 
     function it_throws_a_channel_not_found_exception_if_there_is_no_master_request(
         RequestStack $requestStack
-    ) {
+    ): void {
         $requestStack->getMasterRequest()->willReturn(null);
 
         $this->shouldThrow(ChannelNotFoundException::class)->during('getChannel');

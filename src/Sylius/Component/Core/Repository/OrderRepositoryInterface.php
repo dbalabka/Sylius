@@ -9,129 +9,153 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
-use Pagerfanta\PagerfantaInterface;
-use Sylius\Component\Core\Model\CouponInterface;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PromotionCouponInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface as BaseOrderRepositoryInterface;
 
 interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
 {
     /**
-     * @param \DateTime $expiresAt
-     * @param string $state
-     *
-     * @return OrderInterface[]
+     * @return QueryBuilder
      */
-    public function findExpired(\DateTime $expiresAt, $state = OrderInterface::STATE_PENDING);
+    public function createListQueryBuilder(): QueryBuilder;
 
     /**
-     * Gets the number of orders placed by the customer
-     * for a particular coupon.
+     * @param mixed $customerId
      *
+     * @return QueryBuilder
+     */
+    public function createByCustomerIdQueryBuilder($customerId): QueryBuilder;
+
+    /**
+     * @param mixed $customerId
+     * @param mixed $channelId
+     *
+     * @return QueryBuilder
+     */
+    public function createByCustomerAndChannelIdQueryBuilder($customerId, $channelId): QueryBuilder;
+
+    /**
      * @param CustomerInterface $customer
-     * @param CouponInterface $coupon
+     * @param PromotionCouponInterface $coupon
      *
      * @return int
      */
-    public function countByCustomerAndCoupon(CustomerInterface $customer, CouponInterface $coupon);
+    public function countByCustomerAndCoupon(CustomerInterface $customer, PromotionCouponInterface $coupon): int;
 
     /**
-     * Gets the number of orders placed by the customer
-     * with particular state.
-     *
      * @param CustomerInterface $customer
-     * @param string $state
      *
      * @return int
      */
-    public function countByCustomerAndPaymentState(CustomerInterface $customer, $state);
-
-    /**
-     * Gets revenue group by date
-     * between particular dates
-     *
-     * @param array $configuration
-     *
-     * @return OrderInterface[]
-     */
-    public function revenueBetweenDatesGroupByDate(array $configuration = []);
-
-    /**
-     * Gets number of orders group by date
-     * between particular dates
-     *
-     * @param array $configuration
-     *
-     * @return OrderInterface[]
-     */
-    public function ordersBetweenDatesGroupByDate(array $configuration = []);
+    public function countByCustomer(CustomerInterface $customer): int;
 
     /**
      * @param CustomerInterface $customer
-     * @param array $sorting
      *
-     * @return PagerfantaInterface
+     * @return array|OrderInterface[]
      */
-    public function createPaginatorByCustomer(CustomerInterface $customer, array $sorting = []);
+    public function findByCustomer(CustomerInterface $customer): array;
 
     /**
      * @param CustomerInterface $customer
-     * @param array $sorting
      *
-     * @return OrderInterface[]
+     * @return array|OrderInterface[]
      */
-    public function findByCustomer(CustomerInterface $customer, array $sorting = []);
+    public function findForCustomerStatistics(CustomerInterface $customer): array;
 
     /**
-     * @param int $id
+     * @param mixed $id
      *
      * @return OrderInterface|null
      */
-    public function findForDetailsPage($id);
+    public function findOneForPayment($id): ?OrderInterface;
 
     /**
-     * @param array $criteria
-     * @param array $sorting
+     * @param string $number
+     * @param CustomerInterface $customer
      *
-     * @return PagerfantaInterface
+     * @return OrderInterface|null
      */
-    public function createFilterPaginator(array $criteria = null, array $sorting = null);
+    public function findOneByNumberAndCustomer(string $number, CustomerInterface $customer): ?OrderInterface;
 
     /**
-     * @param array $criteria
-     * @param array $sorting
+     * @param mixed $id
+     * @param ChannelInterface $channel
      *
-     * @return PagerfantaInterface
+     * @return OrderInterface|null
      */
-    public function createCheckoutsPaginator(array $criteria = null, array $sorting = null);
+    public function findCartByChannel($id, ChannelInterface $channel): ?OrderInterface;
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @param null|string $state
+     * @param ChannelInterface $channel
+     * @param CustomerInterface $customer
      *
-     * @return OrderInterface[]
+     * @return OrderInterface|null
      */
-    public function findBetweenDates(\DateTime $from, \DateTime $to, $state = null);
+    public function findLatestCartByChannelAndCustomer(ChannelInterface $channel, CustomerInterface $customer): ?OrderInterface;
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @param null|string $state
+     * @param ChannelInterface $channel
      *
      * @return int
      */
-    public function countBetweenDates(\DateTime $from, \DateTime $to, $state = null);
+    public function getTotalSalesForChannel(ChannelInterface $channel): int;
 
     /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @param null|string $state
+     * @param ChannelInterface $channel
      *
      * @return int
      */
-    public function revenueBetweenDates(\DateTime $from, \DateTime $to, $state = null);
+    public function countFulfilledByChannel(ChannelInterface $channel): int;
+
+    /**
+     * @param int $count
+     * @param ChannelInterface $channel
+     *
+     * @return array|OrderInterface[]
+     */
+    public function findLatestInChannel(int $count, ChannelInterface $channel): array;
+
+    /**
+     * @param \DateTimeInterface $terminalDate
+     *
+     * @return array|OrderInterface[]
+     */
+    public function findOrdersUnpaidSince(\DateTimeInterface $terminalDate): array;
+
+    /**
+     * @param mixed $id
+     *
+     * @return OrderInterface|null
+     */
+    public function findCartForSummary($id): ?OrderInterface;
+
+    /**
+     * @param mixed $id
+     *
+     * @return OrderInterface|null
+     */
+    public function findCartForAddressing($id): ?OrderInterface;
+
+    /**
+     * @param mixed $id
+     *
+     * @return OrderInterface|null
+     */
+    public function findCartForSelectingShipping($id): ?OrderInterface;
+
+    /**
+     * @param mixed $id
+     *
+     * @return OrderInterface|null
+     */
+    public function findCartForSelectingPayment($id): ?OrderInterface;
 }

@@ -7,6 +7,6 @@ sylius:
             description: Popis
             name: Jméno
             parent: Rodič
-            permalink: Permalink
+            slug: Unikátní identifikátor URL (slug)
         taxonomy:
             name: Jméno

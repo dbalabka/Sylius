@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -21,11 +23,11 @@ class Parameters extends ParameterBag
     /**
      * {@inheritdoc}
      */
-    public function get($path, $default = null, $deep = false)
+    public function get($path, $default = null)
     {
-        $result = parent::get($path, $default, $deep);
+        $result = parent::get($path, $default);
 
-        if ($this->has($path) && null === $result && $default !== null) {
+        if (null === $result && $default !== null && $this->has($path)) {
             $result = $default;
         }
 

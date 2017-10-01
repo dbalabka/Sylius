@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Review\Calculator;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -20,14 +22,9 @@ use Sylius\Component\Review\Model\ReviewInterface;
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class AverageRatingCalculatorSpec extends ObjectBehavior
+final class AverageRatingCalculatorSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Review\Calculator\AverageRatingCalculator');
-    }
-
-    function it_implements_average_price_calculator_interface()
+    function it_implements_average_price_calculator_interface(): void
     {
         $this->shouldImplement(ReviewableRatingCalculatorInterface::class);
     }
@@ -36,11 +33,11 @@ class AverageRatingCalculatorSpec extends ObjectBehavior
         ReviewableInterface $reviewable,
         ReviewInterface $review1,
         ReviewInterface $review2
-    ) {
-        $reviewable->getReviews()->willReturn([$review1, $review2]);
+    ): void {
+        $reviewable->getReviews()->willReturn(new ArrayCollection([$review1->getWrappedObject(), $review2->getWrappedObject()]));
 
-        $review1->getStatus()->willReturn(ReviewInterface::STATUS_ACCEPTED)->shouldBeCalled();
-        $review2->getStatus()->willReturn(ReviewInterface::STATUS_ACCEPTED)->shouldBeCalled();
+        $review1->getStatus()->willReturn(ReviewInterface::STATUS_ACCEPTED);
+        $review2->getStatus()->willReturn(ReviewInterface::STATUS_ACCEPTED);
 
         $review1->getRating()->willReturn(4);
         $review2->getRating()->willReturn(5);
@@ -48,30 +45,20 @@ class AverageRatingCalculatorSpec extends ObjectBehavior
         $this->calculate($reviewable)->shouldReturn(4.5);
     }
 
-    function it_returns_zero_if_given_reviewable_object_has_no_reviews(ReviewableInterface $reviewable)
+    function it_returns_zero_if_given_reviewable_object_has_no_reviews(ReviewableInterface $reviewable): void
     {
-        $reviewable->getReviews()->willReturn([])->shouldBeCalled();
+        $reviewable->getReviews()->willReturn(new ArrayCollection([]))->shouldBeCalled();
 
-        $this->calculate($reviewable)->shouldReturn(0);
+        $this->calculate($reviewable)->shouldReturn(0.0);
     }
 
     function it_returns_zero_if_given_reviewable_object_has_reviews_but_none_of_them_is_accepted(
-        ArrayCollection $reviews,
-        \Iterator $iterator,
         ReviewableInterface $reviewable,
         ReviewInterface $review
-    ) {
-        $reviewable->getReviews()->willReturn($reviews)->shouldBeCalled();
+    ): void {
+        $reviewable->getReviews()->willReturn(new ArrayCollection([$review->getWrappedObject()]));
+        $review->getStatus()->willReturn(ReviewInterface::STATUS_NEW);
 
-        $reviews->getIterator()->willReturn($iterator);
-        $iterator->rewind()->shouldBeCalled();
-        $iterator->valid()->willReturn(true, true, false)->shouldBeCalled();
-        $iterator->current()->willReturn($review);
-
-        $review->getStatus()->willReturn(ReviewInterface::STATUS_NEW)->shouldBeCalled();
-
-        $iterator->next()->shouldBeCalled();
-
-        $this->calculate($reviewable)->shouldReturn(0);
+        $this->calculate($reviewable)->shouldReturn(0.0);
     }
 }

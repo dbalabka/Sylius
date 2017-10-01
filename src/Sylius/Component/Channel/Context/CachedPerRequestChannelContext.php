@@ -9,13 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Channel\Context;
 
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class CachedPerRequestChannelContext implements ChannelContextInterface
 {
@@ -35,6 +37,11 @@ final class CachedPerRequestChannelContext implements ChannelContextInterface
     private $requestToChannelMap;
 
     /**
+     * @var \SplObjectStorage|ChannelNotFoundException[]
+     */
+    private $requestToExceptionMap;
+
+    /**
      * @param ChannelContextInterface $decoratedChannelContext
      * @param RequestStack $requestStack
      */
@@ -44,12 +51,13 @@ final class CachedPerRequestChannelContext implements ChannelContextInterface
         $this->requestStack = $requestStack;
 
         $this->requestToChannelMap = new \SplObjectStorage();
+        $this->requestToExceptionMap = new \SplObjectStorage();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getChannel()
+    public function getChannel(): ChannelInterface
     {
         $objectIdentifier = $this->requestStack->getMasterRequest();
 
@@ -57,10 +65,20 @@ final class CachedPerRequestChannelContext implements ChannelContextInterface
             return $this->decoratedChannelContext->getChannel();
         }
 
-        if (!isset($this->requestToChannelMap[$objectIdentifier])) {
-            $this->requestToChannelMap[$objectIdentifier] = $this->decoratedChannelContext->getChannel();
+        if (isset($this->requestToExceptionMap[$objectIdentifier])) {
+            throw $this->requestToExceptionMap[$objectIdentifier];
         }
 
-        return $this->requestToChannelMap[$objectIdentifier];
+        try {
+            if (!isset($this->requestToChannelMap[$objectIdentifier])) {
+                $this->requestToChannelMap[$objectIdentifier] = $this->decoratedChannelContext->getChannel();
+            }
+
+            return $this->requestToChannelMap[$objectIdentifier];
+        } catch (ChannelNotFoundException $exception) {
+            $this->requestToExceptionMap[$objectIdentifier] = $exception;
+
+            throw $exception;
+        }
     }
 }

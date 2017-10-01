@@ -9,9 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Core\Repository\ShipmentRepositoryInterface;
 
 class ShipmentRepository extends EntityRepository implements ShipmentRepositoryInterface
@@ -19,13 +23,21 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
     /**
      * {@inheritdoc}
      */
-    public function findOneByName($name)
+    public function createListQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('o');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByOrderId($shipmentId, $orderId): ?ShipmentInterface
     {
         return $this->createQueryBuilder('o')
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->where('translation.name = :name')
-            ->setParameter('name', $name)
+            ->andWhere('o.id = :shipmentId')
+            ->andWhere('o.order = :orderId')
+            ->setParameter('shipmentId', $shipmentId)
+            ->setParameter('orderId', $orderId)
             ->getQuery()
             ->getOneOrNullResult()
         ;
@@ -34,57 +46,16 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
     /**
      * {@inheritdoc}
      */
-    public function createFilterPaginator(array $criteria = null, array $sorting = null)
+    public function findByName(string $name, string $locale): array
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-
-        $queryBuilder
-            ->innerJoin('o.order', 'shipmentOrder')
-            ->innerJoin('shipmentOrder.shippingAddress', 'address')
-            ->addSelect('shipmentOrder')
-            ->addSelect('address')
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.name = :name')
+            ->andWhere('translation.locale = :locale')
+            ->setParameter('name', $name)
+            ->setParameter('localeCode', $locale)
+            ->getQuery()
+            ->getResult()
         ;
-
-        if (!empty($criteria['number'])) {
-            $queryBuilder
-                ->andWhere('shipmentOrder.number = :number')
-                ->setParameter('number', $criteria['number'])
-            ;
-        }
-        if (!empty($criteria['channel'])) {
-            $queryBuilder
-                ->andWhere('shipmentOrder.channel = :channel')
-                ->setParameter('channel', $criteria['channel'])
-            ;
-        }
-        if (!empty($criteria['shippingAddress'])) {
-            $queryBuilder
-                ->andWhere('address.lastName LIKE :shippingAddress')
-                ->setParameter('shippingAddress', '%'.$criteria['shippingAddress'].'%')
-            ;
-        }
-        if (!empty($criteria['createdAtFrom'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->gte('o.createdAt', ':createdAtFrom'))
-                ->setParameter('createdAtFrom', date('Y-m-d 00:00:00', strtotime($criteria['createdAtFrom'])))
-            ;
-        }
-        if (!empty($criteria['createdAtTo'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->lte('o.createdAt', ':createdAtTo'))
-                ->setParameter('createdAtTo', date('Y-m-d 23:59:59', strtotime($criteria['createdAtTo'])))
-            ;
-        }
-
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        return $this->getPaginator($queryBuilder);
     }
 }

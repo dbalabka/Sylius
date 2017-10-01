@@ -9,13 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
-use Pagerfanta\PagerfantaInterface;
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
-use Sylius\Component\Product\Model\ArchetypeInterface;
 use Sylius\Component\Product\Repository\ProductRepositoryInterface as BaseProductRepositoryInterface;
 
 /**
@@ -24,61 +25,45 @@ use Sylius\Component\Product\Repository\ProductRepositoryInterface as BaseProduc
 interface ProductRepositoryInterface extends BaseProductRepositoryInterface
 {
     /**
-     * @param TaxonInterface $taxon
-     * @param array $criteria
+     * @param string $locale
+     * @param mixed|null $taxonId
      *
-     * @return PagerfantaInterface
+     * @return QueryBuilder
      */
-    public function createByTaxonPaginator(TaxonInterface $taxon, array $criteria = []);
+    public function createListQueryBuilder(string $locale, $taxonId = null): QueryBuilder;
 
     /**
-     * @param TaxonInterface $taxon
      * @param ChannelInterface $channel
-     *
-     * @return PagerfantaInterface
-     */
-    public function createByTaxonAndChannelPaginator(TaxonInterface $taxon, ChannelInterface $channel);
-
-    /**
-     * @param array $criteria
+     * @param TaxonInterface $taxon
+     * @param string $locale
      * @param array $sorting
      *
-     * @return PagerfantaInterface
+     * @return QueryBuilder
      */
-    public function createFilterPaginator(array $criteria = null, array $sorting = null);
+    public function createShopListQueryBuilder(ChannelInterface $channel, TaxonInterface $taxon, string $locale, array $sorting = []): QueryBuilder;
 
     /**
-     * Get the product data for the details page.
-     *
-     * @param int $id
-     *
-     * @return null|ProductInterface
-     */
-    public function findForDetailsPage($id);
-
-    /**
-     * Find X recently added products.
-     *
-     * @param int $limit
      * @param ChannelInterface $channel
+     * @param string $locale
+     * @param int $count
      *
-     * @return ProductInterface[]
+     * @return array|ProductInterface[]
      */
-    public function findLatest($limit = 10, ChannelInterface $channel);
+    public function findLatestByChannel(ChannelInterface $channel, string $locale, int $count): array;
 
     /**
-     * @param ArchetypeInterface $archetype
-     * @param array $criteria
-     *
-     * @return PagerfantaInterface
-     */
-    public function createByProductArchetypePaginator(ArchetypeInterface $archetype, array $criteria = []);
-
-    /**
-     * @param mixed $id
      * @param ChannelInterface $channel
+     * @param string $locale
+     * @param string $slug
      *
      * @return ProductInterface|null
      */
-    public function findOneByIdAndChannel($id, ChannelInterface $channel = null);
+    public function findOneByChannelAndSlug(ChannelInterface $channel, string $locale, string $slug): ?ProductInterface;
+
+    /**
+     * @param string $code
+     *
+     * @return ProductInterface|null
+     */
+    public function findOneByCode(string $code): ?ProductInterface;
 }

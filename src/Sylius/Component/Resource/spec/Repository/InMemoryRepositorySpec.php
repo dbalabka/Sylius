@@ -9,56 +9,48 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Resource\Repository;
 
 use Pagerfanta\Pagerfanta;
 use PhpSpec\ObjectBehavior;
-use spec\Sylius\Component\Resource\Fixtures\SampleResourceInterface;
+use spec\Sylius\Component\Resource\Fixtures\SampleBookResourceInterface;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
-use Sylius\Component\Resource\Exception\UnsupportedMethodException;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Repository\Exception\ExistingResourceException;
-use Sylius\Component\Resource\Repository\InMemoryRepository;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-require_once __DIR__.'/../Fixtures/SampleResourceInterface.php';
+require_once __DIR__ . '/../Fixtures/SampleBookResourceInterface.php';
 
 /**
  * @author Jan Góralski <jan.goralski@lakion.com>
  */
-class InMemoryRepositorySpec extends ObjectBehavior
+final class InMemoryRepositorySpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
-        $this->beConstructedWith(SampleResourceInterface::class);
+        $this->beConstructedWith(SampleBookResourceInterface::class);
     }
 
-    function it_throws_invalid_argument_exception_when_constructing_with_null()
+    function it_throws_unexpected_type_exception_when_constructing_without_resource_interface(): void
     {
-        $this->shouldThrow(\InvalidArgumentException::class)->during('__construct', [null]);
+        $this->beConstructedWith(\stdClass::class);
+
+        $this->shouldThrow(UnexpectedTypeException::class)->duringInstantiation();
     }
 
-    function it_throws_unexpected_type_exception_when_constructing_without_resource_interface($void = 1)
-    {
-        $this->shouldThrow(UnexpectedTypeException::class)->during('__construct', [$void]);
-    }
-
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(InMemoryRepository::class);
-    }
-
-    function it_implements_repository_interface()
+    function it_implements_repository_interface(): void
     {
         $this->shouldImplement(RepositoryInterface::class);
     }
 
-    function it_throws_invalid_argument_exception_when_adding_wrong_resource_type(ResourceInterface $resource)
+    function it_throws_invalid_argument_exception_when_adding_wrong_resource_type(ResourceInterface $resource): void
     {
         $this->shouldThrow(\InvalidArgumentException::class)->during('add', [$resource]);
     }
 
-    function it_adds_an_object(SampleResourceInterface $monocle)
+    function it_adds_an_object(SampleBookResourceInterface $monocle): void
     {
         $monocle->getId()->willReturn(2);
 
@@ -66,13 +58,13 @@ class InMemoryRepositorySpec extends ObjectBehavior
         $this->findOneBy(['id' => 2])->shouldReturn($monocle);
     }
 
-    function it_throws_existing_resource_exception_on_adding_a_resource_which_is_already_in_repository(SampleResourceInterface $bike)
+    function it_throws_existing_resource_exception_on_adding_a_resource_which_is_already_in_repository(SampleBookResourceInterface $bike): void
     {
         $this->add($bike);
         $this->shouldThrow(ExistingResourceException::class)->during('add', [$bike]);
     }
 
-    function it_removes_a_resource(SampleResourceInterface $shirt)
+    function it_removes_a_resource(SampleBookResourceInterface $shirt): void
     {
         $shirt->getId()->willReturn(5);
 
@@ -82,15 +74,23 @@ class InMemoryRepositorySpec extends ObjectBehavior
         $this->findOneBy(['id' => 5])->shouldReturn(null);
     }
 
-    function it_throws_unsupported_method_exception_while_using_find()
+    function it_finds_object_by_id(SampleBookResourceInterface $monocle): void
     {
-        $this->shouldThrow(UnsupportedMethodException::class)->during('find', []);
+        $monocle->getId()->willReturn(2);
+
+        $this->add($monocle);
+        $this->find(2)->shouldReturn($monocle);
+    }
+
+    function it_returns_null_if_cannot_find_object_by_id(): void
+    {
+        $this->find(2)->shouldReturn(null);
     }
 
     function it_returns_all_objects_when_finding_by_an_empty_parameter_array(
-        SampleResourceInterface $book,
-        SampleResourceInterface $shirt
-    ) {
+        SampleBookResourceInterface $book,
+        SampleBookResourceInterface $shirt
+    ): void {
         $book->getId()->willReturn(10);
         $book->getName()->willReturn('Book');
 
@@ -104,13 +104,13 @@ class InMemoryRepositorySpec extends ObjectBehavior
     }
 
     function it_finds_many_objects_by_multiple_criteria_orders_a_limit_and_an_offset(
-        SampleResourceInterface $firstBook,
-        SampleResourceInterface $secondBook,
-        SampleResourceInterface $thirdBook,
-        SampleResourceInterface $fourthBook,
-        SampleResourceInterface $wrongIdBook,
-        SampleResourceInterface $wrongNameBook
-    ) {
+        SampleBookResourceInterface $firstBook,
+        SampleBookResourceInterface $secondBook,
+        SampleBookResourceInterface $thirdBook,
+        SampleBookResourceInterface $fourthBook,
+        SampleBookResourceInterface $wrongIdBook,
+        SampleBookResourceInterface $wrongNameBook
+    ): void {
         $id = 80;
         $name = 'Book';
 
@@ -159,12 +159,12 @@ class InMemoryRepositorySpec extends ObjectBehavior
         )->shouldReturn([$secondBook, $thirdBook]);
     }
 
-    function it_throws_invalid_argument_exception_when_finding_one_object_with_empty_parameter_array()
+    function it_throws_invalid_argument_exception_when_finding_one_object_with_empty_parameter_array(): void
     {
         $this->shouldThrow(\InvalidArgumentException::class)->during('findOneBy', [[]]);
     }
 
-    function it_finds_one_object_by_parameter(SampleResourceInterface $book, SampleResourceInterface $shirt)
+    function it_finds_one_object_by_parameter(SampleBookResourceInterface $book, SampleBookResourceInterface $shirt): void
     {
         $book->getName()->willReturn('Book');
         $shirt->getName()->willReturn('Shirt');
@@ -176,9 +176,9 @@ class InMemoryRepositorySpec extends ObjectBehavior
     }
 
     function it_returns_first_result_while_finding_one_by_parameters(
-        SampleResourceInterface $book,
-        SampleResourceInterface $secondBook
-    ) {
+        SampleBookResourceInterface $book,
+        SampleBookResourceInterface $secondBook
+    ): void {
         $book->getName()->willReturn('Book');
         $secondBook->getName()->willReturn('Book');
 
@@ -188,7 +188,7 @@ class InMemoryRepositorySpec extends ObjectBehavior
         $this->findOneBy(['name' => 'Book'])->shouldReturn($book);
     }
 
-    function it_finds_all_objects_in_memory(SampleResourceInterface $book, SampleResourceInterface $shirt)
+    function it_finds_all_objects_in_memory(SampleBookResourceInterface $book, SampleBookResourceInterface $shirt): void
     {
         $this->add($book);
         $this->add($shirt);
@@ -196,18 +196,18 @@ class InMemoryRepositorySpec extends ObjectBehavior
         $this->findAll()->shouldReturn([$book, $shirt]);
     }
 
-    function it_return_empty_array_when_memory_is_empty()
+    function it_return_empty_array_when_memory_is_empty(): void
     {
         $this->findAll()->shouldReturn([]);
     }
 
-    function it_creates_paginator()
+    function it_creates_paginator(): void
     {
         $this->createPaginator()->shouldHaveType(Pagerfanta::class);
     }
 
-    function it_returns_stated_class_name()
+    function it_returns_stated_class_name(): void
     {
-        $this->getClassName()->shouldReturn(SampleResourceInterface::class);
+        $this->getClassName()->shouldReturn(SampleBookResourceInterface::class);
     }
 }

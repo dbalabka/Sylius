@@ -3,14 +3,21 @@
 
 sylius:
     form:
-        group:
-            name: Namn
-            roles: Roller
         user:
+            email: E-post
             enabled: Aktiverad
-        customer:
-            first_name: Förnamn
-            groups: Grupper
-            phone_number: Telefonnummer
-            billing_address: Faktureringsadress
-            different_billing_address: Använda annan adress för fakturering?
+            password:
+                label: Lösenord
+                confirmation: Verifikation
+            remember_me: Kom ihåg mig
+            shipping_address: Leveransadress
+            username: Användarnanm
+        user_filter:
+            query: Sök
+        user_change_password:
+            confirmation: Bekräftelse
+            current: Nuvarande lösenord
+            new: Nytt lösenord
+        user_reset_password:
+            confirmation: Bekräftelse
+            new: Nytt lösenord

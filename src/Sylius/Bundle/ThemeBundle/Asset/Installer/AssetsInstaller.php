@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Asset\Installer;
 
 use Sylius\Bundle\ThemeBundle\Asset\PathResolverInterface;
@@ -23,34 +25,34 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class AssetsInstaller implements AssetsInstallerInterface
+final class AssetsInstaller implements AssetsInstallerInterface
 {
     /**
      * @var Filesystem
      */
-    protected $filesystem;
+    private $filesystem;
 
     /**
      * @var KernelInterface
      */
-    protected $kernel;
+    private $kernel;
 
     /**
      * @var ThemeRepositoryInterface
      */
-    protected $themeRepository;
+    private $themeRepository;
 
     /**
      * @var ThemeHierarchyProviderInterface
      */
-    protected $themeHierarchyProvider;
+    private $themeHierarchyProvider;
 
     /**
      * @var PathResolverInterface
      */
-    protected $pathResolver;
+    private $pathResolver;
 
     /**
      * @param Filesystem $filesystem
@@ -76,7 +78,7 @@ class AssetsInstaller implements AssetsInstallerInterface
     /**
      * {@inheritdoc}
      */
-    public function installAssets($targetDir, $symlinkMask)
+    public function installAssets(string $targetDir, int $symlinkMask): int
     {
         // Create the bundles directory otherwise symlink will fail.
         $targetDir = rtrim($targetDir, '/').'/bundles/';
@@ -93,7 +95,7 @@ class AssetsInstaller implements AssetsInstallerInterface
     /**
      * {@inheritdoc}
      */
-    public function installBundleAssets(BundleInterface $bundle, $targetDir, $symlinkMask)
+    public function installBundleAssets(BundleInterface $bundle, string $targetDir, int $symlinkMask): int
     {
         $targetDir .= preg_replace('/bundle$/', '', strtolower($bundle->getName()));
 
@@ -129,7 +131,7 @@ class AssetsInstaller implements AssetsInstallerInterface
      *
      * @return int
      */
-    protected function installThemedBundleAssets(ThemeInterface $theme, $originDir, $targetDir, $symlinkMask)
+    private function installThemedBundleAssets(ThemeInterface $theme, string $originDir, string $targetDir, int $symlinkMask): int
     {
         $effectiveSymlinkMask = $symlinkMask;
 
@@ -141,7 +143,7 @@ class AssetsInstaller implements AssetsInstallerInterface
             $targetFile = $targetDir.'/'.$originFile->getRelativePathname();
             $targetFile = $this->pathResolver->resolve($targetFile, $theme);
 
-            if (file_exists($targetFile)) {
+            if (file_exists($targetFile) && AssetsInstallerInterface::HARD_COPY !== $symlinkMask) {
                 continue;
             }
 
@@ -163,7 +165,7 @@ class AssetsInstaller implements AssetsInstallerInterface
      *
      * @return int
      */
-    protected function installVanillaBundleAssets($originDir, $targetDir, $symlinkMask)
+    private function installVanillaBundleAssets(string $originDir, string $targetDir, int $symlinkMask): int
     {
         return $this->installAsset($originDir, $targetDir, $symlinkMask);
     }
@@ -175,7 +177,7 @@ class AssetsInstaller implements AssetsInstallerInterface
      *
      * @return int
      */
-    protected function installAsset($origin, $target, $symlinkMask)
+    private function installAsset(string $origin, string $target, int $symlinkMask): int
     {
         if (AssetsInstallerInterface::RELATIVE_SYMLINK === $symlinkMask) {
             try {
@@ -212,7 +214,7 @@ class AssetsInstaller implements AssetsInstallerInterface
      *
      * @throws IOException When failed to make symbolic link, if requested.
      */
-    protected function doInstallAsset($origin, $target, $symlink)
+    private function doInstallAsset(string $origin, string $target, bool $symlink): void
     {
         if ($symlink) {
             $this->doSymlinkAsset($origin, $target);
@@ -225,11 +227,11 @@ class AssetsInstaller implements AssetsInstallerInterface
 
     /**
      * @param BundleInterface $bundle
-     * @param ThemeInterface[] $themes
+     * @param array|ThemeInterface[] $themes
      *
      * @return array
      */
-    protected function findAssetsPaths(BundleInterface $bundle, array $themes = [])
+    private function findAssetsPaths(BundleInterface $bundle, array $themes = []): array
     {
         $sources = [];
 
@@ -254,7 +256,7 @@ class AssetsInstaller implements AssetsInstallerInterface
      *
      * @throws IOException If symbolic link is broken
      */
-    private function doSymlinkAsset($origin, $target)
+    private function doSymlinkAsset(string $origin, string $target): void
     {
         $this->filesystem->symlink($origin, $target);
 
@@ -267,7 +269,7 @@ class AssetsInstaller implements AssetsInstallerInterface
      * @param string $origin
      * @param string $target
      */
-    private function doCopyAsset($origin, $target)
+    private function doCopyAsset(string $origin, string $target): void
     {
         if (is_dir($origin)) {
             $this->filesystem->mkdir($target, 0777);

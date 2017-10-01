@@ -21,11 +21,6 @@ sylius:
                 amount: Сума
             per_unit_rate_configuration:
                 amount: Сума
-            weight_rate_configuration:
-                division: Падзел
-            volume_rate_configuration:
-                amount: Сума
-                division: Падзел
         shipping_category:
             description: Апісанне
             name: Назва
@@ -34,6 +29,7 @@ sylius:
             category: Катэгорыя
             category_requirement: Умовы катэгорыі
             configuration: Канфігурацыя
+            description: Апісанне
             enabled: Уключана
             name: Назва
             tax_category: Катэгорыя падатку

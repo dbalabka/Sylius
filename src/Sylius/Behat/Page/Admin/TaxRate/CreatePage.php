@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\TaxRate;
 
 use Sylius\Behat\Behaviour\NamesIt;
@@ -44,7 +46,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function chooseCalculator($name)
     {
-        $this->getDocument()->selectFieldOption('Calculator', $name);
+        $this->getDocument()->selectFieldOption(\Calculator::class, $name);
     }
 
     /**
@@ -55,18 +57,23 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         $this->getDocument()->fillField('Amount', $amount);
     }
 
+    public function chooseIncludedInPrice()
+    {
+        $this->getDocument()->find('css', 'label[for=sylius_tax_rate_includedInPrice]')->click();
+    }
+
     /**
      * {@inheritdoc}
      */
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
-            'code' => '#sylius_tax_rate_code',
-            'name' => '#sylius_tax_rate_name',
-            'category' => '#sylius_tax_rate_category',
-            'zone' => '#sylius_tax_rate_zone',
             'amount' => '#sylius_tax_rate_amount',
             'calculator' => '#sylius_tax_rate_calculator',
+            'category' => '#sylius_tax_rate_category',
+            'code' => '#sylius_tax_rate_code',
+            'name' => '#sylius_tax_rate_name',
+            'zone' => '#sylius_tax_rate_zone',
         ]);
     }
 }

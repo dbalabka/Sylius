@@ -9,55 +9,38 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\LocaleBundle\Twig;
 
 use Sylius\Bundle\LocaleBundle\Templating\Helper\LocaleHelperInterface;
 
 /**
- * @author Paweł Jędrzejewski <pjedrzejewski@diweb.pl>
+ * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class LocaleExtension extends \Twig_Extension
+final class LocaleExtension extends \Twig_Extension
 {
     /**
      * @var LocaleHelperInterface
      */
-    protected $localeHelper;
+    private $localeHelper;
 
     /**
      * @param LocaleHelperInterface $localeHelper
      */
-    public function __construct(
-        LocaleHelperInterface $localeHelper
-    ) {
+    public function __construct(LocaleHelperInterface $localeHelper)
+    {
         $this->localeHelper = $localeHelper;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFunctions()
+    public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFunction('sylius_locale', [$this->localeHelper, 'getCurrentLocale']),
+            new \Twig_Filter('sylius_locale_name', [$this->localeHelper, 'convertCodeToName']),
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFilters()
-    {
-        return [
-            new \Twig_SimpleFilter('sylius_locale_name', [$this->localeHelper, 'convertToName']),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'sylius_locale';
     }
 }

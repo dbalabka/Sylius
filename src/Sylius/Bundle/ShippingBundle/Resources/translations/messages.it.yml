@@ -5,13 +5,13 @@ sylius:
     form:
         rule:
             unit_count_configuration:
-                count: Conta
+                count: Quantità
                 equal: Uguale a
             type: Tipo di regola
         shipment:
             state: Stato
             states:
-                checkout: Checkout
+                checkout: Vai alla cassa
                 pending: In attesa
                 ready: Pronto
                 shipped: Spedito
@@ -20,25 +20,11 @@ sylius:
             tracking_code: Codice di monitoraggio della spedizione
         shipping_calculator:
             flat_rate_configuration:
-                label: Tariffa fissa di spedizione
+                label: Tariffa fissa per spedizione
                 amount: Importo
-            flexible_rate_configuration:
-                label: Tariffa flessibile
-                additional_unit_cost: Costo aggiuntivo di unità
-                additional_unit_limit: Limite di unità aggiuntive
-                first_unit_cost: Costo della prima unità
             per_unit_rate_configuration:
                 label: Tariffa fissa per unità
-                amount: Valore
-            weight_rate_configuration:
-                label: Tariffa basata sul peso
-                fixed: Importo fisso
-                variable: Quantità variabile
-                division: Divisione
-            volume_rate_configuration:
-                label: Tariffa basata sul volume
-                amount: Valore
-                division: Divisione
+                amount: Importo
         shipping_category:
             description: Descrizione
             name: Nome
@@ -46,8 +32,11 @@ sylius:
             calculator: Calcolatore
             category: Categoria
             category_requirement: Requisito della categoria
+            channels: Canali
             configuration: Configurazione
+            description: Descrizione
             enabled: Abilitato
             name: Nome
+            position: Posizione
             tax_category: Categoria fiscale
             translations: Traduzioni

@@ -5,6 +5,8 @@ sylius:
     form:
         group:
             name: الاسم
+        image:
+            type: نوع
         product_filter:
             name: الاسم
         user:
@@ -18,3 +20,10 @@ sylius:
             email: البريد الإلكتروني
         product_association_type:
             name: الاسم
+    installer:
+        extensions:
+            "off": false
+            "on": true
+        settings:
+            "off": false
+            "on": true

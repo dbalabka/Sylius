@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Test\Services;
 
 /**
@@ -17,7 +19,11 @@ namespace Sylius\Component\Core\Test\Services;
 interface DefaultChannelFactoryInterface
 {
     /**
+     * @param string|null $code
+     * @param string|null $name
+     * @param string|null $currencyCode
+     *
      * @return array
      */
-    public function create();
+    public function create(?string $code = null, ?string $name = null, ?string $currencyCode = null): array;
 }

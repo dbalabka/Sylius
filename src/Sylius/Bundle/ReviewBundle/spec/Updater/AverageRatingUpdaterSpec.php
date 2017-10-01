@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ReviewBundle\Updater;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -21,19 +23,14 @@ use Sylius\Component\Review\Model\ReviewInterface;
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class AverageRatingUpdaterSpec extends ObjectBehavior
+final class AverageRatingUpdaterSpec extends ObjectBehavior
 {
-    function let(ReviewableRatingCalculatorInterface $averageRatingCalculator, ObjectManager $reviewSubjectManager)
+    function let(ReviewableRatingCalculatorInterface $averageRatingCalculator, ObjectManager $reviewSubjectManager): void
     {
         $this->beConstructedWith($averageRatingCalculator, $reviewSubjectManager);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ReviewBundle\Updater\AverageRatingUpdater');
-    }
-
-    function it_implements_product_average_rating_updater_interface()
+    function it_implements_product_average_rating_updater_interface(): void
     {
         $this->shouldImplement(ReviewableRatingUpdaterInterface::class);
     }
@@ -42,7 +39,7 @@ class AverageRatingUpdaterSpec extends ObjectBehavior
         $averageRatingCalculator,
         $reviewSubjectManager,
         ReviewableInterface $reviewSubject
-    ) {
+    ): void {
         $averageRatingCalculator->calculate($reviewSubject)->willReturn(4.5);
 
         $reviewSubject->setAverageRating(4.5)->shouldBeCalled();
@@ -56,7 +53,7 @@ class AverageRatingUpdaterSpec extends ObjectBehavior
         $reviewSubjectManager,
         ReviewableInterface $reviewSubject,
         ReviewInterface $review
-    ) {
+    ): void {
         $review->getReviewSubject()->willReturn($reviewSubject);
         $averageRatingCalculator->calculate($reviewSubject)->willReturn(4.5);
 

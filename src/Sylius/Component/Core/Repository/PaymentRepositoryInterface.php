@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
-use Pagerfanta\Pagerfanta;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
@@ -20,12 +23,15 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 interface PaymentRepositoryInterface extends RepositoryInterface
 {
     /**
-     * Create filter paginator.
-     *
-     * @param array $criteria
-     * @param array $sorting
-     *
-     * @return Pagerfanta
+     * @return QueryBuilder
      */
-    public function createFilterPaginator(array $criteria = null, array $sorting = null);
+    public function createListQueryBuilder(): QueryBuilder;
+
+    /**
+     * @param mixed $paymentId
+     * @param mixed $orderId
+     *
+     * @return PaymentInterface|null
+     */
+    public function findOneByOrderId($paymentId, $orderId): ?PaymentInterface;
 }

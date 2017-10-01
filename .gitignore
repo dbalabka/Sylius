@@ -1,27 +1,31 @@
 /.php_cs.cache
 
-/app/*.cache
-/app/cache
-/app/logs
-
-/app/check.php
-/app/SymfonyRequirements.php
-
 /app/config/parameters.yml
 /app/config/*.local.yml
+/var/*
+!/var/.gitkeep
 
+/web/assets
 /web/bundles
-/web/assets/admin
-/web/assets/css
-/web/assets/js
-/web/assets/fonts
-/web/assets/img
-/web/assets/compiled
-/web/media
 /web/css
 /web/js
+/web/media
 
-/bin
+/bin/*
+!/bin/build-package
+!/bin/build-packages
+!/bin/clean-package
+!/bin/clean-packages
+!/bin/console
+!/bin/fix-coding-standards
+!/bin/install-package
+!/bin/install-packages
+!/bin/symfony_requirements
+!/bin/test-package
+!/bin/test-packages
+!/bin/validate-package
+!/bin/validate-packages
+
 /vendor
 /node_modules
 

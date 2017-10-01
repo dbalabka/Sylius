@@ -32,9 +32,8 @@ class AppKernel extends Kernel
             new Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Symfony\Bundle\TwigBundle\TwigBundle(),
-            new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle(),
+            new \winzou\Bundle\StateMachineBundle\winzouStateMachineBundle(),
             new AppBundle\AppBundle(),
-
         ];
     }
 

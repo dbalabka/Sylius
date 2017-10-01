@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Resource\Model;
 
 use PhpSpec\ObjectBehavior;
@@ -17,19 +19,19 @@ use Sylius\Component\Resource\Model\AbstractTranslation;
 use Sylius\Component\Resource\Model\TranslatableInterface;
 use Sylius\Component\Resource\Model\TranslationInterface;
 
-class AbstractTranslationSpec extends ObjectBehavior
+final class AbstractTranslationSpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
         $this->beAnInstanceOf('spec\Sylius\Component\Resource\Model\ConcreteTranslation');
     }
 
-    function it_is_a_translation()
+    function it_is_a_translation(): void
     {
         $this->shouldImplement(TranslationInterface::class);
     }
 
-    function its_translatable_is_mutabale(TranslatableInterface $translatable)
+    function its_translatable_is_mutable(TranslatableInterface $translatable): void
     {
         $this->setTranslatable($translatable);
         $this->getTranslatable()->shouldReturn($translatable);
@@ -38,7 +40,7 @@ class AbstractTranslationSpec extends ObjectBehavior
     function its_detaches_from_its_translatable_correctly(
         TranslatableInterface $translatable1,
         TranslatableInterface $translatable2
-    ) {
+    ): void {
         $translatable1->addTranslation(Argument::type(AbstractTranslation::class));
         $this->setTranslatable($translatable1);
 
@@ -47,7 +49,7 @@ class AbstractTranslationSpec extends ObjectBehavior
         $this->setTranslatable($translatable2);
     }
 
-    function its_locale_is_mutable()
+    function its_locale_is_mutable(): void
     {
         $this->setLocale('en');
         $this->getLocale()->shouldReturn('en');

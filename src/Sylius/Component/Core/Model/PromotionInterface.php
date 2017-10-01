@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
@@ -17,8 +19,6 @@ use Sylius\Component\Promotion\Model\PromotionInterface as BasePromotionInterfac
 /**
  * @author Kristian Loevstroem <kristian@loevstroem.dk>
  */
-interface PromotionInterface extends
-    BasePromotionInterface,
-    ChannelsAwareInterface
+interface PromotionInterface extends BasePromotionInterface, ChannelsAwareInterface
 {
 }

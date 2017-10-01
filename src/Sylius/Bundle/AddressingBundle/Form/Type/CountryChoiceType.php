@@ -9,23 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\Type;
 
+use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\ChoiceList\ArrayChoiceList;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class CountryChoiceType extends AbstractType
+final class CountryChoiceType extends AbstractType
 {
     /**
      * @var RepositoryInterface
      */
-    protected $countryRepository;
+    private $countryRepository;
 
     /**
      * @param RepositoryInterface $countryRepository
@@ -38,40 +41,51 @@ class CountryChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $choices = function (Options $options) {
-            if (null === $options['enabled']) {
-                $choices = $this->countryRepository->findAll();
-            } else {
-                $choices = $this->countryRepository->findBy(['enabled' => $options['enabled']]);
-            }
-
-            return new ArrayChoiceList($choices);
-        };
-
         $resolver
             ->setDefaults([
-                'choice_list' => $choices,
+                'choice_filter' => null,
+                'choices' => function (Options $options): iterable {
+                    if (null === $options['enabled']) {
+                        $countries = $this->countryRepository->findAll();
+                    } else {
+                        $countries = $this->countryRepository->findBy(['enabled' => $options['enabled']]);
+                    }
+
+                    if ($options['choice_filter']) {
+                        $countries = array_filter($countries, $options['choice_filter']);
+                    }
+
+                    usort($countries, function (CountryInterface $a, CountryInterface $b): int {
+                        return $a->getName() <=> $b->getName();
+                    });
+
+                    return $countries;
+                },
+                'choice_value' => 'code',
+                'choice_label' => 'name',
+                'choice_translation_domain' => false,
                 'enabled' => true,
                 'label' => 'sylius.form.address.country',
-                'empty_value' => 'sylius.form.country.select',
+                'placeholder' => 'sylius.form.country.select',
             ])
+            ->setAllowedTypes('choice_filter', ['null', 'callable'])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_country_choice';
     }

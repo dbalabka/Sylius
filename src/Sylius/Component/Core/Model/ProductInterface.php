@@ -9,16 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
-use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
-use Sylius\Component\Metadata\Model\MetadataSubjectInterface;
 use Sylius\Component\Product\Model\ProductInterface as BaseProductInterface;
 use Sylius\Component\Review\Model\ReviewableInterface;
-use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
-use Sylius\Component\Taxonomy\Model\TaxonsAwareInterface;
+use Sylius\Component\Review\Model\ReviewInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -26,10 +25,10 @@ use Sylius\Component\Taxonomy\Model\TaxonsAwareInterface;
  */
 interface ProductInterface extends
     BaseProductInterface,
-    TaxonsAwareInterface,
+    ProductTaxonsAwareInterface,
     ChannelsAwareInterface,
-    MetadataSubjectInterface,
-    ReviewableInterface
+    ReviewableInterface,
+    ImagesAwareInterface
 {
     /*
      * Variant selection methods.
@@ -39,102 +38,53 @@ interface ProductInterface extends
      * 2) Match  - Each product option is displayed as select field.
      *             User selects the values and we match them to variant.
      */
-    const VARIANT_SELECTION_CHOICE = 'choice';
-    const VARIANT_SELECTION_MATCH = 'match';
-
-    const METADATA_CLASS_IDENTIFIER = 'Product';
+    public const VARIANT_SELECTION_CHOICE = 'choice';
+    public const VARIANT_SELECTION_MATCH = 'match';
 
     /**
      * @return string
      */
-    public function getSku();
+    public function getVariantSelectionMethod(): string;
 
     /**
-     * @param string $sku
+     * @param string|null $variantSelectionMethod
+     *
+     * @throws \InvalidArgumentException
      */
-    public function setSku($sku);
-
-    /**
-     * @return string
-     */
-    public function getVariantSelectionMethod();
-
-    /**
-     * @param string $variantSelectionMethod
-     */
-    public function setVariantSelectionMethod($variantSelectionMethod);
+    public function setVariantSelectionMethod(?string $variantSelectionMethod): void;
 
     /**
      * @return bool
      */
-    public function isVariantSelectionMethodChoice();
+    public function isVariantSelectionMethodChoice(): bool;
 
     /**
      * @return string
      */
-    public function getVariantSelectionMethodLabel();
+    public function getVariantSelectionMethodLabel(): string;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getShortDescription();
+    public function getShortDescription(): ?string;
 
     /**
-     * @param string $shortDescription
+     * @param string|null $shortDescription
      */
-    public function setShortDescription($shortDescription);
+    public function setShortDescription(?string $shortDescription): void;
 
     /**
-     * @return ShippingCategoryInterface
+     * @return TaxonInterface|null
      */
-    public function getShippingCategory();
+    public function getMainTaxon(): ?TaxonInterface;
 
     /**
-     * @param ShippingCategoryInterface $category
+     * @param TaxonInterface|null $mainTaxon
      */
-    public function setShippingCategory(ShippingCategoryInterface $category = null);
+    public function setMainTaxon(?TaxonInterface $mainTaxon): void;
 
     /**
-     * Get master variant price.
-     *
-     * @return int
+     * @return Collection|ReviewInterface[]
      */
-    public function getPrice();
-
-    /**
-     * Set master variant price.
-     *
-     * @param int $price
-     */
-    public function setPrice($price);
-
-    /**
-     * @return ZoneInterface
-     */
-    public function getRestrictedZone();
-
-    /**
-     * @param ZoneInterface $zone
-     */
-    public function setRestrictedZone(ZoneInterface $zone = null);
-
-    /**
-     * @return Collection|ImageInterface[]
-     */
-    public function getImages();
-
-    /**
-     * @return ImageInterface
-     */
-    public function getImage();
-
-    /**
-     * @return TaxonInterface
-     */
-    public function getMainTaxon();
-
-    /**
-     * @param TaxonInterface $mainTaxon
-     */
-    public function setMainTaxon(TaxonInterface $mainTaxon = null);
+    public function getAcceptedReviews(): Collection;
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Country;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
@@ -47,7 +49,7 @@ class IndexPage extends BaseIndexPage implements IndexPageInterface
         $table = $this->getElement('table');
 
         $row = $tableAccessor->getRowWithFields($table, ['code' => $country->getCode()]);
-        $enabledField = $tableAccessor->getFieldFromRow($table, $row, 'Enabled');
+        $enabledField = $tableAccessor->getFieldFromRow($table, $row, 'enabled');
 
         return $enabledField->getText() === $status;
     }

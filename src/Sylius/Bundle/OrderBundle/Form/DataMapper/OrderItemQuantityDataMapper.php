@@ -9,12 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\Form\DataMapper;
 
 use Sylius\Component\Order\Modifier\OrderItemQuantityModifierInterface;
 use Symfony\Component\Form\DataMapperInterface;
 
 /**
+ * @internal
+ *
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
 class OrderItemQuantityDataMapper implements DataMapperInterface
@@ -33,8 +37,10 @@ class OrderItemQuantityDataMapper implements DataMapperInterface
      * @param OrderItemQuantityModifierInterface $orderItemQuantityModifier
      * @param DataMapperInterface $propertyPathDataMapper
      */
-    public function __construct(OrderItemQuantityModifierInterface $orderItemQuantityModifier, DataMapperInterface $propertyPathDataMapper)
-    {
+    public function __construct(
+        OrderItemQuantityModifierInterface $orderItemQuantityModifier,
+        DataMapperInterface $propertyPathDataMapper
+    ) {
         $this->orderItemQuantityModifier = $orderItemQuantityModifier;
         $this->propertyPathDataMapper = $propertyPathDataMapper;
     }
@@ -42,7 +48,7 @@ class OrderItemQuantityDataMapper implements DataMapperInterface
     /**
      * {@inheritdoc}
      */
-    public function mapDataToForms($data, $forms)
+    public function mapDataToForms($data, $forms): void
     {
         $this->propertyPathDataMapper->mapDataToForms($data, $forms);
     }
@@ -50,13 +56,13 @@ class OrderItemQuantityDataMapper implements DataMapperInterface
     /**
      * {@inheritdoc}
      */
-    public function mapFormsToData($forms, &$data)
+    public function mapFormsToData($forms, &$data): void
     {
         $formsOtherThanQuantity = [];
         foreach ($forms as $key => $form) {
             if ('quantity' === $form->getName()) {
                 $targetQuantity = $form->getData();
-                $this->orderItemQuantityModifier->modify($data, $targetQuantity);
+                $this->orderItemQuantityModifier->modify($data, (int) $targetQuantity);
 
                 continue;
             }

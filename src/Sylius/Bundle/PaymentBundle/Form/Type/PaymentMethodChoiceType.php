@@ -9,51 +9,96 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PaymentBundle\Form\Type;
 
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
-use Sylius\Component\Payment\Repository\PaymentMethodRepositoryInterface;
+use Sylius\Component\Payment\Model\PaymentInterface;
+use Sylius\Component\Payment\Resolver\PaymentMethodsResolverInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Payment method choice type for document/entity/phpcr_document choice form types.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Arnaud Langlade <arn0d.dev@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Anna Walasek <anna.walasek@lakion.com>
  */
-class PaymentMethodChoiceType extends ResourceChoiceType
+final class PaymentMethodChoiceType extends AbstractType
 {
+    /**
+     * @var PaymentMethodsResolverInterface
+     */
+    private $paymentMethodsResolver;
+
+    /**
+     * @var RepositoryInterface
+     */
+    private $paymentMethodRepository;
+
+    /**
+     * @param PaymentMethodsResolverInterface $paymentMethodsResolver
+     * @param RepositoryInterface $paymentMethodRepository
+     */
+    public function __construct(
+        PaymentMethodsResolverInterface $paymentMethodsResolver,
+        RepositoryInterface $paymentMethodRepository
+    ) {
+        $this->paymentMethodsResolver = $paymentMethodsResolver;
+        $this->paymentMethodRepository = $paymentMethodRepository;
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        parent::configureOptions($resolver);
+        if ($options['multiple']) {
+            $builder->addModelTransformer(new CollectionToArrayTransformer());
+        }
+    }
 
-        $queryBuilder = function (Options $options) {
-            $repositoryOptions = [
-                'disabled' => $options['disabled'],
-            ];
-
-            return function (PaymentMethodRepositoryInterface $repository) use ($repositoryOptions) {
-                return $repository->getQueryBuilderForChoiceType($repositoryOptions);
-            };
-        };
-
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver): void
+    {
         $resolver
             ->setDefaults([
-                'query_builder' => $queryBuilder,
-                'disabled' => false,
+                'choices' => function (Options $options) {
+                    if (isset($options['subject'])) {
+                        return $this->paymentMethodsResolver->getSupportedMethods($options['subject']);
+                    }
+
+                    return $this->paymentMethodRepository->findAll();
+                },
+                'choice_value' => 'code',
+                'choice_label' => 'name',
+                'choice_translation_domain' => false,
             ])
+            ->setDefined([
+                'subject',
+            ])
+            ->setAllowedTypes('subject', PaymentInterface::class)
         ;
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getName()
+    public function getParent(): string
+    {
+        return ChoiceType::class;
+    }
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_payment_method_choice';
     }

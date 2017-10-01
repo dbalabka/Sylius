@@ -11,14 +11,15 @@ sylius:
             last_name: Sobrenome
             phone_number: Número de Telefone
             postcode: CEP
-            street: Rua
+            street: Endereço
             province: Estado
+            zone: Região
         country:
             add_province: Adicionar estado
             name: Nome
             provinces: Estados
             select: Selecione
-            enabled: Ativado
+            enabled: Habilitado
         province:
             name: Nome
             abbreviation: Abreviação
@@ -33,6 +34,8 @@ sylius:
                 province: Estado
                 zone: Região
             scope: Escopo
+            scopes:
+                all: Todas
             select: Selecione
             select_scope: Selecione o escopo
         zone_member:

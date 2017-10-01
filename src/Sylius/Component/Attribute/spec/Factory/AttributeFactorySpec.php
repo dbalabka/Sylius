@@ -9,10 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Attribute\Factory;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Attribute\AttributeType\AttributeTypeInterface;
+use Sylius\Component\Attribute\Factory\AttributeFactory;
 use Sylius\Component\Attribute\Factory\AttributeFactoryInterface;
 use Sylius\Component\Attribute\Model\Attribute;
 use Sylius\Component\Registry\ServiceRegistryInterface;
@@ -21,38 +24,38 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class AttributeFactorySpec extends ObjectBehavior
+final class AttributeFactorySpec extends ObjectBehavior
 {
-    function let(FactoryInterface $factory, ServiceRegistryInterface $attributeTypesRegistry)
+    function let(FactoryInterface $factory, ServiceRegistryInterface $attributeTypesRegistry): void
     {
         $this->beConstructedWith($factory, $attributeTypesRegistry);
     }
 
-    function it_is_initializable()
+    function it_is_initializable(): void
     {
-        $this->shouldHaveType('Sylius\Component\Attribute\Factory\AttributeFactory');
+        $this->shouldHaveType(AttributeFactory::class);
     }
 
-    function it_implements_attribute_factory_interface()
+    function it_implements_attribute_factory_interface(): void
     {
         $this->shouldImplement(AttributeFactoryInterface::class);
     }
 
-    function it_creates_new_attribute($attributeTypesRegistry, $factory, Attribute $attribute, AttributeTypeInterface $attributeType)
-    {
-        $factory->createNew()->willReturn($attribute);
+    function it_creates_untyped_attribute(
+        FactoryInterface $factory,
+        Attribute $untypedAttribute
+    ): void {
+        $factory->createNew()->willReturn($untypedAttribute);
 
-        $attributeType->getStorageType()->willReturn('text');
-        $attributeTypesRegistry->get('text')->willReturn($attributeType);
-
-        $attribute->getType()->willReturn('text');
-        $attribute->setStorageType('text')->shouldBeCalled();
-
-        $this->createNew()->shouldReturn($attribute);
+        $this->createNew()->shouldReturn($untypedAttribute);
     }
 
-    function it_creates_typed_attribute($attributeTypesRegistry, $factory, Attribute $typedAttribute, AttributeTypeInterface $attributeType)
-    {
+    function it_creates_typed_attribute(
+        Attribute $typedAttribute,
+        AttributeTypeInterface $attributeType,
+        FactoryInterface $factory,
+        ServiceRegistryInterface $attributeTypesRegistry
+    ): void {
         $factory->createNew()->willReturn($typedAttribute);
 
         $attributeType->getStorageType()->willReturn('datetime');

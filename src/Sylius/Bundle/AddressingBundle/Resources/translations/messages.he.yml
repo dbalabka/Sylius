@@ -11,12 +11,12 @@ sylius:
             last_name: שם משפחה
             phone_number: מספר טלפון
             postcode: מיקוד
-            street: רחוב
             province: מחוז
         country:
             name: שם
             provinces: מחוזות
             select: בחירה
+            enabled: מופעל
         province:
             name: שם
             select: בחירה

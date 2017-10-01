@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Security;
 
 use Sylius\Component\User\Model\CredentialsHolderInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * Pbkdf2PasswordEncoder uses the PBKDF2 (Password-Based Key Derivation Function 2).
@@ -27,9 +30,9 @@ use Sylius\Component\User\Model\CredentialsHolderInterface;
  * @author Fabien Potencier <fabien@symfony.com>
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class UserPbkdf2PasswordEncoder implements UserPasswordEncoderInterface
+final class UserPbkdf2PasswordEncoder implements UserPasswordEncoderInterface
 {
-    const MAX_PASSWORD_LENGTH = 4096;
+    private const MAX_PASSWORD_LENGTH = 4096;
 
     /**
      * @var string
@@ -52,17 +55,21 @@ class UserPbkdf2PasswordEncoder implements UserPasswordEncoderInterface
     private $length;
 
     /**
-     * @param string $algorithm          The digest algorithm to use
-     * @param bool   $encodeHashAsBase64 Whether to base64 encode the password hash
-     * @param int    $iterations         The number of iterations to use to stretch the password hash
-     * @param int    $length             Length of derived key to create
+     * @param string|null $algorithm
+     * @param bool|null $encodeHashAsBase64
+     * @param int|null $iterations
+     * @param int|null $length of the result of encoding
      */
-    public function __construct($algorithm = 'sha512', $encodeHashAsBase64 = true, $iterations = 1000, $length = 40)
-    {
-        $this->algorithm = $algorithm;
-        $this->encodeHashAsBase64 = $encodeHashAsBase64;
-        $this->iterations = $iterations;
-        $this->length = $length;
+    public function __construct(
+        ?string $algorithm = null,
+        ?bool $encodeHashAsBase64 = null,
+        ?int $iterations = null,
+        ?int $length = null
+    ) {
+        $this->algorithm = $algorithm ?? 'sha512';
+        $this->encodeHashAsBase64 = $encodeHashAsBase64 ?? true;
+        $this->iterations = $iterations ?? 1000;
+        $this->length = $length ?? 40;
     }
 
     /**
@@ -70,7 +77,7 @@ class UserPbkdf2PasswordEncoder implements UserPasswordEncoderInterface
      *
      * @throws \LogicException when the algorithm is not supported
      */
-    public function encode(CredentialsHolderInterface $user)
+    public function encode(CredentialsHolderInterface $user): string
     {
         return $this->encodePassword($user->getPlainPassword(), $user->getSalt());
     }
@@ -81,13 +88,16 @@ class UserPbkdf2PasswordEncoder implements UserPasswordEncoderInterface
      *
      * @return string
      *
+     * @throws \InvalidArgumentException
      * @throws \LogicException when the algorithm is not supported
      */
-    protected function encodePassword($plainPassword, $salt)
+    private function encodePassword(string $plainPassword, string $salt): string
     {
-        if ($this->isPasswordTooLong($plainPassword)) {
-            throw new \InvalidArgumentException('Too long password.');
-        }
+        Assert::lessThanEq(
+            strlen($plainPassword),
+            self::MAX_PASSWORD_LENGTH,
+            sprintf('The password must be at most %d characters long.', self::MAX_PASSWORD_LENGTH)
+        );
 
         if (!in_array($this->algorithm, hash_algos(), true)) {
             throw new \LogicException(sprintf('The algorithm "%s" is not supported.', $this->algorithm));
@@ -96,15 +106,5 @@ class UserPbkdf2PasswordEncoder implements UserPasswordEncoderInterface
         $digest = hash_pbkdf2($this->algorithm, $plainPassword, $salt, $this->iterations, $this->length, true);
 
         return $this->encodeHashAsBase64 ? base64_encode($digest) : bin2hex($digest);
-    }
-
-    /**
-     * @param string $password
-     *
-     * @return bool
-     */
-    protected function isPasswordTooLong($password)
-    {
-        return strlen($password) > self::MAX_PASSWORD_LENGTH;
     }
 }

@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Channel\Model;
 
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Interface implemented by objects related to multiple channels
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface ChannelsAwareInterface
@@ -23,27 +23,22 @@ interface ChannelsAwareInterface
     /**
      * @return Collection|ChannelInterface[]
      */
-    public function getChannels();
-
-    /**
-     * @param Collection $collection
-     */
-    public function setChannels(Collection $collection);
+    public function getChannels(): Collection;
 
     /**
      * @param ChannelInterface $channel
      *
      * @return bool
      */
-    public function hasChannel(ChannelInterface $channel);
+    public function hasChannel(ChannelInterface $channel): bool;
 
     /**
      * @param ChannelInterface $channel
      */
-    public function addChannel(ChannelInterface $channel);
+    public function addChannel(ChannelInterface $channel): void;
 
     /**
      * @param ChannelInterface $channel
      */
-    public function removeChannel(ChannelInterface $channel);
+    public function removeChannel(ChannelInterface $channel): void;
 }

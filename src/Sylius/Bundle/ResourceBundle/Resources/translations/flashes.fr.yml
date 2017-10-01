@@ -12,4 +12,6 @@ sylius:
         restore_deleted: '%resource% a bien été restauré.'
         enable: '%resource% a bien été activé.'
         disable: '%resource% a bien été désactivé.'
-        delete_error: "Impossible de supprimer, %resource% est en cours d'utilisation."
+        delete_error: 'Impossible de supprimer, %resource% est en cours d''utilisation.'
+        race_condition_error: 'Mise à jour impossible, %resource% a été modifiée précédemment.'
+        something_went_wrong_error: 'Une erreur s''est produite, merci de réessayer.'

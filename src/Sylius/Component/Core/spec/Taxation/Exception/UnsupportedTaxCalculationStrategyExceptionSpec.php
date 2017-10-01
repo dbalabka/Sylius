@@ -9,30 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\Taxation\Exception;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
-use Sylius\Component\Core\Taxation\Exception\UnsupportedTaxCalculationStrategyException;
 
 /**
- * @mixin UnsupportedTaxCalculationStrategyException
- *
  * @author Mark McKelvie <mark.mckelvie@reiss.com>
  */
-class UnsupportedTaxCalculationStrategyExceptionSpec extends ObjectBehavior
+final class UnsupportedTaxCalculationStrategyExceptionSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Core\Taxation\Exception\UnsupportedTaxCalculationStrategyException');
-    }
-
-    function it_extends_exception()
+    function it_extends_an_exception(): void
     {
         $this->shouldBeAnInstanceOf(\RuntimeException::class);
     }
 
-    function it_has_a_message()
+    function it_has_a_message(): void
     {
         $this->getMessage()->shouldReturn('Unsupported tax calculation strategy!');
     }

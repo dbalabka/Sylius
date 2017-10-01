@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\UserBundle\Security;
 
 use PhpSpec\ObjectBehavior;
@@ -29,25 +31,24 @@ use Symfony\Component\Security\Core\User\UserCheckerInterface;
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class UserLoginSpec extends ObjectBehavior
+final class UserLoginSpec extends ObjectBehavior
 {
-    function let(TokenStorageInterface $tokenStorage, UserCheckerInterface $userChecker, EventDispatcherInterface $eventDispatcher)
+    function let(TokenStorageInterface $tokenStorage, UserCheckerInterface $userChecker, EventDispatcherInterface $eventDispatcher): void
     {
         $this->beConstructedWith($tokenStorage, $userChecker, $eventDispatcher);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\UserBundle\Security\UserLogin');
-    }
-
-    function it_implements_user_login_interface()
+    function it_implements_user_login_interface(): void
     {
         $this->shouldImplement(UserLoginInterface::class);
     }
 
-    function it_throws_exception_and_does_not_log_user_in_when_user_is_disabled($tokenStorage, $userChecker, $eventDispatcher, UserInterface $user)
-    {
+    function it_throws_exception_and_does_not_log_user_in_when_user_is_disabled(
+        TokenStorageInterface $tokenStorage,
+        UserCheckerInterface $userChecker,
+        EventDispatcherInterface $eventDispatcher,
+        UserInterface $user
+    ): void {
         $user->getRoles()->willReturn(['ROLE_TEST']);
         $userChecker->checkPreAuth($user)->willThrow(DisabledException::class);
 
@@ -57,8 +58,12 @@ class UserLoginSpec extends ObjectBehavior
         $this->shouldThrow(DisabledException::class)->during('login', [$user]);
     }
 
-    function it_throws_exception_and_does_not_log_user_in_when_user_account_status_is_invalid($tokenStorage, $userChecker, $eventDispatcher, UserInterface $user)
-    {
+    function it_throws_exception_and_does_not_log_user_in_when_user_account_status_is_invalid(
+        TokenStorageInterface $tokenStorage,
+        UserCheckerInterface $userChecker,
+        EventDispatcherInterface $eventDispatcher,
+        UserInterface $user
+    ): void {
         $user->getRoles()->willReturn(['ROLE_TEST']);
         $userChecker->checkPreAuth($user)->shouldBeCalled();
         $userChecker->checkPostAuth($user)->willThrow(CredentialsExpiredException::class);
@@ -69,8 +74,12 @@ class UserLoginSpec extends ObjectBehavior
         $this->shouldThrow(CredentialsExpiredException::class)->during('login', [$user]);
     }
 
-    function it_throws_exception_and_does_not_log_user_in_when_user_has_no_roles($tokenStorage, $userChecker, $eventDispatcher, UserInterface $user)
-    {
+    function it_throws_exception_and_does_not_log_user_in_when_user_has_no_roles(
+        TokenStorageInterface $tokenStorage,
+        UserCheckerInterface $userChecker,
+        EventDispatcherInterface $eventDispatcher,
+        UserInterface $user
+    ): void {
         $user->getRoles()->willReturn([]);
         $userChecker->checkPreAuth($user)->shouldBeCalled();
         $userChecker->checkPostAuth($user)->shouldBeCalled();
@@ -81,8 +90,12 @@ class UserLoginSpec extends ObjectBehavior
         $this->shouldThrow(AuthenticationException::class)->during('login', [$user]);
     }
 
-    function it_logs_user_in($tokenStorage, $userChecker, $eventDispatcher, UserInterface $user)
-    {
+    function it_logs_user_in(
+        TokenStorageInterface $tokenStorage,
+        UserCheckerInterface $userChecker,
+        EventDispatcherInterface $eventDispatcher,
+        UserInterface $user
+    ): void {
         $user->getRoles()->willReturn(['ROLE_TEST']);
 
         $userChecker->checkPreAuth($user)->shouldBeCalled();

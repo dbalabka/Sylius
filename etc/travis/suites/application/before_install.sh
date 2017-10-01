@@ -1,22 +1,18 @@
 #!/usr/bin/env bash
-set -e
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../../bash/common.lib.sh"
-
-prepare_memcached_extension() {
-    if [ "${TRAVIS_PHP_VERSION}" != "7.0" ]; then
-        return 0
-    fi
-
-    print_header "Preparing memcached extension for PHP 7.0" "Sylius"
-    if [ ! -f "${SYLIUS_CACHE_DIR}/memcached.so" ]; then
-        run_command "git clone -b php7 https://github.com/php-memcached-dev/php-memcached.git php-memcached"
-        run_command "cd php-memcached && phpize && ./configure --disable-memcached-sasl && make"
-        run_command "cp php-memcached/modules/memcached.so \"${SYLIUS_CACHE_DIR}\""
-    fi
-
-    run_command "cp \"${SYLIUS_CACHE_DIR}/memcached.so\" \"$(php -i | grep extension_dir | head -n 1 | awk '{ print $5 }')\""
-}
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../../bash/application.sh"
 
 print_header "Activating memcached extension" "Sylius"
-run_command "echo \"extension = memcached.so\" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini"
+run_command "echo \"extension = memcached.so\" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini" || exit $?
+
+print_header "Installing Yarn" "Sylius"
+
+# Install Node Version Manager to install newer node version
+run_command "rm -rf ~/.nvm && git clone https://github.com/creationix/nvm.git ~/.nvm && (cd ~/.nvm && git checkout \`git describe --abbrev=0 --tags\`) && source ~/.nvm/nvm.sh && nvm install $TRAVIS_NODE_VERSION" || exit $?
+
+# Install Yarn globally
+run_command "sudo apt-key adv --fetch-keys http://dl.yarnpkg.com/debian/pubkey.gpg"
+run_command "echo \"deb http://dl.yarnpkg.com/debian/ stable main\" | sudo tee /etc/apt/sources.list.d/yarn.list"
+run_command "sudo apt-get update -qq"
+run_command "sudo apt-get install -y -qq yarn=0.21.3-1"

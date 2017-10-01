@@ -2,7 +2,7 @@ Contributing Code
 =================
 
 .. toctree::
-    :maxdepth: 2
+    :hidden:
 
     bugs
     patches
@@ -10,6 +10,7 @@ Contributing Code
     bdd
     standards
     conventions
-    behat_guide
     git
     license
+
+.. include:: /contributing/code/map.rst.inc

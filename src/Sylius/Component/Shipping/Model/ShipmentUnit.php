@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
 use Sylius\Component\Resource\Model\TimestampableTrait;
@@ -35,22 +37,17 @@ class ShipmentUnit implements ShipmentUnitInterface
      */
     protected $shippable;
 
-    /**
-     * @var string
-     */
-    protected $shippingState = ShipmentInterface::STATE_READY;
-
     public function __construct()
     {
         $this->createdAt = new \DateTime();
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function __toString()
     {
-        return (string) $this->id;
+        return (string) $this->getId();
     }
 
     /**
@@ -64,7 +61,7 @@ class ShipmentUnit implements ShipmentUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getShipment()
+    public function getShipment(): ?ShipmentInterface
     {
         return $this->shipment;
     }
@@ -72,7 +69,7 @@ class ShipmentUnit implements ShipmentUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function setShipment(ShipmentInterface $shipment = null)
+    public function setShipment(?ShipmentInterface $shipment): void
     {
         $this->shipment = $shipment;
     }
@@ -80,32 +77,16 @@ class ShipmentUnit implements ShipmentUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippable()
+    public function getShippable(): ?ShippableInterface
     {
         return $this->shippable;
     }
 
     /**
-     * {@inheritdoc}
+     * @param ShippableInterface|null $shippable
      */
-    public function setShippable(ShippableInterface $shippable)
+    public function setShippable(?ShippableInterface $shippable): void
     {
         $this->shippable = $shippable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getShippingState()
-    {
-        return $this->shippingState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setShippingState($state)
-    {
-        $this->shippingState = $state;
     }
 }

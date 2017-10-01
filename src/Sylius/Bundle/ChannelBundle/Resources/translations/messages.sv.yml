@@ -4,7 +4,8 @@
 sylius:
     form:
         channel:
+            color: Färg
+            description: Beskrivning
+            enabled: Aktiverad
             name: Namn
             url: URL
-            enabled: Aktiverad
-            color: Färg

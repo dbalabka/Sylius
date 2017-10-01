@@ -9,19 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Addressing\Converter\CountryNameConverterInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Addressing\Model\ProvinceInterface;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
 final class GeographicalContext implements Context
@@ -85,27 +87,26 @@ final class GeographicalContext implements Context
      * @Given /^the store ships to "([^"]+)" and "([^"]+)"$/
      * @Given /^the store ships to "([^"]+)", "([^"]+)" and "([^"]+)"$/
      */
-    public function storeShipsTo($country1, $country2 = null, $country3 = null)
+    public function storeShipsTo(...$countriesNames)
     {
-        foreach ([$country1, $country2, $country3] as $countryName) {
-            if (null === $countryName) {
-                continue;
-            }
-
+        foreach ($countriesNames as $countryName) {
             $this->countryRepository->add($this->createCountryNamed(trim($countryName)));
         }
     }
 
     /**
      * @Given /^the store operates in "([^"]*)"$/
-     * @Given /^the store has country "([^"]*)"$/
+     * @Given /^the store operates in "([^"]*)" and "([^"]*)"$/
+     * @Given /^the store(?:| also) has country "([^"]*)"$/
      */
-    public function theStoreOperatesIn($countryName)
+    public function theStoreOperatesIn(...$countriesNames)
     {
-        $country = $this->createCountryNamed(trim($countryName));
-        $this->sharedStorage->set('country', $country);
+        foreach ($countriesNames as $countryName) {
+            $country = $this->createCountryNamed(trim($countryName));
+            $this->sharedStorage->set('country', $country);
 
-        $this->countryRepository->add($country);
+            $this->countryRepository->add($country);
+        }
     }
 
     /**
@@ -121,6 +122,23 @@ final class GeographicalContext implements Context
     }
 
     /**
+     * @Given /^(this country)(?:| also) has the "([^"]+)" province with "([^"]+)" code$/
+     * @Given /^(?:|the )(country "[^"]+") has the "([^"]+)" province with "([^"]+)" code$/
+     */
+    public function theCountryHasProvinceWithCode(CountryInterface $country, $name, $code)
+    {
+        /** @var ProvinceInterface $province */
+        $province = $this->provinceFactory->createNew();
+
+        $province->setName($name);
+        $province->setCode($code);
+        $country->addProvince($province);
+
+        $this->sharedStorage->set('province', $province);
+        $this->countryManager->flush();
+    }
+
+    /**
      * @param string $name
      *
      * @return CountryInterface
@@ -132,20 +150,5 @@ final class GeographicalContext implements Context
         $country->setCode($this->countryNameConverter->convertToCode($name));
 
         return $country;
-    }
-
-    /**
-     * @Given /^(this country) has the "([^"]+)" province with "([^"]+)" code$/
-     */
-    public function theCountryHasProvinceWithCode(CountryInterface $country, $name, $code)
-    {
-        /** @var ProvinceInterface $province */
-        $province = $this->provinceFactory->createNew();
-
-        $province->setName($name);
-        $province->setCode($code);
-        $country->addProvince($province);
-
-        $this->countryManager->flush();
     }
 }

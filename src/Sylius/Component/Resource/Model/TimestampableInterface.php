@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Model;
 
 /**
@@ -17,22 +19,22 @@ namespace Sylius\Component\Resource\Model;
 interface TimestampableInterface
 {
     /**
-     * @return \DateTime
+     * @return \DateTimeInterface|null
      */
-    public function getCreatedAt();
+    public function getCreatedAt(): ?\DateTimeInterface;
 
     /**
-     * @return \DateTime
+     * @param \DateTimeInterface|null $createdAt
      */
-    public function getUpdatedAt();
+    public function setCreatedAt(?\DateTimeInterface $createdAt);
 
     /**
-     * @param \DateTime $createdAt
+     * @return \DateTimeInterface|null
      */
-    public function setCreatedAt(\DateTime $createdAt);
+    public function getUpdatedAt(): ?\DateTimeInterface;
 
     /**
-     * @param \DateTime $updatedAt
+     * @param \DateTimeInterface|null $updatedAt
      */
-    public function setUpdatedAt(\DateTime $updatedAt);
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt);
 }

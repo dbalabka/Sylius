@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\MailerBundle\Sender\Adapter;
 
 use Sylius\Component\Mailer\Event\EmailSendEvent;
@@ -18,8 +20,6 @@ use Sylius\Component\Mailer\Sender\Adapter\AbstractAdapter;
 use Sylius\Component\Mailer\SyliusMailerEvents;
 
 /**
- * Default Sylius sender.
- *
  * @author Daniel Richter <nexyz9@gmail.com>
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Jérémy Leherpeur <jeremy@leherpeur.net>
@@ -45,20 +45,29 @@ class SwiftMailerAdapter extends AbstractAdapter
      */
     public function send(
         array $recipients,
-        $senderAddress,
-        $senderName,
+        string $senderAddress,
+        string $senderName,
         RenderedEmail $renderedEmail,
         EmailInterface $email,
-        array $data
-    ) {
-        $message = \Swift_Message::newInstance()
+        array $data,
+        array $attachments = [],
+        array $replyTo = []
+    ): void {
+        $message = (new \Swift_Message())
             ->setSubject($renderedEmail->getSubject())
             ->setFrom([$senderAddress => $senderName])
-            ->setTo($recipients);
+            ->setTo($recipients)
+            ->setReplyTo($replyTo);
 
         $message->setBody($renderedEmail->getBody(), 'text/html');
 
-        $emailSendEvent = new EmailSendEvent($message, $email, $data, $recipients);
+        foreach ($attachments as $attachment) {
+            $file = \Swift_Attachment::fromPath($attachment);
+
+            $message->attach($file);
+        }
+
+        $emailSendEvent = new EmailSendEvent($message, $email, $data, $recipients, $replyTo);
 
         $this->dispatcher->dispatch(SyliusMailerEvents::EMAIL_PRE_SEND, $emailSendEvent);
 

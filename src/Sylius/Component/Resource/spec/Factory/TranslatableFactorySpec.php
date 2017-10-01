@@ -9,42 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Resource\Factory;
 
 use PhpSpec\ObjectBehavior;
-use spec\Sylius\Component\Resource\Fixtures\SampleNonTranslatableResource;
-use spec\Sylius\Component\Resource\Fixtures\SampleTranslatableResource;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Factory\TranslatableFactoryInterface;
-use Sylius\Component\Resource\Provider\LocaleProviderInterface;
-
-require_once __DIR__.'/../Fixtures/SampleTranslatableResource.php';
-require_once __DIR__.'/../Fixtures/SampleNonTranslatableResource.php';
+use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface;
 
 /**
- * @mixin \Sylius\Component\Resource\Factory\TranslatableFactory
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class TranslatableFactorySpec extends ObjectBehavior
+final class TranslatableFactorySpec extends ObjectBehavior
 {
-    function let(FactoryInterface $factory, LocaleProviderInterface $localeProvider)
+    function let(FactoryInterface $factory, TranslationLocaleProviderInterface $localeProvider): void
     {
         $this->beConstructedWith($factory, $localeProvider);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Resource\Factory\TranslatableFactory');
-    }
-
-    function it_implements_translatable_factory_interface()
+    function it_implements_translatable_factory_interface(): void
     {
         $this->shouldImplement(TranslatableFactoryInterface::class);
     }
 
-    function it_throws_an_exception_if_resource_is_not_translatable(FactoryInterface $factory, SampleNonTranslatableResource $resource)
+    function it_throws_an_exception_if_resource_is_not_translatable(FactoryInterface $factory, \stdClass $resource): void
     {
         $factory->createNew()->willReturn($resource);
 
@@ -54,15 +45,17 @@ class TranslatableFactorySpec extends ObjectBehavior
         ;
     }
 
-    function it_creates_translatable_and_sets_locales(FactoryInterface $factory, LocaleProviderInterface $localeProvider, SampleTranslatableResource $resource)
-    {
-        $localeProvider->getCurrentLocale()->willReturn('pl_PL');
-        $localeProvider->getFallbackLocale()->willReturn('en_GB');
+    function it_creates_translatable_and_sets_locales(
+        FactoryInterface $factory,
+        TranslationLocaleProviderInterface $localeProvider,
+        TranslatableInterface $resource
+    ): void {
+        $localeProvider->getDefaultLocaleCode()->willReturn('pl_PL');
 
         $factory->createNew()->willReturn($resource);
 
         $resource->setCurrentLocale('pl_PL')->shouldBeCalled();
-        $resource->setFallbackLocale('en_GB')->shouldBeCalled();
+        $resource->setFallbackLocale('pl_PL')->shouldBeCalled();
 
         $this->createNew()->shouldReturn($resource);
     }

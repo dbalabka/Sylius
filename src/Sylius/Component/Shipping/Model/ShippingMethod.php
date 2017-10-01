@@ -9,10 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Resource\Model\ArchivableTrait;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
 use Sylius\Component\Resource\Model\TranslatableTrait;
@@ -23,7 +24,7 @@ use Sylius\Component\Resource\Model\TranslatableTrait;
  */
 class ShippingMethod implements ShippingMethodInterface
 {
-    use TimestampableTrait, ToggleableTrait;
+    use ArchivableTrait, TimestampableTrait, ToggleableTrait;
     use TranslatableTrait {
         __construct as private initializeTranslationsCollection;
     }
@@ -39,13 +40,16 @@ class ShippingMethod implements ShippingMethodInterface
     protected $code;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var ShippingCategoryInterface
      */
     protected $category;
 
     /**
-     * The one of 3 requirement variants.
-     *
      * @var int
      */
     protected $categoryRequirement = ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ANY;
@@ -60,25 +64,19 @@ class ShippingMethod implements ShippingMethodInterface
      */
     protected $configuration = [];
 
-    /**
-     * @var Collection|RuleInterface[]
-     */
-    protected $rules;
-
     public function __construct()
     {
         $this->initializeTranslationsCollection();
 
-        $this->rules = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->translate()->__toString();
+        return $this->getTranslation()->__toString();
     }
 
     /**
@@ -92,7 +90,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -100,7 +98,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -108,7 +106,23 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getCategory()
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition(?int $position): void
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCategory(): ?ShippingCategoryInterface
     {
         return $this->category;
     }
@@ -116,7 +130,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setCategory(ShippingCategoryInterface $category = null)
+    public function setCategory(?ShippingCategoryInterface $category): void
     {
         $this->category = $category;
     }
@@ -124,7 +138,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getCategoryRequirement()
+    public function getCategoryRequirement(): ?int
     {
         return $this->categoryRequirement;
     }
@@ -132,7 +146,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setCategoryRequirement($categoryRequirement)
+    public function setCategoryRequirement(?int $categoryRequirement): void
     {
         $this->categoryRequirement = $categoryRequirement;
     }
@@ -140,31 +154,39 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getCategoryRequirementLabel()
+    public function getName(): ?string
     {
-        return self::getCategoryRequirementLabels()[$this->categoryRequirement];
+        return $this->getTranslation()->getName();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function setName(?string $name): void
     {
-        return $this->translate()->getName();
+        $this->getTranslation()->setName($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function getDescription(): ?string
     {
-        $this->translate()->setName($name);
+        return $this->getTranslation()->getDescription();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCalculator()
+    public function setDescription(?string $description): void
+    {
+        $this->getTranslation()->setDescription($description);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCalculator(): ?string
     {
         return $this->calculator;
     }
@@ -172,7 +194,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setCalculator($calculator)
+    public function setCalculator(?string $calculator): void
     {
         $this->calculator = $calculator;
     }
@@ -180,7 +202,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfiguration()
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -188,7 +210,7 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function setConfiguration(array $configuration)
+    public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
     }
@@ -196,58 +218,8 @@ class ShippingMethod implements ShippingMethodInterface
     /**
      * {@inheritdoc}
      */
-    public function getRules()
+    protected function createTranslation(): ShippingMethodTranslationInterface
     {
-        return $this->rules;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasRule(RuleInterface $rule)
-    {
-        return $this->rules->contains($rule);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addRule(RuleInterface $rule)
-    {
-        if (!$this->hasRule($rule)) {
-            $rule->setMethod($this);
-            $this->rules->add($rule);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeRule(RuleInterface $rule)
-    {
-        $rule->setMethod(null);
-        $this->rules->removeElement($rule);
-    }
-
-    /**
-     * @return array
-     */
-    public static function getCategoryRequirementLabels()
-    {
-        return [
-            ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_NONE => 'None of the units have to match the method category',
-            ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ANY => 'At least 1 unit has to match the method category',
-            ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ALL => 'All units has to match the method category',
-        ];
-    }
-
-    public function enable()
-    {
-        $this->enabled = true;
-    }
-
-    public function disable()
-    {
-        $this->enabled = false;
+        return new ShippingMethodTranslation();
     }
 }

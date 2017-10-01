@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Registry;
 
 use Webmozart\Assert\Assert;
@@ -17,33 +19,42 @@ use Zend\Stdlib\PriorityQueue;
 /**
  * @author Mark McKelvie <mark.mckelvie@reiss.com>
  */
-class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
+final class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
 {
     /**
      * @var PriorityQueue
      */
-    protected $services;
+    private $services;
 
     /**
      * Interface which is required by all services.
      *
      * @var string
      */
-    protected $interface;
+    private $interface;
 
     /**
-     * @param $interface
+     * Human readable context for these services, e.g. "tax calculation"
+     *
+     * @var string
      */
-    public function __construct($interface)
+    private $context;
+
+    /**
+     * @param string $interface
+     * @param string $context
+     */
+    public function __construct(string $interface, string $context = 'service')
     {
         $this->interface = $interface;
         $this->services = new PriorityQueue();
+        $this->context = $context;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function all()
+    public function all(): iterable
     {
         return $this->services;
     }
@@ -51,7 +62,7 @@ class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
     /**
      * {@inheritdoc}
      */
-    public function register($service, $priority = 0)
+    public function register($service, int $priority = 0): void
     {
         $this->assertServiceHaveType($service);
         $this->services->insert($service, $priority);
@@ -60,10 +71,10 @@ class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
     /**
      * {@inheritdoc}
      */
-    public function unregister($service)
+    public function unregister($service): void
     {
         if (!$this->has($service)) {
-            throw new NonExistingServiceException(gettype($service));
+            throw new NonExistingServiceException($this->context, gettype($service), array_keys($this->services->toArray()));
         }
 
         $this->services->remove($service);
@@ -72,7 +83,7 @@ class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
     /**
      * {@inheritdoc}
      */
-    public function has($service)
+    public function has($service): bool
     {
         $this->assertServiceHaveType($service);
 
@@ -82,12 +93,12 @@ class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
     /**
      * @param object $service
      */
-    private function assertServiceHaveType($service)
+    private function assertServiceHaveType($service): void
     {
         Assert::isInstanceOf(
             $service,
             $this->interface,
-            'Service for this registry needs to implement "%2$s", "%s" given.'
+            $this->context . ' needs to implement "%2$s", "%s" given.'
         );
     }
 }

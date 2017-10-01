@@ -9,39 +9,58 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
- * Payum extension.
- *
  * @author Maksim Kotlyar
  */
-class SyliusPayumExtension extends AbstractResourceExtension
+final class SyliusPayumExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
-        $configFiles = [
-            'services.xml',
-        ];
-
-        foreach ($configFiles as $configFile) {
-            $loader->load($configFile);
-        }
+        $loader->load('services.xml');
 
         $container->setParameter('payum.template.layout', $config['template']['layout']);
         $container->setParameter('payum.template.obtain_credit_card', $config['template']['obtain_credit_card']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prepend(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('sylius_payment')) {
+            return;
+        }
+
+        $gateways = [];
+        $configs = $container->getExtensionConfig('payum');
+        foreach ($configs as $config) {
+            if (!isset($config['gateways'])) {
+                continue;
+            }
+
+            foreach (array_keys($config['gateways']) as $gatewayKey) {
+                $gateways[$gatewayKey] = 'sylius.payum_gateway.' . $gatewayKey;
+            }
+        }
+
+        $container->prependExtensionConfig('sylius_payment', ['gateways' => $gateways]);
     }
 }

@@ -9,67 +9,63 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\OrderProcessing;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
-use Sylius\Component\Core\OrderProcessing\ShippingChargesProcessorInterface;
+use Sylius\Component\Order\Processor\OrderProcessorInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Shipping\Calculator\DelegatingCalculatorInterface;
 use Sylius\Component\Shipping\Model\ShipmentInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 
 /**
- * @mixin \Sylius\Component\Core\OrderProcessing\ShippingChargesProcessor
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ShippingChargesProcessorSpec extends ObjectBehavior
+final class ShippingChargesProcessorSpec extends ObjectBehavior
 {
-    function let(FactoryInterface $adjustmentFactory, DelegatingCalculatorInterface $calculator)
+    function let(FactoryInterface $adjustmentFactory, DelegatingCalculatorInterface $calculator): void
     {
         $this->beConstructedWith($adjustmentFactory, $calculator);
     }
 
-    function it_is_initializable()
+    function it_is_an_order_processor(): void
     {
-        $this->shouldHaveType('Sylius\Component\Core\OrderProcessing\ShippingChargesProcessor');
+        $this->shouldImplement(OrderProcessorInterface::class);
     }
 
-    function it_implements_Sylius_shipping_charges_processor_interface()
+    function it_removes_existing_shipping_adjustments(OrderInterface $order): void
     {
-        $this->shouldImplement(ShippingChargesProcessorInterface::class);
-    }
-
-    function it_removes_existing_shipping_adjustments(OrderInterface $order)
-    {
-        $order->getShipments()->willReturn([]);
+        $order->getShipments()->willReturn(new ArrayCollection([]));
         $order->removeAdjustments(AdjustmentInterface::SHIPPING_ADJUSTMENT)->shouldBeCalled();
 
-        $this->applyShippingCharges($order);
+        $this->process($order);
     }
 
-    function it_doesnt_apply_any_shipping_charge_if_order_has_no_shipments(OrderInterface $order)
+    function it_does_not_apply_any_shipping_charge_if_order_has_no_shipments(OrderInterface $order): void
     {
         $order->removeAdjustments(AdjustmentInterface::SHIPPING_ADJUSTMENT)->shouldBeCalled();
-        $order->getShipments()->willReturn([]);
+        $order->getShipments()->willReturn(new ArrayCollection([]));
         $order->addAdjustment(Argument::any())->shouldNotBeCalled();
 
-        $this->applyShippingCharges($order);
+        $this->process($order);
     }
 
     function it_applies_calculated_shipping_charge_for_each_shipment_associated_with_the_order(
         FactoryInterface $adjustmentFactory,
-        $calculator,
+        DelegatingCalculatorInterface $calculator,
         AdjustmentInterface $adjustment,
         OrderInterface $order,
         ShipmentInterface $shipment,
         ShippingMethodInterface $shippingMethod
-    ) {
+    ): void {
         $adjustmentFactory->createNew()->willReturn($adjustment);
-        $order->getShipments()->willReturn([$shipment]);
+        $order->getShipments()->willReturn(new ArrayCollection([$shipment->getWrappedObject()]));
 
         $calculator->calculate($shipment)->willReturn(450);
 
@@ -83,6 +79,6 @@ class ShippingChargesProcessorSpec extends ObjectBehavior
         $order->removeAdjustments(AdjustmentInterface::SHIPPING_ADJUSTMENT)->shouldBeCalled();
         $order->addAdjustment($adjustment)->shouldBeCalled();
 
-        $this->applyShippingCharges($order);
+        $this->process($order);
     }
 }

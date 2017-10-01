@@ -9,13 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
-use Sylius\Bundle\AddressingBundle\Factory\ZoneFactoryInterface;
-use Sylius\Bundle\SettingsBundle\Manager\SettingsManagerInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Addressing\Factory\ZoneFactoryInterface;
+use Sylius\Component\Addressing\Model\CountryInterface;
+use Sylius\Component\Addressing\Model\ProvinceInterface;
+use Sylius\Component\Addressing\Model\Scope;
 use Sylius\Component\Addressing\Model\ZoneInterface;
-use Sylius\Component\Addressing\Repository\ZoneRepositoryInterface;
+use Sylius\Component\Addressing\Model\ZoneMemberInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Model\CodeAwareInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Intl\Intl;
 
 /**
@@ -24,23 +34,19 @@ use Symfony\Component\Intl\Intl;
 final class ZoneContext implements Context
 {
     /**
-     * @var array
+     * @var SharedStorageInterface
      */
-    private $euMembers = [
-        'BE', 'BG', 'CZ', 'DK', 'DE', 'EE', 'IE', 'GR', 'ES',
-        'FR', 'IT', 'CY', 'LV', 'LT', 'LU', 'HU', 'MT', 'NL',
-        'AT', 'PL', 'PT', 'RO', 'SI', 'SK', 'FI', 'SE', 'GB',
-    ];
+    private $sharedStorage;
 
     /**
-     * @var ZoneRepositoryInterface
+     * @var RepositoryInterface
      */
     private $zoneRepository;
 
     /**
-     * @var SettingsManagerInterface
+     * @var ObjectManager
      */
-    private $settingsManager;
+    private $objectManager;
 
     /**
      * @var ZoneFactoryInterface
@@ -48,31 +54,29 @@ final class ZoneContext implements Context
     private $zoneFactory;
 
     /**
-     * @param ZoneRepositoryInterface $zoneRepository
-     * @param SettingsManagerInterface $settingsManager
-     * @param ZoneFactoryInterface $zoneFactory
+     * @var FactoryInterface
      */
-    public function __construct(
-        ZoneRepositoryInterface $zoneRepository,
-        SettingsManagerInterface $settingsManager,
-        ZoneFactoryInterface $zoneFactory
-    ) {
-        $this->zoneRepository = $zoneRepository;
-        $this->settingsManager = $settingsManager;
-        $this->zoneFactory = $zoneFactory;
-    }
+    private $zoneMemberFactory;
 
     /**
-     * @Given /^there is a zone "EU" containing all members of the European Union$/
+     * @param SharedStorageInterface $sharedStorage
+     * @param RepositoryInterface $zoneRepository
+     * @param ObjectManager $objectManager
+     * @param ZoneFactoryInterface $zoneFactory
+     * @param FactoryInterface $zoneMemberFactory
      */
-    public function thereIsAZoneEUContainingAllMembersOfEuropeanUnion()
-    {
-        $zone = $this->zoneFactory->createWithMembers($this->euMembers);
-        $zone->setType(ZoneInterface::TYPE_COUNTRY);
-        $zone->setCode('EU');
-        $zone->setName('European Union');
-
-        $this->zoneRepository->add($zone);
+    public function __construct(
+        SharedStorageInterface $sharedStorage,
+        RepositoryInterface $zoneRepository,
+        ObjectManager $objectManager,
+        ZoneFactoryInterface $zoneFactory,
+        FactoryInterface $zoneMemberFactory
+    ) {
+        $this->sharedStorage = $sharedStorage;
+        $this->zoneRepository = $zoneRepository;
+        $this->objectManager = $objectManager;
+        $this->zoneFactory = $zoneFactory;
+        $this->zoneMemberFactory = $zoneMemberFactory;
     }
 
     /**
@@ -80,12 +84,10 @@ final class ZoneContext implements Context
      */
     public function thereIsAZoneTheRestOfTheWorldContainingAllOtherCountries()
     {
-        $restOfWorldCountries = array_diff(
-            array_keys(Intl::getRegionBundle()->getCountryNames('en')),
-            array_merge($this->euMembers, ['US'])
-        );
+        $restOfWorldCountries = Intl::getRegionBundle()->getCountryNames('en');
+        unset($restOfWorldCountries['US']);
 
-        $zone = $this->zoneFactory->createWithMembers($restOfWorldCountries);
+        $zone = $this->zoneFactory->createWithMembers(array_keys($restOfWorldCountries));
         $zone->setType(ZoneInterface::TYPE_COUNTRY);
         $zone->setCode('RoW');
         $zone->setName('The Rest of the World');
@@ -98,9 +100,11 @@ final class ZoneContext implements Context
      */
     public function defaultTaxZoneIs(ZoneInterface $zone)
     {
-        $settings = $this->settingsManager->load('sylius_taxation');
-        $settings->set('default_tax_zone', $zone);
-        $this->settingsManager->save($settings);
+        /** @var ChannelInterface $channel */
+        $channel = $this->sharedStorage->get('channel');
+        $channel->setDefaultTaxZone($zone);
+
+        $this->objectManager->flush();
     }
 
     /**
@@ -113,5 +117,106 @@ final class ZoneContext implements Context
         foreach ($zones as $zone) {
             $this->zoneRepository->remove($zone);
         }
+    }
+
+    /**
+     * @Given the store has a zone :zoneName with code :code
+     * @Given the store also has a zone :zoneName with code :code
+     */
+    public function theStoreHasAZoneWithCode($zoneName, $code)
+    {
+        $this->saveZone($this->setUpZone($zoneName, $code, Scope::ALL), 'zone');
+    }
+
+    /**
+     * @Given the store has a :scope zone :zoneName with code :code
+     */
+    public function theStoreHasAScopedZoneWithCode($scope, $zoneName, $code)
+    {
+        $this->saveZone($this->setUpZone($zoneName, $code, $scope), $scope . '_zone');
+    }
+
+    /**
+     * @Given /^(it)(?:| also) has the ("([^"]+)" country) member$/
+     * @Given /^(this zone)(?:| also) has the ("([^"]+)" country) member$/
+     */
+    public function itHasTheCountryMemberAndTheCountryMember(
+        ZoneInterface $zone,
+        CountryInterface $country
+    ) {
+        $zone->setType(ZoneInterface::TYPE_COUNTRY);
+        $zone->addMember($this->createZoneMember($country));
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @Given /^(it) has the ("[^"]+" province) member$/
+     * @Given /^(it) also has the ("[^"]+" province) member$/
+     */
+    public function itHasTheProvinceMemberAndTheProvinceMember(
+        ZoneInterface $zone,
+        ProvinceInterface $province
+    ) {
+        $zone->setType(ZoneInterface::TYPE_PROVINCE);
+        $zone->addMember($this->createZoneMember($province));
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @Given /^(it) has the (zone named "([^"]+)")$/
+     * @Given /^(it) also has the (zone named "([^"]+)")$/
+     */
+    public function itHasTheZoneMemberAndTheZoneMember(
+        ZoneInterface $parentZone,
+        ZoneInterface $childZone
+    ) {
+        $parentZone->setType(ZoneInterface::TYPE_ZONE);
+        $parentZone->addMember($this->createZoneMember($childZone));
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @param CodeAwareInterface $zoneMember
+     *
+     * @return ZoneMemberInterface
+     */
+    private function createZoneMember(CodeAwareInterface $zoneMember)
+    {
+        $code = $zoneMember->getCode();
+        /** @var ZoneMemberInterface $zoneMember */
+        $zoneMember = $this->zoneMemberFactory->createNew();
+        $zoneMember->setCode($code);
+
+        return $zoneMember;
+    }
+
+    /**
+     * @param string $zoneName
+     * @param string $code
+     * @param string $scope
+     *
+     * @return ZoneInterface
+     */
+    private function setUpZone($zoneName, $code, $scope)
+    {
+        $zone = $this->zoneFactory->createTyped(ZoneInterface::TYPE_ZONE);
+        $zone->setCode($code);
+        $zone->setName($zoneName);
+        $zone->setScope($scope);
+
+        return $zone;
+    }
+
+    /**
+     * @param ZoneInterface $zone
+     * @param string $key
+     */
+    private function saveZone($zone, $key)
+    {
+        $this->sharedStorage->set($key, $zone);
+        $this->zoneRepository->add($zone);
     }
 }

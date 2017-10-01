@@ -9,15 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Theme;
 
 use Sylius\Bundle\ThemeBundle\Context\ThemeContextInterface;
+use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
+use Sylius\Bundle\ThemeBundle\Repository\ThemeRepositoryInterface;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
 use Sylius\Component\Core\Model\ChannelInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class ChannelBasedThemeContext implements ThemeContextInterface
 {
@@ -27,23 +31,35 @@ final class ChannelBasedThemeContext implements ThemeContextInterface
     private $channelContext;
 
     /**
-     * @param ChannelContextInterface $channelContext
+     * @var ThemeRepositoryInterface
      */
-    public function __construct(ChannelContextInterface $channelContext)
+    private $themeRepository;
+
+    /**
+     * @param ChannelContextInterface $channelContext
+     * @param ThemeRepositoryInterface $themeRepository
+     */
+    public function __construct(ChannelContextInterface $channelContext, ThemeRepositoryInterface $themeRepository)
     {
         $this->channelContext = $channelContext;
+        $this->themeRepository = $themeRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTheme()
+    public function getTheme(): ?ThemeInterface
     {
         try {
             /** @var ChannelInterface $channel */
             $channel = $this->channelContext->getChannel();
+            $themeName = $channel->getThemeName();
 
-            return $channel->getTheme();
+            if (null === $themeName) {
+                return null;
+            }
+
+            return $this->themeRepository->findOneByName($themeName);
         } catch (ChannelNotFoundException $exception) {
             return null;
         } catch (\Exception $exception) {

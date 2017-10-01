@@ -20,16 +20,22 @@
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.1",
 
-        "doctrine/common": "~2.3",
-        "symfony/event-dispatcher": "^2.7",
-        "symfony/property-access": "^2.7",
-        "winzou/state-machine": "~0.1",
+        "doctrine/common": "^2.6",
+        "gedmo/doctrine-extensions": "^2.4",
+        "symfony/event-dispatcher": "^3.2",
+        "symfony/polyfill-php70": "~1.0",
+        "symfony/property-access": "^3.2",
+        "winzou/state-machine": "^0.3",
         "pagerfanta/pagerfanta": "^1.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4"
+        "phpspec/phpspec": "^4.0",
+        "sylius/locale": "^1.0"
+    },
+    "suggest": {
+        "sylius/locale": "^1.0"
     },
     "config": {
         "bin-dir": "bin"
@@ -50,7 +56,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "0.18-dev"
+            "dev-master": "1.0-dev"
         }
     }
 }

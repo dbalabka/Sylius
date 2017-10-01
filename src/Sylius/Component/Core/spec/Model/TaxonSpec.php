@@ -9,27 +9,58 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Core\Model\ImageInterface;
-use Sylius\Component\Taxonomy\Model\TaxonInterface;
+use Sylius\Component\Core\Model\ImagesAwareInterface;
+use Sylius\Component\Core\Model\TaxonInterface;
 
-class TaxonSpec extends ObjectBehavior
+/**
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
+ */
+final class TaxonSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Core\Model\Taxon');
-    }
-
-    function it_is_Sylius_Taxon()
+    function it_is_a_taxon(): void
     {
         $this->shouldImplement(TaxonInterface::class);
-        $this->shouldImplement(ImageInterface::class);
     }
 
-    function it_should_not_path_defined_by_default()
+    function it_implements_an_image_aware_interface(): void
     {
-        $this->getPath()->shouldReturn(null);
+        $this->shouldImplement(ImagesAwareInterface::class);
+    }
+
+    function it_initializes_an_image_collection_by_default(): void
+    {
+        $this->getImages()->shouldHaveType(Collection::class);
+    }
+
+    function it_adds_an_image(ImageInterface $image): void
+    {
+        $this->addImage($image);
+        $this->hasImages()->shouldReturn(true);
+        $this->hasImage($image)->shouldReturn(true);
+    }
+
+    function it_removes_an_image(ImageInterface $image): void
+    {
+        $this->addImage($image);
+        $this->removeImage($image);
+        $this->hasImage($image)->shouldReturn(false);
+    }
+
+    function it_returns_images_by_type(ImageInterface $image): void
+    {
+        $image->getType()->willReturn('thumbnail');
+        $image->setOwner($this)->shouldBeCalled();
+
+        $this->addImage($image);
+
+        $this->getImagesByType('thumbnail')->shouldBeLike(new ArrayCollection([$image->getWrappedObject()]));
     }
 }

@@ -10,17 +10,20 @@ sylius:
             options: Opsionet
             meta_keywords: Meta fjalë kyçe
             meta_description: Meta përshkrim
-            taxons: Kategoritë
+            taxons: Tipologjite
         product_variant:
-            available_on: Gati më
-            available_until: Në dispozicion deri në
-        product_archetype:
             name: Emri
-            parent: Prind
-            attributes: Atributet
-            options: Opsionet
         association_type:
             name: Emri
+            translations: Përkthime
         association:
             type: Tipi i lidhjes
             product: Produkti i lidhur
+        variant:
+            name: Emri
+        option:
+            name: Emri
+            values: Vlera të mundshme
+        option_value:
+            add_value: Shto vlerën
+            value: Vlera

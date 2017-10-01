@@ -4,5 +4,7 @@
 sylius:
     form:
         currency:
-            exchange_rate: Norma e shkëmbimit
+            base: Valuta baze
+            code: Emri
             enabled: E aktivizuar
+            exchange_rate: Norma e shkëmbimit

@@ -2,5 +2,9 @@
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../../../bash/common.lib.sh"
 
-etc/bin/validate-packages
-etc/bin/test-packages
+code=0
+
+bin/validate-packages || code=$?
+bin/test-packages || code=$?
+
+exit ${code}

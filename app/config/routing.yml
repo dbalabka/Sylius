@@ -1,60 +1,28 @@
 # This file is part of the Sylius package.
 # (c) Paweł Jędrzejewski
 
-sylius_api:
-    resource: "@SyliusApiBundle/Resources/config/routing/main.yml"
-    prefix: /api
-
 sylius_admin:
     resource: "@SyliusAdminBundle/Resources/config/routing.yml"
     prefix: /admin
 
-sylius_web:
-    resource: "@SyliusWebBundle/Resources/config/routing/main.yml"
+sylius_admin_api:
+    resource: "@SyliusAdminApiBundle/Resources/config/routing.yml"
+    prefix: /api
 
-create:
-    resource: "@CmfCreateBundle/Resources/config/routing/rest.xml"
+sylius_shop:
+    resource: "@SyliusShopBundle/Resources/config/routing.yml"
+    prefix: /{_locale}
+    requirements:
+        _locale: ^[a-z]{2}(?:_[A-Z]{2})?$
 
-create_image:
-    resource: "@CmfCreateBundle/Resources/config/routing/image.xml"
+sylius_shop_payum:
+    resource: "@SyliusShopBundle/Resources/config/routing/payum.yml"
 
-cmf_media_file:
-    resource: "@CmfMediaBundle/Resources/config/routing/file.xml"
-
-cmf_media_image:
-    resource: "@CmfMediaBundle/Resources/config/routing/image.xml"
-
-payum_capture:
-    resource: "@PayumBundle/Resources/config/routing/capture.xml"
-
-payum_notify:
-    resource: "@PayumBundle/Resources/config/routing/notify.xml"
-
-fos_oauth_server_token:
-    resource: "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
-
-hwi_oauth_security:
-    resource: "@HWIOAuthBundle/Resources/config/routing/login.xml"
-    prefix: /connect-login
-
-hwi_oauth_redirect:
-    resource: "@HWIOAuthBundle/Resources/config/routing/redirect.xml"
-    prefix: /connect
-
-amazon_login:
-    path: /connect-login/check-amazon
-
-facebook_login:
-    path: /connect-login/check-facebook
-
-google_login:
-    path: /connect-login/check-google
-
-sylius_sitemap:
-    path: /sitemap.{_format}
+sylius_shop_default_locale:
+    path: /
     methods: [GET]
     defaults:
-        _controller: sylius.controller.sitemap:showAction
-        _format: xml
-    requirements:
-        _format: xml
+        _controller: sylius.controller.shop.locale_switch:switchAction
+
+_liip_imagine:
+    resource: "@LiipImagineBundle/Resources/config/routing.xml"

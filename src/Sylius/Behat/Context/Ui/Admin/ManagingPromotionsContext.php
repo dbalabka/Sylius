@@ -9,14 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
+use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Promotion\CreatePageInterface;
+use Sylius\Behat\Page\Admin\Promotion\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Promotion\UpdatePageInterface;
-use Sylius\Behat\Service\CurrentPageResolverInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
+use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Model\PromotionInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -24,7 +29,10 @@ use Webmozart\Assert\Assert;
  */
 final class ManagingPromotionsContext implements Context
 {
-    const RESOURCE_NAME = 'promotion';
+    /**
+     * @var SharedStorageInterface
+     */
+    private $sharedStorage;
 
     /**
      * @var IndexPageInterface
@@ -52,6 +60,7 @@ final class ManagingPromotionsContext implements Context
     private $notificationChecker;
 
     /**
+     * @param SharedStorageInterface $sharedStorage
      * @param IndexPageInterface $indexPage
      * @param CreatePageInterface $createPage
      * @param UpdatePageInterface $updatePage
@@ -59,12 +68,14 @@ final class ManagingPromotionsContext implements Context
      * @param NotificationCheckerInterface $notificationChecker
      */
     public function __construct(
+        SharedStorageInterface $sharedStorage,
         IndexPageInterface $indexPage,
         CreatePageInterface $createPage,
         UpdatePageInterface $updatePage,
         CurrentPageResolverInterface $currentPageResolver,
         NotificationCheckerInterface $notificationChecker
     ) {
+        $this->sharedStorage = $sharedStorage;
         $this->indexPage = $indexPage;
         $this->createPage = $createPage;
         $this->updatePage = $updatePage;
@@ -73,11 +84,20 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Given I want to create a new promotion
+     * @When I want to create a new promotion
      */
     public function iWantToCreateANewPromotion()
     {
         $this->createPage->open();
+    }
+
+    /**
+     * @Given I want to browse promotions
+     * @When I browse promotions
+     */
+    public function iWantToBrowsePromotions()
+    {
+        $this->indexPage->open();
     }
 
     /**
@@ -92,6 +112,7 @@ final class ManagingPromotionsContext implements Context
     /**
      * @When I name it :name
      * @When I do not name it
+     * @When I remove its name
      */
     public function iNameIt($name = null)
     {
@@ -99,16 +120,24 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Then the promotion :promotionName should appear in the registry
+     * @When I remove its priority
+     */
+    public function iRemoveItsPriority()
+    {
+        $this->updatePage->setPriority(null);
+    }
+
+    /**
+     * @Then the :promotionName promotion should appear in the registry
+     * @Then the :promotionName promotion should exist in the registry
+     * @Then this promotion should still be named :promotionName
+     * @Then promotion :promotionName should still exist in the registry
      */
     public function thePromotionShouldAppearInTheRegistry($promotionName)
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isResourceOnPage(['name' => $promotionName]),
-            sprintf('Promotion with name %s has not been found.', $promotionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $promotionName]));
     }
 
     /**
@@ -121,45 +150,144 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Given I add the "Contains taxon" rule configured with :count :taxonName
+     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon
+     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon and :secondTaxon
      */
-    public function iAddTheContainsTaxonRuleConfiguredWith($count, $taxonName)
+    public function iAddTheHasTaxonRuleConfiguredWith(...$taxons)
     {
-        $this->createPage->addRule('Contains taxon');
-        $this->createPage->selectRuleOption('Taxon', $taxonName);
-        $this->createPage->fillRuleOption('Count', $count);
+        $this->createPage->addRule('Has at least one from taxons');
+
+        $this->createPage->selectAutocompleteRuleOption('Taxons', $taxons, true);
     }
 
     /**
-     * @Given I add the "Taxon" rule configured with :firstTaxon
-     * @Given I add the "Taxon" rule configured with :firstTaxon and :secondTaxon
+     * @When /^I add the "Total price of items from taxon" rule configured with "([^"]+)" taxon and (?:€|£|\$)([^"]+) amount for "([^"]+)" channel$/
      */
-    public function iAddTheTaxonRuleConfiguredWith($firstTaxon, $secondTaxon = null)
+    public function iAddTheRuleConfiguredWith($taxonName, $amount, $channelName)
     {
-        $this->createPage->addRule('Taxon');
-        $this->createPage->selectRuleOption('Taxons', $firstTaxon, true);
-
-        if (null !== $secondTaxon) {
-            $this->createPage->selectRuleOption('Taxons', $secondTaxon, true);
-        }
+        $this->createPage->addRule('Total price of items from taxon');
+        $this->createPage->selectAutocompleteRuleOption('Taxon', $taxonName);
+        $this->createPage->fillRuleOptionForChannel($channelName, 'Amount', $amount);
     }
 
     /**
-     * @Given I add the "Total of items from taxon" rule configured with :count :taxonName
+     * @When /^I add the "Item total" rule configured with (?:€|£|\$)([^"]+) amount for "([^"]+)" channel and (?:€|£|\$)([^"]+) amount for "([^"]+)" channel$/
      */
-    public function iAddTheRuleConfiguredWith($count, $taxonName)
-    {
-        $this->createPage->addRule('Total of items from taxon');
-        $this->createPage->selectRuleOption('Taxon', $taxonName);
-        $this->createPage->fillRuleOption('Amount', $count);
+    public function iAddTheItemTotalRuleConfiguredWithTwoChannel(
+        $firstAmount,
+        $firstChannelName,
+        $secondAmount,
+        $secondChannelName
+    ) {
+        $this->createPage->addRule('Item total');
+        $this->createPage->fillRuleOptionForChannel($firstChannelName, 'Amount', $firstAmount);
+        $this->createPage->fillRuleOptionForChannel($secondChannelName, 'Amount', $secondAmount);
     }
 
     /**
-     * @Then I should be notified that it has been successfully created
+     * @When /^I add the "([^"]+)" action configured with amount of "(?:€|£|\$)([^"]+)" for "([^"]+)" channel$/
      */
-    public function iShouldBeNotifiedItHasBeenSuccessfulCreation()
+    public function iAddTheActionConfiguredWithAmountForChannel($actionType, $amount, $channelName)
     {
-        $this->notificationChecker->checkCreationNotification(self::RESOURCE_NAME);
+        $this->createPage->addAction($actionType);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Amount', $amount);
+    }
+
+    /**
+     * @When /^it is(?:| also) configured with amount of "(?:€|£|\$)([^"]+)" for "([^"]+)" channel$/
+     */
+    public function itIsConfiguredWithAmountForChannel($amount, $channelName)
+    {
+        $this->createPage->fillActionOptionForChannel($channelName, 'Amount', $amount);
+    }
+
+    /**
+     * @When /^I specify that on "([^"]+)" channel this action should be applied to items with price greater then "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMinPriceFilterRangeForChannel($channelName, $minimum)
+    {
+        $this->createPage->fillActionOptionForChannel($channelName, 'Min', $minimum);
+    }
+
+    /**
+     * @When /^I specify that on "([^"]+)" channel this action should be applied to items with price lesser then "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMaxPriceFilterRangeForChannel($channelName, $maximum)
+    {
+        $this->createPage->fillActionOptionForChannel($channelName, 'Max', $maximum);
+    }
+
+    /**
+     * @When /^I specify that on "([^"]+)" channel this action should be applied to items with price between "(?:€|£|\$)([^"]+)" and "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMinMaxPriceFilterRangeForChannel($channelName, $minimum, $maximum)
+    {
+        $this->iAddAMinPriceFilterRangeForChannel($channelName, $minimum);
+        $this->iAddAMaxPriceFilterRangeForChannel($channelName, $maximum);
+    }
+
+    /**
+     * @When I specify that this action should be applied to items from :taxonName category
+     */
+    public function iSpecifyThatThisActionShouldBeAppliedToItemsFromCategory($taxonName)
+    {
+        $this->createPage->selectAutoCompleteFilterOption('Taxons', $taxonName);
+    }
+
+    /**
+     * @When /^I add the "([^"]+)" action configured with a percentage value of (?:|-)([^"]+)% for ("[^"]+" channel)$/
+     */
+    public function iAddTheActionConfiguredWithAPercentageValueForChannel($actionType, $percentage = null, $channelName)
+    {
+        $this->createPage->addAction($actionType);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Percentage', $percentage);
+    }
+
+    /**
+     * @When /^I add the "([^"]+)" action configured with a percentage value of (?:|-)([^"]+)%$/
+     * @When I add the :actionType action configured without a percentage value
+     */
+    public function iAddTheActionConfiguredWithAPercentageValue($actionType, $percentage = null)
+    {
+        $this->createPage->addAction($actionType);
+        $this->createPage->fillActionOption('Percentage', $percentage);
+    }
+
+    /**
+     * @When I add the "Customer group" rule for :customerGroupName group
+     */
+    public function iAddTheCustomerGroupRuleConfiguredForGroup($customerGroupName)
+    {
+        $this->createPage->addRule('Customer group');
+        $this->createPage->selectRuleOption('Customer group', $customerGroupName);
+    }
+
+    /**
+     * @Then /^there should be (\d+) promotion(?:|s)$/
+     */
+    public function thereShouldBePromotion($number)
+    {
+        Assert::same(
+            (int) $number,
+            $this->indexPage->countItems(),
+            'I should see %s promotions but i see only %2$s'
+        );
+    }
+
+    /**
+     * @Then /^(this promotion) should be coupon based$/
+     */
+    public function thisPromotionShouldBeCouponBased(PromotionInterface $promotion)
+    {
+        Assert::true($this->indexPage->isCouponBasedFor($promotion));
+    }
+
+    /**
+     * @Then /^I should be able to manage coupons for (this promotion)$/
+     */
+    public function iShouldBeAbleToManageCouponsForThisPromotion(PromotionInterface $promotion)
+    {
+        Assert::true($this->indexPage->isAbleToManageCouponsFor($promotion));
     }
 
     /**
@@ -171,14 +299,19 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
+     * @Then I should be notified that a :element value should be a numeric value
+     */
+    public function iShouldBeNotifiedThatAMinimalValueShouldBeNumeric($element)
+    {
+        $this->assertFieldValidationMessage($element, 'This value is not valid.');
+    }
+
+    /**
      * @Then I should be notified that promotion with this code already exists
      */
     public function iShouldBeNotifiedThatPromotionWithThisCodeAlreadyExists()
     {
-        Assert::true(
-            $this->createPage->checkValidationMessageFor('code', 'The promotion with given code already exists.'),
-            'Unique code violation message should appear on page, but it does not.'
-        );
+        Assert::same($this->createPage->getValidationMessage('code'), 'The promotion with given code already exists.');
     }
 
     /**
@@ -188,10 +321,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isResourceOnPage([$element => $name]),
-            sprintf('Promotion with %s %s has been created, but it should not.', $element, $name)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $name]));
     }
 
     /**
@@ -201,10 +331,294 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isResourceOnPage([$element => $value]),
-            sprintf('Promotion with %s %s cannot be found.', $element, $value)
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $value]));
+    }
+
+    /**
+     * @When I set its usage limit to :usageLimit
+     */
+    public function iSetItsUsageLimitTo($usageLimit)
+    {
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        $currentPage->fillUsageLimit($usageLimit);
+    }
+
+    /**
+     * @Then the :promotion promotion should be available to be used only :usageLimit times
+     */
+    public function thePromotionShouldBeAvailableToUseOnlyTimes(PromotionInterface $promotion, $usageLimit)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::true($this->updatePage->hasResourceValues(['usage_limit' => $usageLimit]));
+    }
+
+    /**
+     * @When I make it exclusive
+     */
+    public function iMakeItExclusive()
+    {
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        $currentPage->makeExclusive();
+    }
+
+    /**
+     * @Then the :promotion promotion should be exclusive
+     */
+    public function thePromotionShouldBeExclusive(PromotionInterface $promotion)
+    {
+        $this->assertIfFieldIsTrue($promotion, 'exclusive');
+    }
+
+    /**
+     * @When I make it coupon based
+     */
+    public function iMakeItCouponBased()
+    {
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        $currentPage->checkCouponBased();
+    }
+
+    /**
+     * @Then the :promotion promotion should be coupon based
+     */
+    public function thePromotionShouldBeCouponBased(PromotionInterface $promotion)
+    {
+        $this->assertIfFieldIsTrue($promotion, 'coupon_based');
+    }
+
+    /**
+     * @When I make it applicable for the :channelName channel
+     */
+    public function iMakeItApplicableForTheChannel($channelName)
+    {
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        $currentPage->checkChannel($channelName);
+    }
+
+    /**
+     * @Then the :promotion promotion should be applicable for the :channelName channel
+     */
+    public function thePromotionShouldBeApplicableForTheChannel(PromotionInterface $promotion, $channelName)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::true($this->updatePage->checkChannelsState($channelName));
+    }
+
+    /**
+     * @Given I want to modify a :promotion promotion
+     * @Given /^I want to modify (this promotion)$/
+     * @Then I should be able to modify a :promotion promotion
+     */
+    public function iWantToModifyAPromotion(PromotionInterface $promotion)
+    {
+        $this->updatePage->open(['id' => $promotion->getId()]);
+    }
+
+    /**
+     * @Then the code field should be disabled
+     */
+    public function theCodeFieldShouldBeDisabled()
+    {
+        Assert::true($this->updatePage->isCodeDisabled());
+    }
+
+    /**
+     * @When I save my changes
+     * @When I try to save my changes
+     */
+    public function iSaveMyChanges()
+    {
+        $this->updatePage->saveChanges();
+    }
+
+    /**
+     * @When /^I delete a ("([^"]+)" promotion)$/
+     * @When /^I try to delete a ("([^"]+)" promotion)$/
+     */
+    public function iDeletePromotion(PromotionInterface $promotion)
+    {
+        $this->sharedStorage->set('promotion', $promotion);
+
+        $this->indexPage->open();
+        $this->indexPage->deleteResourceOnPage(['name' => $promotion->getName()]);
+    }
+
+    /**
+     * @Then /^(this promotion) should no longer exist in the promotion registry$/
+     */
+    public function promotionShouldNotExistInTheRegistry(PromotionInterface $promotion)
+    {
+        $this->indexPage->open();
+
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $promotion->getCode()]));
+    }
+
+    /**
+     * @Then I should be notified that it is in use and cannot be deleted
+     */
+    public function iShouldBeNotifiedOfFailure()
+    {
+        $this->notificationChecker->checkNotification(
+            'Cannot delete, the promotion is in use.',
+            NotificationType::failure()
         );
+    }
+
+    /**
+     * @When I make it available from :startsDate to :endsDate
+     */
+    public function iMakeItAvailableFromTo(\DateTimeInterface $startsDate, \DateTimeInterface $endsDate)
+    {
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        $currentPage->setStartsAt($startsDate);
+        $currentPage->setEndsAt($endsDate);
+    }
+
+    /**
+     * @Then the :promotion promotion should be available from :startsDate to :endsDate
+     */
+    public function thePromotionShouldBeAvailableFromTo(PromotionInterface $promotion, \DateTimeInterface $startsDate, \DateTimeInterface $endsDate)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::true($this->updatePage->hasStartsAt($startsDate));
+
+        Assert::true($this->updatePage->hasEndsAt($endsDate));
+    }
+
+    /**
+     * @Then I should be notified that promotion cannot end before it start
+     */
+    public function iShouldBeNotifiedThatPromotionCannotEndBeforeItsEvenStart()
+    {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
+
+        Assert::same($currentPage->getValidationMessage('ends_at'), 'End date cannot be set prior start date.');
+    }
+
+    /**
+     * @Then I should be notified that this value should not be blank
+     */
+    public function iShouldBeNotifiedThatThisValueShouldNotBeBlank()
+    {
+        Assert::same(
+            $this->createPage->getValidationMessageForAction(),
+            'This value should not be blank.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that the maximum value of a percentage discount is 100%
+     */
+    public function iShouldBeNotifiedThatTheMaximumValueOfAPercentageDiscountIs100()
+    {
+        Assert::same(
+            $this->createPage->getValidationMessageForAction(),
+            'The maximum value of a percentage discount is 100%.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that a percentage discount value must be at least 0%
+     */
+    public function iShouldBeNotifiedThatAPercentageDiscountValueMustBeAtLeast0()
+    {
+        Assert::same(
+            $this->createPage->getValidationMessageForAction(),
+            'The value of a percentage discount must be at least 0%.'
+        );
+    }
+
+    /**
+     * @Then the promotion :promotion should be used :usage time(s)
+     * @Then the promotion :promotion should not be used
+     */
+    public function thePromotionShouldBeUsedTime(PromotionInterface $promotion, $usage = 0)
+    {
+        Assert::same(
+            (int) $usage,
+            $this->indexPage->getUsageNumber($promotion),
+            'Promotion should be used %s times, but is %2$s.'
+        );
+    }
+
+    /**
+     * @When I add the "Contains product" rule configured with the :productName product
+     */
+    public function iAddTheRuleConfiguredWithTheProduct($productName)
+    {
+        $this->createPage->addRule('Contains product');
+        $this->createPage->selectAutocompleteRuleOption('Product code', $productName);
+    }
+
+    /**
+     * @When I specify that this action should be applied to the :productName product
+     */
+    public function iSpecifyThatThisActionShouldBeAppliedToTheProduct($productName)
+    {
+        $this->createPage->selectAutoCompleteFilterOption('Products', $productName);
+    }
+
+    /**
+     * @Then I should see :count promotions on the list
+     */
+    public function iShouldSeePromotionsOnTheList($count)
+    {
+        $actualCount = $this->indexPage->countItems();
+
+        Assert::same(
+            (int) $count,
+            $actualCount,
+            'There should be %s promotion, but there\'s %2$s.'
+        );
+    }
+
+    /**
+     * @Then the first promotion on the list should have :field :value
+     */
+    public function theFirstPromotionOnTheListShouldHave($field, $value)
+    {
+        $fields = $this->indexPage->getColumnFields($field);
+        $actualValue = reset($fields);
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected first promotion\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @Then the last promotion on the list should have :field :value
+     */
+    public function theLastPromotionOnTheListShouldHave($field, $value)
+    {
+        $fields = $this->indexPage->getColumnFields($field);
+        $actualValue = end($fields);
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected last promotion\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @Given the :promotion promotion should have priority :priority
+     */
+    public function thePromotionsShouldHavePriority(PromotionInterface $promotion, $priority)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::same($this->updatePage->getPriority(), $priority);
     }
 
     /**
@@ -213,11 +627,20 @@ final class ManagingPromotionsContext implements Context
      */
     private function assertFieldValidationMessage($element, $expectedMessage)
     {
-        $currentPage = $this->currentPageResolver->getCurrentPageWithForm($this->createPage, $this->updatePage);
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
-        Assert::true(
-            $currentPage->checkValidationMessageFor($element, $expectedMessage),
-            sprintf('Promotion %s should be required.', $element)
-        );
+        Assert::same($currentPage->getValidationMessage($element), $expectedMessage);
+    }
+
+    /**
+     * @param PromotionInterface $promotion
+     * @param string $field
+     */
+    private function assertIfFieldIsTrue(PromotionInterface $promotion, $field)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::true($this->updatePage->hasResourceValues([$field => 1]));
     }
 }

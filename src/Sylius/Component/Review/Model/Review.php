@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Review\Model;
 
 use Sylius\Component\Resource\Model\TimestampableTrait;
@@ -73,15 +75,7 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getTitle()
+    public function getTitle(): ?string
     {
         return $this->title;
     }
@@ -89,15 +83,15 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function setRating($rating)
+    public function setTitle(?string $title): void
     {
-        $this->rating = $rating;
+        $this->title = $title;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getRating()
+    public function getRating(): ?int
     {
         return $this->rating;
     }
@@ -105,15 +99,15 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function setComment($comment)
+    public function setRating(?int $rating): void
     {
-        $this->comment = $comment;
+        $this->rating = $rating;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getComment()
+    public function getComment(): ?string
     {
         return $this->comment;
     }
@@ -121,15 +115,15 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function setAuthor(ReviewerInterface $author = null)
+    public function setComment(?string $comment): void
     {
-        $this->author = $author;
+        $this->comment = $comment;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAuthor()
+    public function getAuthor(): ?ReviewerInterface
     {
         return $this->author;
     }
@@ -137,15 +131,15 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function setStatus($status)
+    public function setAuthor(?ReviewerInterface $author): void
     {
-        $this->status = $status;
+        $this->author = $author;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         return $this->status;
     }
@@ -153,7 +147,15 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function getReviewSubject()
+    public function setStatus(?string $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getReviewSubject(): ?ReviewableInterface
     {
         return $this->reviewSubject;
     }
@@ -161,7 +163,7 @@ class Review implements ReviewInterface
     /**
      * {@inheritdoc}
      */
-    public function setReviewSubject(ReviewableInterface $reviewSubject)
+    public function setReviewSubject(?ReviewableInterface $reviewSubject): void
     {
         $this->reviewSubject = $reviewSubject;
     }

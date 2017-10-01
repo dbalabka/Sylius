@@ -9,35 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ThemeBundle\Loader;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
-use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
-use Sylius\Bundle\ThemeBundle\Loader\CircularDependencyChecker;
 use Sylius\Bundle\ThemeBundle\Loader\CircularDependencyCheckerInterface;
 use Sylius\Bundle\ThemeBundle\Loader\CircularDependencyFoundException;
+use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
 /**
- * @mixin CircularDependencyChecker
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class CircularDependencyCheckerSpec extends ObjectBehavior
+final class CircularDependencyCheckerSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ThemeBundle\Loader\CircularDependencyChecker');
-    }
-
-    function it_implements_circular_dependency_checker_interface()
+    function it_implements_circular_dependency_checker_interface(): void
     {
         $this->shouldImplement(CircularDependencyCheckerInterface::class);
     }
 
     function it_does_not_find_circular_dependency_if_checking_a_theme_without_any_parents(
         ThemeInterface $theme
-    ) {
+    ): void {
         $theme->getParents()->willReturn([]);
 
         $this->check($theme);
@@ -48,7 +41,7 @@ class CircularDependencyCheckerSpec extends ObjectBehavior
         ThemeInterface $secondTheme,
         ThemeInterface $thirdTheme,
         ThemeInterface $fourthTheme
-    ) {
+    ): void {
         $firstTheme->getParents()->willReturn([$secondTheme, $thirdTheme]);
         $secondTheme->getParents()->willReturn([$thirdTheme, $fourthTheme]);
         $thirdTheme->getParents()->willReturn([$fourthTheme]);
@@ -62,7 +55,7 @@ class CircularDependencyCheckerSpec extends ObjectBehavior
         ThemeInterface $secondTheme,
         ThemeInterface $thirdTheme,
         ThemeInterface $fourthTheme
-    ) {
+    ): void {
         $firstTheme->getParents()->willReturn([$secondTheme, $thirdTheme]);
         $secondTheme->getParents()->willReturn([$thirdTheme]);
         $thirdTheme->getParents()->willReturn([$fourthTheme]);

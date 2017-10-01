@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
@@ -19,75 +21,63 @@ use Sylius\Component\Resource\Model\TimestampableInterface;
  */
 interface PaymentInterface extends TimestampableInterface, ResourceInterface
 {
-    // Payment states.
-    const STATE_NEW = 'new';
-    const STATE_PENDING = 'pending';
-    const STATE_PROCESSING = 'processing';
-    const STATE_COMPLETED = 'completed';
-    const STATE_AUTHORIZED = 'authorized';
-    const STATE_FAILED = 'failed';
-    const STATE_CANCELLED = 'cancelled';
-    const STATE_VOID = 'void';
-    const STATE_REFUNDED = 'refunded';
-    const STATE_UNKNOWN = 'unknown';
+    public const STATE_AUTHORIZED = 'authorized';
+    public const STATE_CART = 'cart';
+    public const STATE_NEW = 'new';
+    public const STATE_PROCESSING = 'processing';
+    public const STATE_COMPLETED = 'completed';
+    public const STATE_FAILED = 'failed';
+    public const STATE_CANCELLED = 'cancelled';
+    public const STATE_REFUNDED = 'refunded';
+    public const STATE_UNKNOWN = 'unknown';
 
     /**
      * @return PaymentMethodInterface
      */
-    public function getMethod();
+    public function getMethod(): ?PaymentMethodInterface;
 
     /**
-     * @param null|PaymentMethodInterface $method
+     * @param PaymentMethodInterface|null $method
      */
-    public function setMethod(PaymentMethodInterface $method = null);
+    public function setMethod(?PaymentMethodInterface $method): void;
 
     /**
-     * @return PaymentSourceInterface
+     * @return string|null
      */
-    public function getSource();
-
-    /**
-     * @param null|PaymentSourceInterface $source
-     */
-    public function setSource(PaymentSourceInterface $source = null);
-
-    /**
-     * @return string
-     */
-    public function getState();
+    public function getState(): ?string;
 
     /**
      * @param string $state
      */
-    public function setState($state);
+    public function setState(string $state): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCurrency();
+    public function getCurrencyCode(): ?string;
 
     /**
      * @param string
      */
-    public function setCurrency($currency);
+    public function setCurrencyCode(string $currencyCode): void;
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getAmount();
+    public function getAmount(): ?int;
 
     /**
      * @param int $amount
      */
-    public function setAmount($amount);
-
-    /**
-     * @param array|\Traversable $details
-     */
-    public function setDetails($details);
+    public function setAmount(int $amount): void;
 
     /**
      * @return array
      */
-    public function getDetails();
+    public function getDetails(): array;
+
+    /**
+     * @param array $details
+     */
+    public function setDetails(array $details): void;
 }

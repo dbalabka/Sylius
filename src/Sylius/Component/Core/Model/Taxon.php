@@ -9,31 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Taxonomy\Model\Taxon as BaseTaxon;
 use Sylius\Component\Taxonomy\Model\TaxonTranslation;
 
-class Taxon extends BaseTaxon implements ImageInterface, TaxonInterface
+/**
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
+ */
+class Taxon extends BaseTaxon implements TaxonInterface
 {
     use TimestampableTrait;
 
     /**
-     * @var \SplFileInfo
+     * @var Collection|ImageInterface[]
      */
-    protected $file;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * @var ArrayCollection
-     */
-    protected $products;
+    protected $images;
 
     public function __construct()
     {
@@ -41,76 +37,67 @@ class Taxon extends BaseTaxon implements ImageInterface, TaxonInterface
 
         $this->createdAt = new \DateTime();
         $this->products = new ArrayCollection();
+        $this->images = new ArrayCollection();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasFile()
+    public function getImages(): Collection
     {
-        return null !== $this->file;
+        return $this->images;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFile()
+    public function getImagesByType(string $type): Collection
     {
-        return $this->file;
+        return $this->images->filter(function (ImageInterface $image) use ($type): bool {
+            return $type === $image->getType();
+        });
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setFile(\SplFileInfo $file)
+    public function hasImages(): bool
     {
-        $this->file = $file;
+        return !$this->images->isEmpty();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasPath()
+    public function hasImage(ImageInterface $image): bool
     {
-        return null !== $this->path;
+        return $this->images->contains($image);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPath()
+    public function addImage(ImageInterface $image): void
     {
-        return $this->path;
+        $image->setOwner($this);
+        $this->images->add($image);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setPath($path)
+    public function removeImage(ImageInterface $image): void
     {
-        $this->path = $path;
+        if ($this->hasImage($image)) {
+            $image->setOwner(null);
+            $this->images->removeElement($image);
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getProducts()
-    {
-        return $this->products;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setProducts($products)
-    {
-        $this->products = $products;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function getTranslationClass()
+    public static function getTranslationClass(): string
     {
         return TaxonTranslation::class;
     }

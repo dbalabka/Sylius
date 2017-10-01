@@ -32,26 +32,38 @@
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.1",
 
-        "sylius/user": "^0.18",
-        "sylius/resource-bundle": "^0.18",
-        "sylius/mailer-bundle": "^0.18",
-        "symfony/framework-bundle": "^2.7.7",
-        "hwi/oauth-bundle": "~0.3"
+        "doctrine/orm": "~2.5.0",
+        "sylius/mailer-bundle": "^1.0",
+        "sylius/resource-bundle": "^1.0",
+        "sylius/user": "^1.0",
+        "symfony/framework-bundle": "^3.2",
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4",
-        "symfony/form": "^2.7"
+        "hwi/oauth-bundle": "^0.5",
+        "phpspec/phpspec": "^4.0",
+        "phpunit/phpunit": "^5.6",
+        "symfony/security-bundle": "^3.2",
+        "symfony/swiftmailer-bundle": "^3.0",
+        "incenteev/composer-parameter-handler": "~2.0"
+    },
+    "suggest": {
+        "hwi/oauth-bundle": "For OAuth integration"
     },
     "config": {
         "bin-dir": "bin"
     },
     "autoload": {
-        "psr-4": { "Sylius\\Bundle\\UserBundle\\": "" }
+        "psr-4": { "Sylius\\Bundle\\UserBundle\\": "" },
+        "exclude-from-classmap": ["/Tests/"]
     },
     "autoload-dev": {
-        "psr-4": { "Sylius\\Bundle\\UserBundle\\spec\\": "spec/" }
+        "psr-4": {
+            "Sylius\\Bundle\\UserBundle\\Tests\\": "tests/"
+        },
+        "files": ["Tests/Functional/app/AppKernel.php"]
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -61,9 +73,28 @@
             "url": "../../*/*"
         }
     ],
+    "scripts": {
+        "post-install-cmd": [
+            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+        ],
+        "post-update-cmd": [
+            "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+        ],
+        "test": [
+            "@composer validate --strict",
+            "Tests/Functional/bin/console cache:clear --no-warmup --ansi --no-interaction",
+            "Tests/Functional/bin/console doctrine:database:create --if-not-exists --ansi --no-interaction",
+            "Tests/Functional/bin/console doctrine:schema:update --force --ansi --no-interaction",
+            "bin/phpunit --colors=always",
+            "bin/phpspec run --ansi --no-interaction"
+        ]
+    },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.18-dev"
+            "dev-master": "1.0-dev"
+        },
+        "incenteev-parameters": {
+            "file": "Tests/Functional/app/config/parameters.yml"
         }
     }
 }

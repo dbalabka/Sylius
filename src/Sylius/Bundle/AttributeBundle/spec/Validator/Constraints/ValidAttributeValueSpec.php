@@ -9,32 +9,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\AttributeBundle\Validator\Constraints;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\AttributeBundle\Validator\Constraints\ValidAttributeValue;
 use Symfony\Component\Validator\Constraint;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class ValidAttributeValueSpec extends ObjectBehavior
+final class ValidAttributeValueSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    function it_is_initializable(): void
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Validator\Constraints\ValidAttributeValue');
+        $this->shouldHaveType(ValidAttributeValue::class);
     }
 
-    function it_is_constraint()
+    function it_is_constraint(): void
     {
-        $this->shouldHaveType('Symfony\Component\Validator\Constraint');
+        $this->shouldHaveType(Constraint::class);
     }
 
-    function it_has_targets()
+    function it_has_targets(): void
     {
         $this->getTargets()->shouldReturn(Constraint::CLASS_CONSTRAINT);
     }
 
-    function it_is_validated_by_specific_validator()
+    function it_is_validated_by_specific_validator(): void
     {
         $this->validatedBy()->shouldReturn('sylius_valid_attribute_value_validator');
     }
