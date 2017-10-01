@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Model;
 
 use Doctrine\Common\Collections\Collection;
@@ -17,41 +19,43 @@ use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\ToggleableInterface;
 
 /**
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
+ * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  * @author Gustavo Perdomo <gperdomor@gmail.com>
  */
 interface CountryInterface extends ToggleableInterface, ResourceInterface, CodeAwareInterface
 {
     /**
-     * @return Collection|ProvinceInterface[]
+     * @param string|null $locale
+     *
+     * @return string|null
      */
-    public function getProvinces();
+    public function getName(?string $locale = null): ?string;
 
     /**
-     * @param Collection $provinces
+     * @return Collection|ProvinceInterface[]
      */
-    public function setProvinces(Collection $provinces);
+    public function getProvinces(): Collection;
 
     /**
      * @return bool
      */
-    public function hasProvinces();
+    public function hasProvinces(): bool;
 
     /**
      * @param ProvinceInterface $province
      */
-    public function addProvince(ProvinceInterface $province);
+    public function addProvince(ProvinceInterface $province): void;
 
     /**
      * @param ProvinceInterface $province
      */
-    public function removeProvince(ProvinceInterface $province);
+    public function removeProvince(ProvinceInterface $province): void;
 
     /**
      * @param ProvinceInterface $province
      *
      * @return bool
      */
-    public function hasProvince(ProvinceInterface $province);
+    public function hasProvince(ProvinceInterface $province): bool;
 }

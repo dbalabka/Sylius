@@ -9,10 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use Sylius\Component\Addressing\Repository\ZoneRepositoryInterface;
+use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
@@ -20,14 +24,14 @@ use Sylius\Component\Addressing\Repository\ZoneRepositoryInterface;
 final class ZoneContext implements Context
 {
     /**
-     * @var ZoneRepositoryInterface
+     * @var RepositoryInterface
      */
     private $zoneRepository;
 
     /**
-     * @param ZoneRepositoryInterface $zoneRepository
+     * @param RepositoryInterface $zoneRepository
      */
-    public function __construct(ZoneRepositoryInterface $zoneRepository)
+    public function __construct(RepositoryInterface $zoneRepository)
     {
         $this->zoneRepository = $zoneRepository;
     }
@@ -37,27 +41,46 @@ final class ZoneContext implements Context
      * @Transform /^zone "([^"]+)"$/
      * @Transform :zone
      */
-    public function getZoneByCode($zone)
+    public function getZoneByCode($code)
     {
-        $existingZone = $this->zoneRepository->findOneBy(['code' => $zone]);
-        if (null === $existingZone) {
-            throw new \InvalidArgumentException(sprintf('Zone with code "%s" does not exist.', $zone));
-        }
+        return $this->getZoneBy(['code' => $code]);
+    }
 
-        return $existingZone;
+    /**
+     * @Transform /^zone named "([^"]+)"$/
+     */
+    public function getZoneByName($name)
+    {
+        return $this->getZoneBy(['name' => $name]);
     }
 
     /**
      * @Transform /^rest of the world$/
-     * @Transform /^the rest of the world$/
      */
     public function getRestOfTheWorldZone()
     {
         $zone = $this->zoneRepository->findOneBy(['code' => 'RoW']);
-        if (null === $zone) {
-            throw new \Exception('Rest of the world zone does not exist.');
-        }
+        Assert::notNull(
+            $zone,
+            'Rest of the world zone does not exist.'
+        );
 
         return $zone;
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return ZoneInterface
+     */
+    private function getZoneBy(array $parameters)
+    {
+        $existingZone = $this->zoneRepository->findOneBy($parameters);
+        Assert::notNull(
+            $existingZone,
+            'Zone does not exist.'
+        );
+
+        return $existingZone;
     }
 }

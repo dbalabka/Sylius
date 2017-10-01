@@ -9,9 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Filter;
 
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Core\Model\OrderItemInterface;
 
 /**
@@ -20,10 +21,10 @@ use Sylius\Component\Core\Model\OrderItemInterface;
 interface FilterInterface
 {
     /**
-     * @param array $items
+     * @param OrderItemInterface[] $items
      * @param array $configuration
      *
      * @return OrderItemInterface[]
      */
-    public function filter(array $items, array $configuration);
+    public function filter(array $items, array $configuration): array;
 }

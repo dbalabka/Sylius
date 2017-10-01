@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Doctrine\DoctrineODMDriver;
@@ -21,7 +23,7 @@ use Sylius\Component\Resource\Metadata\MetadataInterface;
 /**
  * @author Arnaud Langlade <aRn0D.dev@gmail.com>
  */
-class DriverProvider
+final class DriverProvider
 {
     /**
      * @var DriverInterface[]
@@ -35,7 +37,7 @@ class DriverProvider
      *
      * @throws UnknownDriverException
      */
-    public static function get(MetadataInterface $metadata)
+    public static function get(MetadataInterface $metadata): DriverInterface
     {
         $type = $metadata->getDriver();
 

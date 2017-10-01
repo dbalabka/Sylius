@@ -17,6 +17,7 @@ sylius:
                 header: Situação do pagamento
                 checkout: Finalizar compra
                 completed: Concluído
+                authorized: Autorizado
                 failed: Falhou
                 new: Novo
                 pending: Pendente
@@ -28,5 +29,6 @@ sylius:
         payment_method:
             description: Descrição
             enabled: Habilitado?
-            gateway: Gateway
+            instructions: Instruções
             name: Nome
+            position: Função

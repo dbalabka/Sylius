@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Factory;
 
 /**
- * Interface for factories creating translatable resources.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface TranslatableFactoryInterface extends FactoryInterface

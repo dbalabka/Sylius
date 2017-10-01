@@ -9,63 +9,69 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\OrderProcessing;
 
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
+use Sylius\Component\Order\Processor\OrderProcessorInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Shipping\Calculator\DelegatingCalculatorInterface;
+use Sylius\Component\Shipping\Calculator\UndefinedShippingMethodException;
+use Webmozart\Assert\Assert;
 
 /**
- * Shipping charges processor.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ShippingChargesProcessor implements ShippingChargesProcessorInterface
+final class ShippingChargesProcessor implements OrderProcessorInterface
 {
     /**
-     * Adjustment repository.
-     *
      * @var FactoryInterface
      */
     protected $adjustmentFactory;
 
     /**
-     * Shipping charges calculator.
-     *
      * @var DelegatingCalculatorInterface
      */
-    protected $calculator;
+    protected $shippingChargesCalculator;
 
     /**
-     * Constructor.
-     *
      * @param FactoryInterface $adjustmentFactory
-     * @param DelegatingCalculatorInterface $calculator
+     * @param DelegatingCalculatorInterface $shippingChargesCalculator
      */
-    public function __construct(FactoryInterface $adjustmentFactory, DelegatingCalculatorInterface $calculator)
-    {
+    public function __construct(
+        FactoryInterface $adjustmentFactory,
+        DelegatingCalculatorInterface $shippingChargesCalculator
+    ) {
         $this->adjustmentFactory = $adjustmentFactory;
-        $this->calculator = $calculator;
+        $this->shippingChargesCalculator = $shippingChargesCalculator;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function applyShippingCharges(OrderInterface $order)
+    public function process(BaseOrderInterface $order): void
     {
+        /** @var OrderInterface $order */
+        Assert::isInstanceOf($order, OrderInterface::class);
+
         // Remove all shipping adjustments, we recalculate everything from scratch.
         $order->removeAdjustments(AdjustmentInterface::SHIPPING_ADJUSTMENT);
 
         foreach ($order->getShipments() as $shipment) {
-            $shippingCharge = $this->calculator->calculate($shipment);
+            try {
+                $shippingCharge = $this->shippingChargesCalculator->calculate($shipment);
 
-            $adjustment = $this->adjustmentFactory->createNew();
-            $adjustment->setType(AdjustmentInterface::SHIPPING_ADJUSTMENT);
-            $adjustment->setAmount($shippingCharge);
-            $adjustment->setLabel($shipment->getMethod()->getName());
+                $adjustment = $this->adjustmentFactory->createNew();
+                $adjustment->setType(AdjustmentInterface::SHIPPING_ADJUSTMENT);
+                $adjustment->setAmount($shippingCharge);
+                $adjustment->setLabel($shipment->getMethod()->getName());
 
-            $order->addAdjustment($adjustment);
+                $order->addAdjustment($adjustment);
+            } catch (UndefinedShippingMethodException $exception) {
+            }
         }
     }
 }

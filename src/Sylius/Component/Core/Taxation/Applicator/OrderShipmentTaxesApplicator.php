@@ -9,11 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Taxation\Applicator;
 
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\ShipmentInterface;
+use Sylius\Component\Core\Model\ShippingMethodInterface;
 use Sylius\Component\Order\Factory\AdjustmentFactoryInterface;
 use Sylius\Component\Taxation\Calculator\CalculatorInterface;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
@@ -44,8 +48,11 @@ class OrderShipmentTaxesApplicator implements OrderTaxesApplicatorInterface
      * @param AdjustmentFactoryInterface $adjustmentFactory
      * @param TaxRateResolverInterface $taxRateResolver
      */
-    public function __construct(CalculatorInterface $calculator, AdjustmentFactoryInterface $adjustmentFactory, TaxRateResolverInterface $taxRateResolver)
-    {
+    public function __construct(
+        CalculatorInterface $calculator,
+        AdjustmentFactoryInterface $adjustmentFactory,
+        TaxRateResolverInterface $taxRateResolver
+    ) {
         $this->calculator = $calculator;
         $this->adjustmentFactory = $adjustmentFactory;
         $this->taxRateResolver = $taxRateResolver;
@@ -54,30 +61,24 @@ class OrderShipmentTaxesApplicator implements OrderTaxesApplicatorInterface
     /**
      * {@inheritdoc}
      */
-    public function apply(OrderInterface $order, ZoneInterface $zone)
+    public function apply(OrderInterface $order, ZoneInterface $zone): void
     {
-        $lastShipment = $order->getLastShipment();
-        if (!$lastShipment) {
+        $shippingTotal = $order->getShippingTotal();
+        if (0 === $shippingTotal) {
             return;
         }
 
-        $shippingAdjustments = $order->getAdjustments(AdjustmentInterface::SHIPPING_ADJUSTMENT);
-        if ($shippingAdjustments->isEmpty()) {
-            return;
-        }
-
-        $taxRate = $this->taxRateResolver->resolve($lastShipment->getMethod(), ['zone' => $zone]);
+        $taxRate = $this->taxRateResolver->resolve($this->getShippingMethod($order), ['zone' => $zone]);
         if (null === $taxRate) {
             return;
         }
 
-        $lastShippingAdjustment = $shippingAdjustments->last();
-        $taxAmount = $this->calculator->calculate($lastShippingAdjustment->getAmount(), $taxRate);
-        if (0 === $taxAmount) {
+        $taxAmount = $this->calculator->calculate($shippingTotal, $taxRate);
+        if (0.00 === $taxAmount) {
             return;
         }
 
-        $this->addAdjustment($order, $taxAmount, $taxRate->getLabel(), $taxRate->isIncludedInPrice());
+        $this->addAdjustment($order, (int) $taxAmount, $taxRate->getLabel(), $taxRate->isIncludedInPrice());
     }
 
     /**
@@ -86,10 +87,30 @@ class OrderShipmentTaxesApplicator implements OrderTaxesApplicatorInterface
      * @param string $label
      * @param bool $included
      */
-    private function addAdjustment($order, $taxAmount, $label, $included)
+    private function addAdjustment(OrderInterface $order, int $taxAmount, string $label, bool $included)
     {
         /** @var AdjustmentInterface $shippingTaxAdjustment */
-        $shippingTaxAdjustment = $this->adjustmentFactory->createWithData(AdjustmentInterface::TAX_ADJUSTMENT, $label, $taxAmount, $included);
+        $shippingTaxAdjustment = $this->adjustmentFactory
+            ->createWithData(AdjustmentInterface::TAX_ADJUSTMENT, $label, $taxAmount, $included)
+        ;
         $order->addAdjustment($shippingTaxAdjustment);
+    }
+
+    /**
+     * @param OrderInterface $order
+     *
+     * @return ShippingMethodInterface
+     *
+     * @throws \LogicException
+     */
+    private function getShippingMethod(OrderInterface $order): ShippingMethodInterface
+    {
+        /** @var ShipmentInterface $shipment */
+        $shipment = $order->getShipments()->first();
+        if (false === $shipment) {
+            throw new \LogicException('Order should have at least one shipment.');
+        }
+
+        return $shipment->getMethod();
     }
 }

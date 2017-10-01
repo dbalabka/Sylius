@@ -9,50 +9,63 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ThemeBundle\Model;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Bundle\ThemeBundle\Model\Theme;
 use Sylius\Bundle\ThemeBundle\Model\ThemeAuthor;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Bundle\ThemeBundle\Model\ThemeScreenshot;
 
 /**
- * @mixin Theme
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class ThemeSpec extends ObjectBehavior
+final class ThemeSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    function let(): void
     {
-        $this->shouldHaveType('Sylius\Bundle\ThemeBundle\Model\Theme');
+        $this->beConstructedWith('theme/name', '/theme/path');
     }
 
-    function it_implements_theme_interface()
+    function it_implements_theme_interface(): void
     {
         $this->shouldImplement(ThemeInterface::class);
     }
 
-    function it_implements_resource_interface()
+    function its_name_cannot_have_underscores(): void
     {
-        $this->shouldImplement(ResourceInterface::class);
+        $this->beConstructedWith('first_theme/name', '/theme/path');
+
+        $this->shouldThrow(\InvalidArgumentException::class)->duringInstantiation();
     }
 
-    function it_has_id()
+    function it_has_immutable_name(): void
     {
-        $this->getId()->shouldReturn(null);
+        $this->getName()->shouldReturn('theme/name');
     }
 
-    function it_has_name()
+    function its_name_might_contain_numbers(): void
     {
-        $this->getName()->shouldReturn(null);
+        $this->beConstructedWith('1e/e7', '/theme/path');
 
-        $this->setName('foo/bar');
-        $this->getName()->shouldReturn('foo/bar');
+        $this->getName()->shouldReturn('1e/e7');
     }
 
-    function it_has_title()
+    function its_name_might_contain_uppercase_characters(): void
+    {
+        $this->beConstructedWith('AbC/DeF', '/theme/path');
+
+        $this->getName()->shouldReturn('AbC/DeF');
+    }
+
+    function it_has_immutable_path(): void
+    {
+        $this->getPath()->shouldReturn('/theme/path');
+    }
+
+    function it_has_title(): void
     {
         $this->getTitle()->shouldReturn(null);
 
@@ -60,22 +73,7 @@ class ThemeSpec extends ObjectBehavior
         $this->getTitle()->shouldReturn('Foo Bar');
     }
 
-    function it_has_path()
-    {
-        $this->getPath()->shouldReturn(null);
-
-        $this->setPath('/foo/bar');
-        $this->getPath()->shouldReturn('/foo/bar');
-    }
-
-    function it_has_code_based_on_md5ed_name()
-    {
-        $this->setName('name');
-
-        $this->getCode()->shouldReturn(substr(md5('name'), 0, 8));
-    }
-
-    function it_has_description()
+    function it_has_description(): void
     {
         $this->getDescription()->shouldReturn(null);
 
@@ -83,7 +81,7 @@ class ThemeSpec extends ObjectBehavior
         $this->getDescription()->shouldReturn('Lorem ipsum.');
     }
 
-    function it_has_authors()
+    function it_has_authors(): void
     {
         $themeAuthor = new ThemeAuthor();
 
@@ -96,7 +94,7 @@ class ThemeSpec extends ObjectBehavior
         $this->getAuthors()->shouldHaveCount(0);
     }
 
-    function it_has_parents(ThemeInterface $theme)
+    function it_has_parents(ThemeInterface $theme): void
     {
         $this->getParents()->shouldHaveCount(0);
 
@@ -105,5 +103,18 @@ class ThemeSpec extends ObjectBehavior
 
         $this->removeParent($theme);
         $this->getParents()->shouldHaveCount(0);
+    }
+
+    function it_has_screenshots(): void
+    {
+        $themeScreenshot = new ThemeScreenshot('some path');
+
+        $this->getScreenshots()->shouldHaveCount(0);
+
+        $this->addScreenshot($themeScreenshot);
+        $this->getScreenshots()->shouldHaveCount(1);
+
+        $this->removeScreenshot($themeScreenshot);
+        $this->getScreenshots()->shouldHaveCount(0);
     }
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Behat;
 
 use PhpSpec\ObjectBehavior;
@@ -16,7 +18,7 @@ use PhpSpec\ObjectBehavior;
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class NotificationTypeSpec extends ObjectBehavior
+final class NotificationTypeSpec extends ObjectBehavior
 {
     function it_initialize_with_success_value()
     {

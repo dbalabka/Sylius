@@ -9,36 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\EventListener;
 
-use Sylius\Component\Resource\Exception\UnexpectedTypeException;
+use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\User\Model\UserInterface;
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Webmozart\Assert\Assert;
 
 /**
- * User delete listener.
- *
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class UserDeleteListener
+final class UserDeleteListener
 {
     /**
      * @var TokenStorageInterface
      */
-    protected $tokenStorage;
+    private $tokenStorage;
 
     /**
      * @var SessionInterface
      */
-    protected $session;
+    private $session;
 
     /**
      * @param TokenStorageInterface $tokenStorage
-     * @param SessionInterface         $session
+     * @param SessionInterface $session
      */
     public function __construct(TokenStorageInterface $tokenStorage, SessionInterface $session)
     {
@@ -47,21 +48,23 @@ class UserDeleteListener
     }
 
     /**
-     * @param GenericEvent $event
+     * @param ResourceControllerEvent $event
+     *
+     * @throws \InvalidArgumentException
      */
-    public function deleteUser(GenericEvent $event)
+    public function deleteUser(ResourceControllerEvent $event): void
     {
         $user = $event->getSubject();
 
-        if (!$user instanceof UserInterface) {
-            throw new UnexpectedTypeException(
-                $user,
-                UserInterface::class
-            );
-        }
+        Assert::isInstanceOf($user, UserInterface::class);
 
-        if (($token = $this->tokenStorage->getToken()) && ($loggedUser = $token->getUser()) && ($loggedUser->getId() === $user->getId())) {
+        $token = $this->tokenStorage->getToken();
+
+        if ((null !== $token) && ($loggedUser = $token->getUser()) && ($loggedUser->getId() === $user->getId())) {
             $event->stopPropagation();
+            $event->setErrorCode(Response::HTTP_UNPROCESSABLE_ENTITY);
+            $event->setMessage('Cannot remove currently logged in user.');
+
             $this->session->getBag('flashes')->add('error', 'Cannot remove currently logged in user.');
         }
     }

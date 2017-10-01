@@ -1,4 +1,4 @@
-@addressing
+@managing_countries
 Feature: Managing provinces of a country
     In order to add or remove provinces in existing countries
     As an Administrator
@@ -10,28 +10,28 @@ Feature: Managing provinces of a country
 
     @ui @javascript
     Scenario: Adding a province to an existing country
-        Given I want to edit this country
-        When I add the "Scotland" province with "GB-SCT" code
+        When I want to edit this country
+        And I add the "Scotland" province with "GB-SCT" code
         And I save my changes
-        Then I should be notified about successful edition
+        Then I should be notified that it has been successfully edited
         And this country should have the "Scotland" province
 
     @ui @javascript
     Scenario: Removing a province from an existing country
         Given this country has the "Northern Ireland" province with "GB-NIR" code
-        And I want to edit this country
-        When I delete the "Northern Ireland" province of this country
+        When I want to edit this country
+        And I delete the "Northern Ireland" province of this country
         And I save my changes
-        Then I should be notified about successful edition
+        Then I should be notified that it has been successfully edited
         And this country should not have the "Northern Ireland" province
 
     @ui @javascript
     Scenario: Removing and adding a new province to an existing country
         Given this country has the "Northern Ireland" province with "GB-NIR" code
-        And I want to edit this country
-        When I delete the "Northern Ireland" province of this country
+        When I want to edit this country
+        And I delete the "Northern Ireland" province of this country
         And I add the "Scotland" province with "GB-SCT" code
         And I save my changes
-        Then I should be notified about successful edition
+        Then I should be notified that it has been successfully edited
         And this country should not have the "Northern Ireland" province
         And this country should have the "Scotland" province

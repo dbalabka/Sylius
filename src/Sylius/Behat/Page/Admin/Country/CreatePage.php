@@ -9,11 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Country;
 
 use Behat\Mink\Element\Element;
 use Sylius\Behat\Behaviour\ChoosesName;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -58,6 +61,8 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     {
         $provinces = $this->getElement('provinces');
         $items = $provinces->findAll('css', 'div[data-form-collection="item"]');
+
+        Assert::notEmpty($items);
 
         return end($items);
     }

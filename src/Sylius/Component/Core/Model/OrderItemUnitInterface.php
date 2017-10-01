@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Inventory\Model\InventoryUnitInterface;
@@ -20,4 +22,8 @@ use Sylius\Component\Shipping\Model\ShipmentUnitInterface;
  */
 interface OrderItemUnitInterface extends BaseOrderItemUnitInterface, InventoryUnitInterface, ShipmentUnitInterface
 {
+    /**
+     * @return int
+     */
+    public function getTaxTotal(): int;
 }

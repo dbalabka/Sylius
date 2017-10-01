@@ -9,14 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
-use Sylius\Behat\Page\Admin\TaxRate\UpdatePageInterface;
-use Sylius\Behat\Service\CurrentPageResolverInterface;
-use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Page\Admin\TaxRate\CreatePageInterface;
+use Sylius\Behat\Page\Admin\TaxRate\UpdatePageInterface;
+use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Core\Model\TaxRateInterface;
 use Webmozart\Assert\Assert;
 
@@ -25,8 +26,6 @@ use Webmozart\Assert\Assert;
  */
 final class ManagingTaxRateContext implements Context
 {
-    const RESOURCE_NAME = 'tax_rate';
-
     /**
      * @var IndexPageInterface
      */
@@ -48,29 +47,21 @@ final class ManagingTaxRateContext implements Context
     private $currentPageResolver;
 
     /**
-     * @var NotificationCheckerInterface
-     */
-    private $notificationChecker;
-
-    /**
      * @param IndexPageInterface $indexPage
      * @param CreatePageInterface $createPage
      * @param UpdatePageInterface $updatePage
      * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
      */
     public function __construct(
         IndexPageInterface $indexPage,
-        CreatePageInterface $createPage, 
-        UpdatePageInterface $updatePage, 
-        CurrentPageResolverInterface $currentPageResolver, 
-        NotificationCheckerInterface $notificationChecker
+        CreatePageInterface $createPage,
+        UpdatePageInterface $updatePage,
+        CurrentPageResolverInterface $currentPageResolver
     ) {
         $this->indexPage = $indexPage;
         $this->createPage = $createPage;
         $this->updatePage = $updatePage;
         $this->currentPageResolver = $currentPageResolver;
-        $this->notificationChecker = $notificationChecker;
     }
 
     /**
@@ -92,7 +83,6 @@ final class ManagingTaxRateContext implements Context
 
     /**
      * @When I specify its amount as :amount%
-     * @When I change its amount to :amount%
      * @When I do not specify its amount
      * @When I remove its amount
      */
@@ -154,18 +144,7 @@ final class ManagingTaxRateContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isResourceOnPage(['name' => $taxRateName]), 
-            sprintf('Tax rate with name %s has not been found.', $taxRateName)
-        );
-    }
-
-    /**
-     * @Then I should be notified that it has been successfully created
-     */
-    public function iShouldBeNotifiedItHasBeenSuccessfulCreation()
-    {
-        $this->notificationChecker->checkCreationNotification(self::RESOURCE_NAME);
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $taxRateName]));
     }
 
     /**
@@ -182,18 +161,7 @@ final class ManagingTaxRateContext implements Context
      */
     public function thisTaxRateShouldNoLongerExistInTheRegistry(TaxRateInterface $taxRate)
     {
-        Assert::false(
-            $this->indexPage->isResourceOnPage(['code' => $taxRate->getCode()]),
-            sprintf('Tax rate with code %s exists but should not.', $taxRate->getCode())
-        );
-    }
-
-    /**
-     * @Then I should be notified that it has been successfully deleted
-     */
-    public function iShouldBeNotifiedAboutSuccessfulDeletion()
-    {
-        $this->notificationChecker->checkDeletionNotification(self::RESOURCE_NAME);
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $taxRate->getCode()]));
     }
 
     /**
@@ -210,10 +178,7 @@ final class ManagingTaxRateContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code should be immutable, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -223,14 +188,6 @@ final class ManagingTaxRateContext implements Context
     public function iSaveMyChanges()
     {
         $this->updatePage->saveChanges();
-    }
-
-    /**
-     * @Then I should be notified about successful edition
-     */
-    public function iShouldBeNotifiedAboutSuccessfulEdition()
-    {
-        $this->notificationChecker->checkEditionNotification(self::RESOURCE_NAME);
     }
 
     /**
@@ -256,10 +213,7 @@ final class ManagingTaxRateContext implements Context
      */
     public function iShouldBeNotifiedThatTaxRateWithThisCodeAlreadyExists()
     {
-        Assert::true(
-            $this->createPage->checkValidationMessageFor('code', 'The tax rate with given code already exists.'),
-            'Unique code violation message should appear on page, but it does not.'
-        );
+        Assert::same($this->createPage->getValidationMessage('code'), 'The tax rate with given code already exists.');
     }
 
     /**
@@ -269,10 +223,7 @@ final class ManagingTaxRateContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isResourceOnPage([$element => $code]),
-            sprintf('Tax rate with %s %s cannot be founded.', $element, $code)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $code]));
     }
 
     /**
@@ -314,10 +265,7 @@ final class ManagingTaxRateContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isResourceOnPage([$element => $name]),
-            sprintf('Tax rate with %s %s was created, but it should not.', $element, $name)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $name]));
     }
 
     /**
@@ -326,6 +274,14 @@ final class ManagingTaxRateContext implements Context
     public function iDoNotSpecifyItsZone()
     {
         // Intentionally left blank to fulfill context expectation
+    }
+
+    /**
+     * @When I remove its zone
+     */
+    public function iRemoveItsZone()
+    {
+        $this->updatePage->removeZone();
     }
 
     /**
@@ -346,12 +302,10 @@ final class ManagingTaxRateContext implements Context
         $this->indexPage->open();
 
         Assert::true(
-            $this->indexPage->isResourceOnPage(
-                [
+            $this->indexPage->isSingleResourceOnPage([
                     'code' => $taxRate->getCode(),
                     $element => $taxRateElement,
-                ]
-            ),
+            ]),
             sprintf('Tax rate %s %s has not been assigned properly.', $element, $taxRateElement)
         );
     }
@@ -362,11 +316,17 @@ final class ManagingTaxRateContext implements Context
      */
     private function assertFieldValidationMessage($element, $expectedMessage)
     {
-        $currentPage = $this->currentPageResolver->getCurrentPageWithForm($this->createPage, $this->updatePage);
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
-        Assert::true(
-            $currentPage->checkValidationMessageFor($element, $expectedMessage),
-            sprintf('Tax rate %s should be required.', $element)
-        );
+        Assert::same($currentPage->getValidationMessage($element), $expectedMessage);
+    }
+
+    /**
+     * @Given I choose "Included in price" option
+     */
+    public function iChooseOption()
+    {
+        $this->createPage->chooseIncludedInPrice();
     }
 }

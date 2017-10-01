@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Registry;
 
 use PhpSpec\ObjectBehavior;
@@ -16,25 +18,20 @@ use PhpSpec\ObjectBehavior;
 /**
  * @author Saša Stamenković <umpirsky@gmail.com>
  */
-class ExistingServiceExceptionSpec extends ObjectBehavior
+final class ExistingServiceExceptionSpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
-        $this->beConstructedWith('foo');
+        $this->beConstructedWith('Service', 'foo');
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Registry\ExistingServiceException');
-    }
-
-    function it_is_an_exception()
+    function it_is_an_exception(): void
     {
         $this->shouldHaveType(\Exception::class);
     }
 
-    function it_is_an_invalid_argument_exception()
+    function it_is_an_invalid_argument_exception(): void
     {
-        $this->shouldHaveType('InvalidArgumentException');
+        $this->shouldHaveType(\InvalidArgumentException::class);
     }
 }

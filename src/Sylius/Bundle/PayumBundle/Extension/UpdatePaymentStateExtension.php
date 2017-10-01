@@ -9,18 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Extension;
 
 use Payum\Core\Extension\Context;
 use Payum\Core\Extension\ExtensionInterface;
 use Payum\Core\Request\Generic;
 use Payum\Core\Request\GetStatusInterface;
+use Payum\Core\Request\Notify;
 use SM\Factory\FactoryInterface;
 use Sylius\Bundle\PayumBundle\Request\GetStatus;
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Payment\PaymentTransitions;
 
-class UpdatePaymentStateExtension implements ExtensionInterface
+final class UpdatePaymentStateExtension implements ExtensionInterface
 {
     /**
      * @var FactoryInterface
@@ -38,24 +41,34 @@ class UpdatePaymentStateExtension implements ExtensionInterface
     /**
      * {@inheritdoc}
      */
-    public function onPreExecute(Context $context)
+    public function onPreExecute(Context $context): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onExecute(Context $context)
+    public function onExecute(Context $context): void
     {
     }
 
     /**
      * {@inheritdoc}
      */
-    public function onPostExecute(Context $context)
+    public function onPostExecute(Context $context): void
     {
-        if ($context->getPrevious()) {
+        $previousStack = $context->getPrevious();
+        $previousStackSize = count($previousStack);
+
+        if ($previousStackSize > 1) {
             return;
+        }
+
+        if ($previousStackSize === 1) {
+            $previousActionClassName = get_class($previousStack[0]->getAction());
+            if (false === stripos($previousActionClassName, 'NotifyNullAction')) {
+                return;
+            }
         }
 
         /** @var Generic $request */
@@ -64,7 +77,7 @@ class UpdatePaymentStateExtension implements ExtensionInterface
             return;
         }
 
-        if (false === $request instanceof GetStatusInterface) {
+        if (false === $request instanceof GetStatusInterface && false === $request instanceof Notify) {
             return;
         }
 
@@ -75,8 +88,9 @@ class UpdatePaymentStateExtension implements ExtensionInterface
         }
 
         $context->getGateway()->execute($status = new GetStatus($payment));
-        if ($payment->getState() !== $status->getValue()) {
-            $this->updatePaymentState($payment, $status->getValue());
+        $value = $status->getValue();
+        if ($payment->getState() !== $value && PaymentInterface::STATE_UNKNOWN !== $value) {
+            $this->updatePaymentState($payment, $value);
         }
     }
 
@@ -84,7 +98,7 @@ class UpdatePaymentStateExtension implements ExtensionInterface
      * @param PaymentInterface $payment
      * @param string $nextState
      */
-    protected function updatePaymentState(PaymentInterface $payment, $nextState)
+    protected function updatePaymentState(PaymentInterface $payment, string $nextState): void
     {
         $stateMachine = $this->factory->get($payment, PaymentTransitions::GRAPH);
 

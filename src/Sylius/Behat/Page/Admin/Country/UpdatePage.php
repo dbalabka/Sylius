@@ -9,12 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Country;
 
 use Behat\Mink\Element\Element;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\Toggles;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -54,26 +57,6 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     }
 
     /**
-     * {@inheritdoc}
-     */
-    protected function getToggleableElement()
-    {
-        return $this->getElement('enabled');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getDefinedElements()
-    {
-        return array_merge(parent::getDefinedElements(), [
-            'enabled' => '#sylius_country_enabled',
-            'code' => '#sylius_country_code',
-            'provinces' => '#sylius_country_provinces',
-        ]);
-    }
-
-    /**
      * @param string $provinceName
      */
     public function removeProvince($provinceName)
@@ -82,10 +65,14 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
             $provinces = $this->getElement('provinces');
 
             $item = $provinces
-                ->find('css', 'div[data-form-collection="item"] input[value="'.$provinceName.'"]')
+                ->find('css', sprintf('div[data-form-collection="item"] input[value="%s"]', $provinceName))
+                ->getParent()
+                ->getParent()
+                ->getParent()
                 ->getParent()
                 ->getParent()
             ;
+
             $item->clickLink('Delete');
         }
     }
@@ -151,16 +138,36 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function checkValidationMessageFor($element, $message)
+    public function getValidationMessage($element)
     {
         $provinceForm = $this->getLastProvinceElement();
 
-        $foundedElement = $provinceForm->find('css', '.pointing');
-        if (null === $foundedElement) {
-            throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.pointing');
+        $foundElement = $provinceForm->find('css', '.sylius-validation-error');
+        if (null === $foundElement) {
+            throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.sylius-validation-error');
         }
 
-        return $message === $foundedElement->getText();
+        return $foundElement->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getToggleableElement()
+    {
+        return $this->getElement('enabled');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefinedElements()
+    {
+        return array_merge(parent::getDefinedElements(), [
+            'code' => '#sylius_country_code',
+            'enabled' => '#sylius_country_enabled',
+            'provinces' => '#sylius_country_provinces',
+        ]);
     }
 
     /**
@@ -170,6 +177,8 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     {
         $provinces = $this->getElement('provinces');
         $items = $provinces->findAll('css', 'div[data-form-collection="item"]');
+
+        Assert::notEmpty($items);
 
         return end($items);
     }

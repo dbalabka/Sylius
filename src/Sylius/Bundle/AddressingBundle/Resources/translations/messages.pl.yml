@@ -11,14 +11,14 @@ sylius:
             last_name: Nazwisko
             phone_number: Numer telefonu
             postcode: Kod pocztowy
-            street: Adres
             province: Województwo
+            zone: Strefa
         country:
             add_province: Dodaj województwo
             name: Nazwa
             provinces: Województwa
             select: Wybierz
-            enabled: Włączone
+            enabled: Aktywne
         province:
             name: Nazwa
             abbreviation: Skrót
@@ -33,6 +33,8 @@ sylius:
                 province: Województwo
                 zone: Strefa
             scope: Zakres
+            scopes:
+                all: Wszystko
             select: Wybierz
             select_scope: Wybierz zakres
         zone_member:

@@ -9,33 +9,48 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\DoctrineTargetEntitiesResolverPass;
-use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\ObjectToIdentifierServicePass;
+use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\RegisterFormBuilderPass;
+use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\RegisterResourceRepositoryPass;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\RegisterResourcesPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * Resource bundle.
- *
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
+ * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SyliusResourceBundle extends Bundle
+final class SyliusResourceBundle extends Bundle
 {
-    // Bundle driver list.
-    const DRIVER_DOCTRINE_ORM = 'doctrine/orm';
-    const DRIVER_DOCTRINE_MONGODB_ODM = 'doctrine/mongodb-odm';
-    const DRIVER_DOCTRINE_PHPCR_ODM = 'doctrine/phpcr-odm';
+    public const DRIVER_DOCTRINE_ORM = 'doctrine/orm';
+    public const DRIVER_DOCTRINE_MONGODB_ODM = 'doctrine/mongodb-odm';
+    public const DRIVER_DOCTRINE_PHPCR_ODM = 'doctrine/phpcr-odm';
 
     /**
      * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
+        parent::build($container);
+
         $container->addCompilerPass(new RegisterResourcesPass());
-        $container->addCompilerPass(new ObjectToIdentifierServicePass());
         $container->addCompilerPass(new DoctrineTargetEntitiesResolverPass());
+        $container->addCompilerPass(new RegisterResourceRepositoryPass());
+        $container->addCompilerPass(new RegisterFormBuilderPass());
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getAvailableDrivers(): array
+    {
+        return [
+            self::DRIVER_DOCTRINE_ORM,
+            self::DRIVER_DOCTRINE_MONGODB_ODM,
+            self::DRIVER_DOCTRINE_PHPCR_ODM,
+        ];
     }
 }

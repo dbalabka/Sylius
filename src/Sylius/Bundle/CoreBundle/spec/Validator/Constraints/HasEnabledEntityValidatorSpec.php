@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\CoreBundle\Validator\Constraints;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -18,16 +20,11 @@ use Symfony\Component\Validator\ConstraintValidator;
 /**
  * @author Gustavo Perdomo <gperdomor@gmail.com>
  */
-class HasEnabledEntityValidatorSpec extends ObjectBehavior
+final class HasEnabledEntityValidatorSpec extends ObjectBehavior
 {
     public function let(ManagerRegistry $registry)
     {
         $this->beConstructedWith($registry);
-    }
-
-    public function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Validator\Constraints\HasEnabledEntityValidator');
     }
 
     public function it_is_a_constraint_validator()

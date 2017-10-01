@@ -10,13 +10,18 @@ sylius:
             options: Možnosti
             meta_keywords: Meta klíčová slova
             meta_description: Meta popis
-            taxons: Taxony
+            slug: Unikátní identifikátor URL (slug)
         product_variant:
-            available_on: Dostupný od
-        product_archetype:
             name: Jméno
-            parent: Rodič
-            attributes: Atributy
-            options: Možnosti
         association_type:
             name: Jméno
+            translations: Překlady
+        variant:
+            name: Jméno
+        option:
+            name: Jméno
+            position: Pozice
+            values: Možné hodnoty
+        option_value:
+            add_value: Přidání hodnoty
+            value: Hodnota

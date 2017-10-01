@@ -9,17 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Component\Inventory\Model;
+declare(strict_types=1);
 
-use Sylius\Component\Resource\Model\TimestampableTrait;
+namespace Sylius\Component\Inventory\Model;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
 class InventoryUnit implements InventoryUnitInterface
 {
-    use TimestampableTrait;
-
     /**
      * @var mixed
      */
@@ -29,16 +28,6 @@ class InventoryUnit implements InventoryUnitInterface
      * @var StockableInterface
      */
     protected $stockable;
-
-    /**
-     * @var string
-     */
-    protected $inventoryState = InventoryUnitInterface::STATE_CHECKOUT;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
 
     /**
      * {@inheritdoc}
@@ -51,7 +40,7 @@ class InventoryUnit implements InventoryUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getStockable()
+    public function getStockable(): ?StockableInterface
     {
         return $this->stockable;
     }
@@ -59,48 +48,8 @@ class InventoryUnit implements InventoryUnitInterface
     /**
      * @param StockableInterface $stockable
      */
-    public function setStockable(StockableInterface $stockable)
+    public function setStockable(StockableInterface $stockable): void
     {
         $this->stockable = $stockable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInventoryName()
-    {
-        return $this->stockable->getInventoryName();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInventoryState()
-    {
-        return $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setInventoryState($state)
-    {
-        $this->inventoryState = $state;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isSold()
-    {
-        return InventoryUnitInterface::STATE_SOLD === $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isBackordered()
-    {
-        return InventoryUnitInterface::STATE_BACKORDERED === $this->inventoryState;
     }
 }

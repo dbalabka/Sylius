@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\EventListener;
 
 use Doctrine\Common\EventSubscriber;
@@ -23,25 +25,19 @@ use Sylius\Component\Resource\Model\TranslationInterface;
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  * @author Prezent Internet B.V. <info@prezent.nl>
  */
-class ODMTranslatableListener implements EventSubscriber
+final class ODMTranslatableListener implements EventSubscriber
 {
     /**
-     * Locale to use for translations.
-     *
      * @var string
      */
     private $currentLocale;
 
     /**
-     * Locale to use when the current locale is not available.
-     *
      * @var string
      */
     private $fallbackLocale;
 
     /**
-     * Mapping.
-     *
      * @var array
      */
     private $mappings;

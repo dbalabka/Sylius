@@ -16,17 +16,24 @@ sylius:
             configuration: Configuratie
             date: Datum
             datetime: Datum / tijd
-            integer: Integer
+            integer: Geheel getal
             percent: Percentage
+            select: Selecteer
             text: Tekst
             textarea: Tekstgebied
-            title: Attribuuttype
+            title: Attribuuttypes
             validation: Validatie
         attribute_type_configuration:
             datetime:
                 format: Formaat
             date:
                 format: Formaat
+            select:
+                multiple: Meerdere
+                values: Waarden
+                choose: Kies een optie
+                min: Min aantal
+                max: Max aantal
             text:
                 min: Minimale lengte
                 max: Maximale lengte

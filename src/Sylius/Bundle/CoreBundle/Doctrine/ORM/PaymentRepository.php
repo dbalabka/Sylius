@@ -9,70 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
-use Pagerfanta\Pagerfanta;
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
 
 class PaymentRepository extends EntityRepository implements PaymentRepositoryInterface
 {
     /**
-     * @param array $criteria
-     * @param array $sorting
-     *
-     * @return Pagerfanta
+     * {@inheritdoc}
      */
-    public function createFilterPaginator(array $criteria = [], array $sorting = [])
+    public function createListQueryBuilder(): QueryBuilder
     {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-        $queryBuilder
-            ->leftJoin($this->getPropertyName('order'), 'paymentOrder')
-            ->leftJoin('paymentOrder.billingAddress', 'address')
-            ->addSelect('paymentOrder')
-            ->addSelect('address')
+        return $this->createQueryBuilder('o');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByOrderId($paymentId, $orderId): ?PaymentInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :paymentId')
+            ->andWhere('o.order = :orderId')
+            ->setParameter('paymentId', $paymentId)
+            ->setParameter('orderId', $orderId)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
-
-        if (!empty($criteria['number'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->eq('paymentOrder.number', ':number'))
-                ->setParameter('number', $criteria['number'])
-            ;
-        }
-        if (!empty($criteria['channel'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->eq('paymentOrder.channel', ':channel'))
-                ->setParameter('channel', $criteria['channel'])
-            ;
-        }
-        if (!empty($criteria['billingAddress'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->like('address.lastName', ':billingAddress'))
-                ->setParameter('billingAddress', '%'.$criteria['billingAddress'].'%')
-            ;
-        }
-        if (!empty($criteria['createdAtFrom'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->gte($this->getPropertyName('createdAt'), ':createdAtFrom'))
-                ->setParameter('createdAtFrom', date('Y-m-d 00:00:00', strtotime($criteria['createdAtFrom'])))
-            ;
-        }
-        if (!empty($criteria['createdAtTo'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->lte($this->getPropertyName('createdAt'), ':createdAtTo'))
-                ->setParameter('createdAtTo', date('Y-m-d 23:59:59', strtotime($criteria['createdAtTo'])))
-            ;
-        }
-
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        return $this->getPaginator($queryBuilder);
     }
 }

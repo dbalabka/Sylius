@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
@@ -22,7 +24,7 @@ abstract class AbstractResourceType extends AbstractType
     /**
      * @var string
      */
-    protected $dataClass = null;
+    protected $dataClass;
 
     /**
      * @var string[]
@@ -30,10 +32,10 @@ abstract class AbstractResourceType extends AbstractType
     protected $validationGroups = [];
 
     /**
-     * @param string   $dataClass        FQCN
+     * @param string $dataClass FQCN
      * @param string[] $validationGroups
      */
-    public function __construct($dataClass, array $validationGroups = [])
+    public function __construct(string $dataClass, array $validationGroups = [])
     {
         $this->dataClass = $dataClass;
         $this->validationGroups = $validationGroups;
@@ -42,7 +44,7 @@ abstract class AbstractResourceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => $this->dataClass,

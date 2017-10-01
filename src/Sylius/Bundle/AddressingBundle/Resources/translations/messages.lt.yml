@@ -11,8 +11,8 @@ sylius:
             last_name: Pavardė
             phone_number: Telefono numeris
             postcode: Pašto kodas
-            street: Gatvė
             province: Provincija
+            zone: Zona
         country:
             add_province: Pridėti provinciją
             name: Pavadinimas
@@ -21,6 +21,7 @@ sylius:
             enabled: Įjungta
         province:
             name: Pavadinimas
+            abbreviation: Santrumpa
             select: Pasirinkite
         zone:
             add_member: Pridėti narį
@@ -32,6 +33,8 @@ sylius:
                 province: Provincija
                 zone: Zona
             scope: Apimtis
+            scopes:
+                all: Visi
             select: Pasirinkite
             select_scope: Pasirinkite sritį
         zone_member:

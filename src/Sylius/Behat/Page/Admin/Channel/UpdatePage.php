@@ -9,15 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
-use Sylius\Behat\Page\SymfonyPage;
+use Sylius\Behat\Behaviour\ChecksCodeImmutability;
+use Sylius\Behat\Behaviour\Toggles;
+use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
+ * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class UpdatePage extends SymfonyPage implements UpdatePageInterface
+class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
+    use ChecksCodeImmutability;
+    use Toggles;
+
     /**
      * {@inheritdoc}
      */
@@ -37,13 +45,117 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function update()
+    public function chooseLocale($language)
     {
-        $this->getDocument()->pressButton('Save changes');
+        $this->getDocument()->selectFieldOption('Locales', $language);
     }
 
-    protected function getRouteName()
+    /**
+     * {@inheritdoc}
+     */
+    public function isLocaleChosen($language)
     {
-        return 'sylius_backend_channel_update';
+        return $this->getElement('locales')->find('named', ['option', $language])->hasAttribute('selected');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function chooseCurrency($currencyCode)
+    {
+        $this->getDocument()->selectFieldOption('Currencies', $currencyCode);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isCurrencyChosen($currencyCode)
+    {
+        return $this->getElement('currencies')->find('named', ['option', $currencyCode])->hasAttribute('selected');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function chooseDefaultTaxZone($taxZone)
+    {
+        $this->getDocument()->selectFieldOption('Default tax zone', (null === $taxZone) ? '' : $taxZone);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function chooseTaxCalculationStrategy($taxZone)
+    {
+        $this->getDocument()->selectFieldOption('Tax calculation strategy', $taxZone);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isDefaultTaxZoneChosen($taxZone)
+    {
+        return $this->getElement('default_tax_zone')->find('named', ['option', $taxZone])->hasAttribute('selected');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isAnyDefaultTaxZoneChosen()
+    {
+        return null !== $this->getElement('default_tax_zone')->find('css', '[selected]');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isTaxCalculationStrategyChosen($taxCalculationStrategy)
+    {
+        return $this
+            ->getElement('tax_calculation_strategy')
+            ->find('named', ['option', $taxCalculationStrategy])
+            ->hasAttribute('selected')
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isBaseCurrencyDisabled()
+    {
+        return $this->getElement('base_currency')->hasAttribute('disabled');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getCodeElement()
+    {
+        return $this->getElement('code');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getToggleableElement()
+    {
+        return $this->getElement('enabled');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getDefinedElements()
+    {
+        return array_merge(parent::getDefinedElements(), [
+            'base_currency' => '#sylius_channel_baseCurrency',
+            'code' => '#sylius_channel_code',
+            'currencies' => '#sylius_channel_currencies',
+            'default_tax_zone' => '#sylius_channel_defaultTaxZone',
+            'enabled' => '#sylius_channel_enabled',
+            'locales' => '#sylius_channel_locales',
+            'name' => '#sylius_channel_name',
+            'tax_calculation_strategy' => '#sylius_channel_taxCalculationStrategy',
+        ]);
     }
 }

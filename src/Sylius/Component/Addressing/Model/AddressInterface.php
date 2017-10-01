@@ -9,103 +9,120 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
 /**
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
+ * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface AddressInterface extends TimestampableInterface, ResourceInterface
 {
     /**
-     * @return string
+     * @return string|null
      */
-    public function getFirstName();
+    public function getFirstName(): ?string;
 
     /**
-     * @param string $firstName
+     * @param string|null $firstName
      */
-    public function setFirstName($firstName);
+    public function setFirstName(?string $firstName): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLastName();
+    public function getLastName(): ?string;
 
     /**
-     * @param string $lastName
+     * @param string|null $lastName
      */
-    public function setLastName($lastName);
+    public function setLastName(?string $lastName): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPhoneNumber();
+    public function getFullName(): ?string;
 
     /**
-     * @param string $phoneNumber
+     * @return string|null
      */
-    public function setPhoneNumber($phoneNumber);
+    public function getPhoneNumber(): ?string;
 
     /**
-     * @return string
+     * @param string|null $phoneNumber
      */
-    public function getCompany();
+    public function setPhoneNumber(?string $phoneNumber): void;
 
     /**
-     * @param string $company
+     * @return string|null
      */
-    public function setCompany($company);
+    public function getCompany(): ?string;
 
     /**
-     * @return string
+     * @param string|null $company
      */
-    public function getCountryCode();
+    public function setCompany(?string $company): void;
 
     /**
-     * @param string $countryCode
+     * @return string|null
      */
-    public function setCountryCode($countryCode = null);
+    public function getCountryCode(): ?string;
 
     /**
-     * @return string
+     * @param string|null $countryCode
      */
-    public function getProvinceCode();
+    public function setCountryCode(?string $countryCode): void;
 
     /**
-     * @param string $provinceCode
+     * @return string|null
      */
-    public function setProvinceCode($provinceCode = null);
+    public function getProvinceCode(): ?string;
 
     /**
-     * @return string
+     * @param string|null $provinceCode
      */
-    public function getStreet();
+    public function setProvinceCode(?string $provinceCode): void;
 
     /**
-     * @param string $street
+     * @return string|null
      */
-    public function setStreet($street);
+    public function getProvinceName(): ?string;
 
     /**
-     * @return string
+     * @param string|null $provinceName
      */
-    public function getCity();
+    public function setProvinceName(?string $provinceName): void;
 
     /**
-     * @param string $city
+     * @return string|null
      */
-    public function setCity($city);
+    public function getStreet(): ?string;
 
     /**
-     * @return string
+     * @param string|null $street
      */
-    public function getPostcode();
+    public function setStreet(?string $street): void;
 
     /**
-     * @param string $postcode
+     * @return string|null
      */
-    public function setPostcode($postcode);
+    public function getCity(): ?string;
+
+    /**
+     * @param string|null $city
+     */
+    public function setCity(?string $city): void;
+
+    /**
+     * @return string|null
+     */
+    public function getPostcode(): ?string;
+
+    /**
+     * @param string|null $postcode
+     */
+    public function setPostcode(?string $postcode): void;
 }

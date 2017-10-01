@@ -9,33 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\GridBundle\FieldTypes;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
-use Sylius\Bundle\GridBundle\FieldTypes\TwigFieldType;
 use Sylius\Component\Grid\DataExtractor\DataExtractorInterface;
 use Sylius\Component\Grid\Definition\Field;
 use Sylius\Component\Grid\FieldTypes\FieldTypeInterface;
 
 /**
- * @mixin TwigFieldType
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class TwigFieldTypeSpec extends ObjectBehavior
+final class TwigFieldTypeSpec extends ObjectBehavior
 {
-    function let(DataExtractorInterface $dataExtractor, \Twig_Environment $twig)
+    function let(DataExtractorInterface $dataExtractor, \Twig_Environment $twig): void
     {
         $this->beConstructedWith($dataExtractor, $twig);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\GridBundle\FieldTypes\TwigFieldType');
-    }
-
-    function it_is_a_grid_field_type()
+    function it_is_a_grid_field_type(): void
     {
         $this->shouldImplement(FieldTypeInterface::class);
     }
@@ -44,30 +37,24 @@ class TwigFieldTypeSpec extends ObjectBehavior
         DataExtractorInterface $dataExtractor,
         \Twig_Environment $twig,
         Field $field
-    ) {
-        $field->getOptions()->willReturn(['template' => 'foo.html.twig']);
+    ): void {
         $field->getPath()->willReturn('foo');
 
         $dataExtractor->get($field, ['foo' => 'bar'])->willReturn('Value');
-        $twig->render('foo.html.twig', ['data' => 'Value'])->willReturn('<html>Value</html>');
+        $twig->render('foo.html.twig', ['data' => 'Value', 'options' => ['template' => 'foo.html.twig']])->willReturn('<html>Value</html>');
 
-        $this->render($field, ['foo' => 'bar'])->shouldReturn('<html>Value</html>');
+        $this->render($field, ['foo' => 'bar'], [
+            'template' => 'foo.html.twig',
+        ])->shouldReturn('<html>Value</html>');
     }
-    
+
     function it_uses_data_directly_if_dot_is_configured_as_path(
         \Twig_Environment $twig,
         Field $field
-    ) {
-        $field->getOptions()->willReturn(['template' => 'foo.html.twig']);
+    ): void {
         $field->getPath()->willReturn('.');
+        $twig->render('foo.html.twig', ['data' => 'bar', 'options' => ['template' => 'foo.html.twig']])->willReturn('<html>Bar</html>');
 
-        $twig->render('foo.html.twig', ['data' => 'bar'])->willReturn('<html>Bar</html>');
-
-        $this->render($field, 'bar')->shouldReturn('<html>Bar</html>');
-    }
-
-    function it_has_name()
-    {
-        $this->getName()->shouldReturn('twig');
+        $this->render($field, 'bar', ['template' => 'foo.html.twig'])->shouldReturn('<html>Bar</html>');
     }
 }

@@ -9,36 +9,88 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Repository;
 
 use Sylius\Bundle\ThemeBundle\Loader\ThemeLoaderInterface;
-use Sylius\Component\Resource\Repository\InMemoryRepository;
+use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class InMemoryThemeRepository extends InMemoryRepository implements ThemeRepositoryInterface
+final class InMemoryThemeRepository implements ThemeRepositoryInterface
 {
     /**
-     * {@inheritdoc}
-     *
+     * @var ThemeInterface[]
+     */
+    private $themes = [];
+
+    /**
+     * @var ThemeLoaderInterface
+     */
+    private $themeLoader;
+
+    /**
+     * @var bool
+     */
+    private $themesLoaded = false;
+
+    /**
      * @param ThemeLoaderInterface $themeLoader
      */
-    public function __construct(ThemeLoaderInterface $themeLoader, $interface)
+    public function __construct(ThemeLoaderInterface $themeLoader)
     {
-        parent::__construct($interface);
-
-        $themes = $themeLoader->load();
-        foreach ($themes as $theme) {
-            $this->add($theme);
-        }
+        $this->themeLoader = $themeLoader;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findOneByName($name)
+    public function findAll(): array
     {
-        return $this->findOneBy(['name' => $name]);
+        $this->loadThemesIfNeeded();
+
+        return $this->themes;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByName(string $name): ?ThemeInterface
+    {
+        $this->loadThemesIfNeeded();
+
+        return $this->themes[$name] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByTitle(string $title): ?ThemeInterface
+    {
+        $this->loadThemesIfNeeded();
+
+        foreach ($this->themes as $theme) {
+            if ($theme->getTitle() === $title) {
+                return $theme;
+            }
+        }
+
+        return null;
+    }
+
+    private function loadThemesIfNeeded(): void
+    {
+        if ($this->themesLoaded) {
+            return;
+        }
+
+        $themes = $this->themeLoader->load();
+        foreach ($themes as $theme) {
+            $this->themes[$theme->getName()] = $theme;
+        }
+
+        $this->themesLoaded = true;
     }
 }

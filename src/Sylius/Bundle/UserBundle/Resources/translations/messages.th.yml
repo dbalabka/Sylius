@@ -3,28 +3,15 @@
 
 sylius:
     form:
-        group:
-            name: ชื่อ
-            roles: Roles
         user:
             email: อีเมล
             enabled: เปิดใช้งานแล้ว
             password:
                 label: รหัสผ่าน
-                confirmation: การตรวจสอบ
+                confirmation: ยืนยันรหัสผ่าน
             remember_me: จำฉันไว้
             shipping_address: ที่อยู่สำหรับจัดส่งสินค้า
-        customer:
-            first_name: ชื่อ
-            groups: กลุ่ม
-            last_name: นามสกุล
-            email: อีเมล
-            phone_number: หมายเลขโทรศัพท์
-            gender: เพศ
-            birthday: วันเกิด
-            billing_address: ที่อยู่สำหรับออกใบเสร็จ
-            different_billing_address: ใช้ที่อยู่อื่นสำหรับเรียกเก็บเงินหรือไม่
-            only_customer_registration: สร้างบัญชีหรือไม่
+            username: ชื่อผู้ใช้
         user_filter:
             query: ค้นหา
         user_change_password:

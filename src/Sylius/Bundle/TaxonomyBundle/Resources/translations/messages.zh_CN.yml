@@ -7,6 +7,6 @@ sylius:
             description: 描述
             name: 名称
             parent: 上一级
-            permalink: 固定链接
+            slug: 标语
         taxonomy:
             name: 名称

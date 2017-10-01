@@ -11,8 +11,9 @@ sylius:
             last_name: Nom
             phone_number: Téléphone
             postcode: Code postal
-            street: Adresse
+            street: Rue
             province: Région
+            zone: Zone
         country:
             add_province: Ajouter une région
             name: Nom
@@ -32,8 +33,10 @@ sylius:
                 country: Pays
                 province: Région
                 zone: Zone
-            scope: "Champ d'application"
+            scope: Champ d'application
+            scopes:
+                all: Tous
             select: Sélectionner
-            select_scope: "Sélectionnez le champ d'application"
+            select_scope: Sélectionnez le champ d'application
         zone_member:
             select: Sélectionner

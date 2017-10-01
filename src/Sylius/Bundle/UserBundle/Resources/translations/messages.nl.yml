@@ -3,9 +3,6 @@
 
 sylius:
     form:
-        group:
-            name: Naam
-            roles: Rollen
         user:
             email: E-mail
             enabled: Toegestaan
@@ -14,15 +11,7 @@ sylius:
                 confirmation: Verificatie
             remember_me: Onthoud mijn gegevens
             shipping_address: Bezorgadres
-        customer:
-            first_name: Voornaam
-            groups: Groepen
-            last_name: Achternaam
-            email: E-mail
-            phone_number: Telefoonnummer
-            birthday: Verjaardag
-            billing_address: Factuuradres
-            different_billing_address: Gebruik een ander factuuradres?
+            username: Gebruikersnaam
         user_filter:
             query: Zoeken
         user_change_password:

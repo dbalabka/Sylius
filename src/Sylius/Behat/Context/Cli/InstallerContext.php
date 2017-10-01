@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Cli;
 
 use Behat\Behat\Context\Context;
-use Sylius\Bundle\InstallerBundle\Command\InstallSampleDataCommand;
-use Sylius\Bundle\InstallerBundle\Command\SetupCommand;
+use Sylius\Bundle\CoreBundle\Command\InstallSampleDataCommand;
+use Sylius\Bundle\CoreBundle\Command\SetupCommand;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
-use Symfony\Component\Console\Helper\DialogHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
@@ -41,9 +43,9 @@ final class InstallerContext implements Context
     private $tester;
 
     /**
-     * @var DialogHelper
+     * @var QuestionHelper
      */
-    private $dialog;
+    private $questionHelper;
 
     /**
      * @var SetupCommand
@@ -54,12 +56,10 @@ final class InstallerContext implements Context
      * @var array
      */
     private $inputChoices = [
-        'currency' => '',
-        'name' => ' Name',
-        'surname' => ' Surname',
-        'e-mail' => ' test@email.com',
-        'password' => ' pswd',
-        'confirmation' => ' pswd',
+        'currency' => 'USD',
+        'e-mail' => 'test@email.com',
+        'password' => 'pswd',
+        'confirmation' => 'pswd',
     ];
 
     /**
@@ -108,7 +108,7 @@ final class InstallerContext implements Context
      */
     public function commandSuccess()
     {
-        expect($this->tester->getStatusCode())->toBe(0);
+        Assert::same($this->tester->getStatusCode(), 0);
     }
 
     /**
@@ -116,31 +116,7 @@ final class InstallerContext implements Context
      */
     public function iShouldSeeOutput($text)
     {
-        \PHPUnit_Framework_Assert::assertContains($text, $this->tester->getDisplay());
-    }
-
-    /**
-     * @Given I do not provide a currency
-     */
-    public function iDoNotProvideCurrency()
-    {
-        $this->inputChoices['currency'] = '';
-    }
-
-    /**
-     * @Given I do not provide a name
-     */
-    public function iDoNotProvideName()
-    {
-        array_splice($this->inputChoices, 1, 0, '');
-    }
-
-    /**
-     * @Given I do not provide a surname
-     */
-    public function iDoNotProvideSurname()
-    {
-        array_splice($this->inputChoices, 2, 0, '');
+        Assert::contains($this->tester->getDisplay(), $text);
     }
 
     /**
@@ -148,7 +124,7 @@ final class InstallerContext implements Context
      */
     public function iDoNotProvideEmail()
     {
-        array_splice($this->inputChoices, 3, 0, '');
+        $this->inputChoices['e-mail'] = '';
     }
 
     /**
@@ -156,15 +132,7 @@ final class InstallerContext implements Context
      */
     public function iDoNotProvideCorrectEmail()
     {
-        array_splice($this->inputChoices, 3, 0, 'email');
-    }
-
-    /**
-     * @Given I provide currency :code
-     */
-    public function iProvideCurrency($code)
-    {
-        $this->inputChoices['currency'] = $code;
+        $this->inputChoices['e-mail'] = 'janusz';
     }
 
     /**
@@ -172,8 +140,6 @@ final class InstallerContext implements Context
      */
     public function iProvideFullAdministratorData()
     {
-        $this->inputChoices['name'] = 'AdminName';
-        $this->inputChoices['surname'] = 'AdminSurname';
         $this->inputChoices['e-mail'] = 'test@admin.com';
         $this->inputChoices['password'] = 'pswd1$';
         $this->inputChoices['confirmation'] = $this->inputChoices['password'];
@@ -186,8 +152,8 @@ final class InstallerContext implements Context
      */
     protected function getInputStream($input)
     {
-        $stream = fopen('php://memory', 'r+', false);
-        fputs($stream, $input);
+        $stream = fopen('php://memory', 'rb+', false);
+        fwrite($stream, $input);
         rewind($stream);
 
         return $stream;
@@ -198,11 +164,14 @@ final class InstallerContext implements Context
      */
     private function iExecuteCommandWithInputChoices($name)
     {
-        $this->dialog = $this->command->getHelper('dialog');
-        $inputString = join(PHP_EOL, $this->inputChoices);
-        $this->dialog->setInputStream($this->getInputStream($inputString.PHP_EOL));
+        $this->questionHelper = $this->command->getHelper('question');
+        $inputString = implode(PHP_EOL, $this->inputChoices);
+        $this->questionHelper->setInputStream($this->getInputStream($inputString.PHP_EOL));
 
-        $this->tester->execute(['command' => $name]);
+        try {
+            $this->tester->execute(['command' => $name]);
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -210,10 +179,13 @@ final class InstallerContext implements Context
      */
     private function iExecuteCommandAndConfirm($name)
     {
-        $this->dialog = $this->command->getHelper('dialog');
+        $this->questionHelper = $this->command->getHelper('question');
         $inputString = 'y'.PHP_EOL;
-        $this->dialog->setInputStream($this->getInputStream($inputString));
+        $this->questionHelper->setInputStream($this->getInputStream($inputString));
 
-        $this->tester->execute(['command' => $name]);
+        try {
+            $this->tester->execute(['command' => $name]);
+        } catch (\Exception $e) {
+        }
     }
 }

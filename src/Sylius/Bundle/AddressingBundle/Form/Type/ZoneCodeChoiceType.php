@@ -9,22 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\Type;
 
-use Sylius\Component\Addressing\Model\ZoneInterface;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\ReversedTransformer;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Jan Góralski <jan.goralski@lakion.com>
  */
-class ZoneCodeChoiceType extends AbstractType
+final class ZoneCodeChoiceType extends AbstractType
 {
     /**
      * @var RepositoryInterface
      */
-    protected $zoneRepository;
+    private $zoneRepository;
 
     /**
      * @param RepositoryInterface $zoneRepository
@@ -37,13 +43,31 @@ class ZoneCodeChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->addModelTransformer(new ReversedTransformer(new ResourceToIdentifierTransformer($this->zoneRepository, 'code')));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
-                'choices' => $this->getZoneCodes(),
+                'choice_filter' => null,
+                'choices' => function (Options $options): iterable {
+                    $zones =  $this->zoneRepository->findAll();
+                    if ($options['choice_filter']) {
+                        $zones = array_filter($zones, $options['choice_filter']);
+                    }
+                    return $zones;
+                },
+                'choice_value' => 'code',
+                'choice_label' => 'name',
+                'choice_translation_domain' => false,
                 'label' => 'sylius.form.zone.types.zone',
-                'empty_value' => 'sylius.form.zone.select',
+                'placeholder' => 'sylius.form.zone.select',
             ])
         ;
     }
@@ -51,32 +75,16 @@ class ZoneCodeChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_zone_code_choice';
-    }
-
-    /**
-     * @return array
-     */
-    private function getZoneCodes()
-    {
-        $zoneObjects = $this->zoneRepository->findAll();
-        $zones = [];
-
-        /* @var ZoneInterface $zone */
-        foreach ($zoneObjects as $zone) {
-            $zones[$zone->getCode()] = $zone->getName();
-        }
-
-        return $zones;
     }
 }

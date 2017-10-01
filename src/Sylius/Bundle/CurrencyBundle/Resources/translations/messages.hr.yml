@@ -4,5 +4,6 @@
 sylius:
     form:
         currency:
-            exchange_rate: Tečaj
+            code: Naziv grupe
             enabled: Omogući
+            exchange_rate: Tečaj

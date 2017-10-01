@@ -9,20 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Product;
 
-use Sylius\Behat\Page\PageInterface;
-use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as CrudIndexPageInterface;
 
 /**
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-interface IndexPageInterface extends PageInterface
+interface IndexPageInterface extends CrudIndexPageInterface
 {
     /**
-     * @param ProductInterface $product
-     *
-     * @return bool
+     * @param string $taxonName
      */
-    public function isThereProduct(ProductInterface $product);
+    public function filterByTaxon($taxonName);
 }

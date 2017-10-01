@@ -20,20 +20,24 @@
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.1",
 
-        "stof/doctrine-extensions-bundle": "~1.1",
-        "sylius/order": "^0.18",
-        "sylius/money-bundle": "^0.18",
-        "sylius/resource-bundle": "^0.18",
-        "sylius/sequence-bundle": "^0.18",
-        "symfony/framework-bundle": "^2.7.7"
+        "stof/doctrine-extensions-bundle": "^1.2",
+        "sylius/money-bundle": "^1.0",
+        "sylius/order": "^1.0",
+        "sylius/resource-bundle": "^1.0",
+        "symfony/framework-bundle": "^3.2",
+        "symfony/templating": "^3.2"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4",
-        "doctrine/orm": "^2.4.8,<2.5",
-        "symfony/form": "^2.7",
-        "symfony/validator": "^2.7"
+        "doctrine/orm": "^2.5",
+        "phpspec/phpspec": "^4.0",
+        "phpunit/phpunit": "^5.6",
+        "symfony/browser-kit": "^3.2",
+        "symfony/form": "^3.2",
+        "symfony/validator": "^3.2",
+        "incenteev/composer-parameter-handler": "~2.0",
+        "polishsymfonycommunity/symfony-mocker-container": "^1.0"
     },
     "config": {
         "bin-dir": "bin"
@@ -42,7 +46,10 @@
         "psr-4": { "Sylius\\Bundle\\OrderBundle\\": "" }
     },
     "autoload-dev": {
-        "psr-4": { "Sylius\\Bundle\\OrderBundle\\spec\\": "spec/" }
+        "psr-4": {
+            "Sylius\\Bundle\\OrderBundle\\spec\\": "spec/",
+            "AppBundle\\": "test/src/AppBundle/"
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
@@ -54,7 +61,10 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "0.18-dev"
+            "dev-master": "1.0-dev"
+        },
+        "incenteev-parameters": {
+            "file": "test/app/config/parameters.yml"
         }
     }
 }

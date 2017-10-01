@@ -4,5 +4,11 @@
 sylius:
     form:
         currency:
-            exchange_rate: Обмінний курс
+            base: Основна валюта
+            code: Назва
             enabled: Увімкнено
+            exchange_rate: Курс валют
+        exchange_rate:
+            source_currency: Джерело валюти
+            target_currency: Цільова валюта
+            ratio: Рейтинг

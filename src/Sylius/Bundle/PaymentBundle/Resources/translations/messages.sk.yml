@@ -16,18 +16,19 @@ sylius:
             state:
                 header: Stav platby
                 checkout: Košík
-                completed: Dokončené
-                authorized: Povolené
-                failed: Neúspešné
+                completed: Dokončená
+                authorized: Autorizovaná
+                failed: Neúspešná
                 new: Nová
                 pending: Čakajúca
                 processing: Spracúvava sa
                 unknown: Neznáme
-                void: Neplatné
-                cancelled: Zrušené
+                void: Neplatná
+                cancelled: Zrušená
                 refunded: Vrátené peniaze
         payment_method:
             description: Popis
             enabled: Zapnuté?
-            gateway: Brána
+            instructions: Inštrukcie
             name: Názov
+            position: Pozícia

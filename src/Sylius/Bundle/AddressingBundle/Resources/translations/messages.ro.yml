@@ -11,8 +11,8 @@ sylius:
             last_name: Nume
             phone_number: Număr de telefon
             postcode: Cod poștal
-            street: Adresă
             province: Județ
+            zone: Zonă
         country:
             add_province: Adăugare județ
             name: Nume
@@ -21,6 +21,7 @@ sylius:
             enabled: Activat
         province:
             name: Nume
+            abbreviation: Abreviere
             select: Selectaţi
         zone:
             add_member: Adaugă membru

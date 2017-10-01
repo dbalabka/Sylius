@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page;
 
 use Behat\Mink\Driver\DriverInterface;
@@ -20,7 +22,7 @@ use Behat\Mink\Selector\SelectorsHandler;
 use Behat\Mink\Session;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 abstract class Page implements PageInterface
 {
@@ -234,7 +236,7 @@ abstract class Page implements PageInterface
             ));
         }
 
-        $elementSelector = strtr($definedElements[$name], $parameters);
+        $elementSelector = $this->resolveParameters($name, $parameters, $definedElements);
 
         return new NodeElement(
             $this->getSelectorAsXpath($elementSelector, $this->session->getSelectorsHandler()),
@@ -254,5 +256,27 @@ abstract class Page implements PageInterface
         $locator = is_array($selector) ? $selector[$selectorType] : $selector;
 
         return $selectorsHandler->selectorToXpath($selectorType, $locator);
+    }
+
+    /**
+     * @param string $name
+     * @param array $parameters
+     * @param array$definedElements
+     *
+     * @return string
+     */
+    private function resolveParameters($name, array $parameters, array $definedElements)
+    {
+        if (!is_array($definedElements[$name])) {
+            return strtr($definedElements[$name], $parameters);
+        }
+
+        array_map(
+            function ($definedElement) use ($parameters) {
+                return strtr($definedElement, $parameters);
+            }, $definedElements[$name]
+        );
+
+        return $definedElements[$name];
     }
 }

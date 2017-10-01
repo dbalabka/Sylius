@@ -9,11 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Crud;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
 use Sylius\Behat\Page\SymfonyPage;
+use Sylius\Component\Core\Formatter\StringInflector;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -24,19 +27,19 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
     /**
      * @var string
      */
-    private $resourceName;
+    private $routeName;
 
     /**
      * @param Session $session
      * @param array $parameters
      * @param RouterInterface $router
-     * @param string $resourceName
+     * @param string $routeName
      */
-    public function __construct(Session $session, array $parameters, RouterInterface $router, $resourceName)
+    public function __construct(Session $session, array $parameters, RouterInterface $router, $routeName)
     {
         parent::__construct($session, $parameters, $router);
 
-        $this->resourceName = strtolower($resourceName);
+        $this->routeName = $routeName;
     }
 
     /**
@@ -44,38 +47,47 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
      */
     public function saveChanges()
     {
-        $this->getDocument()->pressButton('Save changes');
+        $this->getDocument()->pressButton('sylius_save_changes_button');
     }
 
     /**
      * {@inheritdoc}
-     * 
-     * @throws ElementNotFoundException
      */
-    public function checkValidationMessageFor($element, $message)
+    public function getValidationMessage($element)
     {
-        $foundedElement = $this->getFieldElement($element);
-        if (null === $foundedElement) {
-            throw new ElementNotFoundException($this->getSession(), 'Validation message', 'css', '.pointing');
+        $foundElement = $this->getFieldElement($element);
+        if (null === $foundElement) {
+            throw new ElementNotFoundException($this->getSession(), 'Field element');
         }
 
-        return $message === $foundedElement->find('css', '.pointing')->getText();
+        $validationMessage = $foundElement->find('css', '.sylius-validation-error');
+        if (null === $validationMessage) {
+            throw new ElementNotFoundException($this->getSession(), 'Validation message', 'css', '.sylius-validation-error');
+        }
+
+        return $validationMessage->getText();
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getRouteName()
+    public function hasResourceValues(array $parameters)
     {
-        return sprintf('sylius_admin_%s_update', $this->resourceName);
+        foreach ($parameters as $element => $value) {
+            if ($this->getElement($element)->getValue() !== (string) $value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    protected function getResourceName()
+    public function getRouteName()
     {
-        return $this->resourceName;
+        return $this->routeName;
     }
 
     /**
@@ -87,8 +99,8 @@ class UpdatePage extends SymfonyPage implements UpdatePageInterface
      */
     private function getFieldElement($element)
     {
-        $element = $this->getElement($element);
-        while (null !== $element && !($element->hasClass('field'))) {
+        $element = $this->getElement(StringInflector::nameToCode($element));
+        while (null !== $element && !$element->hasClass('field')) {
             $element = $element->getParent();
         }
 

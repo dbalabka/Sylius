@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Behat\Service;
 
 use PhpSpec\ObjectBehavior;
@@ -19,12 +21,10 @@ use Sylius\Behat\Service\NotificationChecker;
 use Sylius\Behat\Service\NotificationCheckerInterface;
 
 /**
- * @mixin NotificationChecker
- *
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-class NotificationCheckerSpec extends ObjectBehavior
+final class NotificationCheckerSpec extends ObjectBehavior
 {
     function let(NotificationAccessorInterface $notificationAccessor)
     {
@@ -33,36 +33,12 @@ class NotificationCheckerSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Behat\Service\NotificationChecker');
+        $this->shouldHaveType(NotificationChecker::class);
     }
 
     function it_implements_notification_checker_interface()
     {
         $this->shouldImplement(NotificationCheckerInterface::class);
-    }
-
-    function it_checks_if_successful_creation_notification_has_appeared(NotificationAccessorInterface $notificationAccessor)
-    {
-        $notificationAccessor->getType()->willReturn(NotificationType::success());
-        $notificationAccessor->getMessage()->willReturn('Some resource has been successfully created.');
-
-        $this->checkCreationNotification('some_resource');
-    }
-
-    function it_checks_if_successful_edition_notification_has_appeared(NotificationAccessorInterface $notificationAccessor)
-    {
-        $notificationAccessor->getType()->willReturn(NotificationType::success());
-        $notificationAccessor->getMessage()->willReturn('Some resource has been successfully updated.');
-
-        $this->checkEditionNotification('some_resource');
-    }
-
-    function it_checks_if_successful_deletion_notification_has_appeared(NotificationAccessorInterface $notificationAccessor)
-    {
-        $notificationAccessor->getType()->willReturn(NotificationType::success());
-        $notificationAccessor->getMessage()->willReturn('Some resource has been successfully deleted.');
-
-        $this->checkDeletionNotification('some_resource');
     }
 
     function it_checks_if_successful_notification_has_appeared(NotificationAccessorInterface $notificationAccessor)

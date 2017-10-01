@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Sender;
 
 /**
@@ -18,8 +20,9 @@ interface SenderInterface
 {
     /**
      * @param string $code
-     * @param array  $recipients
-     * @param array  $data
+     * @param array $recipients
+     * @param array $data
+     * @param array $attachments
      */
-    public function send($code, array $recipients, array $data = []);
+    public function send(string $code, array $recipients, array $data = [], array $attachments = [], array $replyTo = []): void;
 }

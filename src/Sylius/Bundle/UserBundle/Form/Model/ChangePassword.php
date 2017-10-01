@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Form\Model;
 
 /**
@@ -17,59 +19,44 @@ namespace Sylius\Bundle\UserBundle\Form\Model;
 class ChangePassword
 {
     /**
-     * @var string
+     * @var string|null
      */
     private $currentPassword;
+
     /**
-     * @var string
+     * @var string|null
      */
     private $newPassword;
 
     /**
-     * Gets the value of currentPassword.
-     *
-     * @return mixed
+     * @return string|null
      */
-    public function getCurrentPassword()
+    public function getCurrentPassword(): ?string
     {
         return $this->currentPassword;
     }
 
     /**
-     * Sets the value of currentPassword.
-     *
-     * @param mixed $currentPassword the current password
-     *
-     * @return self
+     * @param string|null $password
      */
-    public function setCurrentPassword($currentPassword)
+    public function setCurrentPassword(?string $password): void
     {
-        $this->currentPassword = $currentPassword;
-
-        return $this;
+        $this->currentPassword = $password;
     }
 
     /**
-     * Gets the value of newPassword.
-     *
-     * @return mixed
+     * @return string
      */
-    public function getNewPassword()
+    public function getNewPassword(): ?string
     {
         return $this->newPassword;
     }
 
     /**
-     * Sets the value of newPassword.
-     *
-     * @param mixed $newPassword the new password
-     *
-     * @return self
+     * @param string $password
      */
-    public function setNewPassword($newPassword)
+    public function setNewPassword(?string $password): void
     {
-        $this->newPassword = $newPassword;
-
-        return $this;
+        $this->newPassword = $password;
     }
 }

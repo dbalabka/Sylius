@@ -11,8 +11,8 @@ sylius:
             last_name: Priezvisko
             phone_number: Telefónne číslo
             postcode: PSČ
-            street: Ulica
             province: Provincia
+            zone: Zóna
         country:
             add_province: Pridať provinciu
             name: Názov
@@ -33,6 +33,8 @@ sylius:
                 province: Provincia
                 zone: Zóna
             scope: Rozsah
+            scopes:
+                all: Všetky
             select: Vyberte
             select_scope: Vyberte rozsah
         zone_member:

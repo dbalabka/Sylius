@@ -9,173 +9,196 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
-use Sylius\Component\Cart\Model\CartInterface;
 use Sylius\Component\Channel\Model\ChannelAwareInterface;
+use Sylius\Component\Customer\Model\CustomerAwareInterface;
+use Sylius\Component\Order\Model\OrderInterface as BaseOrderInterface;
 use Sylius\Component\Payment\Model\PaymentsSubjectInterface;
-use Sylius\Component\Promotion\Model\CouponInterface as BaseCouponInterface;
-use Sylius\Component\Promotion\Model\PromotionCountableSubjectInterface;
-use Sylius\Component\Promotion\Model\PromotionCouponAwareSubjectInterface;
-use Sylius\Component\User\Model\CustomerAwareInterface;
+use Sylius\Component\Promotion\Model\CountablePromotionSubjectInterface;
+use Sylius\Component\Promotion\Model\PromotionCouponAwarePromotionSubjectInterface;
+use Sylius\Component\Promotion\Model\PromotionCouponInterface as BaseCouponInterface;
+use Sylius\Component\User\Model\UserInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface OrderInterface extends
-    CartInterface,
+    BaseOrderInterface,
     PaymentsSubjectInterface,
-    PromotionCountableSubjectInterface,
-    PromotionCouponAwareSubjectInterface,
+    CountablePromotionSubjectInterface,
+    PromotionCouponAwarePromotionSubjectInterface,
     CustomerAwareInterface,
     ChannelAwareInterface
 {
     /**
-     * @return null|UserInterface
+     * @return UserInterface|null
      */
-    public function getUser();
+    public function getUser(): ?UserInterface;
 
     /**
-     * @return AddressInterface
+     * @return AddressInterface|null
      */
-    public function getShippingAddress();
+    public function getShippingAddress(): ?AddressInterface;
 
     /**
-     * @param AddressInterface $address
+     * @param AddressInterface|null $address
      */
-    public function setShippingAddress(AddressInterface $address);
+    public function setShippingAddress(?AddressInterface $address): void;
 
     /**
-     * @return AddressInterface
+     * @return AddressInterface|null
      */
-    public function getBillingAddress();
+    public function getBillingAddress(): ?AddressInterface;
 
     /**
-     * @param AddressInterface $address
+     * @param AddressInterface|null $address
      */
-    public function setBillingAddress(AddressInterface $address);
+    public function setBillingAddress(?AddressInterface $address): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCheckoutState();
+    public function getCheckoutState(): ?string;
 
     /**
-     * @param string $checkoutState
+     * @param string|null $checkoutState
      */
-    public function setCheckoutState($checkoutState);
+    public function setCheckoutState(?string $checkoutState): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPaymentState();
+    public function getPaymentState(): ?string;
 
     /**
-     * @param string $paymentState
+     * @param string|null $paymentState
      */
-    public function setPaymentState($paymentState);
+    public function setPaymentState(?string $paymentState): void;
 
     /**
      * @return Collection|OrderItemUnitInterface[]
      */
-    public function getItemUnits();
+    public function getItemUnits(): Collection;
 
     /**
      * @param ProductVariantInterface $variant
      *
      * @return Collection|OrderItemUnitInterface[]
      */
-    public function getItemUnitsByVariant(ProductVariantInterface $variant);
+    public function getItemUnitsByVariant(ProductVariantInterface $variant): Collection;
+
+    /**
+     * @return bool
+     */
+    public function isShippingRequired(): bool;
 
     /**
      * @return Collection|ShipmentInterface[]
      */
-    public function getShipments();
+    public function getShipments(): Collection;
 
     /**
      * @return bool
      */
-    public function hasShipments();
+    public function hasShipments(): bool;
 
     /**
      * @param ShipmentInterface $shipment
      */
-    public function addShipment(ShipmentInterface $shipment);
+    public function addShipment(ShipmentInterface $shipment): void;
 
     /**
      * @param ShipmentInterface $shipment
      */
-    public function removeShipment(ShipmentInterface $shipment);
+    public function removeShipment(ShipmentInterface $shipment): void;
+
+    public function removeShipments(): void;
 
     /**
      * @param ShipmentInterface $shipment
      *
      * @return bool
      */
-    public function hasShipment(ShipmentInterface $shipment);
+    public function hasShipment(ShipmentInterface $shipment): bool;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getCurrency();
+    public function getCurrencyCode(): ?string;
 
     /**
-     * @param string
+     * @param string|null $currencyCode
+     */
+    public function setCurrencyCode(?string $currencyCode): void;
+
+    /**
+     * @return string|null
+     */
+    public function getLocaleCode(): ?string;
+
+    /**
+     * @param string|null
+     */
+    public function setLocaleCode(?string $localeCode): void;
+
+    /**
+     * @param BaseCouponInterface|null $coupon
+     */
+    public function setPromotionCoupon(?BaseCouponInterface $coupon): void;
+
+    /**
+     * @return string|null
+     */
+    public function getShippingState(): ?string;
+
+    /**
+     * @param string|null $state
+     */
+    public function setShippingState(?string $state): void;
+
+    /**
+     * @param string|null $state
      *
-     * @return OrderInterface
+     * @return PaymentInterface|null
      */
-    public function setCurrency($currency);
-
-    /**
-     * @return float
-     */
-    public function getExchangeRate();
-
-    /**
-     * @param float $exchangeRate
-     */
-    public function setExchangeRate($exchangeRate);
-
-    /**
-     * @param BaseCouponInterface $coupon
-     */
-    public function setPromotionCoupon(BaseCouponInterface $coupon = null);
+    public function getLastPayment(?string $state = null): ?PaymentInterface;
 
     /**
      * @return int
      */
-    public function getPromotionsTotalRecursively();
+    public function getTaxTotal(): int;
 
     /**
-     * @return string
+     * @return int
      */
-    public function getShippingState();
+    public function getShippingTotal(): int;
 
     /**
-     * @param string $state
+     * @return int
      */
-    public function setShippingState($state);
+    public function getOrderPromotionTotal(): int;
 
     /**
-     * @return bool
+     * @return string|null
      */
-    public function isBackorder();
+    public function getTokenValue(): ?string;
 
     /**
-     * @return ShipmentInterface
+     * @param string|null $tokenValue
      */
-    public function getLastShipment();
+    public function setTokenValue(?string $tokenValue): void;
 
     /**
-     * @param $state
-     *
-     * @return null|PaymentInterface
+     * @return string|null
      */
-    public function getLastPayment($state = PaymentInterface::STATE_NEW);
+    public function getCustomerIp(): ?string;
 
     /**
-     * @return bool
+     * @param string|null $customerIp
      */
-    public function isInvoiceAvailable();
+    public function setCustomerIp(?string $customerIp): void;
 }

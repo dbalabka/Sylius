@@ -9,24 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SingleResourceProvider implements SingleResourceProviderInterface
+final class SingleResourceProvider implements SingleResourceProviderInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function get(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
+    public function get(RequestConfiguration $requestConfiguration, RepositoryInterface $repository): ?ResourceInterface
     {
-        if (null !== $repositoryMethod = $requestConfiguration->getRepositoryMethod()) {
-            $callable = [$repository, $repositoryMethod];
+        $repositoryMethod = $requestConfiguration->getRepositoryMethod();
+        if (null !== $repositoryMethod) {
+            $arguments = array_values($requestConfiguration->getRepositoryArguments());
 
-            return call_user_func_array($callable, $requestConfiguration->getRepositoryArguments());
+            return $repository->$repositoryMethod(...$arguments);
         }
 
         $criteria = [];
@@ -39,6 +43,8 @@ class SingleResourceProvider implements SingleResourceProviderInterface
         if ($request->attributes->has('slug')) {
             $criteria = ['slug' => $request->attributes->get('slug')];
         }
+
+        $criteria = array_merge($criteria, $requestConfiguration->getCriteria());
 
         return $repository->findOneBy($criteria);
     }

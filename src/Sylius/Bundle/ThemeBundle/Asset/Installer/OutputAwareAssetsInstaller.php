@@ -9,25 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Asset\Installer;
 
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class OutputAwareAssetsInstaller extends AssetsInstaller implements OutputAwareInterface
+final class OutputAwareAssetsInstaller implements AssetsInstallerInterface, OutputAwareInterface
 {
+    /**
+     * @var AssetsInstallerInterface
+     */
+    private $assetsInstaller;
+
     /**
      * @var OutputInterface
      */
-    protected $output;
+    private $output;
+
+    /**
+     * @param AssetsInstallerInterface $assetsInstaller
+     */
+    public function __construct(AssetsInstallerInterface $assetsInstaller)
+    {
+        $this->assetsInstaller = $assetsInstaller;
+        $this->output = new NullOutput();
+    }
 
     /**
      * {@inheritdoc}
      */
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
     }
@@ -35,45 +52,29 @@ class OutputAwareAssetsInstaller extends AssetsInstaller implements OutputAwareI
     /**
      * {@inheritdoc}
      */
-    public function installAssets($targetDir, $symlinkMask)
+    public function installAssets(string $targetDir, int $symlinkMask): int
     {
-        if ($this->hasOutput()) {
-            $this->output->writeln($this->provideExpectationComment($symlinkMask));
-        }
+        $this->output->writeln($this->provideExpectationComment($symlinkMask));
 
-        return parent::installAssets($targetDir, $symlinkMask);
+        return $this->assetsInstaller->installAssets($targetDir, $symlinkMask);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function installBundleAssets(BundleInterface $bundle, $targetDir, $symlinkMask)
+    public function installBundleAssets(BundleInterface $bundle, string $targetDir, int $symlinkMask): int
     {
-        $sources = $this->findAssetsPaths($bundle);
+        $this->output->writeln(sprintf(
+            'Installing assets for <comment>%s</comment> into <comment>%s</comment>',
+            $bundle->getNamespace(),
+            $targetDir
+        ));
 
-        if (empty($sources)) {
-            return $symlinkMask;
-        }
+        $effectiveSymlinkMask = $this->assetsInstaller->installBundleAssets($bundle, $targetDir, $symlinkMask);
 
-        if ($this->hasOutput()) {
-            $this->output->writeln(sprintf('Installing assets for <comment>%s</comment>', $bundle->getNamespace(), $targetDir));
-        }
-
-        $effectiveSymlinkMask = parent::installBundleAssets($bundle, $targetDir, $symlinkMask);
-
-        if ($this->hasOutput()) {
-            $this->output->writeln($this->provideResultComment($symlinkMask, $effectiveSymlinkMask));
-        }
+        $this->output->writeln($this->provideResultComment($symlinkMask, $effectiveSymlinkMask));
 
         return $effectiveSymlinkMask;
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasOutput()
-    {
-        return null !== $this->output;
     }
 
     /**
@@ -82,7 +83,7 @@ class OutputAwareAssetsInstaller extends AssetsInstaller implements OutputAwareI
      *
      * @return string
      */
-    private function provideResultComment($symlinkMask, $effectiveSymlinkMask)
+    private function provideResultComment(int $symlinkMask, int $effectiveSymlinkMask): string
     {
         if ($effectiveSymlinkMask === $symlinkMask) {
             switch ($symlinkMask) {
@@ -111,7 +112,7 @@ class OutputAwareAssetsInstaller extends AssetsInstaller implements OutputAwareI
      *
      * @return string
      */
-    private function provideExpectationComment($symlinkMask)
+    private function provideExpectationComment(int $symlinkMask): string
     {
         if (AssetsInstallerInterface::HARD_COPY === $symlinkMask) {
             return 'Installing assets as <comment>hard copies</comment>.';

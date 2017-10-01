@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ChannelBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
@@ -17,34 +19,30 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
- * Channel extension.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SyliusChannelExtension extends AbstractResourceExtension
+final class SyliusChannelExtension extends AbstractResourceExtension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $loader->load(sprintf('driver/%s.xml', $config['driver']));
+        $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
-        $configFiles = [
-            'services.xml',
-        ];
+        $loader->load('services.xml');
 
-        if ($config['fake_channel_support']) {
-            $configFiles[] = 'fake_channel.xml';
+        if ($config['debug']) {
+            $loader->load('services/integrations/debug.xml');
+
+            $container->getDefinition('sylius.channel_collector')->replaceArgument(2, true);
         }
 
-        foreach ($configFiles as $configFile) {
-            $loader->load($configFile);
-        }
+        $container->getDefinition('sylius.repository.channel')->setLazy(true);
     }
 }

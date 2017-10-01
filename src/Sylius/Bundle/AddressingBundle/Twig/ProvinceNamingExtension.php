@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Twig;
 
 use Sylius\Component\Addressing\Provider\ProvinceNamingProviderInterface;
@@ -34,39 +36,11 @@ class ProvinceNamingExtension extends \Twig_Extension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFilter('sylius_province_name', [$this, 'getProvinceName']),
-            new \Twig_SimpleFilter('sylius_province_abbreviation', [$this, 'getProvinceAbbreviation']),
+            new \Twig_Filter('sylius_province_name', [$this->provinceNamingProvider, 'getName']),
+            new \Twig_Filter('sylius_province_abbreviation', [$this->provinceNamingProvider, 'getAbbreviation']),
         ];
-    }
-
-    /**
-     * @param string $provinceCode
-     *
-     * @return string
-     */
-    public function getProvinceName($provinceCode)
-    {
-        return $this->provinceNamingProvider->getName($provinceCode);
-    }
-
-    /**
-     * @param string $provinceCode
-     *
-     * @return string
-     */
-    public function getProvinceAbbreviation($provinceCode)
-    {
-        return $this->provinceNamingProvider->getAbbreviation($provinceCode);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'sylius_province_naming';
     }
 }

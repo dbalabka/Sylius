@@ -9,11 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Model;
 
-use Payum\Core\Model\GatewayConfigInterface;
+use Payum\Core\Model\GatewayConfig as BaseGatewayConfig;
+use Sylius\Component\Resource\Model\ResourceInterface;
 
-class GatewayConfig implements GatewayConfigInterface
+class GatewayConfig extends BaseGatewayConfig implements ResourceInterface
 {
     /**
      * @var int
@@ -21,78 +24,10 @@ class GatewayConfig implements GatewayConfigInterface
     protected $id;
 
     /**
-     * @var string
-     */
-    protected $gatewayName;
-
-    /**
-     * @var string
-     */
-    protected $factoryName;
-
-    /**
-     * @var array
-     */
-    protected $config;
-
-    public function __construct()
-    {
-        $this->config = [];
-    }
-
-    /**
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGatewayName()
-    {
-        return $this->gatewayName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setGatewayName($gatewayName)
-    {
-        $this->gatewayName = $gatewayName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFactoryName()
-    {
-        return $this->factoryName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setFactoryName($factoryName)
-    {
-        $this->factoryName = $factoryName;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfig()
-    {
-        return $this->config;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setConfig(array $config)
-    {
-        $this->config = $config;
     }
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\CoreBundle\Validator\Constraints;
 
 use PhpSpec\ObjectBehavior;
@@ -17,14 +19,9 @@ use Symfony\Component\Validator\Constraint;
 /**
  * @author Gustavo Perdomo <gperdomor@gmail.com>
  */
-class HasEnabledEntitySpec extends ObjectBehavior
+final class HasEnabledEntitySpec extends ObjectBehavior
 {
-    public function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Validator\Constraints\HasEnabledEntity');
-    }
-
-    public function it_is_a_contraint()
+    public function it_is_a_constraint()
     {
         $this->shouldHaveType(Constraint::class);
     }

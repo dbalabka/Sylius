@@ -3,8 +3,17 @@
 
 sylius:
     form:
+        image:
+            type: Вид
         attribute:
             product_attribute_value:
                 value: Вредност
         guest:
             email: Е-пошта
+    installer:
+        extensions:
+            "off": false
+            "on": true
+        settings:
+            "off": false
+            "on": true

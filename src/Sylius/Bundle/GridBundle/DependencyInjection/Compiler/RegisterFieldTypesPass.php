@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\DependencyInjection\Compiler;
 
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -18,12 +20,12 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class RegisterFieldTypesPass implements CompilerPassInterface
+final class RegisterFieldTypesPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->hasDefinition('sylius.registry.grid_field')) {
             return;
@@ -32,7 +34,7 @@ class RegisterFieldTypesPass implements CompilerPassInterface
         $registry = $container->getDefinition('sylius.registry.grid_field');
 
         foreach ($container->findTaggedServiceIds('sylius.grid_field') as $id => $attributes) {
-            if (!isset($attributes[0]['type']))  {
+            if (!isset($attributes[0]['type'])) {
                 throw new \InvalidArgumentException('Tagged grid fields needs to have `type` attribute.');
             }
 

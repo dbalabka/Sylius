@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Data;
 
 use Sylius\Component\Grid\Definition\Grid;
@@ -18,7 +20,7 @@ use Sylius\Component\Registry\ServiceRegistryInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class DataSourceProvider implements DataSourceProviderInterface
+final class DataSourceProvider implements DataSourceProviderInterface
 {
     /**
      * @var ServiceRegistryInterface
@@ -36,14 +38,17 @@ class DataSourceProvider implements DataSourceProviderInterface
     /**
      * {@inheritdoc}
      */
-    public function getDataSource(Grid $grid, Parameters $parameters)
+    public function getDataSource(Grid $grid, Parameters $parameters): DataSourceInterface
     {
-        $driver = $grid->getDriver();
+        $driverName = $grid->getDriver();
 
-        if (!$this->driversRegistry->has($driver)) {
-            throw new UnsupportedDriverException($driver);
+        if (!$this->driversRegistry->has($driverName)) {
+            throw new UnsupportedDriverException($driverName);
         }
 
-        return $this->driversRegistry->get($driver)->getDataSource($grid->getDriverConfiguration(), $parameters);
+        /** @var DriverInterface $driver */
+        $driver = $this->driversRegistry->get($driverName);
+
+        return $driver->getDataSource($grid->getDriverConfiguration(), $parameters);
     }
 }

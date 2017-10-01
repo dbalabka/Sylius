@@ -10,17 +10,22 @@ sylius:
             options: Voľby
             meta_keywords: Meta kľúčové slová
             meta_description: Meta popis
+            slug: Slug
             taxons: Kategórie
         product_variant:
-            available_on: Dostupný od
-            available_until: Dostupný do
-        product_archetype:
             name: Názov
-            parent: Nadradená kategória
-            attributes: Vlastnosti
-            options: Voľby
         association_type:
             name: Názov
+            translations: Preklady
         association:
             type: Typ priradenia
             product: Priradený produkt
+        variant:
+            name: Názov
+        option:
+            name: Názov
+            position: Pozícia
+            values: Možné hodnoty
+        option_value:
+            add_value: Pridať hodnotu
+            value: Hodnota

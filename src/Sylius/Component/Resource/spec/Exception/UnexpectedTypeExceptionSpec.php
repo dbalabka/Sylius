@@ -9,28 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Resource\Exception;
 
 use PhpSpec\ObjectBehavior;
 
-class UnexpectedTypeExceptionSpec extends ObjectBehavior
+final class UnexpectedTypeExceptionSpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
         $this->beConstructedWith('stringValue', '\ExpectedType');
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Resource\Exception\UnexpectedTypeException');
-    }
-
-    function it_extends_invalid_argument_exception()
+    function it_extends_invalid_argument_exception(): void
     {
         $this->shouldHaveType(\InvalidArgumentException::class);
     }
 
-    function it_has_a_message()
+    function it_has_a_message(): void
     {
         $this->getMessage()->shouldReturn('Expected argument of type "\ExpectedType", "string" given.');
     }

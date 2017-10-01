@@ -9,7 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Model;
+
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
@@ -17,45 +21,41 @@ namespace Sylius\Component\Resource\Model;
 interface TranslatableInterface
 {
     /**
-     * Translation helper method.
-     *
-     * @param string $locale
+     * @return Collection|TranslationInterface[]
+     */
+    public function getTranslations(): Collection;
+
+    /**
+     * @param string|null $locale
      *
      * @return TranslationInterface
-     *
-     * @throws \RuntimeException
      */
-    public function translate($locale = null);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 
     /**
      * @param TranslationInterface $translation
      *
      * @return bool
      */
-    public function hasTranslation(TranslationInterface $translation);
-
-    /**
-     * @param string $locale
-     */
-    public function setCurrentLocale($locale);
-
-    /**
-     * @param string $locale
-     */
-    public function setFallbackLocale($locale);
-
-    /**
-     * @return TranslationInterface[]
-     */
-    public function getTranslations();
+    public function hasTranslation(TranslationInterface $translation): bool;
 
     /**
      * @param TranslationInterface $translation
      */
-    public function addTranslation(TranslationInterface $translation);
+    public function addTranslation(TranslationInterface $translation): void;
 
     /**
      * @param TranslationInterface $translation
      */
-    public function removeTranslation(TranslationInterface $translation);
+    public function removeTranslation(TranslationInterface $translation): void;
+
+    /**
+     * @param string $locale
+     */
+    public function setCurrentLocale(string $locale): void;
+
+    /**
+     * @param string $locale
+     */
+    public function setFallbackLocale(string $locale): void;
 }

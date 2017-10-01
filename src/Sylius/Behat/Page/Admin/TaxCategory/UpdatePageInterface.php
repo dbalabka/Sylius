@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\TaxCategory;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
@@ -18,13 +20,6 @@ use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
  */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    /**
-     * @param array $parameters where keys are some of arbitrary elements defined by user and values are expected values
-     *
-     * @return bool
-     */
-    public function hasResourceValues(array $parameters);
-
     /**
      * @return bool
      */

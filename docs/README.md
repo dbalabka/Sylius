@@ -18,20 +18,21 @@ The documentation uses [GitHub issues](https://github.com/Sylius/Sylius/issues).
 Build
 -----
 
-If you contribute to documentation you will want to check how it looks after your changes.  
-To be able to build the documentation, install [Sphinx](http://sphinx-doc.org/).
+To test the documentation before a commit:
 
-```
-$ sudo easy_install -U Sphinx
-```
+* [Install `pip`, Python package manager](https://pip.pypa.io/en/stable/installing/)
 
-Then run the following command.
+* Download the documentation requirements: 
 
-```
-$ sphinx-build -b html . build
-```
+    `$ pip install -r requirements.txt`
+    
+    This makes sure that the version of Sphinx you'll get is >=1.4.2!
 
-Documentation index is `build/index.html`.
+* Install [Sphinx](http://www.sphinx-doc.org/en/stable/)
+
+    `$ pip install Sphinx`
+
+* In the `docs` directory run `$ sphinx-build -b html . build` and view the generated HTML files in the `build` directory.
 
 Authors
 -------

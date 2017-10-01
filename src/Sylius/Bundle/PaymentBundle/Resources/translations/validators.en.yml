@@ -16,6 +16,11 @@ sylius:
             min_length: The credit card's CVV code must be at most than {{ limit }} digits long.
         expiry_year:
             not_blank: Please select the expiration year.
+    payment:
+        currency_code:
+            not_valid: The currency code you entered is invalid.
+        method:
+            not_blank: 'Please select a payment method.'
     payment_method:
         gateway:
             not_blank: Please select payment method gateway.
@@ -33,4 +38,5 @@ sylius:
                 not_blank: Please enter the fee percent.
         code:
             not_blank: 'Please enter payment method code.'
+            regex: 'Payment method code can only be comprised of letters, numbers, dashes and underscores.'
             unique: 'The payment method with given code already exists.'

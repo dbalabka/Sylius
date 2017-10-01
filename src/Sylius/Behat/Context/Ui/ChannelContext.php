@@ -9,18 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Admin\Channel\CreatePageInterface;
 use Sylius\Behat\Page\Shop\HomePageInterface;
 use Sylius\Behat\Service\Setter\ChannelContextSetterInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class ChannelContext implements Context
 {
@@ -71,7 +73,8 @@ final class ChannelContext implements Context
     }
 
     /**
-     * @When I change my current channel to :channel
+     * @Given /^I changed (?:|back )my current (channel to "([^"]+)")$/
+     * @When /^I change (?:|back )my current (channel to "([^"]+)")$/
      */
     public function iChangeMyCurrentChannelTo(ChannelInterface $channel)
     {
@@ -84,8 +87,8 @@ final class ChannelContext implements Context
     public function iCreateNewChannel($channelName)
     {
         $this->channelCreatePage->open();
-        $this->channelCreatePage->fillName($channelName);
-        $this->channelCreatePage->fillCode($channelName);
+        $this->channelCreatePage->nameIt($channelName);
+        $this->channelCreatePage->specifyCode($channelName);
         $this->channelCreatePage->create();
 
         $channel = $this->channelRepository->findOneBy(['name' => $channelName]);

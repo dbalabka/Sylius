@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Doctrine\ORM;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
@@ -23,30 +25,30 @@ class ProductRepository extends EntityRepository implements ProductRepositoryInt
     /**
      * {@inheritdoc}
      */
-    public function findOneByName($name)
+    public function findByName(string $name, string $locale): array
     {
         return $this->createQueryBuilder('o')
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->where('translation.name = :name')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere('translation.name = :name')
             ->setParameter('name', $name)
+            ->setParameter('locale', $locale)
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function findOneBySlug($slug)
+    public function findByNamePart(string $phrase, string $locale): array
     {
         return $this->createQueryBuilder('o')
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->where('translation.slug = :slug')
-            ->setParameter('slug', $slug)
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere('translation.name LIKE :name')
+            ->setParameter('name', '%'.$phrase.'%')
+            ->setParameter('locale', $locale)
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
 }

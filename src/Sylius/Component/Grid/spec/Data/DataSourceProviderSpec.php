@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Grid\Data;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
-use Sylius\Component\Grid\Data\DataSourceProvider;
+use Sylius\Component\Grid\Data\DataSourceInterface;
 use Sylius\Component\Grid\Data\DataSourceProviderInterface;
 use Sylius\Component\Grid\Data\DriverInterface;
 use Sylius\Component\Grid\Data\UnsupportedDriverException;
@@ -22,48 +23,45 @@ use Sylius\Component\Grid\Parameters;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 
 /**
- * @mixin DataSourceProvider
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class DataSourceProviderSpec extends ObjectBehavior
+final class DataSourceProviderSpec extends ObjectBehavior
 {
-    function let(ServiceRegistryInterface $driversRegistry)
+    function let(ServiceRegistryInterface $driversRegistry): void
     {
         $this->beConstructedWith($driversRegistry);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Grid\Data\DataSourceProvider');
-    }
-    
-    function it_implements_grid_data_provider_interface()
+    function it_implements_grid_data_provider_interface(): void
     {
         $this->shouldImplement(DataSourceProviderInterface::class);
     }
 
     function it_uses_a_correct_driver_to_get_the_data_for_a_grid(
         ServiceRegistryInterface $driversRegistry,
+        DataSourceInterface $dataSource,
         DriverInterface $driver,
-        Grid $grid,
-        Parameters $parameters
-    ) {
+        Grid $grid
+    ): void {
+        $parameters = new Parameters();
+
         $grid->getDriver()->willReturn('doctrine/orm');
         $grid->getDriverConfiguration()->willReturn(['resource' => 'sylius.tax_category']);
 
         $driversRegistry->has('doctrine/orm')->willReturn(true);
         $driversRegistry->get('doctrine/orm')->willReturn($driver);
-        $driver->getDataSource(['resource' => 'sylius.tax_category'], $parameters)->willReturn(['foo', 'bar']);
+        $driver->getDataSource(['resource' => 'sylius.tax_category'], $parameters)->willReturn($dataSource);
 
-        $this->getDataSource($grid, $parameters)->shouldReturn(['foo', 'bar']);
+        $this->getDataSource($grid, $parameters)->shouldReturn($dataSource);
     }
 
-    function it_throws_an_exception_if_driver_is_not_supported(Grid $grid, Parameters $parameters, ServiceRegistryInterface $driversRegistry)
+    function it_throws_an_exception_if_driver_is_not_supported(Grid $grid, ServiceRegistryInterface $driversRegistry): void
     {
+        $parameters = new Parameters();
+
         $grid->getDriver()->willReturn('doctrine/banana');
         $driversRegistry->has('doctrine/banana')->willReturn(false);
-        
+
         $this
             ->shouldThrow(new UnsupportedDriverException('doctrine/banana'))
             ->during('getDataSource', [$grid, $parameters])

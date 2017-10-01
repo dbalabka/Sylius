@@ -5,8 +5,8 @@ sylius:
     form:
         credit_card:
             cardholder_name: Nom du titulaire de la carte
-            expiry_month: "Mois d'expiration"
-            expiry_year: "Année d'expiration"
+            expiry_month: Mois d'expiration
+            expiry_year: Année d'expiration
             number: Numéro de la carte
             security_code: Code de sécurité (CVV)
             type: Type de carte
@@ -29,5 +29,6 @@ sylius:
         payment_method:
             description: Description
             enabled: Activé ?
-            gateway: Passerelle
+            instructions: Instructions
             name: Nom
+            position: Emplacement

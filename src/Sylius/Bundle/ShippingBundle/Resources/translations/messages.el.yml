@@ -15,19 +15,15 @@ sylius:
                 shipped: Αποστάλθηκαν
                 returned: Επεστράφησαν
             tracking_code: Κωδικός παρακολούθησης
-        shipping_calculator:
-            flat_rate_configuration:
-                amount: Ποσό
-            per_unit_rate_configuration:
-                amount: Ποσό
-            volume_rate_configuration:
-                amount: Ποσό
         shipping_category:
             description: Περιγραφή
             name: Ονομασία
         shipping_method:
             category: Κατηγορία
+            channels: Κανάλια
             configuration: Παραμετροποίηση
+            description: Περιγραφή
             enabled: Ενεργοποιημένο
             name: Ονομασία
             tax_category: Φορολογική κατηγορία
+            translations: Μεταφράσεις

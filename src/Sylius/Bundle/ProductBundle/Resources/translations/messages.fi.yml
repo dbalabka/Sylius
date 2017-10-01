@@ -3,5 +3,7 @@
 
 sylius:
     form:
-        product_archetype:
-            parent: Vanhempi
+        association_type:
+            translations: Käännökset
+        option_value:
+            add_value: Lisää arvo

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Model;
 
 use Doctrine\Common\Collections\Collection;
@@ -30,102 +32,133 @@ interface UserInterface extends
     TimestampableInterface,
     ToggleableInterface
 {
-    const DEFAULT_ROLE = 'ROLE_USER';
+    public const DEFAULT_ROLE = 'ROLE_USER';
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getEmail();
+    public function getEmail(): ?string;
 
     /**
-     * @param string $email
+     * @param string|null $email
      */
-    public function setEmail($email);
+    public function setEmail(?string $email): void;
 
     /**
      * Gets normalized email (should be used in search and sort queries).
      *
-     * @return string
+     * @return string|null
      */
-    public function getEmailCanonical();
+    public function getEmailCanonical(): ?string;
 
     /**
-     * @param string $emailCanonical
+     * @param string|null $emailCanonical
      */
-    public function setEmailCanonical($emailCanonical);
+    public function setEmailCanonical(?string $emailCanonical): void;
 
     /**
-     * @return CustomerInterface
+     * @param string|null $username
      */
-    public function getCustomer();
-
-    /**
-     * @param CustomerInterface $customer
-     */
-    public function setCustomer(CustomerInterface $customer = null);
-
-    /**
-     * @param string $username
-     */
-    public function setUsername($username);
+    public function setUsername(?string $username): void;
 
     /**
      * Gets normalized username (should be used in search and sort queries).
      *
-     * @return string
+     * @return string|null
      */
-    public function getUsernameCanonical();
+    public function getUsernameCanonical(): ?string;
 
     /**
-     * @param string $usernameCanonical
+     * @param string|null $usernameCanonical
      */
-    public function setUsernameCanonical($usernameCanonical);
+    public function setUsernameCanonical(?string $usernameCanonical): void;
 
     /**
      * @param bool $locked
      */
-    public function setLocked($locked);
+    public function setLocked(bool $locked): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getConfirmationToken();
+    public function getEmailVerificationToken(): ?string;
 
     /**
-     * @param string $confirmationToken
+     * @param string|null $verificationToken
      */
-    public function setConfirmationToken($confirmationToken);
+    public function setEmailVerificationToken(?string $verificationToken): void;
 
     /**
-     * Sets the timestamp that the user requested a password reset.
+     * @return string|null
+     */
+    public function getPasswordResetToken(): ?string;
+
+    /**
+     * @param string|null $passwordResetToken
+     */
+    public function setPasswordResetToken(?string $passwordResetToken): void;
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getPasswordRequestedAt(): ?\DateTimeInterface;
+
+    /**
+     * @param \DateTimeInterface|null $date
+     */
+    public function setPasswordRequestedAt(?\DateTimeInterface $date): void;
+
+    /**
+     * @param \DateInterval $ttl
      *
-     * @param null|\DateTime $date
+     * @return bool
      */
-    public function setPasswordRequestedAt(\DateTime $date = null);
+    public function isPasswordRequestNonExpired(\DateInterval $ttl): bool;
 
     /**
-     * Checks whether the password reset request has expired.
-     *
-     * @param \DateInterval $ttl Requests older than this time interval will be considered expired
-     *
-     * @return bool true if the user's password request is non expired, false otherwise
+     * @return bool
      */
-    public function isPasswordRequestNonExpired(\DateInterval $ttl);
+    public function isVerified(): bool;
 
     /**
-     * @param \DateTime $date
+     * @return \DateTimeInterface|null
      */
-    public function setCredentialsExpireAt(\DateTime $date = null);
+    public function getVerifiedAt(): ?\DateTimeInterface;
 
     /**
-     * @return \DateTime
+     * @param \DateTimeInterface|null $verifiedAt
      */
-    public function getLastLogin();
+    public function setVerifiedAt(?\DateTimeInterface $verifiedAt): void;
 
     /**
-     * @param \DateTime $time
+     * @return \DateTimeInterface|null
      */
-    public function setLastLogin(\DateTime $time = null);
+    public function getExpiresAt(): ?\DateTimeInterface;
+
+    /**
+     * @param \DateTimeInterface|null $date
+     */
+    public function setExpiresAt(?\DateTimeInterface $date): void;
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getCredentialsExpireAt(): ?\DateTimeInterface;
+
+    /**
+     * @param \DateTimeInterface|null $date
+     */
+    public function setCredentialsExpireAt(?\DateTimeInterface $date): void;
+
+    /**
+     * @return \DateTimeInterface|null
+     */
+    public function getLastLogin(): ?\DateTimeInterface;
+
+    /**
+     * @param \DateTimeInterface|null $time
+     */
+    public function setLastLogin(?\DateTimeInterface $time): void;
 
     /**
      * Never use this to check if this user has access to anything!
@@ -139,45 +172,32 @@ interface UserInterface extends
      *
      * @return bool
      */
-    public function hasRole($role);
-
-    /**
-     * This overwrites any previous roles.
-     *
-     * @param array $roles
-     */
-    public function setRoles(array $roles);
+    public function hasRole(string $role): bool;
 
     /**
      * @param string $role
      */
-    public function addRole($role);
+    public function addRole(string $role): void;
 
     /**
      * @param string $role
      */
-    public function removeRole($role);
+    public function removeRole(string $role): void;
 
     /**
-     * Gets connected OAuth accounts.
-     *
      * @return Collection|UserOAuthInterface[]
      */
-    public function getOAuthAccounts();
+    public function getOAuthAccounts(): Collection;
 
     /**
-     * Gets connected OAuth account.
-     *
      * @param string $provider
      *
-     * @return null|UserOAuthInterface
+     * @return UserOAuthInterface|null
      */
-    public function getOAuthAccount($provider);
+    public function getOAuthAccount(string $provider): ?UserOAuthInterface;
 
     /**
-     * Connects OAuth account.
-     *
      * @param UserOAuthInterface $oauth
      */
-    public function addOAuthAccount(UserOAuthInterface $oauth);
+    public function addOAuthAccount(UserOAuthInterface $oauth): void;
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Locale\Provider;
 
 use Sylius\Component\Locale\Model\LocaleInterface;
@@ -17,61 +19,50 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class LocaleProvider implements LocaleProviderInterface
+final class LocaleProvider implements LocaleProviderInterface
 {
     /**
      * @var RepositoryInterface
      */
-    protected $localeRepository;
+    private $localeRepository;
 
     /**
-     * @var string[]|null
+     * @var string
      */
-    protected $localesCodes = null;
+    private $defaultLocaleCode;
 
     /**
      * @param RepositoryInterface $localeRepository
+     * @param string $defaultLocaleCode
      */
-    public function __construct(RepositoryInterface $localeRepository)
+    public function __construct(RepositoryInterface $localeRepository, string $defaultLocaleCode)
     {
         $this->localeRepository = $localeRepository;
+        $this->defaultLocaleCode = $defaultLocaleCode;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAvailableLocales()
+    public function getAvailableLocalesCodes(): array
     {
-        if (null === $this->localesCodes) {
-            $this->localesCodes = $this->getEnabledLocalesCodes();
-        }
+        $locales = $this->localeRepository->findAll();
 
-        return $this->localesCodes;
+        return array_map(
+            function (LocaleInterface $locale) {
+                return $locale->getCode();
+            },
+            $locales
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function isLocaleAvailable($locale)
+    public function getDefaultLocaleCode(): string
     {
-        return in_array($locale, $this->getAvailableLocales());
-    }
-
-    /**
-     * @return string[]
-     */
-    protected function getEnabledLocalesCodes()
-    {
-        $localesCodes = [];
-
-        /** @var LocaleInterface[] $locales */
-        $locales = $this->localeRepository->findBy(['enabled' => true]);
-        foreach ($locales as $locale) {
-            $localesCodes[] = $locale->getCode();
-        }
-
-        return $localesCodes;
+        return $this->defaultLocaleCode;
     }
 }

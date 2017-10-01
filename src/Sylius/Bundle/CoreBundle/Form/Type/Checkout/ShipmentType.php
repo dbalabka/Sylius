@@ -9,57 +9,50 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Form\Type\Checkout;
 
-use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Bundle\ShippingBundle\Form\Type\ShippingMethodChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Translation\TranslatorInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * Order shipments type.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ShipmentType extends AbstractType
+final class ShipmentType extends AbstractType
 {
-    protected $dataClass;
-    protected $translator;
+    /**
+     * @var string
+     */
+    private $dataClass;
 
-    public function __construct($dataClass, TranslatorInterface $translator)
+    /**
+     * @param string $dataClass
+     */
+    public function __construct(string $dataClass)
     {
         $this->dataClass = $dataClass;
-        $this->translator = $translator;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $criteria = $options['criteria'];
-        $channel = $options['channel'];
-
-        $notBlank = new NotBlank(['groups' => ['sylius']]);
-        $notBlank->message = $this->translator->trans('sylius.checkout.shipping_method.not_blank', [], 'validators');
-
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($notBlank, $criteria, $channel) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $shipment = $event->getData();
 
-                $form->add('method', 'sylius_shipping_method_choice', [
+                $form->add('method', ShippingMethodChoiceType::class, [
+                    'required' => true,
                     'label' => 'sylius.form.checkout.shipping_method',
                     'subject' => $shipment,
-                    'criteria' => $criteria,
                     'expanded' => true,
-                    'constraints' => [
-                        $notBlank,
-                    ],
                 ]);
             });
     }
@@ -67,25 +60,19 @@ class ShipmentType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
                 'data_class' => $this->dataClass,
             ])
-            ->setDefined([
-                'criteria',
-                'channel',
-            ])
-            ->setAllowedTypes('criteria', 'array')
-            ->setAllowedTypes('channel', [ChannelInterface::class, 'null'])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_checkout_shipment';
     }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Data;
 
 use Sylius\Component\Grid\Definition\Grid;
@@ -19,7 +21,7 @@ use Sylius\Component\Grid\Sorting\SorterInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class DataProvider implements DataProviderInterface
+final class DataProvider implements DataProviderInterface
 {
     /**
      * @var DataSourceProviderInterface

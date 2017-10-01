@@ -9,20 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\GridBundle\Renderer;
 
+use Sylius\Bundle\GridBundle\Form\Registry\FormTypeRegistryInterface;
 use Sylius\Component\Grid\Definition\Action;
 use Sylius\Component\Grid\Definition\Field;
 use Sylius\Component\Grid\Definition\Filter;
+use Sylius\Component\Grid\FieldTypes\FieldTypeInterface;
 use Sylius\Component\Grid\Renderer\GridRendererInterface;
-use Sylius\Component\Grid\View\GridView;
+use Sylius\Component\Grid\View\GridViewInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class TwigGridRenderer implements GridRendererInterface
+final class TwigGridRenderer implements GridRendererInterface
 {
     /**
      * @var \Twig_Environment
@@ -30,24 +36,29 @@ class TwigGridRenderer implements GridRendererInterface
     private $twig;
 
     /**
-     * @var string
-     */
-    private $defaultTemplate;
-
-    /**
      * @var ServiceRegistryInterface
      */
     private $fieldsRegistry;
 
     /**
-     * @var array
-     */
-    private $actionTemplates;
-
-    /**
      * @var FormFactoryInterface
      */
     private $formFactory;
+
+    /**
+     * @var FormTypeRegistryInterface
+     */
+    private $formTypeRegistry;
+
+    /**
+     * @var string
+     */
+    private $defaultTemplate;
+
+    /**
+     * @var array
+     */
+    private $actionTemplates;
 
     /**
      * @var array
@@ -58,6 +69,7 @@ class TwigGridRenderer implements GridRendererInterface
      * @param \Twig_Environment $twig
      * @param ServiceRegistryInterface $fieldsRegistry
      * @param FormFactoryInterface $formFactory
+     * @param FormTypeRegistryInterface $formTypeRegistry
      * @param string $defaultTemplate
      * @param array $actionTemplates
      * @param array $filterTemplates
@@ -66,41 +78,49 @@ class TwigGridRenderer implements GridRendererInterface
         \Twig_Environment $twig,
         ServiceRegistryInterface $fieldsRegistry,
         FormFactoryInterface $formFactory,
-        $defaultTemplate,
+        FormTypeRegistryInterface $formTypeRegistry,
+        string $defaultTemplate,
         array $actionTemplates = [],
         array $filterTemplates = []
     ) {
         $this->twig = $twig;
-        $this->defaultTemplate = $defaultTemplate;
         $this->fieldsRegistry = $fieldsRegistry;
-        $this->actionTemplates = $actionTemplates;
         $this->formFactory = $formFactory;
+        $this->formTypeRegistry = $formTypeRegistry;
+        $this->defaultTemplate = $defaultTemplate;
+        $this->actionTemplates = $actionTemplates;
         $this->filterTemplates = $filterTemplates;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function render(GridView $gridView, $template = null)
+    public function render(GridViewInterface $gridView, ?string $template = null)
     {
         return $this->twig->render($template ?: $this->defaultTemplate, ['grid' => $gridView]);
     }
 
     /**
-     * @param Field $field
-     * @param $data
+     * {@inheritdoc}
      */
-    public function renderField(GridView $gridView, Field $field, $data)
+    public function renderField(GridViewInterface $gridView, Field $field, $data)
     {
-        return $this->fieldsRegistry->get($field->getType())->render($field, $data);
+        /** @var FieldTypeInterface $fieldType */
+        $fieldType = $this->fieldsRegistry->get($field->getType());
+        $resolver = new OptionsResolver();
+        $fieldType->configureOptions($resolver);
+        $options = $resolver->resolve($field->getOptions());
+
+        return $fieldType->render($field, $data, $options);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function renderAction(GridView $gridView, Action $action, $data = null)
+    public function renderAction(GridViewInterface $gridView, Action $action, $data = null)
     {
-        if (!isset($this->actionTemplates[$type = $action->getType()])) {
+        $type = $action->getType();
+        if (!isset($this->actionTemplates[$type])) {
             throw new \InvalidArgumentException(sprintf('Missing template for action type "%s".', $type));
         }
 
@@ -114,21 +134,50 @@ class TwigGridRenderer implements GridRendererInterface
     /**
      * {@inheritdoc}
      */
-    public function renderFilter(GridView $gridView, Filter $filter)
+    public function renderFilter(GridViewInterface $gridView, Filter $filter)
     {
-        if (!isset($this->filterTemplates[$type = $filter->getType()])) {
-            throw new \InvalidArgumentException(sprintf('Missing template for filter type "%s".', $type));
-        }
+        $template = $this->getFilterTemplate($filter);
+
+        $form = $this->formFactory->createNamed('criteria', FormType::class, [], [
+            'allow_extra_fields' => true,
+            'csrf_protection' => false,
+            'required' => false,
+        ]);
+        $form->add(
+            $filter->getName(),
+            $this->formTypeRegistry->get($filter->getType(), 'default'),
+            $filter->getFormOptions()
+        );
 
         $criteria = $gridView->getParameters()->get('criteria', []);
+        $form->submit($criteria);
 
-        $form = $this->formFactory->createNamed('criteria', 'form', $criteria, ['csrf_protection' => false, 'required' => false]);
-        $form->add($filter->getName(), sprintf('sylius_grid_filter_%s', $filter->getType(), $filter->getOptions()));
-
-        return $this->twig->render($this->filterTemplates[$type], [
+        return $this->twig->render($template, [
             'grid' => $gridView,
             'filter' => $filter,
             'form' => $form->get($filter->getName())->createView(),
         ]);
+    }
+
+    /**
+     * @param Filter $filter
+     *
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function getFilterTemplate(Filter $filter): string
+    {
+        $template = $filter->getTemplate();
+        if (null !== $template) {
+            return $template;
+        }
+
+        $type = $filter->getType();
+        if (!isset($this->filterTemplates[$type])) {
+            throw new \InvalidArgumentException(sprintf('Missing template for filter type "%s".', $type));
+        }
+
+        return $this->filterTemplates[$type];
     }
 }

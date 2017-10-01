@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Mocker;
 
 use Mockery\MockInterface;
@@ -32,4 +34,11 @@ interface MockerInterface
      * @return MockInterface
      */
     public function mockService($serviceId, $className);
+
+    /**
+     * @param string $serviceId
+     */
+    public function unmockService($serviceId);
+
+    public function unmockAll();
 }

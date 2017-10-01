@@ -9,44 +9,45 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Sylius\Component\User\Model\Customer as BaseCustomer;
+use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Customer\Model\Customer as BaseCustomer;
+use Sylius\Component\User\Model\UserInterface as BaseUserInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class Customer extends BaseCustomer implements CustomerInterface, ProductReviewerInterface
+class Customer extends BaseCustomer implements CustomerInterface
 {
     /**
-     * @var string
-     */
-    protected $currency;
-
-    /**
-     * @var ArrayCollection
+     * @var Collection|OrderInterface[]
      */
     protected $orders;
 
     /**
      * @var AddressInterface
      */
-    protected $billingAddress;
+    protected $defaultAddress;
 
     /**
-     * @var AddressInterface
-     */
-    protected $shippingAddress;
-
-    /**
-     * @var ArrayCollection
+     * @var Collection|AddressInterface[]
      */
     protected $addresses;
+
+    /**
+     * @var ShopUserInterface
+     */
+    protected $user;
 
     public function __construct()
     {
         parent::__construct();
+
         $this->orders = new ArrayCollection();
         $this->addresses = new ArrayCollection();
     }
@@ -54,25 +55,7 @@ class Customer extends BaseCustomer implements CustomerInterface, ProductReviewe
     /**
      * {@inheritdoc}
      */
-    public function setCurrency($currency)
-    {
-        $this->currency = $currency;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOrders()
+    public function getOrders(): Collection
     {
         return $this->orders;
     }
@@ -80,75 +63,47 @@ class Customer extends BaseCustomer implements CustomerInterface, ProductReviewe
     /**
      * {@inheritdoc}
      */
-    public function setBillingAddress(AddressInterface $billingAddress = null)
+    public function getDefaultAddress(): ?AddressInterface
     {
-        $this->billingAddress = $billingAddress;
+        return $this->defaultAddress;
+    }
 
-        if (null !== $billingAddress) {
-            $this->addAddress($billingAddress);
+    /**
+     * {@inheritdoc}
+     */
+    public function setDefaultAddress(?AddressInterface $defaultAddress): void
+    {
+        $this->defaultAddress = $defaultAddress;
+
+        if (null !== $defaultAddress) {
+            $this->addAddress($defaultAddress);
         }
-
-        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getBillingAddress()
-    {
-        return $this->billingAddress;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setShippingAddress(AddressInterface $shippingAddress = null)
-    {
-        $this->shippingAddress = $shippingAddress;
-
-        if (null !== $shippingAddress) {
-            $this->addAddress($shippingAddress);
-        }
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getShippingAddress()
-    {
-        return $this->shippingAddress;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addAddress(AddressInterface $address)
+    public function addAddress(AddressInterface $address): void
     {
         if (!$this->hasAddress($address)) {
             $this->addresses[] = $address;
             $address->setCustomer($this);
         }
-
-        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeAddress(AddressInterface $address)
+    public function removeAddress(AddressInterface $address): void
     {
         $this->addresses->removeElement($address);
         $address->setCustomer(null);
-
-        return $this;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasAddress(AddressInterface $address)
+    public function hasAddress(AddressInterface $address): bool
     {
         return $this->addresses->contains($address);
     }
@@ -156,8 +111,48 @@ class Customer extends BaseCustomer implements CustomerInterface, ProductReviewe
     /**
      * {@inheritdoc}
      */
-    public function getAddresses()
+    public function getAddresses(): Collection
     {
         return $this->addresses;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUser(): ?BaseUserInterface
+    {
+        return $this->user;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setUser(?BaseUserInterface $user): void
+    {
+         if ($this->user === $user) {
+            return;
+        }
+
+        /** @var ShopUserInterface|null $user */
+        Assert::nullOrIsInstanceOf($user, ShopUserInterface::class);
+
+        $previousUser = $this->user;
+        $this->user = $user;
+
+        if ($previousUser instanceof ShopUserInterface) {
+            $previousUser->setCustomer(null);
+        }
+
+        if ($user instanceof ShopUserInterface) {
+            $user->setCustomer($this);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasUser(): bool
+    {
+        return null !== $this->user;
     }
 }

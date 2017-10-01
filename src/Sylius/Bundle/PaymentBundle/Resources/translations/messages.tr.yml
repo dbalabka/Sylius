@@ -15,7 +15,7 @@ sylius:
             method: Ödeme tipi
             state:
                 header: Ödeme durumu
-                checkout: 'Ödeme  yap'
+                checkout: Ödeme  yap
                 completed: Tamamlandı
                 authorized: Yetkili
                 failed: Başarısız oldu
@@ -29,5 +29,4 @@ sylius:
         payment_method:
             description: Açıklama
             enabled: Etkin?
-            gateway: Ağ Geçidi
             name: Ad

@@ -9,12 +9,10 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CurrencyBundle\Templating\Helper;
 
-use Sylius\Bundle\MoneyBundle\Templating\Helper\MoneyHelperInterface;
-use Sylius\Component\Currency\Context\CurrencyContextInterface;
-use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
-use Sylius\Component\Currency\Provider\CurrencyProviderInterface;
 use Symfony\Component\Intl\Intl;
 use Symfony\Component\Templating\Helper\Helper;
 
@@ -24,76 +22,17 @@ use Symfony\Component\Templating\Helper\Helper;
 class CurrencyHelper extends Helper implements CurrencyHelperInterface
 {
     /**
-     * @var CurrencyContextInterface
+     * {@inheritdoc}
      */
-    private $currencyContext;
-
-    /**
-     * @var CurrencyConverterInterface
-     */
-    private $converter;
-
-    /**
-     * @var MoneyHelperInterface
-     */
-    private $moneyHelper;
-
-    /**
-     * @var CurrencyProviderInterface
-     */
-    private $currencyProvider;
-
-    /**
-     * @param CurrencyContextInterface $currencyContext
-     * @param CurrencyConverterInterface $converter
-     * @param MoneyHelperInterface $moneyHelper
-     * @param CurrencyProviderInterface $currencyProvider
-     */
-    public function __construct(
-        CurrencyContextInterface $currencyContext,
-        CurrencyConverterInterface $converter,
-        MoneyHelperInterface $moneyHelper,
-        CurrencyProviderInterface $currencyProvider
-    ) {
-        $this->currencyContext = $currencyContext;
-        $this->converter = $converter;
-        $this->moneyHelper = $moneyHelper;
-        $this->currencyProvider = $currencyProvider;
+    public function convertCurrencyCodeToSymbol(string $code): string
+    {
+        return Intl::getCurrencyBundle()->getCurrencySymbol($code);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convertAmount($amount, $currency = null)
-    {
-        $currency = $currency ?: $this->currencyContext->getCurrency();
-
-        return $this->converter->convertFromBase($amount, $currency);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function convertAndFormatAmount($amount, $currency = null, $decimal = false)
-    {
-        $currency = $currency ?: $this->currencyContext->getCurrency();
-        $amount = $this->converter->convertFromBase($amount, $currency);
-
-        return $this->moneyHelper->formatAmount($amount, $currency, $decimal);
-    }
-
-    /**
-     * @return string
-     */
-    public function getBaseCurrencySymbol()
-    {
-        return Intl::getCurrencyBundle()->getCurrencySymbol($this->currencyProvider->getBaseCurrency()->getCode());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'sylius_currency';
     }

@@ -9,23 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Calculator;
 
 use Sylius\Component\Registry\ServiceRegistryInterface;
-use Sylius\Component\Shipping\Model\ShippingSubjectInterface;
+use Sylius\Component\Shipping\Model\ShipmentInterface;
 
 /**
- * This class delegates the calculation of charge for particular shipping subject
- * to a correct calculator instance, based on the name defined on the shipping method.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class DelegatingCalculator implements DelegatingCalculatorInterface
+final class DelegatingCalculator implements DelegatingCalculatorInterface
 {
     /**
      * @var ServiceRegistryInterface
      */
-    protected $registry;
+    private $registry;
 
     /**
      * @param ServiceRegistryInterface $registry
@@ -38,12 +37,13 @@ class DelegatingCalculator implements DelegatingCalculatorInterface
     /**
      * {@inheritdoc}
      */
-    public function calculate(ShippingSubjectInterface $subject)
+    public function calculate(ShipmentInterface $subject): int
     {
         if (null === $method = $subject->getMethod()) {
-            throw new UndefinedShippingMethodException('Cannot calculate charge for shipping subject without defined shipping method.');
+            throw new UndefinedShippingMethodException('Cannot calculate charge for shipment without a defined shipping method.');
         }
 
+        /** @var CalculatorInterface $calculator */
         $calculator = $this->registry->get($method->getCalculator());
 
         return $calculator->calculate($subject, $method->getConfiguration());

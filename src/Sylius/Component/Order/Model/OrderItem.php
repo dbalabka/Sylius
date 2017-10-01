@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -87,7 +89,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getQuantity()
+    public function getQuantity(): int
     {
         return $this->quantity;
     }
@@ -95,7 +97,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getOrder()
+    public function getOrder(): ?OrderInterface
     {
         return $this->order;
     }
@@ -103,7 +105,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function setOrder(OrderInterface $order = null)
+    public function setOrder(?OrderInterface $order): void
     {
         $currentOrder = $this->getOrder();
         if ($currentOrder === $order) {
@@ -130,7 +132,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getUnitPrice()
+    public function getUnitPrice(): int
     {
         return $this->unitPrice;
     }
@@ -138,12 +140,8 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function setUnitPrice($unitPrice)
+    public function setUnitPrice(int $unitPrice): void
     {
-        if (!is_int($unitPrice)) {
-            throw new \InvalidArgumentException('Unit price must be an integer.');
-        }
-
         $this->unitPrice = $unitPrice;
         $this->recalculateUnitsTotal();
     }
@@ -151,7 +149,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getTotal()
+    public function getTotal(): int
     {
         return $this->total;
     }
@@ -159,7 +157,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function recalculateAdjustmentsTotal()
+    public function recalculateAdjustmentsTotal(): void
     {
         $this->adjustmentsTotal = 0;
 
@@ -175,7 +173,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function recalculateUnitsTotal()
+    public function recalculateUnitsTotal(): void
     {
         $this->unitsTotal = 0;
 
@@ -189,7 +187,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function equals(OrderItemInterface $orderItem)
+    public function equals(OrderItemInterface $orderItem): bool
     {
         return $this === $orderItem;
     }
@@ -197,7 +195,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function isImmutable()
+    public function isImmutable(): bool
     {
         return $this->immutable;
     }
@@ -205,15 +203,15 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function setImmutable($immutable)
+    public function setImmutable(bool $immutable): void
     {
-        $this->immutable = (bool) $immutable;
+        $this->immutable = $immutable;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getUnits()
+    public function getUnits(): Collection
     {
         return $this->units;
     }
@@ -221,7 +219,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function addUnit(OrderItemUnitInterface $unit)
+    public function addUnit(OrderItemUnitInterface $unit): void
     {
         if ($this !== $unit->getOrderItem()) {
             throw new \LogicException('This order item unit is assigned to a different order item.');
@@ -239,7 +237,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function removeUnit(OrderItemUnitInterface $unit)
+    public function removeUnit(OrderItemUnitInterface $unit): void
     {
         if ($this->hasUnit($unit)) {
             $this->units->removeElement($unit);
@@ -253,7 +251,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function hasUnit(OrderItemUnitInterface $unit)
+    public function hasUnit(OrderItemUnitInterface $unit): bool
     {
         return $this->units->contains($unit);
     }
@@ -261,7 +259,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getAdjustments($type = null)
+    public function getAdjustments(?string $type = null): Collection
     {
         if (null === $type) {
             return $this->adjustments;
@@ -275,11 +273,14 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getAdjustmentsRecursively($type = null)
+    public function getAdjustmentsRecursively(?string $type = null): Collection
     {
-        $adjustments = $this->getAdjustments($type)->toArray();
+        $adjustments = clone $this->getAdjustments($type);
+
         foreach ($this->units as $unit) {
-            $adjustments = array_merge($adjustments, $unit->getAdjustments($type)->toArray());
+            foreach ($unit->getAdjustments($type) as $adjustment) {
+                $adjustments->add($adjustment);
+            }
         }
 
         return $adjustments;
@@ -288,7 +289,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function addAdjustment(AdjustmentInterface $adjustment)
+    public function addAdjustment(AdjustmentInterface $adjustment): void
     {
         if (!$this->hasAdjustment($adjustment)) {
             $this->adjustments->add($adjustment);
@@ -300,7 +301,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function removeAdjustment(AdjustmentInterface $adjustment)
+    public function removeAdjustment(AdjustmentInterface $adjustment): void
     {
         if (!$adjustment->isLocked() && $this->hasAdjustment($adjustment)) {
             $this->adjustments->removeElement($adjustment);
@@ -312,7 +313,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function hasAdjustment(AdjustmentInterface $adjustment)
+    public function hasAdjustment(AdjustmentInterface $adjustment): bool
     {
         return $this->adjustments->contains($adjustment);
     }
@@ -320,7 +321,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getAdjustmentsTotal($type = null)
+    public function getAdjustmentsTotal(?string $type = null): int
     {
         if (null === $type) {
             return $this->adjustmentsTotal;
@@ -328,7 +329,9 @@ class OrderItem implements OrderItemInterface
 
         $total = 0;
         foreach ($this->getAdjustments($type) as $adjustment) {
-            $total += $adjustment->getAmount();
+            if (!$adjustment->isNeutral()) {
+                $total += $adjustment->getAmount();
+            }
         }
 
         return $total;
@@ -337,11 +340,14 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function getAdjustmentsTotalRecursively($type = null)
+    public function getAdjustmentsTotalRecursively(?string $type = null): int
     {
-        $total = $this->getAdjustmentsTotal($type);
-        foreach ($this->units as $unit) {
-            $total += $unit->getAdjustmentsTotal($type);
+        $total = 0;
+
+        foreach ($this->getAdjustmentsRecursively($type) as $adjustment) {
+            if (!$adjustment->isNeutral()) {
+                $total += $adjustment->getAmount();
+            }
         }
 
         return $total;
@@ -350,13 +356,9 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function removeAdjustments($type)
+    public function removeAdjustments(?string $type = null): void
     {
         foreach ($this->getAdjustments($type) as $adjustment) {
-            if ($adjustment->isLocked()) {
-                continue;
-            }
-
             $this->removeAdjustment($adjustment);
         }
     }
@@ -364,7 +366,7 @@ class OrderItem implements OrderItemInterface
     /**
      * {@inheritdoc}
      */
-    public function removeAdjustmentsRecursively($type = null)
+    public function removeAdjustmentsRecursively(?string $type = null): void
     {
         $this->removeAdjustments($type);
         foreach ($this->units as $unit) {
@@ -373,18 +375,9 @@ class OrderItem implements OrderItemInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Recalculates total after units total or adjustments total change.
      */
-    public function clearAdjustments()
-    {
-        $this->adjustments->clear();
-        $this->recalculateAdjustmentsTotal();
-    }
-
-    /**
-     *  Recalculates total after units total or adjustments total change.
-     */
-    protected function recalculateTotal()
+    protected function recalculateTotal(): void
     {
         $this->total = $this->unitsTotal + $this->adjustmentsTotal;
 
@@ -400,7 +393,7 @@ class OrderItem implements OrderItemInterface
     /**
      * @param AdjustmentInterface $adjustment
      */
-    protected function addToAdjustmentsTotal(AdjustmentInterface $adjustment)
+    protected function addToAdjustmentsTotal(AdjustmentInterface $adjustment): void
     {
         if (!$adjustment->isNeutral()) {
             $this->adjustmentsTotal += $adjustment->getAmount();
@@ -411,7 +404,7 @@ class OrderItem implements OrderItemInterface
     /**
      * @param AdjustmentInterface $adjustment
      */
-    protected function subtractFromAdjustmentsTotal(AdjustmentInterface $adjustment)
+    protected function subtractFromAdjustmentsTotal(AdjustmentInterface $adjustment): void
     {
         if (!$adjustment->isNeutral()) {
             $this->adjustmentsTotal -= $adjustment->getAmount();

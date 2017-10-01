@@ -9,9 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Factory;
 
-use Sylius\Component\Product\Model\VariantInterface;
+use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductVariantInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
@@ -20,9 +23,9 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 interface ProductVariantFactoryInterface extends FactoryInterface
 {
     /**
-     * @param mixed $id
+     * @param ProductInterface $product
      *
-     * @return VariantInterface
+     * @return ProductVariantInterface
      */
-    public function createForProductWithId($id);
+    public function createForProduct(ProductInterface $product): ProductVariantInterface;
 }

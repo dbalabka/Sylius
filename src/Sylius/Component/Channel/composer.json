@@ -20,15 +20,16 @@
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.1",
 
-        "sylius/resource": "^0.18",
-        "symfony/form": "^2.7",
-        "symfony/http-foundation": "^2.7",
-        "zendframework/zend-stdlib": "^2.0|^3.0"
+        "sylius/resource": "^1.0",
+        "symfony/form": "^3.2",
+        "symfony/http-foundation": "^3.2",
+        "zendframework/zend-stdlib": "^3.1"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4"
+        "pamil/prophecy-common": "^0.1",
+        "phpspec/phpspec": "^4.0"
     },
     "config": {
         "bin-dir": "bin"
@@ -49,7 +50,7 @@
     ],
     "extra": {
         "branch-alias": {
-            "dev-master": "0.18-dev"
+            "dev-master": "1.0-dev"
         }
     }
 }

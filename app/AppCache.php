@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-require_once __DIR__.'/AppKernel.php';
+declare(strict_types=1);
 
 use Symfony\Bundle\FrameworkBundle\HttpCache\HttpCache;
 

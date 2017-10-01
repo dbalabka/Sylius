@@ -7,10 +7,13 @@ sylius:
             states:
                 checkout: Realitza la compra
                 pending: Pendent
+                cancelled: Cancel·lat
         shipping_category:
             description: Descripció
             name: Nom
         shipping_method:
+            channels: Canals
+            description: Descripció
             enabled: Activat
             name: Nom
-            tax_category: "Categoria d'impost"
+            tax_category: Categoria d'impost

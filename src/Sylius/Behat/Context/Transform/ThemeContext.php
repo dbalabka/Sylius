@@ -9,13 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Bundle\ThemeBundle\Repository\ThemeRepositoryInterface;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class ThemeContext implements Context
 {
@@ -37,8 +39,8 @@ final class ThemeContext implements Context
      * @Transform /^theme "([^"]+)"$/
      * @Transform :theme
      */
-    public function getThemeByThemeTitle($themeTitle)
+    public function getThemeByThemeName($themeName)
     {
-        return $this->themeRepository->findOneBy(['title' => $themeTitle]);
+        return $this->themeRepository->findOneByName($themeName);
     }
 }

@@ -7,6 +7,6 @@ sylius:
             description: Descrição
             name: Nome
             parent: Pai
-            permalink: Link Permanente
+            slug: Slug
         taxonomy:
             name: Nome

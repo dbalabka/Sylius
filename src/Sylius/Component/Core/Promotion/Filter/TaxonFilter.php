@@ -9,28 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Promotion\Filter;
 
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\TaxonInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class TaxonFilter implements FilterInterface
+final class TaxonFilter implements FilterInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function filter(array $items, array $configuration)
+    public function filter(array $items, array $configuration): array
     {
-        if (!isset($configuration['filters']['taxons'])) {
+        if (empty($configuration['filters']['taxons_filter']['taxons'])) {
             return $items;
         }
 
         $filteredItems = [];
         foreach ($items as $item) {
-            if ($this->hasProductValidTaxon($item->getProduct(), $configuration['filters']['taxons'])) {
+            if ($this->hasProductValidTaxon($item->getProduct(), $configuration['filters']['taxons_filter']['taxons'])) {
                 $filteredItems[] = $item;
             }
         }
@@ -40,14 +42,14 @@ class TaxonFilter implements FilterInterface
 
     /**
      * @param ProductInterface $product
-     * @param array $taxons
+     * @param TaxonInterface[] $taxons
      *
      * @return bool
      */
-    private function hasProductValidTaxon(ProductInterface $product, array $taxons)
+    private function hasProductValidTaxon(ProductInterface $product, array $taxons): bool
     {
         foreach ($product->getTaxons() as $taxon) {
-            if (in_array($taxon->getCode(), $taxons)) {
+            if (in_array($taxon->getCode(), $taxons, true)) {
                 return true;
             }
         }

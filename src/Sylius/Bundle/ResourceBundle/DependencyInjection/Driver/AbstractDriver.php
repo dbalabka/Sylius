@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Driver;
 
 use Sylius\Component\Resource\Factory\Factory;
@@ -17,7 +19,6 @@ use Sylius\Component\Resource\Metadata\Metadata;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -29,7 +30,7 @@ abstract class AbstractDriver implements DriverInterface
     /**
      * {@inheritdoc}
      */
-    public function load(ContainerBuilder $container, MetadataInterface $metadata)
+    public function load(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $this->setClassesParameters($container, $metadata);
 
@@ -43,17 +44,13 @@ abstract class AbstractDriver implements DriverInterface
         if ($metadata->hasClass('factory')) {
             $this->addFactory($container, $metadata);
         }
-
-        if ($metadata->hasClass('form')) {
-            $this->addForms($container, $metadata);
-        }
     }
 
     /**
      * @param ContainerBuilder $container
      * @param MetadataInterface $metadata
      */
-    protected function setClassesParameters(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function setClassesParameters(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         if ($metadata->hasClass('model')) {
             $container->setParameter(sprintf('%s.model.%s.class', $metadata->getApplicationName(), $metadata->getName()), $metadata->getClass('model'));
@@ -67,29 +64,18 @@ abstract class AbstractDriver implements DriverInterface
         if ($metadata->hasClass('repository')) {
             $container->setParameter(sprintf('%s.repository.%s.class', $metadata->getApplicationName(), $metadata->getName()), $metadata->getClass('repository'));
         }
-
-        if (!$metadata->hasParameter('validation_groups')) {
-            return;
-        }
-
-        $validationGroups = $metadata->getParameter('validation_groups');
-
-        foreach ($validationGroups as $formName => $groups) {
-            $suffix = 'default' === $formName ? '' : sprintf('_%s', $formName);
-            $container->setParameter(sprintf('%s.validation_groups.%s%s', $metadata->getApplicationName(), $metadata->getName(), $suffix), array_merge(['Default'], $groups));
-        }
     }
 
     /**
      * @param ContainerBuilder $container
      * @param MetadataInterface $metadata
      */
-    protected function addController(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addController(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $definition = new Definition($metadata->getClass('controller'));
         $definition
             ->setArguments([
-                $this->getMetdataDefinition($metadata),
+                $this->getMetadataDefinition($metadata),
                 new Reference('sylius.resource_controller.request_configuration_factory'),
                 new Reference('sylius.resource_controller.view_handler'),
                 new Reference($metadata->getServiceId('repository')),
@@ -103,6 +89,9 @@ abstract class AbstractDriver implements DriverInterface
                 new Reference('sylius.resource_controller.flash_helper'),
                 new Reference('sylius.resource_controller.authorization_checker'),
                 new Reference('sylius.resource_controller.event_dispatcher'),
+                new Reference('sylius.resource_controller.state_machine'),
+                new Reference('sylius.resource_controller.resource_update_handler'),
+                new Reference('sylius.resource_controller.resource_delete_handler'),
             ])
             ->addMethodCall('setContainer', [new Reference('service_container')])
         ;
@@ -114,77 +103,24 @@ abstract class AbstractDriver implements DriverInterface
      * @param ContainerBuilder $container
      * @param MetadataInterface $metadata
      */
-    protected function addFactory(ContainerBuilder $container, MetadataInterface $metadata)
+    protected function addFactory(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $factoryClass = $metadata->getClass('factory');
         $modelClass = $metadata->getClass('model');
 
         $definition = new Definition($factoryClass);
 
-        if (in_array(TranslatableFactoryInterface::class, class_implements($factoryClass))) {
+        $definitionArgs = [$modelClass];
+        if (in_array(TranslatableFactoryInterface::class, class_implements($factoryClass), true)) {
             $decoratedDefinition = new Definition(Factory::class);
-            $decoratedDefinition->setArguments([$modelClass]);
+            $decoratedDefinition->setArguments($definitionArgs);
 
-            $definition->setArguments([$decoratedDefinition, new Reference('sylius.translation.locale_provider')]);
-
-            $container->setDefinition($metadata->getServiceId('factory'), $definition);
-
-            return;
+            $definitionArgs = [$decoratedDefinition, new Reference('sylius.translation_locale_provider')];
         }
 
-        $definition->setArguments([$modelClass]);
+        $definition->setArguments($definitionArgs);
 
         $container->setDefinition($metadata->getServiceId('factory'), $definition);
-    }
-
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
-    protected function addForms(ContainerBuilder $container, MetadataInterface $metadata)
-    {
-        foreach ($metadata->getClass('form') as $formName => $formClass) {
-            $suffix = 'default' === $formName ? '' : sprintf('_%s', $formName);
-            $alias = sprintf('%s_%s%s', $metadata->getApplicationName(), $metadata->getName(), $suffix);
-
-            $definition = new Definition($formClass);
-
-            switch ($formName) {
-                case 'choice':
-                    $definition->setArguments([
-                        $metadata->getClass('model'),
-                        $metadata->getDriver(),
-                        $alias,
-                    ]);
-                break;
-
-                default:
-                    $validationGroupsParameterName = sprintf('%s.validation_groups.%s%s', $metadata->getApplicationName(), $metadata->getName(), $suffix);
-                    $validationGroups = new Parameter($validationGroupsParameterName);
-
-                    if (!$container->hasParameter($validationGroupsParameterName)) {
-                        $validationGroups = ['Default'];
-                    }
-
-                    $definition->setArguments([
-                        $metadata->getClass('model'),
-                        $validationGroups,
-                    ]);
-                break;
-            }
-
-            $definition->addTag('form.type', ['alias' => $alias]);
-
-            $container->setParameter(sprintf('%s.form.type.%s%s.class', $metadata->getApplicationName(), $metadata->getName(), $suffix), $formClass);
-            $container->setDefinition(
-                sprintf('%s.form.type.%s%s', $metadata->getApplicationName(), $metadata->getName(), $suffix),
-                $definition
-            );
-        }
-
-        if (!$container->hasDefinition(sprintf('%s.form.type.%s', $metadata->getApplicationName(), $metadata->getName()))) {
-            $this->addDefaultForm($container, $metadata);
-        }
     }
 
     /**
@@ -192,7 +128,7 @@ abstract class AbstractDriver implements DriverInterface
      *
      * @return Definition
      */
-    protected function getMetdataDefinition(MetadataInterface $metadata)
+    protected function getMetadataDefinition(MetadataInterface $metadata): Definition
     {
         $definition = new Definition(Metadata::class);
         $definition
@@ -207,17 +143,11 @@ abstract class AbstractDriver implements DriverInterface
      * @param ContainerBuilder $container
      * @param MetadataInterface $metadata
      */
-    abstract protected function addDefaultForm(ContainerBuilder $container, MetadataInterface $metadata);
+    abstract protected function addManager(ContainerBuilder $container, MetadataInterface $metadata): void;
 
     /**
      * @param ContainerBuilder $container
      * @param MetadataInterface $metadata
      */
-    abstract protected function addManager(ContainerBuilder $container, MetadataInterface $metadata);
-
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
-    abstract protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata);
+    abstract protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata): void;
 }

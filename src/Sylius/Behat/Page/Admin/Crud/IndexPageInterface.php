@@ -9,21 +9,44 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Crud;
 
-use Sylius\Behat\Page\PageInterface;
+use Behat\Mink\Element\NodeElement;
+use Sylius\Behat\Page\SymfonyPageInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-interface IndexPageInterface extends PageInterface
+interface IndexPageInterface extends SymfonyPageInterface
 {
     /**
      * @param array $parameters
      *
      * @return bool
      */
-    public function isResourceOnPage(array $parameters);
+    public function isSingleResourceOnPage(array $parameters);
+
+    /**
+     * @param array $parameters
+     * @param string $element
+     *
+     * @return bool
+     */
+    public function isSingleResourceWithSpecificElementOnPage(array $parameters, $element);
+
+    /**
+     * @param string $columnName
+     *
+     * @return array
+     */
+    public function getColumnFields($columnName);
+
+    /**
+     * @param string $fieldName
+     */
+    public function sortBy($fieldName);
 
     /**
      * @param array $parameters
@@ -33,7 +56,16 @@ interface IndexPageInterface extends PageInterface
     public function deleteResourceOnPage(array $parameters);
 
     /**
+     * @param array $parameters
+     *
+     * @return NodeElement
+     */
+    public function getActionsForResource(array $parameters);
+
+    /**
      * @return int
      */
     public function countItems();
+
+    public function filter();
 }

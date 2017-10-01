@@ -9,17 +9,66 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Shop;
 
-use Sylius\Behat\Page\PageInterface;
+use Sylius\Behat\Page\SymfonyPageInterface;
 
 /**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
+ * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
-interface HomePageInterface extends PageInterface
+interface HomePageInterface extends SymfonyPageInterface
 {
     /**
      * @return string
      */
     public function getContents();
+
+    /**
+     * @return bool
+     */
+    public function hasLogoutButton();
+
+    public function logOut();
+
+    /**
+     * @return string
+     */
+    public function getFullName();
+
+    /**
+     * @return string
+     */
+    public function getActiveCurrency();
+
+    /**
+     * @return array
+     */
+    public function getAvailableCurrencies();
+
+    /**
+     * @param string $currencyCode
+     */
+    public function switchCurrency($currencyCode);
+
+    /**
+     * @return string
+     */
+    public function getActiveLocale();
+
+    /**
+     * @return array
+     */
+    public function getAvailableLocales();
+
+    /**
+     * @param string $localeCode
+     */
+    public function switchLocale($localeCode);
+
+    /**
+     * @return array
+     */
+    public function getLatestProductsNames();
 }

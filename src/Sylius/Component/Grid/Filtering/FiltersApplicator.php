@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Grid\Filtering;
 
 use Sylius\Component\Grid\Data\DataSourceInterface;
@@ -19,7 +21,7 @@ use Sylius\Component\Registry\ServiceRegistryInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class FiltersApplicator implements FiltersApplicatorInterface
+final class FiltersApplicator implements FiltersApplicatorInterface
 {
     /**
      * @var ServiceRegistryInterface
@@ -27,32 +29,42 @@ class FiltersApplicator implements FiltersApplicatorInterface
     private $filtersRegistry;
 
     /**
-     * @param ServiceRegistryInterface $filtersRegistry
+     * @var FiltersCriteriaResolverInterface
      */
-    public function __construct(ServiceRegistryInterface $filtersRegistry)
-    {
+    private $criteriaResolver;
+
+    /**
+     * @param ServiceRegistryInterface $filtersRegistry
+     * @param FiltersCriteriaResolverInterface $criteriaResolver
+     */
+    public function __construct(
+        ServiceRegistryInterface $filtersRegistry,
+        FiltersCriteriaResolverInterface $criteriaResolver
+    ) {
         $this->filtersRegistry = $filtersRegistry;
+        $this->criteriaResolver = $criteriaResolver;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function apply(DataSourceInterface $dataSource, Grid $grid, Parameters $parameters)
+    public function apply(DataSourceInterface $dataSource, Grid $grid, Parameters $parameters): void
     {
-        if (!$parameters->has('criteria')) {
+        if (!$this->criteriaResolver->hasCriteria($grid, $parameters)) {
             return;
         }
 
-        $criteria = $parameters->get('criteria');
-
+        $criteria = $this->criteriaResolver->getCriteria($grid, $parameters);
         foreach ($criteria as $name => $data) {
             if (!$grid->hasFilter($name)) {
                 continue;
             }
 
-            $filter = $grid->getFilter($name);
+            $gridFilter = $grid->getFilter($name);
 
-            $this->filtersRegistry->get($filter->getType())->apply($dataSource, $name, $data, $filter->getOptions());
+            /** @var FilterInterface $filter */
+            $filter = $this->filtersRegistry->get($gridFilter->getType());
+            $filter->apply($dataSource, $name, $data, $gridFilter->getOptions());
         }
     }
 }

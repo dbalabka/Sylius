@@ -9,21 +9,40 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Promotion;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
+
     /**
-     * @param array $parameters where keys are some of arbitrary elements defined by user and values are expected values
+     * @param int|null $priority
+     */
+    public function setPriority($priority);
+
+    /**
+     * @return int
+     */
+    public function getPriority();
+
+    /**
+     * @param string $name
+     */
+    public function nameIt($name);
+
+    /**
+     * @param string $channelName
      *
      * @return bool
      */
-    public function hasResourceValues(array $parameters);
+    public function checkChannelsState($channelName);
 
     /**
      * @return bool
@@ -31,7 +50,36 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
     public function isCodeDisabled();
 
     /**
+     * @param string $limit
+     */
+    public function fillUsageLimit($limit);
+
+    public function makeExclusive();
+
+    public function checkCouponBased();
+
+    /**
      * @param string $name
      */
-    public function nameIt($name);
+    public function checkChannel($name);
+
+    /**
+     * @param \DateTimeInterface $dateTime
+     */
+    public function setStartsAt(\DateTimeInterface $dateTime);
+
+    /**
+     * @param \DateTimeInterface $dateTime
+     */
+    public function setEndsAt(\DateTimeInterface $dateTime);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasStartsAt(\DateTimeInterface $dateTime);
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasEndsAt(\DateTimeInterface $dateTime);
 }

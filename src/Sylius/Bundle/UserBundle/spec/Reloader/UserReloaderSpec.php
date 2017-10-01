@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\UserBundle\Reloader;
 
 use Doctrine\Common\Persistence\ObjectManager;
@@ -19,24 +21,19 @@ use Sylius\Component\User\Model\UserInterface;
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class UserReloaderSpec extends ObjectBehavior
+final class UserReloaderSpec extends ObjectBehavior
 {
-    function let(ObjectManager $objectManager)
+    function let(ObjectManager $objectManager): void
     {
         $this->beConstructedWith($objectManager);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\UserBundle\Reloader\UserReloader');
-    }
-
-    function it_implements_user_reloader_interface()
+    function it_implements_user_reloader_interface(): void
     {
         $this->shouldImplement(UserReloaderInterface::class);
     }
 
-    function it_reloads_user($objectManager, UserInterface $user)
+    function it_reloads_user(ObjectManager $objectManager, UserInterface $user): void
     {
         $objectManager->refresh($user)->shouldBeCalled();
 

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Model;
 
 use Doctrine\Common\Collections\Collection;
@@ -22,175 +24,177 @@ use Sylius\Component\Resource\Model\TimestampableInterface;
 interface PromotionInterface extends CodeAwareInterface, TimestampableInterface, ResourceInterface
 {
     /**
-     * @return string
+     * @return string|null
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
-     * @param string $name
+     * @param string|null $name
      */
-    public function setName($name);
+    public function setName(?string $name): void;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDescription();
+    public function getDescription(): ?string;
 
     /**
-     * @param string $description
+     * @param string|null $description
      */
-    public function setDescription($description);
+    public function setDescription(?string $description): void;
 
     /**
      * @return int
      */
-    public function getPriority();
+    public function getPriority(): int;
 
     /**
-     * @param int $priority
+     * @param int|null $priority
      */
-    public function setPriority($priority);
+    public function setPriority(?int $priority): void;
 
     /**
      * @return bool
      */
-    public function isExclusive();
+    public function isExclusive(): bool;
 
     /**
-     * @param bool $exclusive
+     * @param bool|null $exclusive
      */
-    public function setExclusive($exclusive);
+    public function setExclusive(?bool $exclusive): void;
+
+    /**
+     * @return int|null
+     */
+    public function getUsageLimit(): ?int;
+
+    /**
+     * @param int|null $usageLimit
+     */
+    public function setUsageLimit(?int $usageLimit): void;
 
     /**
      * @return int
      */
-    public function getUsageLimit();
-
-    /**
-     * @param int $usageLimit
-     */
-    public function setUsageLimit($usageLimit);
-
-    /**
-     * @return int
-     */
-    public function getUsed();
+    public function getUsed(): int;
 
     /**
      * @param int $used
      */
-    public function setUsed($used);
+    public function setUsed(int $used): void;
 
-    public function incrementUsed();
+    public function incrementUsed(): void;
 
-    /**
-     * @return \DateTime
-     */
-    public function getStartsAt();
+    public function decrementUsed(): void;
 
     /**
-     * @param \DateTime $startsAt
+     * @return \DateTimeInterface|null
      */
-    public function setStartsAt(\DateTime $startsAt = null);
+    public function getStartsAt(): ?\DateTimeInterface;
 
     /**
-     * @return \DateTime
+     * @param \DateTimeInterface|null $startsAt
      */
-    public function getEndsAt();
+    public function setStartsAt(?\DateTimeInterface $startsAt): void;
 
     /**
-     * @param \DateTime $endsAt
+     * @return \DateTimeInterface|null
      */
-    public function setEndsAt(\DateTime $endsAt = null);
+    public function getEndsAt(): ?\DateTimeInterface;
+
+    /**
+     * @param \DateTimeInterface|null $endsAt
+     */
+    public function setEndsAt(?\DateTimeInterface $endsAt): void;
 
     /**
      * @return bool
      */
-    public function isCouponBased();
+    public function isCouponBased(): bool;
 
     /**
-     * @param bool $couponBased
+     * @param bool|null $couponBased
      */
-    public function setCouponBased($couponBased);
+    public function setCouponBased(?bool $couponBased): void;
 
     /**
-     * @return Collection|CouponInterface[]
+     * @return Collection|PromotionCouponInterface[]
      */
-    public function getCoupons();
+    public function getCoupons(): Collection;
 
     /**
-     * @param CouponInterface $coupon
+     * @param PromotionCouponInterface $coupon
      *
      * @return bool
      */
-    public function hasCoupon(CouponInterface $coupon);
+    public function hasCoupon(PromotionCouponInterface $coupon): bool;
 
     /**
      * @return bool
      */
-    public function hasCoupons();
+    public function hasCoupons(): bool;
 
     /**
-     * @param CouponInterface $coupon
+     * @param PromotionCouponInterface $coupon
      */
-    public function addCoupon(CouponInterface $coupon);
+    public function addCoupon(PromotionCouponInterface $coupon): void;
 
     /**
-     * @param CouponInterface $coupon
+     * @param PromotionCouponInterface $coupon
      */
-    public function removeCoupon(CouponInterface $coupon);
+    public function removeCoupon(PromotionCouponInterface $coupon): void;
 
     /**
-     * @return Collection|RuleInterface[]
+     * @return Collection|PromotionRuleInterface[]
      */
-    public function getRules();
+    public function getRules(): Collection;
 
     /**
-     * @param RuleInterface $rule
+     * @return bool
+     */
+    public function hasRules(): bool;
+
+    /**
+     * @param PromotionRuleInterface $rule
      *
      * @return bool
      */
-    public function hasRule(RuleInterface $rule);
+    public function hasRule(PromotionRuleInterface $rule): bool;
+
+    /**
+     * @param PromotionRuleInterface $rule
+     */
+    public function addRule(PromotionRuleInterface $rule): void;
+
+    /**
+     * @param PromotionRuleInterface $rule
+     */
+    public function removeRule(PromotionRuleInterface $rule): void;
+
+    /**
+     * @return Collection|PromotionActionInterface[]
+     */
+    public function getActions(): Collection;
 
     /**
      * @return bool
      */
-    public function hasRules();
+    public function hasActions(): bool;
 
     /**
-     * @param RuleInterface $rule
-     */
-    public function addRule(RuleInterface $rule);
-
-    /**
-     * @param RuleInterface $rule
-     */
-    public function removeRule(RuleInterface $rule);
-
-    /**
-     * @return Collection|ActionInterface[]
-     */
-    public function getActions();
-
-    /**
-     * @param ActionInterface $action
+     * @param PromotionActionInterface $action
      *
      * @return bool
      */
-    public function hasAction(ActionInterface $action);
+    public function hasAction(PromotionActionInterface $action): bool;
 
     /**
-     * @return bool
+     * @param PromotionActionInterface $action
      */
-    public function hasActions();
+    public function addAction(PromotionActionInterface $action): void;
 
     /**
-     * @param ActionInterface $action
+     * @param PromotionActionInterface $action
      */
-    public function addAction(ActionInterface $action);
-
-    /**
-     * @param ActionInterface $action
-     */
-    public function removeAction(ActionInterface $action);
+    public function removeAction(PromotionActionInterface $action): void;
 }

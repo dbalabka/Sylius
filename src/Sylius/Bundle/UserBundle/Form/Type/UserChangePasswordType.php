@@ -9,31 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Form\Type;
 
-use Sylius\Bundle\UserBundle\Form\Model\ChangePassword;
-use Symfony\Component\Form\AbstractType;
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class UserChangePasswordType extends AbstractType
+final class UserChangePasswordType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('currentPassword', 'password', [
-                'label' => 'sylius.form.user.password.current',
+            ->add('currentPassword', PasswordType::class, [
+                'label' => 'sylius.form.user_change_password.current',
             ])
-            ->add('newPassword', 'repeated', [
-                'type' => 'password',
-                'first_options' => ['label' => 'sylius.form.user.password.label'],
-                'second_options' => ['label' => 'sylius.form.user.password.confirmation'],
+            ->add('newPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'first_options' => ['label' => 'sylius.form.user_change_password.new'],
+                'second_options' => ['label' => 'sylius.form.user_change_password.confirmation'],
                 'invalid_message' => 'sylius.user.plainPassword.mismatch',
             ])
         ;
@@ -42,18 +44,7 @@ class UserChangePasswordType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => ChangePassword::class,
-            'validation_groups' => ['sylius'],
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_user_change_password';
     }

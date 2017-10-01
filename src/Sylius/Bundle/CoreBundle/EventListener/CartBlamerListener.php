@@ -9,14 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\EventListener;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Bundle\UserBundle\Event\UserEvent;
-use Sylius\Component\Cart\Provider\CartProviderInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\ShopUserInterface;
+use Sylius\Component\Order\Context\CartContextInterface;
+use Sylius\Component\Order\Context\CartNotFoundException;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
-use Sylius\Component\User\Model\UserInterface;
 use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
 
 /**
@@ -30,36 +33,27 @@ final class CartBlamerListener
     private $cartManager;
 
     /**
-     * @var CartProviderInterface
+     * @var CartContextInterface
      */
-    private $cartProvider;
+    private $cartContext;
 
     /**
      * @param ObjectManager $cartManager
-     * @param CartProviderInterface $cartProvider
+     * @param CartContextInterface $cartContext
      */
-    public function __construct(ObjectManager $cartManager, CartProviderInterface $cartProvider)
+    public function __construct(ObjectManager $cartManager, CartContextInterface $cartContext)
     {
         $this->cartManager = $cartManager;
-        $this->cartProvider = $cartProvider;
+        $this->cartContext = $cartContext;
     }
 
     /**
      * @param UserEvent $userEvent
      */
-    public function onImplicitLogin(UserEvent $userEvent)
+    public function onImplicitLogin(UserEvent $userEvent): void
     {
-        $this->blame($userEvent->getUser());
-    }
-
-    /**
-     * @param InteractiveLoginEvent $interactiveLoginEvent
-     */
-    public function onInteractiveLogin(InteractiveLoginEvent $interactiveLoginEvent)
-    {
-        $user = $interactiveLoginEvent->getAuthenticationToken()->getUser();
-
-        if (!$user instanceof UserInterface) {
+        $user = $userEvent->getUser();
+        if (!$user instanceof ShopUserInterface) {
             return;
         }
 
@@ -67,34 +61,45 @@ final class CartBlamerListener
     }
 
     /**
-     * @param UserInterface $user
+     * @param InteractiveLoginEvent $interactiveLoginEvent
      */
-    private function blame(UserInterface $user)
+    public function onInteractiveLogin(InteractiveLoginEvent $interactiveLoginEvent): void
+    {
+        $user = $interactiveLoginEvent->getAuthenticationToken()->getUser();
+        if (!$user instanceof ShopUserInterface) {
+            return;
+        }
+
+        $this->blame($user);
+    }
+
+    /**
+     * @param ShopUserInterface $user
+     */
+    private function blame(ShopUserInterface $user): void
     {
         $cart = $this->getCart();
-
         if (null === $cart) {
             return;
         }
 
         $cart->setCustomer($user->getCustomer());
-
         $this->cartManager->persist($cart);
         $this->cartManager->flush();
     }
 
     /**
-     * @return OrderInterface
+     * @return OrderInterface|null
      *
      * @throws UnexpectedTypeException
      */
-    private function getCart()
+    private function getCart(): ?OrderInterface
     {
-        if (!$this->cartProvider->hasCart()) {
+        try {
+            $cart = $this->cartContext->getCart();
+        } catch (CartNotFoundException $exception) {
             return null;
         }
-
-        $cart = $this->cartProvider->getCart();
 
         if (!$cart instanceof OrderInterface) {
             throw new UnexpectedTypeException($cart, OrderInterface::class);

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ChannelBundle\Context\FakeChannel;
 
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -19,7 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class FakeChannelContext implements ChannelContextInterface
 {
@@ -56,21 +58,29 @@ final class FakeChannelContext implements ChannelContextInterface
     /**
      * {@inheritdoc}
      */
-    public function getChannel()
+    public function getChannel(): ChannelInterface
     {
         $fakeChannelCode = $this->fakeChannelCodeProvider->getCode($this->getMasterRequest());
 
+        if (null === $fakeChannelCode) {
+            throw new ChannelNotFoundException();
+        }
+
         $channel = $this->channelRepository->findOneByCode($fakeChannelCode);
 
-        $this->assertChannelWasFound($channel);
+        if (null === $channel) {
+            throw new ChannelNotFoundException();
+        }
 
         return $channel;
     }
 
     /**
      * @return Request
+     *
+     * @throws ChannelNotFoundException
      */
-    private function getMasterRequest()
+    private function getMasterRequest(): Request
     {
         $masterRequest = $this->requestStack->getMasterRequest();
         if (null === $masterRequest) {
@@ -78,15 +88,5 @@ final class FakeChannelContext implements ChannelContextInterface
         }
 
         return $masterRequest;
-    }
-
-    /**
-     * @param ChannelInterface|null $channel
-     */
-    private function assertChannelWasFound(ChannelInterface $channel = null)
-    {
-        if (null === $channel) {
-            throw new ChannelNotFoundException();
-        }
     }
 }

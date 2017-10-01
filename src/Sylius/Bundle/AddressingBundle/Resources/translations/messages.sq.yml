@@ -6,13 +6,13 @@ sylius:
         address:
             city: Qyteti
             company: Kompania
-            country: Vendi
+            country: Shteti
             first_name: Emri
             last_name: Mbiemri
             phone_number: Numri i telefonit
             postcode: Kodi postar
-            street: Rruga
             province: Rajoni
+            zone: Zona
         country:
             add_province: Shto rajonin
             name: Emri
@@ -27,12 +27,13 @@ sylius:
             add_member: Shto anëtar
             members: Anëtarët
             name: Emri
-            type: Lloji
             types:
-                country: Vendi
+                country: Shteti
                 province: Rajoni
                 zone: Zona
             scope: Zona
+            scopes:
+                all: Të gjitha
             select: Zgjidh
             select_scope: Zgjidh zonën
         zone_member:

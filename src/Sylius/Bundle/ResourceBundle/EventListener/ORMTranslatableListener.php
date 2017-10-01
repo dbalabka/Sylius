@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\EventListener;
 
 use Doctrine\Common\EventSubscriber;
@@ -17,20 +19,46 @@ use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Sylius\Component\Resource\Metadata\MetadataInterface;
+use Sylius\Component\Resource\Metadata\RegistryInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
 use Sylius\Component\Resource\Model\TranslationInterface;
+use Sylius\Component\Resource\Translation\TranslatableEntityLocaleAssignerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  * @author Prezent Internet B.V. <info@prezent.nl>
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ORMTranslatableListener extends AbstractTranslatableListener implements EventSubscriber
+final class ORMTranslatableListener implements EventSubscriber
 {
+    /**
+     * @var RegistryInterface
+     */
+    private $resourceMetadataRegistry;
+
+    /**
+     * @var TranslatableEntityLocaleAssignerInterface
+     */
+    private $translatableEntityLocaleAssigner;
+
+    /**
+     * @param RegistryInterface $resourceMetadataRegistry
+     * @param ContainerInterface $container
+     */
+    public function __construct(
+        RegistryInterface $resourceMetadataRegistry,
+        ContainerInterface $container
+    ) {
+        $this->resourceMetadataRegistry = $resourceMetadataRegistry;
+        $this->translatableEntityLocaleAssigner = $container->get('sylius.translatable_entity_locale_assigner');
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             Events::loadClassMetadata,
@@ -43,7 +71,7 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
      *
      * @param LoadClassMetadataEventArgs $eventArgs
      */
-    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
+    public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void
     {
         $classMetadata = $eventArgs->getClassMetadata();
         $reflection = $classMetadata->reflClass;
@@ -62,16 +90,30 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
     }
 
     /**
+     * @param LifecycleEventArgs $args
+     */
+    public function postLoad(LifecycleEventArgs $args): void
+    {
+        $entity = $args->getEntity();
+
+        if (!$entity instanceof TranslatableInterface) {
+            return;
+        }
+
+        $this->translatableEntityLocaleAssigner->assignLocale($entity);
+    }
+
+    /**
      * Add mapping data to a translatable entity.
      *
      * @param ClassMetadata $metadata
      */
-    private function mapTranslatable(ClassMetadata $metadata)
+    private function mapTranslatable(ClassMetadata $metadata): void
     {
         $className = $metadata->name;
 
         try {
-            $resourceMetadata = $this->registry->getByClass($className);
+            $resourceMetadata = $this->resourceMetadataRegistry->getByClass($className);
         } catch (\InvalidArgumentException $exception) {
             return;
         }
@@ -80,17 +122,20 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
             return;
         }
 
-        $translationResourceMetadata = $this->registry->get($resourceMetadata->getAlias().'_translation');
+        /** @var MetadataInterface $translationResourceMetadata */
+        $translationResourceMetadata = $this->resourceMetadataRegistry->get($resourceMetadata->getAlias().'_translation');
 
-        $metadata->mapOneToMany([
-            'fieldName' => 'translations',
-            'targetEntity' => $translationResourceMetadata->getClass('model'),
-            'mappedBy' => 'translatable',
-            'fetch' => ClassMetadataInfo::FETCH_EXTRA_LAZY,
-            'indexBy' => 'locale',
-            'cascade' => ['persist', 'merge', 'remove'],
-            'orphanRemoval' => true,
-        ]);
+        if (!$metadata->hasAssociation('translations')) {
+            $metadata->mapOneToMany([
+                'fieldName' => 'translations',
+                'targetEntity' => $translationResourceMetadata->getClass('model'),
+                'mappedBy' => 'translatable',
+                'fetch' => ClassMetadataInfo::FETCH_EXTRA_LAZY,
+                'indexBy' => 'locale',
+                'cascade' => ['persist', 'merge', 'remove'],
+                'orphanRemoval' => true,
+            ]);
+        }
     }
 
     /**
@@ -98,29 +143,32 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
      *
      * @param ClassMetadata $metadata
      */
-    private function mapTranslation(ClassMetadata $metadata)
+    private function mapTranslation(ClassMetadata $metadata): void
     {
         $className = $metadata->name;
 
         try {
-            $resourceMetadata = $this->registry->getByClass($className);
+            $resourceMetadata = $this->resourceMetadataRegistry->getByClass($className);
         } catch (\InvalidArgumentException $exception) {
             return;
         }
 
-        $translatableResourceMetadata = $this->registry->get(str_replace('_translation', '', $resourceMetadata->getAlias()));
+        /** @var MetadataInterface $translatableResourceMetadata */
+        $translatableResourceMetadata = $this->resourceMetadataRegistry->get(str_replace('_translation', '', $resourceMetadata->getAlias()));
 
-        $metadata->mapManyToOne([
-            'fieldName' => 'translatable',
-            'targetEntity' => $translatableResourceMetadata->getClass('model'),
-            'inversedBy' => 'translations',
-            'joinColumns' => [[
-                'name' => 'translatable_id',
-                'referencedColumnName' => 'id',
-                'onDelete' => 'CASCADE',
-                'nullable' => false,
-            ]],
-        ]);
+        if (!$metadata->hasAssociation('translatable')) {
+            $metadata->mapManyToOne([
+                'fieldName' => 'translatable',
+                'targetEntity' => $translatableResourceMetadata->getClass('model'),
+                'inversedBy' => 'translations',
+                'joinColumns' => [[
+                    'name' => 'translatable_id',
+                    'referencedColumnName' => 'id',
+                    'onDelete' => 'CASCADE',
+                    'nullable' => false,
+                ]],
+            ]);
+        }
 
         if (!$metadata->hasField('locale')) {
             $metadata->mapField([
@@ -137,7 +185,7 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
         ];
 
         if (!$this->hasUniqueConstraint($metadata, $columns)) {
-            $constraints = isset($metadata->table['uniqueConstraints']) ? $metadata->table['uniqueConstraints'] : [];
+            $constraints = $metadata->table['uniqueConstraints'] ?? [];
 
             $constraints[$metadata->getTableName().'_uniq_trans'] = [
                 'columns' => $columns,
@@ -157,7 +205,7 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
      *
      * @return bool
      */
-    private function hasUniqueConstraint(ClassMetadata $metadata, array $columns)
+    private function hasUniqueConstraint(ClassMetadata $metadata, array $columns): bool
     {
         if (!isset($metadata->table['uniqueConstraints'])) {
             return false;
@@ -170,22 +218,5 @@ class ORMTranslatableListener extends AbstractTranslatableListener implements Ev
         }
 
         return false;
-    }
-
-    /**
-     * Load translations.
-     *
-     * @param LifecycleEventArgs $args
-     */
-    public function postLoad(LifecycleEventArgs $args)
-    {
-        $entity = $args->getEntity();
-
-        if (!$entity instanceof TranslatableInterface) {
-            return;
-        }
-
-        $entity->setCurrentLocale($this->localeProvider->getCurrentLocale());
-        $entity->setFallbackLocale($this->localeProvider->getFallbackLocale());
     }
 }

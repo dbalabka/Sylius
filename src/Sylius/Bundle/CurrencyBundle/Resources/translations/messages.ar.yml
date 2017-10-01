@@ -4,4 +4,5 @@
 sylius:
     form:
         currency:
+            code: الاسم
             exchange_rate: سعر الصرف

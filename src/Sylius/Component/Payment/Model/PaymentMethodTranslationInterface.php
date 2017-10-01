@@ -9,37 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-interface PaymentMethodTranslationInterface extends ResourceInterface
+interface PaymentMethodTranslationInterface extends ResourceInterface, TranslationInterface
 {
     /**
-     * Get payments method name.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
-     * Set the name.
-     *
-     * @param string $name
+     * @param string|null $name
      */
-    public function setName($name);
+    public function setName(?string $name): void;
 
     /**
-     * Get payment method description.
-     *
-     * @return string
+     * @return string|null
      */
-    public function getDescription();
+    public function getDescription(): ?string;
 
     /**
-     * Set description.
-     *
-     * @param string $description
+     * @param string|null $description
      */
-    public function setDescription($description);
+    public function setDescription(?string $description): void;
+
+    /**
+     * @return string|null
+     */
+    public function getInstructions(): ?string;
+
+    /**
+     * @param string|null $instructions
+     */
+    public function setInstructions(?string $instructions): void;
 }

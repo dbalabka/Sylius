@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -16,28 +18,34 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ResourcesResolver implements ResourcesResolverInterface
+final class ResourcesResolver implements ResourcesResolverInterface
 {
     /**
      * {@inheritdoc}
      */
     public function getResources(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
     {
-        if (null !== $repositoryMethod = $requestConfiguration->getRepositoryMethod()) {
-            $callable = [$repository, $repositoryMethod];
-            $resources = call_user_func_array($callable, $requestConfiguration->getRepositoryArguments());
+        $repositoryMethod = $requestConfiguration->getRepositoryMethod();
+        if (null !== $repositoryMethod) {
+            $arguments = array_values($requestConfiguration->getRepositoryArguments());
 
-            return $resources;
+            return $repository->$repositoryMethod(...$arguments);
         }
 
-        if (!$requestConfiguration->isPaginated() && !$requestConfiguration->isLimited()) {
-            return $repository->findAll();
+        $criteria = [];
+        if ($requestConfiguration->isFilterable()) {
+            $criteria = $requestConfiguration->getCriteria();
         }
 
-        if (!$requestConfiguration->isPaginated()) {
-            return $repository->findBy($requestConfiguration->getCriteria(), $requestConfiguration->getSorting(), $requestConfiguration->getLimit());
+        $sorting = [];
+        if ($requestConfiguration->isSortable()) {
+            $sorting = $requestConfiguration->getSorting();
         }
 
-        return $repository->createPaginator($requestConfiguration->getCriteria(), $requestConfiguration->getSorting());
+        if ($requestConfiguration->isPaginated()) {
+            return $repository->createPaginator($criteria, $sorting);
+        }
+
+        return $repository->findBy($criteria, $sorting, $requestConfiguration->getLimit());
     }
 }

@@ -9,18 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Admin\Channel\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Channel\UpdatePageInterface;
 use Sylius\Behat\Page\Shop\HomePageInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
+use Webmozart\Assert\Assert;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class ThemeContext implements Context
 {
@@ -69,7 +72,7 @@ final class ThemeContext implements Context
     {
         $this->channelUpdatePage->open(['id' => $channel->getId()]);
         $this->channelUpdatePage->setTheme($theme);
-        $this->channelUpdatePage->update();
+        $this->channelUpdatePage->saveChanges();
 
         $this->sharedStorage->set('channel', $channel);
         $this->sharedStorage->set('theme', $theme);
@@ -82,7 +85,7 @@ final class ThemeContext implements Context
     {
         $this->channelUpdatePage->open(['id' => $channel->getId()]);
         $this->channelUpdatePage->unsetTheme();
-        $this->channelUpdatePage->update();
+        $this->channelUpdatePage->saveChanges();
     }
 
     /**
@@ -92,7 +95,7 @@ final class ThemeContext implements Context
     {
         $this->channelIndexPage->open();
 
-        expect($this->channelIndexPage->getUsedThemeName($channel->getCode()))->toBe('');
+        Assert::same($this->channelIndexPage->getUsedThemeName($channel->getCode()), 'Default');
     }
 
     /**
@@ -102,7 +105,7 @@ final class ThemeContext implements Context
     {
         $this->channelIndexPage->open();
 
-        expect($this->channelIndexPage->getUsedThemeName($channel->getCode()))->toBe($theme->getName());
+        Assert::same($this->channelIndexPage->getUsedThemeName($channel->getCode()), $theme->getName());
     }
 
     /**
@@ -110,9 +113,9 @@ final class ThemeContext implements Context
      */
     public function iShouldSeeThemedHomepage(ThemeInterface $theme)
     {
-        $content = file_get_contents(rtrim($theme->getPath(), '/') . '/SyliusWebBundle/views/Frontend/Homepage/main.html.twig');
+        $content = file_get_contents(rtrim($theme->getPath(), '/') . '/SyliusShopBundle/views/Homepage/index.html.twig');
 
-        expect($this->homePage->getContents())->toBe($content);
+        Assert::same($this->homePage->getContents(), $content);
     }
 
     /**
@@ -120,8 +123,8 @@ final class ThemeContext implements Context
      */
     public function iShouldNotSeeThemedHomepage(ThemeInterface $theme)
     {
-        $content = file_get_contents(rtrim($theme->getPath(), '/') . '/SyliusWebBundle/views/Frontend/Homepage/main.html.twig');
+        $content = file_get_contents(rtrim($theme->getPath(), '/') . '/SyliusShopBundle/views/Homepage/index.html.twig');
 
-        expect($this->homePage->getContents())->notToBe($content);
+        Assert::notSame($this->homePage->getContents(), $content);
     }
 }

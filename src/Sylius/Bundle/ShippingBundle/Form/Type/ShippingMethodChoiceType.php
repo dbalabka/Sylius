@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ShippingBundle\Form\Type;
 
-use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ObjectToIdentifierTransformer;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
-use Sylius\Component\Shipping\Model\ShippingMethod;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 use Sylius\Component\Shipping\Model\ShippingSubjectInterface;
-use Sylius\Component\Shipping\Resolver\MethodsResolverInterface;
+use Sylius\Component\Shipping\Resolver\ShippingMethodsResolverInterface;
 use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\Extension\Core\ChoiceList\ObjectChoiceList;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -29,41 +29,36 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * A select form which allows the user to select
- * a method that supports given shippables aware.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ShippingMethodChoiceType extends AbstractType
+final class ShippingMethodChoiceType extends AbstractType
 {
     /**
-     * Supported methods resolver.
-     *
-     * @var MethodsResolverInterface
+     * @var ShippingMethodsResolverInterface
      */
-    protected $resolver;
+    private $shippingMethodsResolver;
 
     /**
      * @var ServiceRegistryInterface
      */
-    protected $calculators;
+    private $calculators;
 
     /**
      * @var RepositoryInterface
      */
-    protected $repository;
+    private $repository;
 
     /**
-     * @param MethodsResolverInterface    $resolver
-     * @param ServiceRegistryInterface    $calculators
-     * @param RepositoryInterface         $repository
+     * @param ShippingMethodsResolverInterface $shippingMethodsResolver
+     * @param ServiceRegistryInterface $calculators
+     * @param RepositoryInterface $repository
      */
     public function __construct(
-        MethodsResolverInterface $resolver,
+        ShippingMethodsResolverInterface $shippingMethodsResolver,
         ServiceRegistryInterface $calculators,
         RepositoryInterface $repository
     ) {
-        $this->resolver = $resolver;
+        $this->shippingMethodsResolver = $shippingMethodsResolver;
         $this->calculators = $calculators;
         $this->repository = $repository;
     }
@@ -71,7 +66,7 @@ class ShippingMethodChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         if ($options['multiple']) {
             $builder->addModelTransformer(new CollectionToArrayTransformer());
@@ -81,44 +76,32 @@ class ShippingMethodChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $choiceList = function (Options $options) {
-            if (isset($options['subject'])) {
-                $methods = $this->resolver->getSupportedMethods($options['subject'], $options['criteria']);
-            } else {
-                $methods = $this->repository->findBy($options['criteria']);
-            }
-
-            return new ObjectChoiceList($methods, null, [], null, 'id');
-        };
-
-        $dataClass = function (Options $options) {
-            if ($options['multiple']) {
-                return null;
-            }
-
-            return ShippingMethodInterface::class;
-        };
-
         $resolver
             ->setDefaults([
-                'choice_list' => $choiceList,
-                'criteria' => [],
-                'data_class' => $dataClass,
+                'choices' => function (Options $options) {
+                    if (isset($options['subject']) && $this->shippingMethodsResolver->supports($options['subject'])) {
+                        return $this->shippingMethodsResolver->getSupportedMethods($options['subject']);
+                    }
+
+                    return $this->repository->findAll();
+                },
+                'choice_value' => 'code',
+                'choice_label' => 'name',
+                'choice_translation_domain' => false,
             ])
             ->setDefined([
                 'subject',
             ])
             ->setAllowedTypes('subject', ShippingSubjectInterface::class)
-            ->setAllowedTypes('criteria', 'array')
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         if (!isset($options['subject'])) {
             return;
@@ -131,7 +114,7 @@ class ShippingMethodChoiceType extends AbstractType
             $method = $choiceView->data;
 
             if (!$method instanceof ShippingMethodInterface) {
-                throw new UnexpectedTypeException($method, 'ShippingMethodInterface');
+                throw new UnexpectedTypeException($method, ShippingMethodInterface::class);
             }
 
             $calculator = $this->calculators->get($method->getCalculator());
@@ -144,30 +127,16 @@ class ShippingMethodChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_shipping_method_choice';
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return ObjectToIdentifierTransformer|CollectionToArrayTransformer
-     */
-    private function getProperTransformer(array $options)
-    {
-        if ($options['multiple']) {
-            return new CollectionToArrayTransformer();
-        }
-
-        return new ObjectToIdentifierTransformer($this->repository);
     }
 }

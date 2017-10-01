@@ -6,11 +6,12 @@ sylius_admin_tax_rate:
         except: ['show']
         redirect: update
         grid: sylius_admin_tax_rate
+        permission: true
         vars:
           all:
               subheader: sylius.ui.manage_taxation_of_your_products
               templates:
                   form: SyliusAdminBundle:TaxRate:_form.html.twig
           index:
-              icon: dollar
+              icon: money
     type: sylius.resource

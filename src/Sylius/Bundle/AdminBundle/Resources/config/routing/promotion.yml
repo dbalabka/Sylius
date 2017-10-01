@@ -3,13 +3,18 @@ sylius_admin_promotion:
         alias: sylius.promotion
         section: admin
         templates: SyliusAdminBundle:Crud
-        except: ['show', 'delete']
+        except: ['show']
         redirect: update
         grid: sylius_admin_promotion
+        permission: true
         vars:
             all:
+                subheader: sylius.ui.manage_discounts_and_promotional_campaigns
                 templates:
-                    form: SyliusAdminBundle:Promotion:_form.html.twig
+                    form: "@SyliusAdmin/Promotion/_form.html.twig"
             index:
                 icon: in cart
+            update:
+                templates:
+                    form: "@SyliusAdmin/Promotion/_form.html.twig"
     type: sylius.resource

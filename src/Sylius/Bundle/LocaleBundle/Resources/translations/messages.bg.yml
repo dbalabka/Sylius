@@ -4,4 +4,4 @@
 sylius:
     form:
         locale:
-            enabled: Разрешено
+            name: Име

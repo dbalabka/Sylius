@@ -9,12 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Sylius\Bundle\CurrencyBundle\Templating\Helper;
+declare(strict_types=1);
 
-use Sylius\Bundle\MoneyBundle\Templating\Helper\MoneyHelperInterface;
-use Sylius\Component\Currency\Context\CurrencyContextInterface;
-use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
-use Symfony\Component\Templating\Helper\Helper;
+namespace Sylius\Bundle\CurrencyBundle\Templating\Helper;
 
 /**
  * @author Axel Vankrunkelsven <axel@digilabs.be>
@@ -22,24 +19,9 @@ use Symfony\Component\Templating\Helper\Helper;
 interface CurrencyHelperInterface
 {
     /**
-     * @param int $amount
-     * @param string|null $currency
+     * @param string $code
      *
      * @return string
      */
-    public function convertAmount($amount, $currency = null);
-
-    /**
-     * @param int $amount
-     * @param string|null $currency
-     * @param bool $decimal
-     *
-     * @return string
-     */
-    public function convertAndFormatAmount($amount, $currency = null, $decimal = false);
-
-    /**
-     * @return string
-     */
-    public function getBaseCurrencySymbol();
+    public function convertCurrencyCodeToSymbol(string $code): string;
 }

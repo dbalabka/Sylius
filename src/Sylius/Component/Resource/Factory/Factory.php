@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Factory;
 
 /**
@@ -16,7 +18,7 @@ namespace Sylius\Component\Resource\Factory;
  *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class Factory implements FactoryInterface
+final class Factory implements FactoryInterface
 {
     /**
      * @var string
@@ -24,9 +26,9 @@ class Factory implements FactoryInterface
     private $className;
 
     /**
-     * @param $className
+     * @param string $className
      */
-    public function __construct($className)
+    public function __construct(string $className)
     {
         $this->className = $className;
     }

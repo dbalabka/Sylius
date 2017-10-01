@@ -9,18 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
 use Doctrine\ORM\QueryBuilder;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Product\Repository\ProductVariantRepositoryInterface as BaseProductVariantRepositoryInterface;
 
 /**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-interface ProductVariantRepositoryInterface extends RepositoryInterface
+interface ProductVariantRepositoryInterface extends BaseProductVariantRepositoryInterface
 {
     /**
+     * @param string $locale
+     *
      * @return QueryBuilder
      */
-    public function getFormQueryBuilder();
+    public function createInventoryListQueryBuilder(string $locale): QueryBuilder;
 }

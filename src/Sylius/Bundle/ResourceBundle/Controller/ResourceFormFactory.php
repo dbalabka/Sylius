@@ -9,15 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ResourceFormFactory implements ResourceFormFactoryInterface
+final class ResourceFormFactory implements ResourceFormFactoryInterface
 {
     /**
      * @var FormFactoryInterface
@@ -35,14 +38,9 @@ class ResourceFormFactory implements ResourceFormFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function create(RequestConfiguration $requestConfiguration, ResourceInterface $resource)
+    public function create(RequestConfiguration $requestConfiguration, ResourceInterface $resource): FormInterface
     {
         $formType = $requestConfiguration->getFormType();
-
-        if (false !== strpos($formType, '\\')) {
-            $formType = new $formType();
-        }
-
         $formOptions = $requestConfiguration->getFormOptions();
 
         if ($requestConfiguration->isHtmlRequest()) {

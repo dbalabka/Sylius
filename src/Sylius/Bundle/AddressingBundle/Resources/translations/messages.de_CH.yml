@@ -11,8 +11,8 @@ sylius:
             last_name: Nachname
             phone_number: Telefonnummber
             postcode: Postleitzahl
-            street: Strasse / Nr.
             province: Kanton
+            zone: Zone
         country:
             add_province: Bundesland/Kanton hinzufügen
             name: Name

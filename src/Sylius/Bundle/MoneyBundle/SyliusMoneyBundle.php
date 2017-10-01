@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\MoneyBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * Money bundle.
- *
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
+ * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SyliusMoneyBundle extends Bundle
+final class SyliusMoneyBundle extends Bundle
 {
 }

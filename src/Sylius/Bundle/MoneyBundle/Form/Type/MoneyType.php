@@ -9,48 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\MoneyBundle\Form\Type;
 
 use Sylius\Bundle\MoneyBundle\Form\DataTransformer\SyliusMoneyTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Sylius money type.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class MoneyType extends AbstractType
+final class MoneyType extends AbstractType
 {
-    /**
-     * Default currency.
-     *
-     * @var string
-     */
-    private $currency;
-
-    /**
-     * Constructor.
-     *
-     * @param string $currency
-     */
-    public function __construct($currency)
-    {
-        $this->currency = $currency;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        // replace the default money view transformer
         $builder
             ->resetViewTransformers()
             ->addViewTransformer(new SyliusMoneyTransformer(
-                $options['precision'],
+                $options['scale'],
                 $options['grouping'],
                 null,
                 $options['divisor']
@@ -61,19 +45,26 @@ class MoneyType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
-        return 'money';
+        $view->vars['currency'] = $options['currency'];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function getParent(): string
+    {
+        return \Symfony\Component\Form\Extension\Core\Type\MoneyType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
-                'currency' => $this->currency,
                 'divisor' => 100,
             ])
         ;
@@ -82,7 +73,7 @@ class MoneyType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_money';
     }

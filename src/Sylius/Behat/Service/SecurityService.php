@@ -9,25 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service;
 
 use Sylius\Behat\Service\Setter\CookieSetterInterface;
-use Sylius\Component\Core\Model\UserInterface;
-use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Sylius\Component\User\Model\UserInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\Exception\TokenNotFoundException;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 final class SecurityService implements SecurityServiceInterface
 {
-    /**
-     * @var UserRepositoryInterface
-     */
-    private $userRepository;
-
     /**
      * @var SessionInterface
      */
@@ -44,47 +42,64 @@ final class SecurityService implements SecurityServiceInterface
     private $sessionTokenVariable;
 
     /**
-     * @param UserRepositoryInterface $userRepository
      * @param SessionInterface $session
      * @param CookieSetterInterface $cookieSetter
-     * @param string $contextKey
+     * @param string $firewallContextName
      */
-    public function __construct(
-        UserRepositoryInterface $userRepository,
-        SessionInterface $session,
-        CookieSetterInterface $cookieSetter,
-        $contextKey
-    ) {
-        $this->userRepository = $userRepository;
+    public function __construct(SessionInterface $session, CookieSetterInterface $cookieSetter, $firewallContextName)
+    {
         $this->session = $session;
         $this->cookieSetter = $cookieSetter;
-        $this->sessionTokenVariable = sprintf('_security_%s', $contextKey);
+        $this->sessionTokenVariable = sprintf('_security_%s', $firewallContextName);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function logIn($email)
+    public function logIn(UserInterface $user)
     {
-        /** @var UserInterface $user */
-        $user = $this->userRepository->findOneBy(['username' => $email]);
-        if (null === $user) {
-            throw new \InvalidArgumentException(sprintf('There is no user with email %s', $email));
-        }
+        $token = new UsernamePasswordToken($user, $user->getPassword(), 'randomstringbutnotnull', $user->getRoles());
+        $this->setToken($token);
+    }
 
-        $this->logInUser($user);
+    public function logOut()
+    {
+        $this->session->set($this->sessionTokenVariable, null);
+        $this->session->save();
+
+        $this->cookieSetter->setCookie($this->session->getName(), $this->session->getId());
     }
 
     /**
-     * @param UserInterface $user
+     * {@inheritdoc}
      */
-    private function logInUser(UserInterface $user)
+    public function getCurrentToken()
     {
-        $token = new UsernamePasswordToken($user, $user->getPassword(), 'randomstringbutnotnull', $user->getRoles());
+        $serializedToken = $this->session->get($this->sessionTokenVariable);
 
-        $this->session->set($this->sessionTokenVariable, serialize($token));
+        if (null === $serializedToken) {
+            throw new TokenNotFoundException();
+        }
+
+        return unserialize($serializedToken);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function restoreToken(TokenInterface $token)
+    {
+        $this->setToken($token);
+    }
+
+    /**
+     * @param TokenInterface $token
+     */
+    private function setToken(TokenInterface $token)
+    {
+        $serializedToken = serialize($token);
+        $this->session->set($this->sessionTokenVariable, $serializedToken);
         $this->session->save();
-
         $this->cookieSetter->setCookie($this->session->getName(), $this->session->getId());
     }
 }

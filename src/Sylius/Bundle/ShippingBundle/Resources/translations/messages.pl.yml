@@ -6,6 +6,7 @@ sylius:
         rule:
             unit_count_configuration:
                 count: Ilość
+                equal: Równy
             type: Typ reguły
         shipment:
             state: Status
@@ -21,19 +22,9 @@ sylius:
             flat_rate_configuration:
                 label: Jednolita stawka za dostawę
                 amount: Kwota
-            flexible_rate_configuration:
-                label: Zmienna stawka
             per_unit_rate_configuration:
+                label: Jednolita stawka za jednostkę
                 amount: Kwota
-            weight_rate_configuration:
-                label: Stawka zależna od wagi
-                fixed: Stała kwota
-                variable: Zmienna ilość
-                division: Podział
-            volume_rate_configuration:
-                label: Stawka zależna od ilości
-                amount: Kwota
-                division: Podział
         shipping_category:
             description: Opis
             name: Nazwa
@@ -41,8 +32,11 @@ sylius:
             calculator: Kalkulator
             category: Kategoria
             category_requirement: Wymagania kategorii
+            channels: Kanały
             configuration: Konfiguracja
-            enabled: Włączone
+            description: Opis
+            enabled: Aktywne
             name: Nazwa
+            position: Pozycja
             tax_category: Kategoria podatkowa
             translations: Tłumaczenia

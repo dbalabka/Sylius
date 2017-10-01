@@ -5,6 +5,7 @@ sylius:
     channel:
         code:
             not_blank: Voer kanaal code in.
-            unique: Kanaal code moet uniek zijn.
+            regex: Kanaal code kan alleen bestaan uit letters, cijfers, streepjes en liggende streepjes.
+            unique: Kanaalcode moet uniek zijn.
         name:
             not_blank: Voer kanaal naam in.

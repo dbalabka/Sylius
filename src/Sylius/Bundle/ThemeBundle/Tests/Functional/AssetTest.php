@@ -9,41 +9,112 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Tests\Functional;
 
 use Sylius\Bundle\ThemeBundle\Asset\Installer\AssetsInstallerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class AssetTest extends ThemeBundleTestCase
+final class AssetTest extends WebTestCase
 {
+    protected function tearDown()
+    {
+        parent::tearDown();
+
+        file_put_contents(__DIR__.'/../Fixtures/themes/FirstTestTheme/TestBundle/public/theme_asset.txt', 'Theme asset'.PHP_EOL);
+    }
+
     /**
+     * @test
      * @dataProvider getSymlinkMasks
      *
      * @param int $symlinkMask
      */
-    public function testAssets($symlinkMask)
+    public function it_dumps_assets($symlinkMask): void
     {
-        $webDirectory = $this->getTmpDirPath(self::TEST_CASE).'/web';
+        $client = self::createClient();
+
+        $webDirectory = $this->createWebDirectory();
+
+        $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
+
+        $crawler = $client->request('GET', '/template/:Asset:assetsTest.txt.twig');
+        $lines = explode("\n", $crawler->text());
+
+        $this->assertFileContent($lines, $webDirectory);
+    }
+
+    /**
+     * @test
+     * @dataProvider getSymlinkMasks
+     *
+     * @param int $symlinkMask
+     */
+    public function it_updates_dumped_assets_if_they_are_modified($symlinkMask): void
+    {
+        $client = self::createClient();
+
+        $webDirectory = $this->createWebDirectory();
+
+        $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
+
+        sleep(1);
+        file_put_contents(__DIR__.'/../Fixtures/themes/FirstTestTheme/TestBundle/public/theme_asset.txt', 'Theme asset modified');
+        clearstatcache();
+
+        $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
+
+        $crawler = $client->request('GET', '/template/:Asset:modifiedAssetsTest.txt.twig');
+        $lines = explode("\n", $crawler->text());
+
+        $this->assertFileContent($lines, $webDirectory);
+    }
+
+    /**
+     * @test
+     * @dataProvider getSymlinkMasks
+     *
+     * @param int $symlinkMask
+     */
+    public function it_dumps_assets_correctly_even_if_nothing_has_changed($symlinkMask): void
+    {
+        $client = self::createClient();
+
+        $webDirectory = $this->createWebDirectory();
+
+        $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
+        $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
+
+        $crawler = $client->request('GET', '/template/:Asset:assetsTest.txt.twig');
+        $lines = explode("\n", $crawler->text());
+
+        $this->assertFileContent($lines, $webDirectory);
+    }
+
+    private function createWebDirectory()
+    {
+        $webDirectory = self::$kernel->getCacheDir() . '/web';
         if (!is_dir($webDirectory)) {
             mkdir($webDirectory, 0777, true);
         }
 
         chdir($webDirectory);
 
-        $client = $this->getClient();
+        return $webDirectory;
+    }
 
-        $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
-
-        $crawler = $client->request('GET', '/template/:Asset:assetsTest.txt.twig');
-        $lines = explode("\n", $crawler->text());
+    private function assertFileContent($lines, $webDirectory)
+    {
         foreach ($lines as $line) {
             if (empty($line)) {
                 continue;
             }
 
-            list($expectedText, $assetFile) = explode(': ', $line);
+            [$expectedText, $assetFile] = explode(': ', $line);
 
             $contents = file_get_contents($webDirectory.$assetFile);
 

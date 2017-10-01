@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Repository;
 
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -21,8 +23,9 @@ interface ShippingMethodRepositoryInterface extends RepositoryInterface
 {
     /**
      * @param string $name
+     * @param string $locale
      *
-     * @return ShippingMethodInterface|null
+     * @return ShippingMethodInterface[]
      */
-    public function findOneByName($name);
+    public function findByName(string $name, string $locale): array;
 }

@@ -11,8 +11,8 @@ sylius:
             last_name: Etternavn
             phone_number: Telefonnummer
             postcode: Postnummer
-            street: Gate
             province: Fylke
+            zone: Sone
         country:
             add_province: Legg til fylke
             name: Navn
@@ -21,6 +21,7 @@ sylius:
             enabled: Aktivert
         province:
             name: Navn
+            abbreviation: Forkortelse
             select: Velg
         zone:
             add_member: Legg til medlem
@@ -32,6 +33,8 @@ sylius:
                 province: Fylke
                 zone: Sone
             scope: Omfang
+            scopes:
+                all: Alle
             select: Velg
             select_scope: Velg omfang
         zone_member:

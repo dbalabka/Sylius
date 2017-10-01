@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\TaxationBundle\DependencyInjection\Compiler;
 
 use PhpSpec\ObjectBehavior;
@@ -17,19 +19,14 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-class RegisterCalculatorsPassSpec extends ObjectBehavior
+final class RegisterCalculatorsPassSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\TaxationBundle\DependencyInjection\Compiler\RegisterCalculatorsPass');
-    }
-
-    function it_is_a_compiler_pass()
+    function it_is_a_compiler_pass(): void
     {
         $this->shouldImplement(CompilerPassInterface::class);
     }
 
-    function it_processes_the_calculators_services(ContainerBuilder $container, Definition $calculator)
+    function it_processes_the_calculators_services(ContainerBuilder $container, Definition $calculator): void
     {
         $container->hasDefinition('sylius.registry.tax_calculator')->shouldBeCalled()->willReturn(true);
         $container->getDefinition('sylius.registry.tax_calculator')->shouldBeCalled()->willReturn($calculator);

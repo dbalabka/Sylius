@@ -9,39 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Page\Admin\Channel;
 
-use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
-use Sylius\Behat\Service\Accessor\TableAccessorInterface;
-use Symfony\Component\Routing\RouterInterface;
+use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
-class IndexPage extends SymfonyPage implements IndexPageInterface
+class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
-    /**
-     * @var TableAccessorInterface
-     */
-    private $tableAccessor;
-
-    /**
-     * {@inheritdoc}
-     *
-     * @param TableAccessorInterface $tableAccessor
-     */
-    public function __construct(
-        Session $session,
-        array $parameters,
-        RouterInterface $router,
-        TableAccessorInterface $tableAccessor
-    ) {
-        parent::__construct($session, $parameters, $router);
-
-        $this->tableAccessor = $tableAccessor;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -49,16 +27,8 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     {
         $table = $this->getDocument()->find('css', 'table');
 
-        $row = $this->tableAccessor->getRowWithFields($table, ['code' => $channelCode]);
+        $row = $this->getTableAccessor()->getRowWithFields($table, ['code' => $channelCode]);
 
-        return trim($this->tableAccessor->getFieldFromRow($table, $row, 'theme')->getText());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getRouteName()
-    {
-        return 'sylius_backend_channel_index';
+        return trim($this->getTableAccessor()->getFieldFromRow($table, $row, 'themeName')->getText());
     }
 }

@@ -7,6 +7,6 @@ sylius:
             description: Aprašymas
             name: Pavadinimas
             parent: Motininis elementas
-            permalink: Nuolatinė nuoroda
+            slug: Šliužas (nuorodos dalis)
         taxonomy:
             name: Pavadinimas

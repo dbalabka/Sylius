@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Service\Accessor;
 
 use Behat\Mink\Element\NodeElement;
 
 /**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
+ * @author Kamil Kokot <kamil@kokot.me>
  */
 interface TableAccessorInterface
 {
@@ -28,6 +30,23 @@ interface TableAccessorInterface
      * @throws \InvalidArgumentException If there is no rows fulfilling given conditions
      */
     public function getRowsWithFields(NodeElement $table, array $fields);
+
+    /**
+     * @param NodeElement $table
+     * @param string $fieldName
+     *
+     * @return array
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function getIndexedColumn(NodeElement $table, $fieldName);
+
+    /**
+     * @param NodeElement $table
+     *
+     * @return NodeElement[]
+     */
+    public function getSortableHeaders(NodeElement $table);
 
     /**
      * @param NodeElement $table

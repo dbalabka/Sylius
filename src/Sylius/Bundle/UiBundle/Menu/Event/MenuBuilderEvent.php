@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UiBundle\Menu\Event;
 
 use Knp\Menu\FactoryInterface;
@@ -18,7 +20,7 @@ use Symfony\Component\EventDispatcher\Event;
 /**
  * @author Patrik Karisch <patrik.karisch@abimus.com>
  */
-final class MenuBuilderEvent extends Event
+class MenuBuilderEvent extends Event
 {
     /**
      * @var FactoryInterface
@@ -43,7 +45,7 @@ final class MenuBuilderEvent extends Event
     /**
      * @return FactoryInterface
      */
-    public function getFactory()
+    public function getFactory(): FactoryInterface
     {
         return $this->factory;
     }
@@ -51,7 +53,7 @@ final class MenuBuilderEvent extends Event
     /**
      * @return ItemInterface
      */
-    public function getMenu()
+    public function getMenu(): ItemInterface
     {
         return $this->menu;
     }

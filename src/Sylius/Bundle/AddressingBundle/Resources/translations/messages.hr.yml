@@ -11,19 +11,20 @@ sylius:
             last_name: Prezime
             phone_number: Kontakt telefon
             postcode: Poštanski broj
-            street: Ulica
             province: Pokrajina
+            zone: Regija
         country:
-            add_province: Dodaj regiju
+            add_province: Dodaj pokrajinu
             name: Naziv Države
             provinces: Pokrajine
             select: Odaberite
-            enabled: Omogući
+            enabled: Omogućeno
         province:
             name: Naziv pokrajine
+            abbreviation: Skraćeno
             select: Odaberite
         zone:
-            add_member: Dodaj člana
+            add_member: Dodaj
             members: Članovi
             name: Naziv regije
             type: Vrsta
@@ -32,6 +33,8 @@ sylius:
                 province: Pokrajina
                 zone: Regija
             scope: Djelokrug
+            scopes:
+                all: Sve
             select: Odaberite
             select_scope: Odaberite doseg
         zone_member:

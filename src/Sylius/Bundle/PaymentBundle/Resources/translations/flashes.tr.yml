@@ -3,6 +3,5 @@
 
 sylius:
     payment:
-        complete: Ödeme tamamlandı.
-        cancel: Ödeme iptal edildi.
-        transition_fail: Stoğun şuan ki durumu nedeniyle işleminiz gerçekleştirilemiyor
+        cancelled: 'Ödeme iptal edildi.'
+        completed: 'Ödeme tamamlandı.'

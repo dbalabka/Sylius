@@ -3,5 +3,14 @@
 
 sylius:
     ui:
-        "no": false
-        "yes": true
+        city: 'Stad'
+        company: 'Maatskappy'
+        country: 'Land'
+        members: 'Lede'
+        postcode: 'Poskode'
+        presentation: 'Weergawe'
+        province: 'Provinsie'
+        provinces: 'Provinsies'
+        scope: 'Gebied'
+        street: 'Straat'
+        type: 'Tipe'

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Hook;
 
 use Behat\Behat\Context\Context;
@@ -38,10 +40,6 @@ final class DoctrineORMContext implements Context
      */
     public function purgeDatabase()
     {
-        if (null === $this->entityManager) {
-            throw new \RuntimeException('Cannot purge database. Entity manager is not set');
-        }
-
         $this->entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
         $purger = new ORMPurger($this->entityManager);
         $purger->purge();

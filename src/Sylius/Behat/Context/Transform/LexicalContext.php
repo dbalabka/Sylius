@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
@@ -19,13 +21,17 @@ use Behat\Behat\Context\Context;
 final class LexicalContext implements Context
 {
     /**
-     * @Transform /^"(?:€|£|\$)((?:\d+\.)?\d+)"$/
+     * @Transform /^"(\-)?(?:€|£|￥|\$)((?:\d+\.)?\d+)"$/
      */
-    public function getPriceFromString($price)
+    public function getPriceFromString($sign, $price)
     {
         $this->validatePriceString($price);
 
-        return (int) round(($price * 100), 2);
+        if ('-' === $sign) {
+            $price *= -1;
+        }
+
+        return (int) round($price * 100, 2);
     }
 
     /**
@@ -43,7 +49,7 @@ final class LexicalContext implements Context
      */
     private function validatePriceString($price)
     {
-        if (strlen(substr(strrchr($price, "."), 1)) > 2) {
+        if (!(bool) preg_match('/^\d+(?:\.\d{1,2})?$/', $price)) {
             throw new \InvalidArgumentException('Price string should not have more than 2 decimal digits.');
         }
     }

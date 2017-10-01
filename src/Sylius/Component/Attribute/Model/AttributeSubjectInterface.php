@@ -9,14 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Model;
 
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Interface implemented by object which can be characterized
- * using the attributes.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface AttributeSubjectInterface
@@ -24,41 +23,46 @@ interface AttributeSubjectInterface
     /**
      * @return Collection|AttributeValueInterface[]
      */
-    public function getAttributes();
+    public function getAttributes(): Collection;
 
     /**
-     * @param Collection $attributes
+     * @param string $localeCode
+     * @param string $fallbackLocaleCode
+     *
+     * @return Collection|AttributeValueInterface[]
      */
-    public function setAttributes(Collection $attributes);
+    public function getAttributesByLocale(string $localeCode, string $fallbackLocaleCode): Collection;
 
     /**
      * @param AttributeValueInterface $attribute
      */
-    public function addAttribute(AttributeValueInterface $attribute);
+    public function addAttribute(AttributeValueInterface $attribute): void;
 
     /**
      * @param AttributeValueInterface $attribute
      */
-    public function removeAttribute(AttributeValueInterface $attribute);
+    public function removeAttribute(AttributeValueInterface $attribute): void;
 
     /**
      * @param AttributeValueInterface $attribute
      *
      * @return bool
      */
-    public function hasAttribute(AttributeValueInterface $attribute);
+    public function hasAttribute(AttributeValueInterface $attribute): bool;
 
     /**
      * @param string $attributeCode
+     * @param string|null $localeCode
      *
      * @return bool
      */
-    public function hasAttributeByCode($attributeCode);
+    public function hasAttributeByCodeAndLocale(string $attributeCode, ?string $localeCode = null): bool;
 
     /**
      * @param string $attributeCode
+     * @param string|null $localeCode
      *
-     * @return AttributeValueInterface
+     * @return AttributeValueInterface|null
      */
-    public function getAttributeByCode($attributeCode);
+    public function getAttributeByCodeAndLocale(string $attributeCode, ?string $localeCode = null): ?AttributeValueInterface;
 }

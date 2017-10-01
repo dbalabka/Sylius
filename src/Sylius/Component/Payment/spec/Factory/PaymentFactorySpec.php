@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Payment\Factory;
 
 use PhpSpec\ObjectBehavior;
@@ -19,44 +21,39 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class PaymentFactorySpec extends ObjectBehavior
+final class PaymentFactorySpec extends ObjectBehavior
 {
-    function let(FactoryInterface $paymentFactory)
+    function let(FactoryInterface $paymentFactory): void
     {
         $this->beConstructedWith($paymentFactory);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Payment\Factory\PaymentFactory');
-    }
-
-    function it_implements_Sylius_shipment_factory_interface()
+    function it_implements_Sylius_shipment_factory_interface(): void
     {
         $this->shouldImplement(PaymentFactoryInterface::class);
     }
 
-    function it_implements_factory_interface()
+    function it_implements_factory_interface(): void
     {
         $this->shouldImplement(FactoryInterface::class);
     }
 
-    function it_delegatates_creation_of_new_resource(FactoryInterface $paymentFactory, PaymentInterface $payment)
+    function it_delegates_creation_of_new_resource(FactoryInterface $paymentFactory, PaymentInterface $payment): void
     {
         $paymentFactory->createNew()->willReturn($payment);
 
         $this->createNew()->shouldReturn($payment);
     }
 
-    function it_creates_payment_with_currency_and_amout(
+    function it_creates_payment_with_currency_and_amount(
         FactoryInterface $paymentFactory,
         PaymentInterface $payment
-    ) {
+    ): void {
         $paymentFactory->createNew()->willReturn($payment);
 
         $payment->setAmount(1234)->shouldBeCalled();
-        $payment->setCurrency('EUR')->shouldBeCalled();
+        $payment->setCurrencyCode('EUR')->shouldBeCalled();
 
-        $this->createWithAmountAndCurrency(1234, 'EUR');
+        $this->createWithAmountAndCurrencyCode(1234, 'EUR');
     }
 }

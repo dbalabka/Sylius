@@ -3,12 +3,6 @@
 
 sylius:
     form:
-        action:
-            add_product_configuration:
-                price: Jednotková cena
-                quantity: Množstvo
-                variant: Variant
-            customer_group: Zákaznícka skupina
         block:
             body: Obsah
             id: ID
@@ -21,23 +15,32 @@ sylius:
             payment_method: Spôsob platby
             shipping_method: Spôsob dobpravy
         promotion:
-            channels: Kanál
-        coupon:
-            per_customer_usage_limit: Obmedzenie použitia pre zákazníka
+            channels: Kanály
+        promotion_action:
+            add_product_configuration:
+                product: Produkt
+        promotion_coupon:
+            per_customer_usage_limit: Limit pre použitie jedným zákazníkom
         group:
             name: Názov
             roles: Role
         channel:
-            taxonomies: Triedenia
+            contact_email: Kontaktný e-mail
+            currencies: Meny
+            currency_base: Základná mena
+            account_verification_required: Je požadované overenie účtu?
+            hostname: Hostname
             locale_default: Predvolený jazyk
             locales: Jazyky
-            currency_default: Predvolená mena
-            currencies: Meny
-            shipping_methods: Spôsoby doručenia
             payment_methods: Spôsoby platby
+            shipping_methods: Spôsoby doručenia
+            skipping_shipping_step_allowed: Preskočiť výber dopravy, ak je dostupný iba jeden spôsob dopravy?
+            tax_calculation_strategy: Spôsob výpočtu dane
+            tax_zone_default: Predvolené daňové pásmo
+            taxonomies: Triedenia
             theme: Téma
-            hostname: Hostname
         image:
+            type: Typ
             file: Obrázok
         locale:
             code: Kód
@@ -55,30 +58,19 @@ sylius:
             id: ID
             title: Názov
         product:
+            images: Obrázky
             restricted_zone: Zóna s obmedzeným prístupom
-            shipping_category: Kategória doručenia
             short_description: Krátky popis
             variant_selection_method: Spôsob výberu produktového variantu
             main_taxon: Hlavná kategória
+            channels: Kanály
+            enabled: Zapnuté
         product_filter:
             name: Názov
-            sku: Skladový kód (SKU)
+            code: Kód
         product_variant:
             tax_category: Daňová kategória
-        settings:
-            general:
-                currency: Predvolená mena
-                locale: Jazyk
-                meta_description: Meta popis
-                meta_keywords: Meta kľúčové slová
-                title: Názov stránky
-                tracking_code:
-                    Tracking code (for example: Google Analytics kód
-            taxation:
-                default_tax_zone: Predvolené daňové pásmo
-                default_tax_calculation_strategy: Predvolený spôsob výpočtu dane
-            security:
-                enabled: Zapnuť?
+            shipping_category: Kategória doručenia
         shipment_filter:
             created_at_from: Od
             created_at_to: Do
@@ -94,7 +86,9 @@ sylius:
         shipping_method:
             zone: Zóna
         taxon:
+            code: Kód
             file: Vybrať obrázok
+            images: Obrázky
         taxonomy:
             file: Vybrať obrázok
         user:
@@ -110,13 +104,10 @@ sylius:
         user_filter:
             query: Vyhľadať
         variant:
-            available_on_demand: Na objednávku
             depth: Hĺbka
             height: Výška
-            images: Obrázky
             on_hand: Položiek na sklade
             price: Cena
-            original_price: Pôvodná cena
             sku: Skladový kód (SKU)
             weight: Hmotnosť
             width: Šírka
@@ -125,29 +116,95 @@ sylius:
                 attribute: Vlastnosť
                 value: Hodnota
         guest:
-            email: Email
+            email: E-mail
         product_association:
             product: Priradený produkt
             type: Typ priradenia
         product_association_type:
             name: Názov
+        promotion_filter:
+            products: Filter produktov
+            taxons: Filter kategórií
         promotion_rule:
-            contains_taxon:
-                taxon: Kategória
-                count: Počet
-            taxon:
+            customer_group:
+                group: Skupina zákazníkov
+            has_taxon:
                 taxons: Kategórie
+            product:
+                products: Produkty
             total_of_items_from_taxon:
                 taxon: Kategória
                 amount: Suma
-    email:
-        order_confirmation:
-            name: Potvrdenie objednávky
-        order_comment:
-            name: Poznámka k objednávke
-        shipment_confirmation:
-            name: Potvrdenie odoslania tovaru
-        user_confirmation:
-            name: Potvrdenie registrácie použivateľa
-        password_reset:
-            name: Obnoviť heslo
+        payment_method:
+            channels: Kanály
+        product_attribute:
+            position: Pozícia
+        zone:
+            scopes:
+                shipping: Doručenie
+                tax: Daň
+    installer:
+        extensions:
+            header: Rozšírenia
+            accelerator:
+                header: Akcelerátor
+                help: Povoliť Zend OpCache (vysoko odporúčané).
+            apc: APC
+            ctype: Ctype
+            gd: GD
+            help: Nainštalujte a povoľte rozšírenie %extension%.
+            iconv: Iconv
+            exif: Exif
+            fileinfo: Fileinfo
+            icu: ICU
+            intl: Intl
+            json_encode: JSON
+            mbstring: Multibyte String
+            "off": false
+            "on": true
+            pcre: PCRE
+            pdo: PDO
+            php_xml: PHP-XML
+            session_start: Session
+            simplexml_import_dom: SimpleXML
+            token_get_all: Tokenizer
+        filesystem:
+            header: súborový systém
+            cache:
+                header: cache
+                help: 'Pre nastavenie oprávnení spusti: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+            exists: existuje
+            logs:
+                header: záznamy
+                help: 'Pre nastavenie oprávnení spusti: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+            not_exists: neexistuje
+            not_writable: nie je zapisovateľný
+            parameters:
+                header: parameters.yml
+                help: 'Pre nastavenie oprávnení spusti: sudo chmod a+w %path%'
+            vendors: vendors
+            writable: zapisovateľné
+        settings:
+            header: Verzia PHP a nastavenia
+            any: akékoľvek
+            detect_unicode: detect_unicode
+            magic_quotes_gpc: magic_quotes_gpc
+            non_deprecated: nie sú zastarelé
+            "off": false
+            "on": true
+            register_globals: register_globals
+            session:
+                auto_start: session.auto_start
+            short_open_tag: short_open_tag
+            timezone: časové pásmo
+            timezone_deprecated:
+                header: Zastaralé časové pásmo
+                help: 'Časové pásmo %timezone% je zastaralé. Opravte si Váš súbor php.ini (zoznam zastaralých časových pasiem http://php.net/manual/en/timezones.others.php).'
+            version: Verzia PHP
+            version_recommended: Odporúčaná verzia PHP
+    payum_gateway:
+        cash_on_delivery: Dobierka
+        offline: Offline
+        paypal_express_checkout: PayPal Express Checkout
+    shipping_method_resolver:
+        by_zones_and_channel: Podľa zóný a kanálu
