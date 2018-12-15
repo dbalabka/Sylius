@@ -9,49 +9,51 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\External\PaypalExpressCheckoutPage;
+use Sylius\Behat\Page\External\PaypalExpressCheckoutPageInterface;
+use Sylius\Behat\Page\Shop\Checkout\CompletePageInterface;
+use Sylius\Behat\Page\Shop\Order\ShowPageInterface;
+use Sylius\Behat\Service\Mocker\PaypalApiMocker;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
-class PaypalContext implements Context
+final class PaypalContext implements Context
 {
-    /**
-     * @var PaypalExpressCheckoutPage
-     */
+    /** @var PaypalExpressCheckoutPageInterface */
     private $paypalExpressCheckoutPage;
 
-    /**
-     * @var string
-     */
-    private $paypalAccountName;
+    /** @var ShowPageInterface */
+    private $orderDetails;
 
-    /**
-     * @var string
-     */
-    private $paypalAccountPassword;
+    /** @var CompletePageInterface */
+    private $summaryPage;
 
-    /**
-     * @param PaypalExpressCheckoutPage $paypalExpressCheckoutPage
-     * @param string $paypalAccountName
-     * @param string $paypalAccountPassword
-     */
-    public function __construct(PaypalExpressCheckoutPage $paypalExpressCheckoutPage, $paypalAccountName, $paypalAccountPassword)
-    {
+    /** @var PaypalApiMocker */
+    private $paypalApiMocker;
+
+    public function __construct(
+        PaypalExpressCheckoutPageInterface $paypalExpressCheckoutPage,
+        ShowPageInterface $orderDetails,
+        CompletePageInterface $summaryPage,
+        PaypalApiMocker $paypalApiMocker
+    ) {
         $this->paypalExpressCheckoutPage = $paypalExpressCheckoutPage;
-        $this->paypalAccountName = $paypalAccountName;
-        $this->paypalAccountPassword = $paypalAccountPassword;
+        $this->orderDetails = $orderDetails;
+        $this->summaryPage = $summaryPage;
+        $this->paypalApiMocker = $paypalApiMocker;
     }
 
     /**
-     * @Then I should be redirected to PayPal Express Checkout page
+     * @When /^I confirm my order with paypal payment$/
+     * @Given /^I have confirmed my order with paypal payment$/
      */
-    public function iShouldBeRedirectedToPaypalExpressCheckoutPage()
+    public function iConfirmMyOrderWithPaypalPayment()
     {
-        expect($this->paypalExpressCheckoutPage->isOpen())->toBe(true);
+        $this->paypalApiMocker->performActionInApiInitializeScope(function () {
+            $this->summaryPage->confirmOrder();
+        });
     }
 
     /**
@@ -59,15 +61,61 @@ class PaypalContext implements Context
      */
     public function iSignInToPaypalAndPaySuccessfully()
     {
-        $this->paypalExpressCheckoutPage->logIn($this->paypalAccountName, $this->paypalAccountPassword);
-        $this->paypalExpressCheckoutPage->pay();
+        $this->paypalApiMocker->performActionInApiSuccessfulScope(function () {
+            $this->paypalExpressCheckoutPage->pay();
+        });
     }
 
     /**
-     * @When I cancel my PayPal payment
+     * @Given /^I have cancelled (?:|my )PayPal payment$/
+     * @When /^I cancel (?:|my )PayPal payment$/
      */
     public function iCancelMyPaypalPayment()
     {
         $this->paypalExpressCheckoutPage->cancel();
+    }
+
+    /**
+     * @When /^I try to pay(?:| again)$/
+     */
+    public function iTryToPayAgain()
+    {
+        $this->paypalApiMocker->performActionInApiInitializeScope(function () {
+            $this->orderDetails->pay();
+        });
+    }
+
+    /**
+     * @Then I should be notified that my payment has been cancelled
+     */
+    public function iShouldBeNotifiedThatMyPaymentHasBeenCancelled()
+    {
+        $this->assertNotification('Payment has been cancelled.');
+    }
+
+    /**
+     * @Then I should be notified that my payment has been completed
+     */
+    public function iShouldBeNotifiedThatMyPaymentHasBeenCompleted()
+    {
+        $this->assertNotification('Payment has been completed.');
+    }
+
+    /**
+     * @param string $expectedNotification
+     */
+    private function assertNotification($expectedNotification)
+    {
+        $notifications = $this->orderDetails->getNotifications();
+        $hasNotifications = '';
+
+        foreach ($notifications as $notification) {
+            $hasNotifications .= $notification;
+            if ($notification === $expectedNotification) {
+                return;
+            }
+        }
+
+        throw new \RuntimeException(sprintf('There is no notificaiton with "%s". Got "%s"', $expectedNotification, $hasNotifications));
     }
 }

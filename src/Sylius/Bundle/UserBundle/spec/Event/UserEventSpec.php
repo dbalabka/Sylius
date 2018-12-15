@@ -9,24 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\UserBundle\Event;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\User\Model\UserInterface;
 
-class UserEventSpec extends ObjectBehavior
+final class UserEventSpec extends ObjectBehavior
 {
-    function let(UserInterface $user)
+    function let(UserInterface $user): void
     {
         $this->beConstructedWith($user);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\UserBundle\Event\UserEvent');
-    }
-
-    function it_has_user($user)
+    function it_has_user(UserInterface $user): void
     {
         $this->getUser()->shouldReturn($user);
     }

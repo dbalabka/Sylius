@@ -9,53 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Inventory\Model;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface StockableInterface
 {
-    /**
-     * @return string
-     */
-    public function getSku();
+    public function getInventoryName(): ?string;
 
-    /**
-     * @return string
-     */
-    public function getInventoryName();
+    public function isInStock(): bool;
 
-    /**
-     * Simply checks if there any stock available.
-     * It should also return true for items available on demand.
-     *
-     * @return bool
-     */
-    public function isInStock();
+    public function getOnHold(): ?int;
 
-    /**
-     * @return bool
-     */
-    public function isAvailableOnDemand();
+    public function setOnHold(?int $onHold): void;
 
-    /**
-     * @return int
-     */
-    public function getOnHold();
+    public function getOnHand(): ?int;
 
-    /**
-     * @param int
-     */
-    public function setOnHold($onHold);
+    public function setOnHand(?int $onHand): void;
 
-    /**
-     * @return int
-     */
-    public function getOnHand();
+    public function isTracked(): bool;
 
-    /**
-     * @param int $onHand
-     */
-    public function setOnHand($onHand);
+    public function setTracked(bool $tracked): void;
 }

@@ -9,66 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
 use Doctrine\Common\Persistence\ObjectManager;
-use Sylius\Bundle\ThemeBundle\Factory\ThemeFactoryInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Bundle\ThemeBundle\Configuration\Test\TestThemeConfigurationManagerInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Sylius\Bundle\ThemeBundle\Repository\ThemeRepositoryInterface;
-use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class ThemeContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var ThemeRepositoryInterface
-     */
+    /** @var ThemeRepositoryInterface */
     private $themeRepository;
 
-    /**
-     * @var ThemeFactoryInterface
-     */
-    private $themeFactory;
-
-    /**
-     * @var ChannelRepositoryInterface
-     */
-    private $channelRepository;
-
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $channelManager;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param ThemeRepositoryInterface $themeRepository
-     * @param ThemeFactoryInterface $themeFactory
-     * @param ChannelRepositoryInterface $channelRepository
-     * @param ObjectManager $channelManager
-     */
+    /** @var TestThemeConfigurationManagerInterface */
+    private $testThemeConfigurationManager;
+
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ThemeRepositoryInterface $themeRepository,
-        ThemeFactoryInterface $themeFactory,
-        ChannelRepositoryInterface $channelRepository,
-        ObjectManager $channelManager
+        ObjectManager $channelManager,
+        TestThemeConfigurationManagerInterface $testThemeConfigurationManager
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->themeRepository = $themeRepository;
-        $this->themeFactory = $themeFactory;
-        $this->channelRepository = $channelRepository;
         $this->channelManager = $channelManager;
+        $this->testThemeConfigurationManager = $testThemeConfigurationManager;
     }
 
     /**
@@ -76,16 +52,11 @@ final class ThemeContext implements Context
      */
     public function storeHasTheme($themeName)
     {
-        $theme = $this->themeFactory->createNamed($themeName);
-        $theme->setTitle($themeName);
-        $theme->setPath(sys_get_temp_dir() . '/theme-' . $theme->getCode() . time() . '/');
+        $this->testThemeConfigurationManager->add([
+            'name' => $themeName,
+        ]);
 
-        if (!file_exists($theme->getPath())) {
-            mkdir($theme->getPath(), 0777, true);
-        }
-
-        $this->themeRepository->add($theme);
-        $this->sharedStorage->set('theme', $theme);
+        $this->sharedStorage->set('theme', $this->themeRepository->findOneByName($themeName));
     }
 
     /**
@@ -93,8 +64,9 @@ final class ThemeContext implements Context
      */
     public function channelUsesTheme(ChannelInterface $channel, ThemeInterface $theme)
     {
-        $channel->setTheme($theme);
+        $channel->setThemeName($theme->getName());
 
+        $this->channelManager->persist($channel);
         $this->channelManager->flush();
 
         $this->sharedStorage->set('channel', $channel);
@@ -106,7 +78,7 @@ final class ThemeContext implements Context
      */
     public function channelDoesNotUseAnyTheme(ChannelInterface $channel)
     {
-        $channel->setTheme(null);
+        $channel->setThemeName(null);
 
         $this->channelManager->flush();
 
@@ -118,7 +90,7 @@ final class ThemeContext implements Context
      */
     public function themeChangesHomepageTemplateContents(ThemeInterface $theme, $contents)
     {
-        $file = rtrim($theme->getPath(), '/') . '/SyliusWebBundle/views/Frontend/Homepage/main.html.twig';
+        $file = rtrim($theme->getPath(), '/') . '/SyliusShopBundle/views/Homepage/index.html.twig';
         $dir = dirname($file);
 
         if (!file_exists($dir)) {

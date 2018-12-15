@@ -9,64 +9,66 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
-use Sylius\Component\Core\Model\CouponInterface;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PromotionCouponInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface as BaseOrderRepositoryInterface;
 
 interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
 {
-    /**
-     * Gets expired orders.
-     *
-     * @param \DateTime $expiresAt
-     * @param string    $state
-     *
-     * @return OrderInterface[]
-     */
-    public function findExpired(\DateTime $expiresAt, $state = OrderInterface::STATE_PENDING);
+    public function createListQueryBuilder(): QueryBuilder;
+
+    public function createByCustomerIdQueryBuilder($customerId): QueryBuilder;
+
+    public function createByCustomerAndChannelIdQueryBuilder($customerId, $channelId): QueryBuilder;
+
+    public function countByCustomerAndCoupon(CustomerInterface $customer, PromotionCouponInterface $coupon): int;
+
+    public function countByCustomer(CustomerInterface $customer): int;
 
     /**
-     * Gets the number of orders placed by the customer
-     * for a particular coupon.
-     *
-     * @param CustomerInterface $customer
-     * @param CouponInterface   $coupon
-     *
-     * @return int
+     * @return array|OrderInterface[]
      */
-    public function countByCustomerAndCoupon(CustomerInterface $customer, CouponInterface $coupon);
+    public function findByCustomer(CustomerInterface $customer): array;
 
     /**
-     * Gets the number of orders placed by the customer
-     * with particular state.
-     *
-     * @param CustomerInterface $customer
-     * @param string            $state
-     *
-     * @return int
+     * @return array|OrderInterface[]
      */
-    public function countByCustomerAndPaymentState(CustomerInterface $customer, $state);
+    public function findForCustomerStatistics(CustomerInterface $customer): array;
+
+    public function findOneForPayment($id): ?OrderInterface;
+
+    public function findOneByNumberAndCustomer(string $number, CustomerInterface $customer): ?OrderInterface;
+
+    public function findCartByChannel($id, ChannelInterface $channel): ?OrderInterface;
+
+    public function findLatestCartByChannelAndCustomer(ChannelInterface $channel, CustomerInterface $customer): ?OrderInterface;
+
+    public function getTotalSalesForChannel(ChannelInterface $channel): int;
+
+    public function countFulfilledByChannel(ChannelInterface $channel): int;
 
     /**
-     * Gets revenue group by date
-     * between particular dates
-     *
-     * @param array $configuration
-     *
-     * @return array
+     * @return array|OrderInterface[]
      */
-    public function revenueBetweenDatesGroupByDate(array $configuration = []);
+    public function findLatestInChannel(int $count, ChannelInterface $channel): array;
 
     /**
-     * Gets number of orders group by date
-     * between particular dates
-     * 
-     * @param array $configuration
-     *
-     * @return array
+     * @return array|OrderInterface[]
      */
-    public function ordersBetweenDatesGroupByDate(array $configuration = []);
+    public function findOrdersUnpaidSince(\DateTimeInterface $terminalDate): array;
+
+    public function findCartForSummary($id): ?OrderInterface;
+
+    public function findCartForAddressing($id): ?OrderInterface;
+
+    public function findCartForSelectingShipping($id): ?OrderInterface;
+
+    public function findCartForSelectingPayment($id): ?OrderInterface;
 }

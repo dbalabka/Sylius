@@ -2,34 +2,41 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    address:
-      city: Kota
-      company: Perusahaan
-      country: Negara
-      first_name: Nama Depan
-      last_name: Nama belakang
-      phone_number: Nomor telepon
-      postcode: Kodepos
-      street: Alamat
-      province: Provinsi
-    country:
-      name: Nama
-      provinces: Provinsi
-      select: Pilih
-    province:
-      name: Nama
-      select: Pilih
-    zone:
-      members: Anggota
-      name: Nama
-      type: Jenis
-      types:
-        country: Negara
-        province: Provinsi
-        zone: Zona
-      scope: Ruang lingkup
-      select: Pilih
-      select_scope: Pilih cakupan
-    zone_member:
-      select: Pilih
+    form:
+        address:
+            city: Kota
+            company: Perusahaan
+            country: Negara
+            first_name: Nama Depan
+            last_name: Nama belakang
+            phone_number: Nomor telepon
+            postcode: Kode pos
+            street: Alamat
+            province: Provinsi
+            zone: Zona
+        country:
+            add_province: Tambah Provinsi
+            name: Nama
+            provinces: Provinsi
+            select: Pilih
+            enabled: Diaktifkan
+        province:
+            name: Nama
+            abbreviation: Singkatan
+            select: Pilih
+        zone:
+            add_member: Tambah anggota
+            members: Anggota
+            name: Nama
+            type: Jenis
+            types:
+                country: Negara
+                province: Provinsi
+                zone: Zona
+            scope: Lingkup
+            scopes:
+                all: Semua
+            select: Pilih
+            select_scope: Pilih lingkup
+        zone_member:
+            select: Pilih

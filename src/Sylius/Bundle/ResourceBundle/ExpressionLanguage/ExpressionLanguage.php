@@ -9,69 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\ExpressionLanguage;
 
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\ExpressionLanguage\ExpressionLanguage as BaseExpressionLanguage;
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\DependencyInjection\ExpressionLanguage as BaseExpressionLanguage;
+use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheAdapter;
+use Symfony\Component\ExpressionLanguage\ParserCache\ParserCacheInterface;
 
-/**
- * Adds some function to the default ExpressionLanguage.
- *
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
-class ExpressionLanguage extends BaseExpressionLanguage implements ContainerAwareInterface
+final class ExpressionLanguage extends BaseExpressionLanguage
 {
     /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
      * {@inheritdoc}
      */
-    public function setContainer(ContainerInterface $container = null)
+    public function __construct($cache = null, array $providers = [])
     {
-        $this->container = $container;
+        if (null !== $cache) {
+            if ($cache instanceof ParserCacheInterface) {
+                @trigger_error(sprintf('Passing an instance of %s as constructor argument for %s is deprecated as of Sylius 1.2 and will be removed in 2.0. Pass an instance of %s instead.', ParserCacheInterface::class, self::class, CacheItemPoolInterface::class), \E_USER_DEPRECATED);
 
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function evaluate($expression, $values = [])
-    {
-        $values['container'] = $this->container;
-
-        return parent::evaluate($expression, $values);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function registerFunctions()
-    {
-        parent::registerFunctions();
-
-        $this->register(
-            'service',
-            function ($arg) {
-                return sprintf('$this->get(%s)', $arg);
-            },
-            function (array $variables, $value) {
-                return $variables['container']->get($value);
+                $cache = new ParserCacheAdapter($cache);
+            } elseif (!$cache instanceof CacheItemPoolInterface) {
+                throw new \InvalidArgumentException(sprintf('Cache argument has to implement %s.', CacheItemPoolInterface::class));
             }
-        );
+        }
 
-        $this->register(
-            'parameter',
-            function ($arg) {
-                return sprintf('$this->getParameter(%s)', $arg);
-            },
-            function (array $variables, $value) {
-                return $variables['container']->getParameter($value);
-            }
-        );
+        array_unshift($providers, new NotNullExpressionFunctionProvider());
+
+        parent::__construct($cache, $providers);
     }
 }

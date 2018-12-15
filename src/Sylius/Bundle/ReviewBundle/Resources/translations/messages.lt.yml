@@ -2,10 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Pavadinimas
-      comment: Komentaras
-      author: Autorius
-      status:
-        new: Naujas
+    form:
+        review:
+            author: Autorius
+            comment: Komentaras
+            header: Pridėti atsiliepimą
+            rating: Įvertinimas
+            status:
+                approved: Patvirtintas
+                label: Būsena
+                new: Naujas
+                rejected: Atmestas
+            submit: Pateikti
+            title: Pavadinimas

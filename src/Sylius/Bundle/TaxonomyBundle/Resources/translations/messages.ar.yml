@@ -2,8 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    taxon:
-      name: الاسم
-    taxonomy:
-      name: الاسم
+    form:
+        taxon:
+            description: الوصف
+            name: الاسم
+            parent: الجذر
+            slug: سبيكة
+        taxonomy:
+            name: الاسم

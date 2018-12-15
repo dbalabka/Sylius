@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Action;
 
 use Payum\Core\Action\GatewayAwareAction;
@@ -17,14 +19,14 @@ use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Request\Generic;
 use Sylius\Component\Payment\Model\PaymentInterface;
 
-class ExecuteSameRequestWithPaymentDetailsAction extends GatewayAwareAction
+final class ExecuteSameRequestWithPaymentDetailsAction extends GatewayAwareAction
 {
     /**
      * {@inheritdoc}
      *
-     * @param $request Generic
+     * @param Generic $request
      */
-    public function execute($request)
+    public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
@@ -44,7 +46,7 @@ class ExecuteSameRequestWithPaymentDetailsAction extends GatewayAwareAction
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof Generic &&

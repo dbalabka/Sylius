@@ -9,21 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\LocaleBundle;
 
+use Sylius\Bundle\LocaleBundle\DependencyInjection\Compiler\CompositeLocaleContextPass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Component\Locale\Model\LocaleInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
- */
-class SyliusLocaleBundle extends AbstractResourceBundle
+final class SyliusLocaleBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function build(ContainerBuilder $container): void
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new CompositeLocaleContextPass());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -34,17 +44,7 @@ class SyliusLocaleBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    protected function getModelInterfaces()
-    {
-        return [
-            LocaleInterface::class => 'sylius.model.locale.class',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         return 'Sylius\Component\Locale\Model';
     }

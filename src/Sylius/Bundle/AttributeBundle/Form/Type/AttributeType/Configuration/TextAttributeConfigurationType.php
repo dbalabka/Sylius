@@ -9,31 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\Form\Type\AttributeType\Configuration;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class TextAttributeConfigurationType extends AbstractType
+final class TextAttributeConfigurationType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('min', 'number', ['label' => 'sylius.form.attribute_type_configuration.text.min'])
-            ->add('max', 'number', ['label' => 'sylius.form.attribute_type_configuration.text.max'])
+            ->add('min', NumberType::class, [
+                'label' => 'sylius.form.attribute_type_configuration.text.min',
+                'required' => false,
+            ])
+            ->add('max', NumberType::class, [
+                'label' => 'sylius.form.attribute_type_configuration.text.max',
+                'required' => false,
+            ])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_attribute_type_configuration_text';
     }

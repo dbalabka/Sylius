@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle\Action;
 
 use Payum\Core\Action\GatewayAwareAction;
@@ -17,22 +19,34 @@ use Payum\Core\Exception\RequestNotSupportedException;
 use Payum\Core\Model\Payment as PayumPayment;
 use Payum\Core\Request\Capture;
 use Payum\Core\Request\Convert;
+use Sylius\Bundle\PayumBundle\Provider\PaymentDescriptionProviderInterface;
 use Sylius\Bundle\PayumBundle\Request\GetStatus;
+use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface as SyliusPaymentInterface;
 
-class CapturePaymentAction extends GatewayAwareAction
+final class CapturePaymentAction extends GatewayAwareAction
 {
+    /** @var PaymentDescriptionProviderInterface */
+    private $paymentDescriptionProvider;
+
+    public function __construct(PaymentDescriptionProviderInterface $paymentDescriptionProvider)
+    {
+        $this->paymentDescriptionProvider = $paymentDescriptionProvider;
+    }
+
     /**
      * {@inheritdoc}
      *
-     * @param $request Capture
+     * @param Capture $request
      */
-    public function execute($request)
+    public function execute($request): void
     {
         RequestNotSupportedException::assertSupports($this, $request);
 
-        /** @var $payment SyliusPaymentInterface */
+        /** @var SyliusPaymentInterface $payment */
         $payment = $request->getModel();
+
+        /** @var OrderInterface $order */
         $order = $payment->getOrder();
 
         $this->gateway->execute($status = new GetStatus($payment));
@@ -41,16 +55,14 @@ class CapturePaymentAction extends GatewayAwareAction
                 $this->gateway->execute($convert = new Convert($payment, 'array', $request->getToken()));
                 $payment->setDetails($convert->getResult());
             } catch (RequestNotSupportedException $e) {
+                $totalAmount = $order->getTotal();
                 $payumPayment = new PayumPayment();
                 $payumPayment->setNumber($order->getNumber());
-                $payumPayment->setTotalAmount($order->getTotal());
-                $payumPayment->setCurrencyCode($order->getCurrency());
+                $payumPayment->setTotalAmount($totalAmount);
+                $payumPayment->setCurrencyCode($order->getCurrencyCode());
                 $payumPayment->setClientEmail($order->getCustomer()->getEmail());
                 $payumPayment->setClientId($order->getCustomer()->getId());
-                $payumPayment->setDescription(sprintf(
-                    'Payment contains %d items for a total of %01.2f',
-                    $order->getItems()->count(), $order->getTotal() / 100
-                ));
+                $payumPayment->setDescription($this->paymentDescriptionProvider->getPaymentDescription($payment));
                 $payumPayment->setDetails($payment->getDetails());
 
                 $this->gateway->execute($convert = new Convert($payumPayment, 'array', $request->getToken()));
@@ -71,7 +83,7 @@ class CapturePaymentAction extends GatewayAwareAction
     /**
      * {@inheritdoc}
      */
-    public function supports($request)
+    public function supports($request): bool
     {
         return
             $request instanceof Capture &&

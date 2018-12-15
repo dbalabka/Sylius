@@ -1,35 +1,44 @@
-/.php_cs.cache
+/var/*
+!/var/.gitkeep
 
-/app/*.cache
-/app/cache
-/app/logs
-
-/app/check.php
-/app/SymfonyRequirements.php
+/public/assets
+/public/bundles
+/public/css
+/public/js
+/public/media
+!/public/media/image/.gitkeep
 
 /app/config/parameters.yml
-/app/config/*.local.yml
 
-/web/bundles
-/web/assets/css
-/web/assets/js
-/web/assets/fonts
-/web/assets/img
-/web/assets/compiled
-/web/media
-/web/css
-/web/js
+/bin/symfony_requirements
 
-/bin/*
-!/bin/install
-!/bin/sylius-cs-fixer
+/docs/.doctrees
 
+/composer.lock
 /vendor
 /node_modules
 
 /etc/build/*
-!/etc/build/.gitkeep
+!/etc/build/.gitignore
 
 /behat.yml
-/phpunit.xml
 /phpspec.yml
+
+/.env
+/.env.prod
+/.env.staging
+/.env.test
+/.env.test_cached
+
+###> symfony/web-server-bundle ###
+/.web-server-pid
+###< symfony/web-server-bundle ###
+
+###> friendsofphp/php-cs-fixer ###
+/.php_cs
+/.php_cs.cache
+###< friendsofphp/php-cs-fixer ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+###< phpunit/phpunit ###

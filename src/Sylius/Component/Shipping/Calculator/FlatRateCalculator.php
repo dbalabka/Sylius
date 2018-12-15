@@ -9,26 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Calculator;
 
-use Sylius\Component\Shipping\Model\ShippingSubjectInterface;
+use Sylius\Component\Shipping\Model\ShipmentInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class FlatRateCalculator implements CalculatorInterface
+final class FlatRateCalculator implements CalculatorInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function calculate(ShippingSubjectInterface $subject, array $configuration)
+    public function calculate(ShipmentInterface $subject, array $configuration): int
     {
         return (int) $configuration['amount'];
     }
+
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): string
     {
         return 'flat_rate';
     }

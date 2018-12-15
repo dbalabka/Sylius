@@ -9,26 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CurrencyBundle\Twig;
 
-use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelper;
+use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelperInterface;
 
-/**
- * Sylius currency Twig helper.
- *
- * @author Paweł Jędrzejewski <pjedrzejewski@diweb.pl>
- */
-class CurrencyExtension extends \Twig_Extension
+final class CurrencyExtension extends \Twig_Extension
 {
-    /**
-     * @var CurrencyHelper
-     */
-    protected $helper;
+    /** @var CurrencyHelperInterface */
+    private $helper;
 
-    /**
-     * @param CurrencyHelper $helper
-     */
-    public function __construct(CurrencyHelper $helper)
+    public function __construct(CurrencyHelperInterface $helper)
     {
         $this->helper = $helper;
     }
@@ -36,45 +28,10 @@ class CurrencyExtension extends \Twig_Extension
     /**
      * {@inheritdoc}
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
-            new \Twig_SimpleFilter('sylius_currency', [$this, 'convertAmount']),
-            new \Twig_SimpleFilter('sylius_price', [$this, 'convertAndFormatAmount']),
+            new \Twig_Filter('sylius_currency_symbol', [$this->helper, 'convertCurrencyCodeToSymbol']),
         ];
-    }
-
-    /**
-     * Convert amount to target currency.
-     *
-     * @param int     $amount
-     * @param string|null $currency
-     *
-     * @return string
-     */
-    public function convertAmount($amount, $currency = null)
-    {
-        return $this->helper->convertAmount($amount, $currency);
-    }
-
-    /**
-     * Convert and format amount.
-     *
-     * @param int     $amount
-     * @param string|null $currency
-     *
-     * @return string
-     */
-    public function convertAndFormatAmount($amount, $currency = null)
-    {
-        return $this->helper->convertAndFormatAmount($amount, $currency);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return 'sylius_currency';
     }
 }

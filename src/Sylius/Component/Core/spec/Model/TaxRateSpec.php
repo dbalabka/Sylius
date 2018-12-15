@@ -9,39 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\Model;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Core\Model\TaxRateInterface;
-use Sylius\Component\Taxation\Model\TaxRate;
+use Sylius\Component\Taxation\Model\TaxRate as BaseTaxRate;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class TaxRateSpec extends ObjectBehavior
+final class TaxRateSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Core\Model\TaxRate');
-    }
-
-    function it_should_implement_Sylius_core_tax_rate_interface()
+    function it_implements_a_tax_rate_interface(): void
     {
         $this->shouldImplement(TaxRateInterface::class);
     }
 
-    function it_should_extend_Sylius_tax_rate_mapped_superclass()
+    function it_extends_a_base_tax_rate_model(): void
     {
-        $this->shouldHaveType(TaxRate::class);
+        $this->shouldHaveType(BaseTaxRate::class);
     }
 
-    function it_should_not_have_any_zone_defined_by_default()
+    function it_does_not_have_any_zone_defined_by_default(): void
     {
         $this->getZone()->shouldReturn(null);
     }
 
-    function it_should_allow_defining_zone(ZoneInterface $zone)
+    function it_allows_defining_zone(ZoneInterface $zone): void
     {
         $this->setZone($zone);
         $this->getZone()->shouldReturn($zone);

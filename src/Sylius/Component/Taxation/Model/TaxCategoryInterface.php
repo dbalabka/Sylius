@@ -9,34 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxation\Model;
 
+use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface TaxCategoryInterface extends CodeAwareInterface, TimestampableInterface, ResourceInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
+
+    public function setName(?string $name): void;
+
+    public function getDescription(): ?string;
+
+    public function setDescription(?string $description): void;
 
     /**
-     * @param string $name
+     * @return Collection|TaxRateInterface[]
      */
-    public function setName($name);
+    public function getRates(): Collection;
 
-    /**
-     * @return string
-     */
-    public function getDescription();
+    public function addRate(TaxRateInterface $rate): void;
 
-    /**
-     * @param string $description
-     */
-    public function setDescription($description);
+    public function removeRate(TaxRateInterface $rate): void;
+
+    public function hasRate(TaxRateInterface $rate): bool;
 }

@@ -9,51 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\CurrencyBundle\Templating\Helper;
 
 use PhpSpec\ObjectBehavior;
-use Sylius\Bundle\CurrencyBundle\Templating\Helper\MoneyHelper;
-use Sylius\Component\Currency\Context\CurrencyContextInterface;
-use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
+use Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelperInterface;
 use Symfony\Component\Templating\Helper\Helper;
 
-/**
- * @author Paweł Jędrzejewski <pjedrzejewski@diweb.pl>
- */
-class CurrencyHelperSpec extends ObjectBehavior
+final class CurrencyHelperSpec extends ObjectBehavior
 {
-    function let(
-        CurrencyContextInterface $currencyContext,
-        CurrencyConverterInterface $converter,
-        MoneyHelper $moneyHelper
-    ) {
-        $this->beConstructedWith($currencyContext, $converter, $moneyHelper);
-    }
-
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\CurrencyBundle\Templating\Helper\CurrencyHelper');
-    }
-
-    function it_is_a_Twig_extension()
+    function it_is_a_templating_helper(): void
     {
         $this->shouldHaveType(Helper::class);
     }
 
-    function it_allows_to_convert_prices_in_different_currencies(
-        $currencyContext,
-        $converter
-    ) {
-        $currencyContext->getCurrency()->willReturn('PLN');
+    function it_implements_a_currency_helper_interface(): void
+    {
+        $this->shouldImplement(CurrencyHelperInterface::class);
+    }
 
-        $converter->convertFromBase(15, 'USD')->shouldBeCalled()->willReturn(19);
-        $converter->convertFromBase(2500, 'USD')->shouldBeCalled()->willReturn(1913);
-        $converter->convertFromBase(312, 'PLN')->shouldBeCalled()->willReturn(407);
-        $converter->convertFromBase(500, 'PLN')->shouldBeCalled()->willReturn(653);
-
-        $this->convertAmount(15, 'USD')->shouldReturn(19);
-        $this->convertAmount(2500, 'USD')->shouldReturn(1913);
-        $this->convertAmount(312, 'PLN')->shouldReturn(407);
-        $this->convertAmount(500)->shouldReturn(653);
+    function it_transforms_a_currency_code_into_symbol(): void
+    {
+        $this->convertCurrencyCodeToSymbol('USD')->shouldReturn('$');
     }
 }

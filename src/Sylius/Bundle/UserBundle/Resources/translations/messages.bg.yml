@@ -2,16 +2,22 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    user:
-      email: Имейл
-    customer:
-      email: Имейл
-      phone_number: Телефонен номер
-    user_change_password:
-      confirmation: Потвърждение
-      current: Текуща парола
-      new: Нова парола
-    user_reset_password:
-      confirmation: Потвърждение
-      new: Нова парола
+    form:
+        user:
+            email: Имейл
+            enabled: Активирано
+            password:
+                label: Парола
+                confirmation: Проверка
+            remember_me: Запомни ме
+            shipping_address: Адрес за доставка
+            username: Потребителско име
+        user_filter:
+            query: Търсене
+        user_change_password:
+            confirmation: Потвърждение
+            current: Текуща парола
+            new: Нова парола
+        user_reset_password:
+            confirmation: Потвърждение
+            new: Нова парола

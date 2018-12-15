@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ResourceBundle\Controller;
 
 use PhpSpec\ObjectBehavior;
@@ -19,17 +21,9 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class SingleResourceProviderSpec extends ObjectBehavior
+final class SingleResourceProviderSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ResourceBundle\Controller\SingleResourceProvider');
-    }
-
-    function it_implements_single_resource_provider_interface()
+    function it_implements_single_resource_provider_interface(): void
     {
         $this->shouldImplement(SingleResourceProviderInterface::class);
     }
@@ -39,7 +33,8 @@ class SingleResourceProviderSpec extends ObjectBehavior
         Request $request,
         ParameterBag $requestAttributes,
         RepositoryInterface $repository
-    ) {
+    ): void {
+        $requestConfiguration->getCriteria()->willReturn([]);
         $requestConfiguration->getRepositoryMethod()->willReturn(null);
         $requestConfiguration->getRequest()->willReturn($request);
         $request->attributes = $requestAttributes;
@@ -47,7 +42,7 @@ class SingleResourceProviderSpec extends ObjectBehavior
         $requestAttributes->has('slug')->willReturn(false);
         $requestAttributes->get('id')->willReturn(5);
 
-        $repository->findOneBy(['id' => 5])->willReturn(null);
+        $repository->find(5)->willReturn(null);
 
         $this->get($requestConfiguration, $repository)->shouldReturn(null);
     }
@@ -58,7 +53,8 @@ class SingleResourceProviderSpec extends ObjectBehavior
         ParameterBag $requestAttributes,
         RepositoryInterface $repository,
         ResourceInterface $resource
-    ) {
+    ): void {
+        $requestConfiguration->getCriteria()->willReturn([]);
         $requestConfiguration->getRepositoryMethod()->willReturn(null);
         $requestConfiguration->getRequest()->willReturn($request);
         $request->attributes = $requestAttributes;
@@ -66,7 +62,7 @@ class SingleResourceProviderSpec extends ObjectBehavior
         $requestAttributes->has('slug')->willReturn(false);
         $requestAttributes->get('id')->willReturn(3);
 
-        $repository->findOneBy(['id' => 3])->willReturn($resource);
+        $repository->find(3)->willReturn($resource);
 
         $this->get($requestConfiguration, $repository)->shouldReturn($resource);
     }
@@ -77,7 +73,8 @@ class SingleResourceProviderSpec extends ObjectBehavior
         ParameterBag $requestAttributes,
         RepositoryInterface $repository,
         ResourceInterface $resource
-    ) {
+    ): void {
+        $requestConfiguration->getCriteria()->willReturn([]);
         $requestConfiguration->getRepositoryMethod()->willReturn(null);
         $requestConfiguration->getRequest()->willReturn($request);
         $request->attributes = $requestAttributes;
@@ -90,15 +87,87 @@ class SingleResourceProviderSpec extends ObjectBehavior
         $this->get($requestConfiguration, $repository)->shouldReturn($resource);
     }
 
+    function it_can_find_specific_resource_with_custom_criteria(
+        RequestConfiguration $requestConfiguration,
+        Request $request,
+        ParameterBag $requestAttributes,
+        RepositoryInterface $repository,
+        ResourceInterface $resource
+    ): void {
+        $requestConfiguration->getCriteria()->willReturn(['request-configuration-criteria' => '1']);
+        $requestConfiguration->getRepositoryMethod()->willReturn(null);
+        $requestConfiguration->getRequest()->willReturn($request);
+        $request->attributes = $requestAttributes;
+        $requestAttributes->has('id')->willReturn(false);
+        $requestAttributes->has('slug')->willReturn(false);
+
+        $repository->findOneBy(['request-configuration-criteria' => '1'])->willReturn($resource);
+
+        $this->get($requestConfiguration, $repository)->shouldReturn($resource);
+    }
+
+    function it_can_find_specific_resource_with_merged_custom_criteria(
+        RequestConfiguration $requestConfiguration,
+        Request $request,
+        ParameterBag $requestAttributes,
+        RepositoryInterface $repository,
+        ResourceInterface $resource
+    ): void {
+        $requestConfiguration->getCriteria()->willReturn(['request-configuration-criteria' => '1']);
+        $requestConfiguration->getRepositoryMethod()->willReturn(null);
+        $requestConfiguration->getRequest()->willReturn($request);
+        $request->attributes = $requestAttributes;
+        $requestAttributes->has('id')->willReturn(false);
+        $requestAttributes->has('slug')->willReturn(true);
+        $requestAttributes->get('slug')->willReturn('banana');
+
+        $repository->findOneBy(['slug' => 'banana', 'request-configuration-criteria' => '1'])->willReturn($resource);
+
+        $this->get($requestConfiguration, $repository)->shouldReturn($resource);
+    }
+
+    function it_can_find_specific_resource_with_merged_custom_criteria_overwriting_the_attributes(
+        RequestConfiguration $requestConfiguration,
+        Request $request,
+        ParameterBag $requestAttributes,
+        RepositoryInterface $repository,
+        ResourceInterface $resource
+    ): void {
+        $requestConfiguration->getCriteria()->willReturn(['id' => 5]);
+        $requestConfiguration->getRepositoryMethod()->willReturn(null);
+        $requestConfiguration->getRequest()->willReturn($request);
+        $request->attributes = $requestAttributes;
+        $requestAttributes->has('id')->willReturn(false);
+        $requestAttributes->has('slug')->willReturn(false);
+
+        $repository->findOneBy(['id' => 5])->willReturn($resource);
+
+        $this->get($requestConfiguration, $repository)->shouldReturn($resource);
+    }
+
     function it_uses_a_custom_method_if_configured(
         RequestConfiguration $requestConfiguration,
         RepositoryInterface $repository,
         ResourceInterface $resource
-    ) {
+    ): void {
         $requestConfiguration->getRepositoryMethod()->willReturn('findAll');
         $requestConfiguration->getRepositoryArguments()->willReturn(['foo']);
 
         $repository->findAll('foo')->willReturn($resource);
+
+        $this->get($requestConfiguration, $repository)->shouldReturn($resource);
+    }
+
+    function it_uses_a_custom_repository_if_configured(
+        RequestConfiguration $requestConfiguration,
+        RepositoryInterface $repository,
+        RepositoryInterface $customRepository,
+        ResourceInterface $resource
+    ): void {
+        $requestConfiguration->getRepositoryMethod()->willReturn([$customRepository, 'findAll']);
+        $requestConfiguration->getRepositoryArguments()->willReturn(['foo']);
+
+        $customRepository->findAll('foo')->willReturn($resource);
 
         $this->get($requestConfiguration, $repository)->shouldReturn($resource);
     }

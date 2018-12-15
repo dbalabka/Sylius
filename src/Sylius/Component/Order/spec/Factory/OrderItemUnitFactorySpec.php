@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Order\Factory;
 
 use PhpSpec\ObjectBehavior;
@@ -18,39 +20,33 @@ use Sylius\Component\Order\Model\OrderItemUnit;
 use Sylius\Component\Order\Model\OrderItemUnitInterface;
 use Sylius\Component\Resource\Exception\UnsupportedMethodException;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class OrderItemUnitFactorySpec extends ObjectBehavior
+final class OrderItemUnitFactorySpec extends ObjectBehavior
 {
-    function let()
+    function let(): void
     {
         $this->beConstructedWith(OrderItemUnit::class);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Order\Factory\OrderItemUnitFactory');
-    }
-
-    function it_implements_factory_interface()
+    function it_implements_a_factory_interface(): void
     {
         $this->shouldImplement(OrderItemUnitFactoryInterface::class);
     }
 
-    function it_throws_exception_while_trying_create_order_item_unit_without_order_item()
+    function it_throws_an_exception_while_trying_create_order_item_unit_without_order_item(): void
     {
         $this->shouldThrow(UnsupportedMethodException::class)->during('createNew');
     }
 
-    function it_creates_new_order_item_unit_with_given_order_item(OrderItemInterface $orderItem, OrderItemUnitInterface $orderItemUnit)
-    {
+    function it_creates_a_new_order_item_unit_with_given_order_item(
+        OrderItemInterface $orderItem,
+        OrderItemUnitInterface $orderItemUnit
+    ): void {
         $orderItemUnit->getOrderItem()->willReturn($orderItem);
 
         $this->createForItem($orderItem)->shouldBeSameAs($orderItemUnit);
     }
 
-    public function getMatchers()
+    public function getMatchers(): array
     {
         return [
             'beSameAs' => function ($subject, $key) {

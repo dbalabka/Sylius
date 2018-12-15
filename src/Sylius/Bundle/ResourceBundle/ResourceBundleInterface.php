@@ -9,21 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- */
 interface ResourceBundleInterface
 {
-    const MAPPING_XML = 'xml';
-    const MAPPING_YAML = 'yaml';
-    const MAPPING_ANNOTATION = 'annotation';
+    public const MAPPING_XML = 'xml';
+    public const MAPPING_YAML = 'yaml';
+    public const MAPPING_ANNOTATION = 'annotation';
 
     /**
-     * Return an array which contains the supported drivers.
+     * Returns a vector of supported drivers.
      *
-     * @return array
+     * @see SyliusResourceBundle::DRIVER_DOCTRINE_ORM
+     * @see SyliusResourceBundle::DRIVER_DOCTRINE_MONGODB_ODM
+     * @see SyliusResourceBundle::DRIVER_DOCTRINE_PHPCR_ODM
      */
-    public static function getSupportedDrivers();
+    public function getSupportedDrivers(): array;
 }

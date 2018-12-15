@@ -9,30 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\MailerBundle\DependencyInjection;
 
-use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-/**
- * Mailer extension.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
-class SyliusMailerExtension extends AbstractResourceExtension
+final class SyliusMailerExtension extends Extension
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-
-        $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $configFiles = [
             'services.xml',
@@ -48,7 +42,7 @@ class SyliusMailerExtension extends AbstractResourceExtension
         $container->setParameter('sylius.mailer.sender_name', $config['sender']['name']);
         $container->setParameter('sylius.mailer.sender_address', $config['sender']['address']);
 
-        $templates = isset($config['templates']) ? $config['templates'] : ['Default' => 'SyliusMailerBundle::default.html.twig'];
+        $templates = $config['templates'] ?? ['Default' => '@SyliusMailer/default.html.twig'];
 
         $container->setParameter('sylius.mailer.emails', $config['emails']);
         $container->setParameter('sylius.mailer.templates', $templates);

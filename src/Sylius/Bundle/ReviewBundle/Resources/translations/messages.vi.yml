@@ -2,6 +2,8 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Tiêu đề
+    form:
+        review:
+            status:
+                new: Mới
+            title: Tiêu đề

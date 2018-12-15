@@ -2,22 +2,28 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    product:
-      name: Ime
-      description: Opis
-      attributes: Atributi
-      options: Možnosti
-    product_variant:
-      available_on: Na voljo na
-      available_until: Na voljo do
-    product_archetype:
-      name: Ime
-      parent: Nadrejeni
-      attributes: Atributi
-      options: Možnosti
-    association_type:
-      name: Ime
-    association:
-      type: Vrsta združenja
-      product: Povezani izdelek
+    form:
+        product:
+            name: Ime
+            description: Opis
+            attributes: Atributi
+            options: Možnosti
+            meta_keywords: Meta ključne besede
+            meta_description: Meta opis
+            taxons: Taksoni
+        product_variant:
+            name: Ime
+        association_type:
+            name: Ime
+            translations: Prevodi
+        association:
+            type: Vrsta združenja
+            product: Povezani izdelek
+        variant:
+            name: Ime
+        option:
+            name: Ime
+            values: Možne vrednosti
+        option_value:
+            add_value: Dodajte vrednost
+            value: Vrednost

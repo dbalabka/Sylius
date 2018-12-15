@@ -9,46 +9,47 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
+use Sylius\Component\Core\Repository\CustomerRepositoryInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class CustomerContext implements Context
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var CustomerRepositoryInterface */
     private $customerRepository;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $customerFactory;
 
-    /**
-     * @param RepositoryInterface $customerRepository
-     * @param FactoryInterface $customerFactory
-     */
-    public function __construct(RepositoryInterface $customerRepository, FactoryInterface $customerFactory)
-    {
+    /** @var SharedStorageInterface */
+    private $sharedStorage;
+
+    public function __construct(
+        CustomerRepositoryInterface $customerRepository,
+        FactoryInterface $customerFactory,
+        SharedStorageInterface $sharedStorage
+    ) {
         $this->customerRepository = $customerRepository;
         $this->customerFactory = $customerFactory;
+        $this->sharedStorage = $sharedStorage;
     }
 
     /**
      * @Transform :customer
+     * @Transform /^customer "([^"]+)"$/
      */
     public function getOrCreateCustomerByEmail($email)
     {
         /** @var CustomerInterface $customer */
         $customer = $this->customerRepository->findOneBy(['email' => $email]);
         if (null === $customer) {
+            /** @var CustomerInterface $customer */
             $customer = $this->customerFactory->createNew();
             $customer->setEmail($email);
 
@@ -56,5 +57,13 @@ final class CustomerContext implements Context
         }
 
         return $customer;
+    }
+
+    /**
+     * @Transform /^(he|his|she|her|their|the customer of my account)$/
+     */
+    public function getLastCustomer()
+    {
+        return $this->sharedStorage->get('customer');
     }
 }

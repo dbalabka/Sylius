@@ -2,7 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  payment:
-    complete: Platba byla dokončena.
-    cancel: Platba byla zrušena.
-    transition_fail: Akci nelze provést vzhledem k současnému stavu platby
+    payment:
+        authorized: 'Platba byla autorizována.'
+        cancelled: 'Platba byla zrušena.'
+        completed: 'Platba byla dokončena.'
+        failed: 'Platba se nezdařila.'
+        processing: 'Platba se zpracovává.'
+        refunded: 'Platba byla úspěšně vrácena.'
+        unknown: 'Došlo k neznámým potížím s platbou.'

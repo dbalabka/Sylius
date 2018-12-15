@@ -9,91 +9,52 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Model;
 
-use Sylius\Component\Originator\Model\OriginAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface AdjustmentInterface extends ResourceInterface, TimestampableInterface, OriginAwareInterface
+interface AdjustmentInterface extends ResourceInterface, TimestampableInterface
 {
-    /**
-     * @return AdjustableInterface
-     */
-    public function getAdjustable();
+    public function getAdjustable(): ?AdjustableInterface;
+
+    public function setAdjustable(?AdjustableInterface $adjustable): void;
+
+    public function getType(): ?string;
+
+    public function setType(?string $type): void;
+
+    public function getLabel(): ?string;
+
+    public function setLabel(?string $label): void;
+
+    public function getAmount(): int;
+
+    public function setAmount(int $amount): void;
+
+    public function isNeutral(): bool;
+
+    public function setNeutral(bool $neutral): void;
+
+    public function isLocked(): bool;
+
+    public function lock(): void;
+
+    public function unlock(): void;
 
     /**
-     * @param AdjustableInterface|null $adjustable
-     */
-    public function setAdjustable(AdjustableInterface $adjustable = null);
-
-    /**
-     * @return string
-     */
-    public function getType();
-
-    /**
-     * @param string $type
-     */
-    public function setType($type);
-
-    /**
-     * @return string
-     */
-    public function getLabel();
-
-    /**
-     * @param string $label
-     */
-    public function setLabel($label);
-
-    /**
-     * @return int
-     */
-    public function getAmount();
-
-    /**
-     * @param int $amount
-     */
-    public function setAmount($amount);
-
-    /**
-     * @return bool
-     */
-    public function isNeutral();
-
-    /**
-     * @param bool $neutral
-     */
-    public function setNeutral($neutral);
-
-    /**
-     * Is charge?
-     *
      * Adjustments with amount < 0 are called "charges".
-     *
-     * @return bool
      */
-    public function isCharge();
+    public function isCharge(): bool;
 
     /**
-     * Is credit?
-     *
      * Adjustments with amount > 0 are called "credits".
-     *
-     * @return bool
      */
-    public function isCredit();
+    public function isCredit(): bool;
 
-    /**
-     * @return bool
-     */
-    public function isLocked();
+    public function getOriginCode(): ?string;
 
-    public function lock();
-
-    public function unlock();
+    public function setOriginCode(?string $originCode): void;
 }

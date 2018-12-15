@@ -9,51 +9,65 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\TaxationBundle\Form\Type;
 
+use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * Base tax category choice type.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-abstract class TaxCategoryChoiceType extends AbstractType
+final class TaxCategoryChoiceType extends AbstractType
 {
-    /**
-     * Tax category class name.
-     *
-     * @var string
-     */
-    protected $className;
+    /** @var RepositoryInterface */
+    private $taxCategoryRepository;
 
-    /**
-     * Constructor.
-     *
-     * @param string $className
-     */
-    public function __construct($className)
+    public function __construct(RepositoryInterface $taxCategoryRepository)
     {
-        $this->className = $className;
+        $this->taxCategoryRepository = $taxCategoryRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $resolver
-            ->setDefaults([
-                'class' => $this->className,
-            ])
-        ;
+        if ($options['multiple']) {
+            $builder->addModelTransformer(new CollectionToArrayTransformer());
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
+            'choices' => function (Options $options) {
+                return $this->taxCategoryRepository->findAll();
+            },
+            'choice_value' => 'code',
+            'choice_label' => 'name',
+            'choice_translation_domain' => false,
+        ]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent(): string
+    {
+        return ChoiceType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_tax_category_choice';
     }

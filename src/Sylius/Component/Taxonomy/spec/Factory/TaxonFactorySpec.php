@@ -9,67 +9,44 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Taxonomy\Factory;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Taxonomy\Factory\TaxonFactoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
-use Sylius\Component\Taxonomy\Model\TaxonomyInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class TaxonFactorySpec extends ObjectBehavior
+final class TaxonFactorySpec extends ObjectBehavior
 {
-    function let(FactoryInterface $factory, RepositoryInterface $taxonomyRepository)
+    function let(FactoryInterface $factory): void
     {
-        $this->beConstructedWith($factory, $taxonomyRepository);
+        $this->beConstructedWith($factory);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Taxonomy\Factory\TaxonFactory');
-    }
-
-    function it_is_a_resource_factory()
-    {
-        $this->shouldImplement(FactoryInterface::class);
-    }
-
-    function it_implements_taxon_factory_interface()
+    function it_implements_taxon_factory_interface(): void
     {
         $this->shouldImplement(TaxonFactoryInterface::class);
     }
 
-    function it_creates_new_taxon(FactoryInterface $factory, TaxonInterface $taxon)
-    {
+    function it_uses_decorated_factory_to_create_new_taxon(
+        FactoryInterface $factory,
+        TaxonInterface $taxon
+    ): void {
         $factory->createNew()->willReturn($taxon);
 
         $this->createNew()->shouldReturn($taxon);
     }
 
-    function it_throws_an_exception_when_taxonomy_is_not_found(RepositoryInterface $taxonomyRepository)
-    {
-        $taxonomyRepository->find(15)->willReturn(null);
-
-        $this
-            ->shouldThrow(\InvalidArgumentException::class)
-            ->during('createForTaxonomy', [15])
-        ;
-    }
-
-    function it_creates_a_taxon_and_assigns_a_taxonomy_to_id(
+    function it_creates_taxon_for_given_parent_taxon(
         FactoryInterface $factory,
-        RepositoryInterface $taxonomyRepository,
-        TaxonomyInterface $taxonomy,
+        TaxonInterface $parent,
         TaxonInterface $taxon
-    ) {
+    ): void {
         $factory->createNew()->willReturn($taxon);
-        $taxonomyRepository->find(13)->willReturn($taxonomy);
-        $taxon->setTaxonomy($taxonomy)->shouldBeCalled();
+        $taxon->setParent($parent)->shouldBeCalled();
 
-        $this->createForTaxonomy(13)->shouldReturn($taxon);
+        $this->createForParent($parent)->shouldReturn($taxon);
     }
 }

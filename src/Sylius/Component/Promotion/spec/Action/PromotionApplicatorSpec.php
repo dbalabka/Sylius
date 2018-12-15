@@ -9,72 +9,157 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Promotion\Action;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
-use Sylius\Component\Promotion\Action\PromotionActionInterface;
+use Sylius\Component\Promotion\Action\PromotionActionCommandInterface;
 use Sylius\Component\Promotion\Action\PromotionApplicatorInterface;
-use Sylius\Component\Promotion\Model\ActionInterface;
+use Sylius\Component\Promotion\Model\PromotionActionInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
-class PromotionApplicatorSpec extends ObjectBehavior
+final class PromotionApplicatorSpec extends ObjectBehavior
 {
-    function let(ServiceRegistryInterface $registry)
+    function let(ServiceRegistryInterface $registry): void
     {
         $this->beConstructedWith($registry);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Promotion\Action\PromotionApplicator');
-    }
-
-    function it_should_be_Sylius_promotion_applicator()
+    function it_should_be_a_promotion_applicator(): void
     {
         $this->shouldImplement(PromotionApplicatorInterface::class);
     }
 
-    function it_should_execute_all_actions_registered(
+    function it_executes_all_actions_registered(
         ServiceRegistryInterface $registry,
-        PromotionActionInterface $action,
+        PromotionActionCommandInterface $actionCommand,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion,
-        ActionInterface $actionModel
-    ) {
+        PromotionActionInterface $action
+    ): void {
         $configuration = [];
 
-        $registry->get(ActionInterface::TYPE_FIXED_DISCOUNT)->shouldBeCalled()->willReturn($action);
-        $promotion->getActions()->shouldBeCalled()->willReturn([$actionModel]);
-        $actionModel->getType()->shouldBeCalled()->willReturn(ActionInterface::TYPE_FIXED_DISCOUNT);
-        $actionModel->getConfiguration()->shouldBeCalled()->willReturn($configuration);
+        $registry->get('test_action')->willReturn($actionCommand);
+        $promotion->getActions()->willReturn(new ArrayCollection([$action->getWrappedObject()]));
+        $action->getType()->willReturn('test_action');
+        $action->getConfiguration()->willReturn($configuration);
 
-        $action->execute($subject, $configuration, $promotion)->shouldBeCalled();
+        $actionCommand->execute($subject, $configuration, $promotion)->willReturn(true);
 
         $subject->addPromotion($promotion)->shouldBeCalled();
 
         $this->apply($subject, $promotion);
     }
 
-    function it_should_revert_all_actions_registered(
+    function it_applies_promotion_if_at_least_one_action_was_executed_even_if_the_last_one_was_not(
         ServiceRegistryInterface $registry,
-        PromotionActionInterface $action,
+        PromotionActionCommandInterface $firstActionCommand,
+        PromotionActionCommandInterface $secondActionCommand,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion,
-        ActionInterface $actionModel
-    ) {
+        PromotionActionInterface $firstAction,
+        PromotionActionInterface $secondAction
+    ): void {
+        $promotion->getActions()->willReturn(
+            new ArrayCollection([$firstAction->getWrappedObject(), $secondAction->getWrappedObject()])
+        );
+
+        $firstAction->getType()->willReturn('first_action');
+        $firstAction->getConfiguration()->willReturn([]);
+
+        $secondAction->getType()->willReturn('second_action');
+        $secondAction->getConfiguration()->willReturn([]);
+
+        $registry->get('first_action')->willReturn($firstActionCommand);
+        $registry->get('second_action')->willReturn($secondActionCommand);
+
+        $firstActionCommand->execute($subject, [], $promotion)->willReturn(true);
+        $secondActionCommand->execute($subject, [], $promotion)->willReturn(false);
+
+        $subject->addPromotion($promotion)->shouldBeCalled();
+
+        $this->apply($subject, $promotion);
+    }
+
+    function it_applies_promotion_if_at_least_one_action_was_executed(
+        ServiceRegistryInterface $registry,
+        PromotionActionCommandInterface $firstActionCommand,
+        PromotionActionCommandInterface $secondActionCommand,
+        PromotionSubjectInterface $subject,
+        PromotionInterface $promotion,
+        PromotionActionInterface $firstAction,
+        PromotionActionInterface $secondAction
+    ): void {
+        $promotion->getActions()->willReturn(
+            new ArrayCollection([$firstAction->getWrappedObject(), $secondAction->getWrappedObject()])
+        );
+
+        $firstAction->getType()->willReturn('first_action');
+        $firstAction->getConfiguration()->willReturn([]);
+
+        $secondAction->getType()->willReturn('second_action');
+        $secondAction->getConfiguration()->willReturn([]);
+
+        $registry->get('first_action')->willReturn($firstActionCommand);
+        $registry->get('second_action')->willReturn($secondActionCommand);
+
+        $firstActionCommand->execute($subject, [], $promotion)->willReturn(false);
+        $secondActionCommand->execute($subject, [], $promotion)->willReturn(true);
+
+        $subject->addPromotion($promotion)->shouldBeCalled();
+
+        $this->apply($subject, $promotion);
+    }
+
+    function it_does_not_add_promotion_if_no_action_has_been_applied(
+        ServiceRegistryInterface $registry,
+        PromotionActionCommandInterface $firstActionCommand,
+        PromotionActionCommandInterface $secondActionCommand,
+        PromotionSubjectInterface $subject,
+        PromotionInterface $promotion,
+        PromotionActionInterface $firstAction,
+        PromotionActionInterface $secondAction
+    ): void {
+        $promotion->getActions()->willReturn(
+            new ArrayCollection([$firstAction->getWrappedObject(), $secondAction->getWrappedObject()])
+        );
+
+        $firstAction->getType()->willReturn('first_action');
+        $firstAction->getConfiguration()->willReturn([]);
+
+        $secondAction->getType()->willReturn('second_action');
+        $secondAction->getConfiguration()->willReturn([]);
+
+        $registry->get('first_action')->willReturn($firstActionCommand);
+        $registry->get('second_action')->willReturn($secondActionCommand);
+
+        $firstActionCommand->execute($subject, [], $promotion)->willReturn(false);
+        $secondActionCommand->execute($subject, [], $promotion)->willReturn(false);
+
+        $subject->addPromotion($promotion)->shouldNotBeCalled();
+
+        $this->apply($subject, $promotion);
+    }
+
+    function it_reverts_all_actions_registered(
+        ServiceRegistryInterface $registry,
+        PromotionActionCommandInterface $actionCommand,
+        PromotionSubjectInterface $subject,
+        PromotionInterface $promotion,
+        PromotionActionInterface $action
+    ): void {
         $configuration = [];
 
-        $registry->get(ActionInterface::TYPE_FIXED_DISCOUNT)->shouldBeCalled()->willReturn($action);
-        $promotion->getActions()->shouldBeCalled()->willReturn([$actionModel]);
-        $actionModel->getType()->shouldBeCalled()->willReturn(ActionInterface::TYPE_FIXED_DISCOUNT);
-        $actionModel->getConfiguration()->shouldBeCalled()->willReturn($configuration);
+        $registry->get('test_action')->willReturn($actionCommand);
+        $promotion->getActions()->willReturn(new ArrayCollection([$action->getWrappedObject()]));
+        $action->getType()->willReturn('test_action');
+        $action->getConfiguration()->willReturn($configuration);
 
-        $action->revert($subject, $configuration, $promotion)->shouldBeCalled();
+        $actionCommand->revert($subject, $configuration, $promotion)->shouldBeCalled();
 
         $subject->removePromotion($promotion)->shouldBeCalled();
 

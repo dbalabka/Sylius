@@ -9,40 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\DependencyInjection;
 
-use Sylius\Bundle\AttributeBundle\Controller\AttributeController;
-use Sylius\Bundle\AttributeBundle\Form\Type\AttributeTranslationType;
-use Sylius\Bundle\AttributeBundle\Form\Type\AttributeType;
-use Sylius\Bundle\AttributeBundle\Form\Type\AttributeValueType;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Bundle\TranslationBundle\Doctrine\ORM\TranslatableResourceRepository;
 use Sylius\Component\Attribute\Model\Attribute;
 use Sylius\Component\Attribute\Model\AttributeInterface;
 use Sylius\Component\Attribute\Model\AttributeTranslation;
 use Sylius\Component\Attribute\Model\AttributeTranslationInterface;
 use Sylius\Component\Resource\Factory\Factory;
-use Sylius\Component\Translation\Factory\TranslatableFactory;
+use Sylius\Component\Resource\Factory\TranslatableFactory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * This class contains the configuration information for the bundle.
- *
- * This information is solely responsible for how the different configuration
- * sections are normalized, and merged.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('sylius_attribute');
@@ -59,16 +47,13 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
-    private function addResourcesSection(ArrayNodeDefinition $node)
+    private function addResourcesSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('resources')
                     ->useAttributeAsKey('name')
-                    ->prototype('array')
+                    ->arrayPrototype()
                         ->children()
                             ->scalarNode('subject')->isRequired()->end()
                             ->arrayNode('attribute')
@@ -80,25 +65,10 @@ class Configuration implements ConfigurationInterface
                                         ->children()
                                             ->scalarNode('model')->defaultValue(Attribute::class)->cannotBeEmpty()->end()
                                             ->scalarNode('interface')->defaultValue(AttributeInterface::class)->cannotBeEmpty()->end()
-                                            ->scalarNode('controller')->defaultValue(AttributeController::class)->cannotBeEmpty()->end()
-                                            ->scalarNode('repository')->defaultValue(TranslatableResourceRepository::class)->cannotBeEmpty()->end()
+                                            ->scalarNode('controller')->cannotBeEmpty()->end()
+                                            ->scalarNode('repository')->cannotBeEmpty()->end()
                                             ->scalarNode('factory')->defaultValue(TranslatableFactory::class)->end()
-                                            ->arrayNode('form')
-                                                ->addDefaultsIfNotSet()
-                                                ->children()
-                                                    ->scalarNode('default')->defaultValue(AttributeType::class)->cannotBeEmpty()->end()
-                                                    ->scalarNode('choice')->defaultValue(ResourceChoiceType::class)->cannotBeEmpty()->end()
-                                                ->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                    ->arrayNode('validation_groups')
-                                        ->addDefaultsIfNotSet()
-                                        ->children()
-                                            ->arrayNode('default')
-                                                ->prototype('scalar')->end()
-                                                ->defaultValue(['sylius'])
-                                            ->end()
+                                            ->scalarNode('form')->cannotBeEmpty()->end()
                                         ->end()
                                     ->end()
                                     ->arrayNode('translation')
@@ -113,26 +83,8 @@ class Configuration implements ConfigurationInterface
                                                     ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                                     ->scalarNode('repository')->cannotBeEmpty()->end()
                                                     ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                                    ->arrayNode('form')
-                                                        ->addDefaultsIfNotSet()
-                                                        ->children()
-                                                            ->scalarNode('default')->defaultValue(AttributeTranslationType::class)->cannotBeEmpty()->end()
-                                                        ->end()
-                                                    ->end()
+                                                    ->scalarNode('form')->cannotBeEmpty()->end()
                                                 ->end()
-                                            ->end()
-                                            ->arrayNode('validation_groups')
-                                                ->addDefaultsIfNotSet()
-                                                ->children()
-                                                    ->arrayNode('default')
-                                                        ->prototype('scalar')->end()
-                                                        ->defaultValue(['sylius'])
-                                                    ->end()
-                                                ->end()
-                                            ->end()
-                                            ->arrayNode('fields')
-                                                ->prototype('scalar')->end()
-                                                ->defaultValue(['name'])
                                             ->end()
                                         ->end()
                                     ->end()
@@ -151,21 +103,7 @@ class Configuration implements ConfigurationInterface
                                             ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                             ->scalarNode('repository')->cannotBeEmpty()->end()
                                             ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                            ->arrayNode('form')
-                                                ->addDefaultsIfNotSet()
-                                                ->children()
-                                                    ->scalarNode('default')->defaultValue(AttributeValueType::class)->cannotBeEmpty()->end()
-                                                ->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                    ->arrayNode('validation_groups')
-                                        ->addDefaultsIfNotSet()
-                                        ->children()
-                                            ->arrayNode('default')
-                                                ->prototype('scalar')->end()
-                                                ->defaultValue(['sylius'])
-                                            ->end()
+                                            ->scalarNode('form')->cannotBeEmpty()->end()
                                         ->end()
                                     ->end()
                                 ->end()

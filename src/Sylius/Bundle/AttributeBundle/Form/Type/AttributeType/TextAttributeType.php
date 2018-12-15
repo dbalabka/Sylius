@@ -9,38 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\Form\Type\AttributeType;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class TextAttributeType extends AbstractType
+final class TextAttributeType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
-        return 'text';
+        return TextType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([
-            'label' => false,
-        ]);
+        $resolver
+            ->setDefaults([
+                'label' => false,
+            ])
+            ->setRequired('configuration')
+            ->setDefined('locale_code')
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_attribute_type_text';
     }

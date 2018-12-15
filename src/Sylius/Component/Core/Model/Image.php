@@ -9,43 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Resource\Model\TimestampableTrait;
-
-class Image implements ImageInterface
+abstract class Image implements ImageInterface
 {
-    use TimestampableTrait;
-
-    /**
-     * Id
-     *
-     * @var int
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * File
-     *
-     * @var \SplFileInfo
-     */
+    /** @var string */
+    protected $type;
+
+    /** @var \SplFileInfo */
     protected $file;
 
-    /**
-     * Path to file
-     *
-     * @var string
-     */
+    /** @var string */
     protected $path;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
+    /** @var object */
+    protected $owner;
 
     /**
-     * Get id
-     *
      * @return int
      */
     public function getId()
@@ -56,15 +41,23 @@ class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function hasFile()
+    public function getType(): ?string
     {
-        return null !== $this->file;
+        return $this->type;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFile()
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFile(): ?\SplFileInfo
     {
         return $this->file;
     }
@@ -72,7 +65,7 @@ class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function setFile(\SplFileInfo $file)
+    public function setFile(?\SplFileInfo $file): void
     {
         $this->file = $file;
     }
@@ -80,15 +73,15 @@ class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function hasPath()
+    public function hasFile(): bool
     {
-        return null !== $this->path;
+        return null !== $this->file;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPath()
+    public function getPath(): ?string
     {
         return $this->path;
     }
@@ -96,8 +89,32 @@ class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function setPath($path)
+    public function setPath(?string $path): void
     {
         $this->path = $path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasPath(): bool
+    {
+        return null !== $this->path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOwner()
+    {
+        return $this->owner;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setOwner($owner): void
+    {
+        $this->owner = $owner;
     }
 }

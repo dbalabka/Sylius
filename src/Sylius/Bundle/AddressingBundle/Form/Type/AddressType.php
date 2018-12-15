@@ -9,77 +9,73 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
- */
-class AddressType extends AbstractResourceType
+final class AddressType extends AbstractResourceType
 {
-    /**
-     * @var EventSubscriberInterface
-     */
-    protected $eventListener;
+    /** @var EventSubscriberInterface */
+    private $buildAddressFormSubscriber;
 
     /**
-     * @param string                   $dataClass
-     * @param string[]                 $validationGroups
-     * @param EventSubscriberInterface $eventListener
+     * @param string[] $validationGroups
      */
-    public function __construct($dataClass, array $validationGroups, EventSubscriberInterface $eventListener)
+    public function __construct(string $dataClass, array $validationGroups, EventSubscriberInterface $buildAddressFormSubscriber)
     {
         parent::__construct($dataClass, $validationGroups);
 
-        $this->eventListener = $eventListener;
+        $this->buildAddressFormSubscriber = $buildAddressFormSubscriber;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('firstName', 'text', [
+            ->add('firstName', TextType::class, [
                 'label' => 'sylius.form.address.first_name',
             ])
-            ->add('lastName', 'text', [
+            ->add('lastName', TextType::class, [
                 'label' => 'sylius.form.address.last_name',
             ])
-            ->add('phoneNumber', 'text', [
+            ->add('phoneNumber', TextType::class, [
                 'required' => false,
                 'label' => 'sylius.form.address.phone_number',
             ])
-            ->add('company', 'text', [
+            ->add('company', TextType::class, [
                 'required' => false,
                 'label' => 'sylius.form.address.company',
             ])
-            ->add('countryCode', 'sylius_country_code_choice', [
+            ->add('countryCode', CountryCodeChoiceType::class, [
                 'label' => 'sylius.form.address.country',
                 'enabled' => true,
             ])
-            ->add('street', 'text', [
+            ->add('street', TextType::class, [
                 'label' => 'sylius.form.address.street',
             ])
-            ->add('city', 'text', [
+            ->add('city', TextType::class, [
                 'label' => 'sylius.form.address.city',
             ])
-            ->add('postcode', 'text', [
+            ->add('postcode', TextType::class, [
                 'label' => 'sylius.form.address.postcode',
             ])
-            ->addEventSubscriber($this->eventListener)
+            ->addEventSubscriber($this->buildAddressFormSubscriber)
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         parent::configureOptions($resolver);
 
@@ -87,7 +83,7 @@ class AddressType extends AbstractResourceType
             ->setDefaults([
                 'validation_groups' => function (Options $options) {
                     if ($options['shippable']) {
-                        $this->validationGroups[] = 'shippable';
+                        return array_merge($this->validationGroups, ['shippable']);
                     }
 
                     return $this->validationGroups;
@@ -101,7 +97,7 @@ class AddressType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_address';
     }

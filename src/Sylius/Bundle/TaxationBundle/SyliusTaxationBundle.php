@@ -9,26 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\TaxationBundle;
 
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Bundle\TaxationBundle\DependencyInjection\Compiler\RegisterCalculatorsPass;
-use Sylius\Component\Taxation\Model\TaxCategoryInterface;
-use Sylius\Component\Taxation\Model\TaxRateInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * Taxation system for ecommerce Symfony2 applications.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class SyliusTaxationBundle extends AbstractResourceBundle
+final class SyliusTaxationBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -38,7 +33,7 @@ class SyliusTaxationBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
 
@@ -48,18 +43,7 @@ class SyliusTaxationBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    protected function getModelInterfaces()
-    {
-        return [
-            TaxCategoryInterface::class => 'sylius.model.tax_category.class',
-            TaxRateInterface::class => 'sylius.model.tax_rate.class',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         return 'Sylius\Component\Taxation\Model';
     }

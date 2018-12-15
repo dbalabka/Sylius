@@ -9,19 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Calculator;
 
-use Sylius\Component\Shipping\Model\ShippingSubjectInterface;
+use Sylius\Component\Shipping\Model\ShipmentInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface DelegatingCalculatorInterface
 {
-    /**
-     * @param ShippingSubjectInterface $subject
-     *
-     * @return int
-     */
-    public function calculate(ShippingSubjectInterface $subject);
+    public function calculate(ShipmentInterface $subject): int;
 }

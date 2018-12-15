@@ -9,26 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Form\Type;
 
-use Sylius\Bundle\UserBundle\Form\Model\PasswordReset;
-use Symfony\Component\Form\AbstractType;
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
-class UserResetPasswordType extends AbstractType
+final class UserResetPasswordType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('password', 'repeated', [
-                'type' => 'password',
+            ->add('password', RepeatedType::class, [
+                'type' => PasswordType::class,
                 'first_options' => ['label' => 'sylius.form.user.password.label'],
                 'second_options' => ['label' => 'sylius.form.user.password.confirmation'],
                 'invalid_message' => 'sylius.user.plainPassword.mismatch',
@@ -39,18 +38,7 @@ class UserResetPasswordType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => PasswordReset::class,
-            'validation_groups' => ['sylius'],
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_user_reset_password';
     }

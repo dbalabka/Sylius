@@ -2,7 +2,6 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    locale:
-      enabled: E aktivizuar
-      name: Emri
+    form:
+        locale:
+            name: Emri

@@ -9,62 +9,51 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
+use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Model\Channel as BaseChannel;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
-use Sylius\Component\Payment\Model\PaymentMethodInterface;
-use Sylius\Component\Shipping\Model\ShippingMethodInterface as BaseShippingMethodInterface;
-use Sylius\Component\Taxonomy\Model\TaxonomyInterface as BaseTaxonomyInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class Channel extends BaseChannel implements ChannelInterface
 {
-    /**
-     * @var CurrencyInterface
-     */
-    protected $defaultCurrency;
+    /** @var CurrencyInterface */
+    protected $baseCurrency;
 
-    /**
-     * @var LocaleInterface
-     */
+    /** @var LocaleInterface */
     protected $defaultLocale;
 
-    /**
-     * @var CurrencyInterface[]|Collection
-     */
+    /** @var ZoneInterface */
+    protected $defaultTaxZone;
+
+    /** @var string */
+    protected $taxCalculationStrategy;
+
+    /** @var CurrencyInterface[]|Collection */
     protected $currencies;
 
-    /**
-     * @var LocaleInterface[]|Collection
-     */
+    /** @var LocaleInterface[]|Collection */
     protected $locales;
 
-    /**
-     * @var PaymentMethodInterface[]|Collection
-     */
-    protected $paymentMethods;
+    /** @var string */
+    protected $themeName;
 
-    /**
-     * @var BaseShippingMethodInterface[]|Collection
-     */
-    protected $shippingMethods;
+    /** @var string */
+    protected $contactEmail;
 
-    /**
-     * @var BaseTaxonomyInterface[]|Collection
-     */
-    protected $taxonomies;
+    /** @var bool */
+    protected $skippingShippingStepAllowed = false;
 
-    /**
-     * @var ThemeInterface
-     */
-    protected $theme;
+    /** @var bool */
+    protected $skippingPaymentStepAllowed = false;
+
+    /** @var bool */
+    protected $accountVerificationRequired = true;
 
     public function __construct()
     {
@@ -72,47 +61,28 @@ class Channel extends BaseChannel implements ChannelInterface
 
         $this->currencies = new ArrayCollection();
         $this->locales = new ArrayCollection();
-        $this->paymentMethods = new ArrayCollection();
-        $this->shippingMethods = new ArrayCollection();
-        $this->taxonomies = new ArrayCollection();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTheme()
+    public function getBaseCurrency(): ?CurrencyInterface
     {
-        return $this->theme;
+        return $this->baseCurrency;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTheme(ThemeInterface $theme = null)
+    public function setBaseCurrency(?CurrencyInterface $baseCurrency): void
     {
-        $this->theme = $theme;
+        $this->baseCurrency = $baseCurrency;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultCurrency()
-    {
-        return $this->defaultCurrency;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setDefaultCurrency(CurrencyInterface $defaultCurrency)
-    {
-        $this->defaultCurrency = $defaultCurrency;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefaultLocale()
+    public function getDefaultLocale(): ?LocaleInterface
     {
         return $this->defaultLocale;
     }
@@ -120,7 +90,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function setDefaultLocale(LocaleInterface $defaultLocale)
+    public function setDefaultLocale(?LocaleInterface $defaultLocale): void
     {
         $this->defaultLocale = $defaultLocale;
     }
@@ -128,7 +98,39 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function getCurrencies()
+    public function getDefaultTaxZone(): ?ZoneInterface
+    {
+        return $this->defaultTaxZone;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDefaultTaxZone(?ZoneInterface $defaultTaxZone): void
+    {
+        $this->defaultTaxZone = $defaultTaxZone;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTaxCalculationStrategy(): ?string
+    {
+        return $this->taxCalculationStrategy;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setTaxCalculationStrategy(?string $taxCalculationStrategy): void
+    {
+        $this->taxCalculationStrategy = $taxCalculationStrategy;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCurrencies(): Collection
     {
         return $this->currencies;
     }
@@ -136,17 +138,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function setCurrencies(Collection $currencies)
-    {
-        $this->currencies = $currencies;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addCurrency(CurrencyInterface $currency)
+    public function addCurrency(CurrencyInterface $currency): void
     {
         if (!$this->hasCurrency($currency)) {
             $this->currencies->add($currency);
@@ -156,7 +148,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function removeCurrency(CurrencyInterface $currency)
+    public function removeCurrency(CurrencyInterface $currency): void
     {
         if ($this->hasCurrency($currency)) {
             $this->currencies->removeElement($currency);
@@ -166,7 +158,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function hasCurrency(CurrencyInterface $currency)
+    public function hasCurrency(CurrencyInterface $currency): bool
     {
         return $this->currencies->contains($currency);
     }
@@ -174,7 +166,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function getLocales()
+    public function getLocales(): Collection
     {
         return $this->locales;
     }
@@ -182,17 +174,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function setLocales(Collection $locales)
-    {
-        $this->locales = $locales;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addLocale(LocaleInterface $locale)
+    public function addLocale(LocaleInterface $locale): void
     {
         if (!$this->hasLocale($locale)) {
             $this->locales->add($locale);
@@ -202,7 +184,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function removeLocale(LocaleInterface $locale)
+    public function removeLocale(LocaleInterface $locale): void
     {
         if ($this->hasLocale($locale)) {
             $this->locales->removeElement($locale);
@@ -212,7 +194,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function hasLocale(LocaleInterface $locale)
+    public function hasLocale(LocaleInterface $locale): bool
     {
         return $this->locales->contains($locale);
     }
@@ -220,118 +202,80 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippingMethods()
+    public function getThemeName(): ?string
     {
-        return $this->shippingMethods;
+        return $this->themeName;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addShippingMethod(BaseShippingMethodInterface $shippingMethod)
+    public function setThemeName(?string $themeName): void
     {
-        if (!$this->hasShippingMethod($shippingMethod)) {
-            $this->shippingMethods->add($shippingMethod);
-        }
+        $this->themeName = $themeName;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeShippingMethod(BaseShippingMethodInterface $shippingMethod)
+    public function getContactEmail(): ?string
     {
-        if ($this->hasShippingMethod($shippingMethod)) {
-            $this->shippingMethods->removeElement($shippingMethod);
-        }
+        return $this->contactEmail;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasShippingMethod(BaseShippingMethodInterface $shippingMethod)
+    public function setContactEmail(?string $contactEmail): void
     {
-        return $this->shippingMethods->contains($shippingMethod);
+        $this->contactEmail = $contactEmail;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getPaymentMethods()
+    public function isSkippingShippingStepAllowed(): bool
     {
-        return $this->paymentMethods;
+        return $this->skippingShippingStepAllowed;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addPaymentMethod(PaymentMethodInterface $paymentMethod)
+    public function setSkippingShippingStepAllowed(bool $skippingShippingStepAllowed): void
     {
-        if (!$this->hasPaymentMethod($paymentMethod)) {
-            $this->paymentMethods->add($paymentMethod);
-        }
+        $this->skippingShippingStepAllowed = $skippingShippingStepAllowed;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removePaymentMethod(PaymentMethodInterface $paymentMethod)
+    public function isSkippingPaymentStepAllowed(): bool
     {
-        if ($this->hasPaymentMethod($paymentMethod)) {
-            $this->paymentMethods->removeElement($paymentMethod);
-        }
+        return $this->skippingPaymentStepAllowed;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasPaymentMethod(PaymentMethodInterface $paymentMethod)
+    public function setSkippingPaymentStepAllowed(bool $skippingPaymentStepAllowed): void
     {
-        return $this->paymentMethods->contains($paymentMethod);
+        $this->skippingPaymentStepAllowed = $skippingPaymentStepAllowed;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getTaxonomies()
+    public function isAccountVerificationRequired(): bool
     {
-        return $this->taxonomies;
+        return $this->accountVerificationRequired;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setTaxonomies(Collection $taxonomies)
+    public function setAccountVerificationRequired(bool $accountVerificationRequired): void
     {
-        $this->taxonomies = $taxonomies;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addTaxonomy(BaseTaxonomyInterface $taxonomy)
-    {
-        if (!$this->hasTaxonomy($taxonomy)) {
-            $this->taxonomies->add($taxonomy);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeTaxonomy(BaseTaxonomyInterface $taxonomy)
-    {
-        if ($this->hasTaxonomy($taxonomy)) {
-            $this->taxonomies->removeElement($taxonomy);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasTaxonomy(BaseTaxonomyInterface $taxonomy)
-    {
-        return $this->taxonomies->contains($taxonomy);
+        $this->accountVerificationRequired = $accountVerificationRequired;
     }
 }

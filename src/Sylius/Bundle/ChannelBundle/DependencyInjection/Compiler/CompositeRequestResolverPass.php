@@ -9,11 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ChannelBundle\DependencyInjection\Compiler;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
+use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\PrioritizedCompositeServicePass;
+
 final class CompositeRequestResolverPass extends PrioritizedCompositeServicePass
 {
     public function __construct()

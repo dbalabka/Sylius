@@ -9,37 +9,37 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Attribute\Model;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Attribute\Model\AttributeTranslation;
 use Sylius\Component\Attribute\Model\AttributeTranslationInterface;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-class AttributeTranslationSpec extends ObjectBehavior
+final class AttributeTranslationSpec extends ObjectBehavior
 {
-    function it_is_initializable()
+    function it_is_initializable(): void
     {
-        $this->shouldHaveType('Sylius\Component\Attribute\Model\AttributeTranslation');
+        $this->shouldHaveType(AttributeTranslation::class);
     }
 
-    function it_implements_attribute_translation_interface()
+    function it_implements_attribute_translation_interface(): void
     {
         $this->shouldImplement(AttributeTranslationInterface::class);
     }
 
-    function it_has_no_id_by_default()
+    function it_has_no_id_by_default(): void
     {
         $this->getId()->shouldReturn(null);
     }
 
-    function it_has_no_name_by_default()
+    function it_has_no_name_by_default(): void
     {
         $this->getName()->shouldReturn(null);
     }
 
-    function its_name_is_mutable()
+    function its_name_is_mutable(): void
     {
         $this->setName('Size');
         $this->getName()->shouldReturn('Size');

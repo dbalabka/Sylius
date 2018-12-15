@@ -9,59 +9,41 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\ChannelContextSetterInterface;
-use Sylius\Behat\Page\Channel\ChannelCreatePage;
-use Sylius\Behat\Page\Shop\HomePage;
+use Sylius\Behat\Page\Admin\Channel\CreatePageInterface;
+use Sylius\Behat\Page\Shop\HomePageInterface;
+use Sylius\Behat\Service\Setter\ChannelContextSetterInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class ChannelContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var ChannelContextSetterInterface
-     */
+    /** @var ChannelContextSetterInterface */
     private $channelContextSetter;
 
-    /**
-     * @var ChannelRepositoryInterface
-     */
+    /** @var ChannelRepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var ChannelCreatePage
-     */
+    /** @var CreatePageInterface */
     private $channelCreatePage;
 
-    /**
-     * @var HomePage
-     */
+    /** @var HomePageInterface */
     private $homePage;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param ChannelContextSetterInterface $channelContextSetter
-     * @param ChannelRepositoryInterface $channelRepository
-     * @param ChannelCreatePage $channelCreatePage
-     * @param HomePage $homePage
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ChannelContextSetterInterface $channelContextSetter,
         ChannelRepositoryInterface $channelRepository,
-        ChannelCreatePage $channelCreatePage,
-        HomePage $homePage
+        CreatePageInterface $channelCreatePage,
+        HomePageInterface $homePage
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->channelContextSetter = $channelContextSetter;
@@ -71,9 +53,10 @@ final class ChannelContext implements Context
     }
 
     /**
-     * @When I change my current channel to :channel
+     * @Given /^I changed (?:|back )my current (channel to "([^"]+)")$/
+     * @When /^I change (?:|back )my current (channel to "([^"]+)")$/
      */
-    public function iChangeMyCurrentChannelTo(ChannelInterface $channel)
+    public function iChangeMyCurrentChannelTo(ChannelInterface $channel): void
     {
         $this->channelContextSetter->setChannel($channel);
     }
@@ -81,11 +64,11 @@ final class ChannelContext implements Context
     /**
      * @When I create a new channel :channelName
      */
-    public function iCreateNewChannel($channelName)
+    public function iCreateNewChannel(string $channelName): void
     {
         $this->channelCreatePage->open();
-        $this->channelCreatePage->fillName($channelName);
-        $this->channelCreatePage->fillCode($channelName);
+        $this->channelCreatePage->nameIt($channelName);
+        $this->channelCreatePage->specifyCode($channelName);
         $this->channelCreatePage->create();
 
         $channel = $this->channelRepository->findOneBy(['name' => $channelName]);
@@ -94,11 +77,15 @@ final class ChannelContext implements Context
 
     /**
      * @When /^I visit (this channel)'s homepage$/
+     * @When /^I (?:am browsing|start browsing|try to browse|browse) (that channel)$/
+     * @When /^I (?:am browsing|start browsing|try to browse|browse) (?:|the )("[^"]+" channel)$/
+     * @When /^I (?:am browsing|start browsing|try to browse|browse) (?:|the )(channel "[^"]+")$/
      */
-    public function iVisitChannelHomepage(ChannelInterface $channel)
+    public function iVisitChannelHomepage(ChannelInterface $channel): void
     {
         $this->channelContextSetter->setChannel($channel);
 
-        $this->homePage->open();
+        $defaultLocale = $channel->getDefaultLocale();
+        $this->homePage->open(['_locale' => $defaultLocale->getCode()]);
     }
 }

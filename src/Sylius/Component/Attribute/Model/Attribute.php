@@ -9,67 +9,54 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Attribute\AttributeType\TextAttributeType;
 use Sylius\Component\Resource\Model\TimestampableTrait;
-use Sylius\Component\Translation\Model\AbstractTranslatable;
+use Sylius\Component\Resource\Model\TranslatableTrait;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class Attribute extends AbstractTranslatable implements AttributeInterface
+class Attribute implements AttributeInterface
 {
     use TimestampableTrait;
+    use TranslatableTrait {
+        __construct as private initializeTranslationsCollection;
+        getTranslation as private doGetTranslation;
+    }
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $code;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $type = TextAttributeType::TYPE;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $configuration = [];
 
-    /**
-     * @var AttributeValueInterface[]|Collection
-     */
-    protected $values;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $storageType;
+
+    /** @var int */
+    protected $position;
 
     public function __construct()
     {
-        parent::__construct();
+        $this->initializeTranslationsCollection();
 
-        $this->values = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->getName();
+        return (string) $this->getName();
     }
 
     /**
@@ -83,7 +70,7 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -91,7 +78,7 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -99,23 +86,23 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
-        return $this->translate()->getName();
+        return $this->getTranslation()->getName();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
-        $this->translate()->setName($name);
+        $this->getTranslation()->setName($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getType()
+    public function getType(): ?string
     {
         return $this->type;
     }
@@ -123,7 +110,7 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function setType($type)
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }
@@ -131,7 +118,7 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function getConfiguration()
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -139,7 +126,7 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function setConfiguration(array $configuration)
+    public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
     }
@@ -147,24 +134,48 @@ class Attribute extends AbstractTranslatable implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function getValues()
+    public function getStorageType(): ?string
     {
-        return $this->values;
+        return $this->storageType;
     }
 
     /**
-     * @param string $storageType
+     * {@inheritdoc}
      */
-    public function setStorageType($storageType)
+    public function setStorageType(?string $storageType): void
     {
         $this->storageType = $storageType;
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getStorageType()
+    public function getPosition(): ?int
     {
-        return $this->storageType;
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition(?int $position): void
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * @return AttributeTranslationInterface
+     */
+    public function getTranslation(?string $locale = null): TranslationInterface
+    {
+        /** @var AttributeTranslationInterface $translation */
+        $translation = $this->doGetTranslation($locale);
+
+        return $translation;
+    }
+
+    protected function createTranslation(): AttributeTranslationInterface
+    {
+        return new AttributeTranslation();
     }
 }

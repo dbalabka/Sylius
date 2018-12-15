@@ -2,6 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Judul
+    form:
+        review:
+            author: Penulis
+            comment: Komentar
+            header: Tambahkan ulasan
+            rating: Rating
+            status:
+                approved: Disetujui
+                label: Status
+                new: Baru
+                rejected: Ditolak
+            submit: Menyerahkan
+            title: Judul

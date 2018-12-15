@@ -9,75 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CurrencyBundle\Templating\Helper;
 
-use Sylius\Component\Currency\Context\CurrencyContextInterface;
-use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
+use Symfony\Component\Intl\Intl;
 use Symfony\Component\Templating\Helper\Helper;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class CurrencyHelper extends Helper
+class CurrencyHelper extends Helper implements CurrencyHelperInterface
 {
     /**
-     * @var CurrencyConverterInterface
+     * {@inheritdoc}
      */
-    private $converter;
-
-    /**
-     * @var CurrencyContextInterface
-     */
-    private $currencyContext;
-
-    /**
-     * @var MoneyHelper
-     */
-    private $moneyHelper;
-
-    public function __construct(CurrencyContextInterface $currencyContext, CurrencyConverterInterface $converter, MoneyHelper $moneyHelper)
+    public function convertCurrencyCodeToSymbol(string $code): string
     {
-        $this->currencyContext = $currencyContext;
-        $this->converter = $converter;
-        $this->moneyHelper = $moneyHelper;
-    }
-
-    /**
-     * Convert amount to target or currently used currency.
-     *
-     * @param int         $amount
-     * @param string|null $currency
-     *
-     * @return string
-     */
-    public function convertAmount($amount, $currency = null)
-    {
-        $currency = $currency ?: $this->currencyContext->getCurrency();
-
-        return $this->converter->convertFromBase($amount, $currency);
-    }
-
-    /**
-     * Convert amount and format it!
-     *
-     * @param int         $amount
-     * @param string|null $currency
-     * @param bool        $decimal
-     *
-     * @return string
-     */
-    public function convertAndFormatAmount($amount, $currency = null, $decimal = false)
-    {
-        $currency = $currency ?: $this->currencyContext->getCurrency();
-        $amount = $this->converter->convertFromBase($amount, $currency);
-
-        return $this->moneyHelper->formatAmount($amount, $currency, $decimal);
+        return Intl::getCurrencyBundle()->getCurrencySymbol($code);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'sylius_currency';
     }

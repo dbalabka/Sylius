@@ -9,28 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace AppBundle\Entity;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslatableTrait;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
-class Book implements ResourceInterface
+class Book implements ResourceInterface, TranslatableInterface
 {
-    /**
-     * @var int
-     */
+    use TranslatableTrait {
+        __construct as private initializeTranslationsCollection;
+    }
+
+    /** @var int */
     private $id;
 
-    /**
-     * @var string
-     */
-    private $title;
-
-    /**
-     * @var string
-     */
+    /** @var string */
     private $author;
 
     /**
@@ -46,7 +50,7 @@ class Book implements ResourceInterface
      */
     public function getTitle()
     {
-        return $this->title;
+        return $this->getTranslation()->getTitle();
     }
 
     /**
@@ -54,7 +58,7 @@ class Book implements ResourceInterface
      */
     public function setTitle($title)
     {
-        $this->title = $title;
+        $this->getTranslation()->setTitle($title);
     }
 
     /**
@@ -71,5 +75,13 @@ class Book implements ResourceInterface
     public function setAuthor($author)
     {
         $this->author = $author;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new BookTranslation();
     }
 }

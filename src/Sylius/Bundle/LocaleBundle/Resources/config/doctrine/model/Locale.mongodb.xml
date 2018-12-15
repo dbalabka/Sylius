@@ -21,7 +21,6 @@
         <field name="id" id="true" strategy="AUTO" />
 
         <field fieldName="code" name="code" type="string" length="12" />
-        <field fieldName="enabled" name="enabled" type="boolean" />
 
         <field fieldName="createdAt" name="createdAt" type="date">
             <gedmo:timestampable on="create"/>
@@ -29,6 +28,6 @@
         <field fieldName="updatedAt" name="updatedAt" type="date">
             <gedmo:timestampable on="update"/>
         </field>
-
     </mapped-superclass>
+
 </doctrine-mongo-mapping>

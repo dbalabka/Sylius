@@ -9,30 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PaymentBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * Payment gateway choice type.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class PaymentGatewayChoiceType extends AbstractType
+final class PaymentGatewayChoiceType extends AbstractType
 {
-    /**
-     * Choices.
-     *
-     * @var array
-     */
-    protected $gateways;
+    /** @var array */
+    private $gateways;
 
-    /**
-     * Constructor.
-     *
-     * @param array $gateways
-     */
     public function __construct(array $gateways)
     {
         $this->gateways = $gateways;
@@ -41,11 +30,11 @@ class PaymentGatewayChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
             ->setDefaults([
-                'choices' => $this->gateways,
+                'choices' => array_flip($this->gateways),
             ])
         ;
     }
@@ -53,15 +42,15 @@ class PaymentGatewayChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_payment_gateway_choice';
     }

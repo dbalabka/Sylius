@@ -9,45 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Inventory\Model\InventoryUnitInterface;
+use Sylius\Component\Inventory\Model\StockableInterface;
 use Sylius\Component\Order\Model\OrderItemUnit as BaseOrderItemUnit;
+use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Shipping\Model\ShipmentInterface as BaseShipmentInterface;
+use Sylius\Component\Shipping\Model\ShippableInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 class OrderItemUnit extends BaseOrderItemUnit implements OrderItemUnitInterface
 {
-    /**
-     * @var string InventoryUnitInterface::STATE_*
-     */
-    protected $inventoryState = InventoryUnitInterface::STATE_CHECKOUT;
+    use TimestampableTrait;
 
-    /**
-     * @var BaseShipmentInterface
-     */
+    /** @var ShipmentInterface|null */
     protected $shipment;
 
-    /**
-     * @var string BaseShipmentInterface::STATE_*
-     */
-    protected $shippingState = BaseShipmentInterface::STATE_CHECKOUT;
-
-    /**
-     * @var \DateTime
-     */
-    protected $createdAt;
-
-    /**
-     * @var \DateTime
-     */
-    protected $updatedAt;
-
-    /**
-     * @param OrderItemInterface $orderItem
-     */
     public function __construct(OrderItemInterface $orderItem)
     {
         parent::__construct($orderItem);
@@ -58,55 +36,7 @@ class OrderItemUnit extends BaseOrderItemUnit implements OrderItemUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getStockable()
-    {
-        return $this->orderItem->getVariant();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInventoryName()
-    {
-        return $this->orderItem->getVariant()->getInventoryName();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInventoryState()
-    {
-        return $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setInventoryState($state)
-    {
-        $this->inventoryState = $state;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isSold()
-    {
-        return InventoryUnitInterface::STATE_SOLD === $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isBackordered()
-    {
-        return InventoryUnitInterface::STATE_BACKORDERED === $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getShipment()
+    public function getShipment(): ?BaseShipmentInterface
     {
         return $this->shipment;
     }
@@ -114,7 +44,7 @@ class OrderItemUnit extends BaseOrderItemUnit implements OrderItemUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function setShipment(BaseShipmentInterface $shipment = null)
+    public function setShipment(?BaseShipmentInterface $shipment): void
     {
         $this->shipment = $shipment;
     }
@@ -122,7 +52,7 @@ class OrderItemUnit extends BaseOrderItemUnit implements OrderItemUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippable()
+    public function getStockable(): ?StockableInterface
     {
         return $this->orderItem->getVariant();
     }
@@ -130,48 +60,22 @@ class OrderItemUnit extends BaseOrderItemUnit implements OrderItemUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippingState()
+    public function getShippable(): ?ShippableInterface
     {
-        return $this->shippingState;
+        return $this->orderItem->getVariant();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setShippingState($state)
+    public function getTaxTotal(): int
     {
-        $this->shippingState = $state;
-    }
+        $taxTotal = 0;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getCreatedAt()
-    {
-        return $this->createdAt;
-    }
+        foreach ($this->getAdjustments(AdjustmentInterface::TAX_ADJUSTMENT) as $taxAdjustment) {
+            $taxTotal += $taxAdjustment->getAmount();
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setCreatedAt(\DateTime $createdAt)
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updatedAt;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setUpdatedAt(\DateTime $updatedAt)
-    {
-        $this->updatedAt = $updatedAt;
+        return $taxTotal;
     }
 }

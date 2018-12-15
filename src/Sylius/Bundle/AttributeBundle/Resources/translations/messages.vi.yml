@@ -2,7 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    attribute:
-      code: Mã
-      name: Tên
+    form:
+        attribute:
+            code: Mã
+            name: Tên
+            type: Phân loại
+        attribute_type:
+            configuration: Cấu hình
+            select: Chọn

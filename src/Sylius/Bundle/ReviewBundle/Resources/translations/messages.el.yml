@@ -2,6 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Τίτλος
+    form:
+        review:
+            author: Συντάκτης
+            comment: Σχόλιο
+            status:
+                new: Νέα
+            title: Τίτλος

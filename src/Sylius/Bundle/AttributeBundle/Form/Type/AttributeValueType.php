@@ -9,61 +9,108 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\Form\Type;
 
-use Sylius\Bundle\AttributeBundle\Form\EventSubscriber\BuildAttributeValueFormSubscriber;
-use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Bundle\LocaleBundle\Form\Type\LocaleChoiceType;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
+use Sylius\Bundle\ResourceBundle\Form\Registry\FormTypeRegistryInterface;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Sylius\Component\Attribute\Model\AttributeInterface;
+use Sylius\Component\Attribute\Model\AttributeValueInterface;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\ReversedTransformer;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class AttributeValueType extends AbstractResourceType
+abstract class AttributeValueType extends AbstractResourceType
 {
-    /**
-     * @var string
-     */
-    protected $subjectName;
+    /** @var string */
+    protected $attributeChoiceType;
 
-    /**
-     * @var EntityRepository
-     */
+    /** @var RepositoryInterface */
     protected $attributeRepository;
 
-    /**
-     * @param string $dataClass
-     * @param array $validationGroups
-     * @param string $subjectName
-     * @param EntityRepository $attributeRepository
-     */
-    public function __construct($dataClass, array $validationGroups, $subjectName, EntityRepository $attributeRepository)
-    {
+    /** @var RepositoryInterface */
+    protected $localeRepository;
+
+    /** @var FormTypeRegistryInterface */
+    protected $formTypeRegistry;
+
+    public function __construct(
+        string $dataClass,
+        array $validationGroups,
+        string $attributeChoiceType,
+        RepositoryInterface $attributeRepository,
+        RepositoryInterface $localeRepository,
+        FormTypeRegistryInterface $formTypeTypeRegistry
+    ) {
         parent::__construct($dataClass, $validationGroups);
 
-        $this->subjectName = $subjectName;
+        $this->attributeChoiceType = $attributeChoiceType;
         $this->attributeRepository = $attributeRepository;
+        $this->localeRepository = $localeRepository;
+        $this->formTypeRegistry = $formTypeTypeRegistry;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('attribute', sprintf('sylius_%s_attribute_choice', $this->subjectName), [
-                'label' => sprintf('sylius.form.attribute.%s_attribute_value.attribute', $this->subjectName),
-            ])
-            ->addEventSubscriber(new BuildAttributeValueFormSubscriber($this->attributeRepository))
+            ->add('localeCode', LocaleChoiceType::class)
+            ->add('attribute', $this->attributeChoiceType)
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+                $attributeValue = $event->getData();
+
+                if (!$attributeValue instanceof AttributeValueInterface) {
+                    return;
+                }
+
+                $attribute = $attributeValue->getAttribute();
+                if (null === $attribute) {
+                    return;
+                }
+
+                $localeCode = $attributeValue->getLocaleCode();
+
+                $this->addValueField($event->getForm(), $attribute, $localeCode);
+            })
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                $attributeValue = $event->getData();
+
+                if (!isset($attributeValue['attribute'])) {
+                    return;
+                }
+
+                $attribute = $this->attributeRepository->findOneBy(['code' => $attributeValue['attribute']]);
+                if (!$attribute instanceof AttributeInterface) {
+                    return;
+                }
+
+                $this->addValueField($event->getForm(), $attribute);
+            })
         ;
+
+        $builder->get('localeCode')->addModelTransformer(
+            new ReversedTransformer(new ResourceToIdentifierTransformer($this->localeRepository, 'code'))
+        );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return sprintf('sylius_%s_attribute_value', $this->subjectName);
+    protected function addValueField(
+        FormInterface $form,
+        AttributeInterface $attribute,
+        ?string $localeCode = null
+    ): void {
+        $form->add('value', $this->formTypeRegistry->get($attribute->getType(), 'default'), [
+            'auto_initialize' => false,
+            'configuration' => $attribute->getConfiguration(),
+            'label' => $attribute->getName(),
+            'locale_code' => $localeCode,
+        ]);
     }
 }

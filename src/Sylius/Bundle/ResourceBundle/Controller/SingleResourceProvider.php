@@ -9,35 +9,44 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class SingleResourceProvider implements SingleResourceProviderInterface
+final class SingleResourceProvider implements SingleResourceProviderInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function get(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
+    public function get(RequestConfiguration $requestConfiguration, RepositoryInterface $repository): ?ResourceInterface
     {
-        if (null !== $repositoryMethod = $requestConfiguration->getRepositoryMethod()) {
-            $callable = [$repository, $repositoryMethod];
+        $method = $requestConfiguration->getRepositoryMethod();
+        if (null !== $method) {
+            if (is_array($method) && 2 === count($method)) {
+                $repository = $method[0];
+                $method = $method[1];
+            }
 
-            return call_user_func_array($callable, $requestConfiguration->getRepositoryArguments());
+            $arguments = array_values($requestConfiguration->getRepositoryArguments());
+
+            return $repository->$method(...$arguments);
         }
 
         $criteria = [];
         $request = $requestConfiguration->getRequest();
 
         if ($request->attributes->has('id')) {
-            $criteria = ['id' => $request->attributes->get('id')];
+            return $repository->find($request->attributes->get('id'));
         }
+
         if ($request->attributes->has('slug')) {
             $criteria = ['slug' => $request->attributes->get('slug')];
         }
+
+        $criteria = array_merge($criteria, $requestConfiguration->getCriteria());
 
         return $repository->findOneBy($criteria);
     }

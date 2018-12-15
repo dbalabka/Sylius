@@ -2,10 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Titulli
-      comment: Koment
-      author: Autori
-      status:
-        new: E re
+    form:
+        review:
+            author: Autori
+            comment: Koment
+            header: Shto nje recension
+            rating: Vlersimi
+            status:
+                approved: I aprovuar
+                label: Statusi
+                new: E re
+                rejected: I refuzuar
+            submit: Vazhdo
+            title: Titulli

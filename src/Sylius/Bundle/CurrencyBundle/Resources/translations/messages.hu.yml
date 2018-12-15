@@ -2,7 +2,9 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      exchange_rate: Árfolyam
-      enabled: Engedélyezve
+    form:
+        currency:
+            base: Alapértelmezett pénznem
+            code: Név
+            enabled: Engedélyezve
+            exchange_rate: Árfolyam

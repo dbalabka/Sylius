@@ -9,56 +9,64 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Model;
 
 use Sylius\Component\Resource\Model\CodeAwareInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\ToggleableInterface;
+use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * Payment method interface.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface PaymentMethodInterface extends CodeAwareInterface, PaymentMethodTranslationInterface, TimestampableInterface, ToggleableInterface
+interface PaymentMethodInterface extends
+    CodeAwareInterface,
+    ResourceInterface,
+    TimestampableInterface,
+    ToggleableInterface,
+    TranslatableInterface
 {
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
-     * @param string $name
+     * {@inheritdoc}
      */
-    public function setName($name);
+    public function setName(?string $name): void;
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getDescription();
+    public function getDescription(): ?string;
 
     /**
-     * @param string $description
+     * {@inheritdoc}
      */
-    public function setDescription($description);
+    public function setDescription(?string $description): void;
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getGateway();
+    public function getInstructions(): ?string;
 
     /**
-     * @param string $gateway
+     * {@inheritdoc}
      */
-    public function setGateway($gateway);
+    public function setInstructions(?string $instructions): void;
+
+    public function getEnvironment(): ?string;
+
+    public function setEnvironment(?string $environment): void;
+
+    public function getPosition(): ?int;
+
+    public function setPosition(?int $position): void;
 
     /**
-     * @return string
+     * @return PaymentMethodTranslationInterface
      */
-    public function getEnvironment();
-
-    /**
-     * @param string $environment
-     */
-    public function setEnvironment($environment);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

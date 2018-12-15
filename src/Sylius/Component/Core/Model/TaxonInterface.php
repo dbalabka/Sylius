@@ -9,23 +9,12 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Doctrine\Common\Collections\Collection;
-use Sylius\Component\Taxonomy\Model\TaxonInterface as VariableTaxonInterface;
+use Sylius\Component\Taxonomy\Model\TaxonInterface as BaseTaxonInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface TaxonInterface extends VariableTaxonInterface
+interface TaxonInterface extends BaseTaxonInterface, ImagesAwareInterface
 {
-    /**
-     * @return Collection|ProductInterface[]
-     */
-    public function getProducts();
-
-    /**
-     * @param ProductInterface[] $products
-     */
-    public function setProducts($products);
 }

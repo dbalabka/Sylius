@@ -9,109 +9,43 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Controller;
 
 use FOS\RestBundle\View\View;
-use Gedmo\Loggable\Entity\LogEntry;
-use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
-use Sylius\Component\Core\Model\OrderInterface;
-use Sylius\Component\Order\OrderTransitions;
+use Sylius\Bundle\OrderBundle\Controller\OrderController as BaseOrderController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Webmozart\Assert\Assert;
 
-class OrderController extends ResourceController
+class OrderController extends BaseOrderController
 {
-    /**
-     * @param Request $request
-     * @param int $id
-     *
-     * @return Response
-     *
-     * @throws NotFoundHttpException
-     */
-    public function indexByCustomerAction(Request $request, $id)
+    public function thankYouAction(Request $request): Response
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
-        $customer = $this->container->get('sylius.repository.customer')->findForDetailsPage($id);
 
-        if (!$customer) {
-            throw new NotFoundHttpException('Requested customer does not exist.');
+        $orderId = $request->getSession()->get('sylius_order_id', null);
+
+        if (null === $orderId) {
+            $options = $configuration->getParameters()->get('after_failure');
+
+            return $this->redirectHandler->redirectToRoute(
+                $configuration,
+                $options['route'] ?? 'sylius_shop_homepage',
+                $options['parameters'] ?? []
+            );
         }
 
-        $paginator = $this->repository->createByCustomerPaginator($customer, $configuration->getSorting());
-
-        $paginator->setCurrentPage($request->get('page', 1), true, true);
-        $paginator->setMaxPerPage($configuration->getPaginationMaxPerPage());
-
-        // Fetch and cache deleted orders
-        $entityManager = $this->container->get('doctrine.orm.entity_manager');
-        $entityManager->getFilters()->disable('softdeleteable');
-        $paginator->getCurrentPageResults();
-        $paginator->getNbResults();
-        $entityManager->getFilters()->enable('softdeleteable');
-
-        return $this->container->get('templating')->renderResponse('SyliusWebBundle:Backend/Order:indexByCustomer.html.twig', [
-            'customer' => $customer,
-            'orders' => $paginator,
-        ]);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     *
-     * @throws NotFoundHttpException
-     */
-    public function releaseInventoryAction(Request $request)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
-        $order = $this->findOr404($configuration);
-
-        $this->container->get('sm.factory')
-            ->get($order, OrderTransitions::GRAPH)
-            ->apply(OrderTransitions::SYLIUS_RELEASE)
-        ;
-
-        $this->manager->flush();
-
-        return $this->redirectHandler->redirectToReferer($configuration);
-    }
-
-    /**
-     * Get order history changes.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     *
-     * @throws NotFoundHttpException
-     */
-    public function historyAction(Request $request)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
-        /** @var $order OrderInterface */
-        $order = $this->findOr404($configuration);
-
-        $repository = $this->get('doctrine')->getManager()->getRepository(LogEntry::class);
-
-        $items = [];
-        foreach ($order->getItems() as $item) {
-            $items[] = $repository->getLogEntries($item);
-        }
+        $request->getSession()->remove('sylius_order_id');
+        $order = $this->repository->find($orderId);
+        Assert::notNull($order);
 
         $view = View::create()
-            ->setTemplate($configuration->getTemplate('history.html'))
             ->setData([
                 'order' => $order,
-                'logs' => [
-                    'order' => $repository->getLogEntries($order),
-                    'order_items' => $items,
-                    'billing_address' => $repository->getLogEntries($order->getBillingAddress()),
-                    'shipping_address' => $repository->getLogEntries($order->getShippingAddress()),
-                ],
             ])
+            ->setTemplate($configuration->getParameters()->get('template'))
         ;
 
         return $this->viewHandler->handle($configuration, $view);

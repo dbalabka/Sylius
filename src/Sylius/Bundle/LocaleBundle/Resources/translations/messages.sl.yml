@@ -2,7 +2,6 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    locale:
-      enabled: Omogočeno
-      name: Ime
+    form:
+        locale:
+            name: Ime

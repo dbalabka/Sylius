@@ -9,47 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ThemeBundle\Factory;
 
 use PhpSpec\ObjectBehavior;
-use Sylius\Bundle\ThemeBundle\Factory\ThemeFactory;
 use Sylius\Bundle\ThemeBundle\Factory\ThemeFactoryInterface;
-use Sylius\Bundle\ThemeBundle\Model\Theme;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
-use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @mixin ThemeFactory
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-class ThemeFactorySpec extends ObjectBehavior
+final class ThemeFactorySpec extends ObjectBehavior
 {
-    function let()
-    {
-        $this->beConstructedWith(Theme::class);
-    }
-
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ThemeBundle\Factory\ThemeFactory');
-    }
-
-    function it_implements_theme_factory_interface()
+    function it_implements_theme_factory_interface(): void
     {
         $this->shouldImplement(ThemeFactoryInterface::class);
     }
 
-    function it_creates_named_theme()
+    function it_creates_a_theme(): void
     {
-        $this->createNamed('example/theme')->shouldBeThemeWithName('example/theme');
+        $this->create('example/theme', '/theme/path')->shouldHaveNameAndPath('example/theme', '/theme/path');
     }
 
-    public function getMatchers()
+    public function getMatchers(): array
     {
         return [
-            'beThemeWithName' => function (ThemeInterface $theme, $expectedName) {
-                return $expectedName === $theme->getName();
+            'haveNameAndPath' => function (ThemeInterface $theme, $expectedName, $expectedPath) {
+                return $expectedName === $theme->getName() && $expectedPath === $theme->getPath();
             },
         ];
     }

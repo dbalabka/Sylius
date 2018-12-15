@@ -9,22 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-interface ShippingMethodTranslationInterface extends ResourceInterface
+interface ShippingMethodTranslationInterface extends ResourceInterface, TranslationInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name);
+    public function setName(?string $name): void;
+
+    public function getDescription(): ?string;
+
+    public function setDescription(?string $description): void;
 }

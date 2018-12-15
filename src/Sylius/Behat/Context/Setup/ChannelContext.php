@@ -9,93 +9,190 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
-use Sylius\Component\Channel\Factory\ChannelFactoryInterface;
+use Doctrine\Common\Persistence\ObjectManager;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
+use Sylius\Component\Core\Formatter\StringInflector;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Test\Services\DefaultChannelFactoryInterface;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class ChannelContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var DefaultChannelFactoryInterface
-     */
-    private $franceChannelFactory;
+    /** @var DefaultChannelFactoryInterface */
+    private $unitedStatesChannelFactory;
 
-    /**
-     * @var DefaultChannelFactoryInterface
-     */
+    /** @var DefaultChannelFactoryInterface */
     private $defaultChannelFactory;
 
-    /**
-     * @var ChannelFactoryInterface
-     */
-    private $channelFactory;
-
-    /**
-     * @var ChannelRepositoryInterface
-     */
+    /** @var ChannelRepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param DefaultChannelFactoryInterface $franceChannelFactory
-     * @param DefaultChannelFactoryInterface $defaultChannelFactory
-     * @param ChannelFactoryInterface $channelFactory
-     * @param ChannelRepositoryInterface $channelRepository
-     */
+    /** @var ObjectManager */
+    private $channelManager;
+
     public function __construct(
         SharedStorageInterface $sharedStorage,
-        DefaultChannelFactoryInterface $franceChannelFactory,
+        DefaultChannelFactoryInterface $unitedStatesChannelFactory,
         DefaultChannelFactoryInterface $defaultChannelFactory,
-        ChannelFactoryInterface $channelFactory,
-        ChannelRepositoryInterface $channelRepository
+        ChannelRepositoryInterface $channelRepository,
+        ObjectManager $channelManager
     ) {
         $this->sharedStorage = $sharedStorage;
-        $this->franceChannelFactory = $franceChannelFactory;
+        $this->unitedStatesChannelFactory = $unitedStatesChannelFactory;
         $this->defaultChannelFactory = $defaultChannelFactory;
-        $this->channelFactory = $channelFactory;
         $this->channelRepository = $channelRepository;
+        $this->channelManager = $channelManager;
     }
 
     /**
-     * @Given the store operates on a single channel in "France"
+     * @Given :channel channel has account verification disabled
      */
-    public function storeOperatesOnASingleChannelInFrance()
+    public function channelHasAccountVerificationDisabled(ChannelInterface $channel): void
     {
-        $defaultData = $this->franceChannelFactory->create();
+        $channel->setAccountVerificationRequired(false);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given the store operates on a single channel in "United States"
+     */
+    public function storeOperatesOnASingleChannelInUnitedStates()
+    {
+        $defaultData = $this->unitedStatesChannelFactory->create();
+
         $this->sharedStorage->setClipboard($defaultData);
+        $this->sharedStorage->set('channel', $defaultData['channel']);
+    }
+
+    /**
+     * @Given the store operates on a single channel in the "United States" named :channelIdentifier
+     */
+    public function storeOperatesOnASingleChannelInTheUnitedStatesNamed($channelIdentifier)
+    {
+        $defaultData = $this->unitedStatesChannelFactory->create($channelIdentifier, $channelIdentifier);
+
+        $this->sharedStorage->setClipboard($defaultData);
+        $this->sharedStorage->set('channel', $defaultData['channel']);
     }
 
     /**
      * @Given the store operates on a single channel
+     * @Given the store operates on a single channel in :currencyCode currency
      */
-    public function storeOperatesOnASingleChannel()
+    public function storeOperatesOnASingleChannel($currencyCode = null)
     {
-        $defaultData = $this->defaultChannelFactory->create();
+        $defaultData = $this->defaultChannelFactory->create(null, null, $currencyCode);
+
         $this->sharedStorage->setClipboard($defaultData);
+        $this->sharedStorage->set('channel', $defaultData['channel']);
     }
 
     /**
-     * @Given /^the store operates on (?:a|another) channel named "([^"]+)"$/
+     * @Given /^the store(?:| also) operates on (?:a|another) channel named "([^"]+)"$/
+     * @Given /^the store(?:| also) operates on (?:a|another) channel named "([^"]+)" in "([^"]+)" currency$/
+     * @Given the store operates on a channel identified by :code code
      */
-    public function theStoreOperatesOnAChannelNamed($channelName)
+    public function theStoreOperatesOnAChannelNamed($channelName, $currencyCode = null)
     {
-        $channel = $this->channelFactory->createNamed($channelName);
-        $channel->setCode($channelName);
+        $channelCode = StringInflector::nameToLowercaseCode($channelName);
+        $defaultData = $this->defaultChannelFactory->create($channelCode, $channelName, $currencyCode);
 
-        $this->channelRepository->add($channel);
+        $this->sharedStorage->setClipboard($defaultData);
+        $this->sharedStorage->set('channel', $defaultData['channel']);
+    }
+
+    /**
+     * @Given the channel :channel is enabled
+     */
+    public function theChannelIsEnabled(ChannelInterface $channel)
+    {
+        $this->changeChannelState($channel, true);
+    }
+
+    /**
+     * @Given the channel :channel is disabled
+     * @Given the channel :channel has been disabled
+     */
+    public function theChannelIsDisabled(ChannelInterface $channel)
+    {
+        $this->changeChannelState($channel, false);
+    }
+
+    /**
+     * @Given channel :channel has been deleted
+     */
+    public function iChannelHasBeenDeleted(ChannelInterface $channel)
+    {
+        $this->channelRepository->remove($channel);
+    }
+
+    /**
+     * @Given /^(its) default tax zone is (zone "([^"]+)")$/
+     */
+    public function itsDefaultTaxRateIs(ChannelInterface $channel, ZoneInterface $defaultTaxZone)
+    {
+        $channel->setDefaultTaxZone($defaultTaxZone);
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^(this channel) has contact email set as "([^"]+)"$/
+     * @Given /^(this channel) has no contact email set$/
+     */
+    public function thisChannelHasContactEmailSetAs(ChannelInterface $channel, $contactEmail = null)
+    {
+        $channel->setContactEmail($contactEmail);
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) shipping step is skipped if only a single shipping method is available$/
+     */
+    public function onThisChannelShippingStepIsSkippedIfOnlyASingleShippingMethodIsAvailable(ChannelInterface $channel)
+    {
+        $channel->setSkippingShippingStepAllowed(true);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) payment step is skipped if only a single payment method is available$/
+     */
+    public function onThisChannelPaymentStepIsSkippedIfOnlyASinglePaymentMethodIsAvailable(
+        ChannelInterface $channel
+    ) {
+        $channel->setSkippingPaymentStepAllowed(true);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) account verification is not required$/
+     */
+    public function onThisChannelAccountVerificationIsNotRequired(ChannelInterface $channel)
+    {
+        $channel->setAccountVerificationRequired(false);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @param bool $state
+     */
+    private function changeChannelState(ChannelInterface $channel, $state)
+    {
+        $channel->setEnabled($state);
+        $this->channelManager->flush();
         $this->sharedStorage->set('channel', $channel);
     }
 }

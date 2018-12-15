@@ -2,7 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  payment:
-    complete: Pagamento foi concluído.
-    cancel: Pagamento foi cancelado.
-    transition_fail: A ação não poderia ser executada no estado actual do pagamento
+    payment:
+        cancelled: 'Pagamento foi cancelado.'
+        completed: 'Pagamento foi concluído.'
+        failed: 'Pagamento falhou.'
+        processing: 'O pagamento está sendo processado.'
+        refunded: 'Pagamento foi reembolsado com êxito.'
+        unknown: 'Houve um problema desconhecido com o pagamento.'

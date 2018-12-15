@@ -9,18 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PayumBundle;
 
-use Payum\Core\Security\TokenInterface;
+use Sylius\Bundle\PayumBundle\DependencyInjection\Compiler\RegisterGatewayConfigTypePass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class SyliusPayumBundle extends AbstractResourceBundle
+final class SyliusPayumBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -30,18 +33,10 @@ class SyliusPayumBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    protected function getModelInterfaces()
+    public function build(ContainerBuilder $container): void
     {
-        return [
-            TokenInterface::class => 'sylius.model.payment_security_token.class',
-        ];
-    }
+        parent::build($container);
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelNamespace()
-    {
-        return 'Sylius\Bundle\PayumBundle\Model';
+        $container->addCompilerPass(new RegisterGatewayConfigTypePass());
     }
 }

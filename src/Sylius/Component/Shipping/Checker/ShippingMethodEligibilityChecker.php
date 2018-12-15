@@ -9,57 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Checker;
 
-use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 use Sylius\Component\Shipping\Model\ShippingSubjectInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
-class ShippingMethodEligibilityChecker implements ShippingMethodEligibilityCheckerInterface
+final class ShippingMethodEligibilityChecker implements ShippingMethodEligibilityCheckerInterface
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
-    protected $registry;
-
-    /**
-     * @param ServiceRegistryInterface $registry
-     */
-    public function __construct(ServiceRegistryInterface $registry)
-    {
-        $this->registry = $registry;
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function isEligible(ShippingSubjectInterface $subject, ShippingMethodInterface $method)
-    {
-        if (!$this->isCategoryEligible($subject, $method)) {
-            return false;
-        }
-
-        foreach ($method->getRules() as $rule) {
-            $checker = $this->registry->get($rule->getType());
-
-            if (!$checker->isEligible($subject, $rule->getConfiguration())) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param ShippingSubjectInterface $subject
-     * @param ShippingMethodInterface  $method
-     *
-     * @return bool
-     */
-    public function isCategoryEligible(ShippingSubjectInterface $subject, ShippingMethodInterface $method)
+    public function isEligible(ShippingSubjectInterface $subject, ShippingMethodInterface $method): bool
     {
         if (!$category = $method->getCategory()) {
             return true;

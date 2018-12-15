@@ -9,32 +9,32 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PromotionBundle\Form\Type\Action;
 
+use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-/**
- * Fixed discount action configuration form type.
- *
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
-class FixedDiscountConfigurationType extends AbstractType
+final class FixedDiscountConfigurationType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('amount', 'sylius_money', [
-                'label' => 'sylius.form.action.fixed_discount_configuration.amount',
+            ->add('amount', MoneyType::class, [
+                'label' => 'sylius.form.promotion_action.fixed_discount_configuration.amount',
                 'constraints' => [
-                    new NotBlank(),
-                    new Type(['type' => 'numeric']),
+                    new NotBlank(['groups' => ['sylius']]),
+                    new Type(['type' => 'numeric', 'groups' => ['sylius']]),
                 ],
+                'currency' => $options['currency'],
             ])
         ;
     }
@@ -42,7 +42,18 @@ class FixedDiscountConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver
+            ->setRequired('currency')
+            ->setAllowedTypes('currency', 'string')
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_promotion_action_fixed_discount_configuration';
     }

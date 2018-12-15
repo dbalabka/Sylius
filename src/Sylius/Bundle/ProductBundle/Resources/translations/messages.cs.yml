@@ -2,20 +2,30 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    product:
-      name: Jméno
-      description: Popis
-      attributes: Atributy
-      options: Možnosti
-      meta_keywords: Meta klíčová slova
-      meta_description: Meta popis
-    product_variant:
-      available_on: Dostupný od
-    product_archetype:
-      name: Jméno
-      parent: Rodič
-      attributes: Atributy
-      options: Možnosti
-    association_type:
-      name: Jméno
+    form:
+        product:
+            name: Jméno
+            description: Popis
+            attributes: Atributy
+            options: Možnosti
+            meta_keywords: Meta klíčová slova
+            meta_description: Meta popis
+            slug: Unikátní identifikátor URL (slug)
+            taxons: Taxony
+        product_variant:
+            name: Jméno
+        association_type:
+            name: Jméno
+            translations: Překlady
+        association:
+            type: Typ asociace
+            product: Související produkt
+        variant:
+            name: Jméno
+        option:
+            name: Jméno
+            position: Pozice
+            values: Možné hodnoty
+        option_value:
+            add_value: Přidat hodnotu
+            value: Hodnota

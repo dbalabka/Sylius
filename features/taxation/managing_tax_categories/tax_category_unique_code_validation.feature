@@ -1,16 +1,16 @@
-@taxation
+@managing_tax_categories
 Feature: Tax category unique code validation
     In order to uniquely identify tax categories
     As an Administrator
     I want to be prevented from adding two tax categories with same code
 
     Background:
-        Given I am logged in as an administrator
-        And the store has "Alcoholic Drinks" tax category with code "alcohol"
+        Given the store has a tax category "Alcohol" with a code "alcohol"
+        And I am logged in as an administrator
 
-    @todo
+    @ui
     Scenario: Trying to add tax category with taken code
-        Given I want to create new tax category
+        Given I want to create a new tax category
         When I name it "Food and Beverage"
         And I specify its code as "alcohol"
         And I try to add it

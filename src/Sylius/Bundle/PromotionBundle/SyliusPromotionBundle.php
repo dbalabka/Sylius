@@ -9,30 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PromotionBundle;
 
+use Sylius\Bundle\PromotionBundle\DependencyInjection\Compiler\CompositePromotionCouponEligibilityCheckerPass;
+use Sylius\Bundle\PromotionBundle\DependencyInjection\Compiler\CompositePromotionEligibilityCheckerPass;
 use Sylius\Bundle\PromotionBundle\DependencyInjection\Compiler\RegisterPromotionActionsPass;
 use Sylius\Bundle\PromotionBundle\DependencyInjection\Compiler\RegisterRuleCheckersPass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Component\Promotion\Model\ActionInterface;
-use Sylius\Component\Promotion\Model\CouponInterface;
-use Sylius\Component\Promotion\Model\PromotionInterface;
-use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
-use Sylius\Component\Promotion\Model\RuleInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * Promotions are used to give discounts or other types of rewards to customers.
- *
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
-class SyliusPromotionBundle extends AbstractResourceBundle
+final class SyliusPromotionBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -42,9 +36,12 @@ class SyliusPromotionBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    public function build(ContainerBuilder $container)
+    public function build(ContainerBuilder $container): void
     {
         parent::build($container);
+
+        $container->addCompilerPass(new CompositePromotionEligibilityCheckerPass());
+        $container->addCompilerPass(new CompositePromotionCouponEligibilityCheckerPass());
 
         $container->addCompilerPass(new RegisterRuleCheckersPass());
         $container->addCompilerPass(new RegisterPromotionActionsPass());
@@ -53,21 +50,7 @@ class SyliusPromotionBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    protected function getModelInterfaces()
-    {
-        return [
-            PromotionInterface::class => 'sylius.model.promotion.class',
-            CouponInterface::class => 'sylius.model.promotion_coupon.class',
-            RuleInterface::class => 'sylius.model.promotion_rule.class',
-            ActionInterface::class => 'sylius.model.promotion_action.class',
-            PromotionSubjectInterface::class => 'sylius.model.promotion_subject.class',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         return 'Sylius\Component\Promotion\Model';
     }

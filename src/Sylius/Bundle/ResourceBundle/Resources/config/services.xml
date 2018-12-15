@@ -11,71 +11,48 @@
 
 -->
 
-<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xmlns="http://symfony.com/schema/dic/services"
-           xsi:schemaLocation="http://symfony.com/schema/dic/services
-                               http://symfony.com/schema/dic/services/services-1.0.xsd">
+<container xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://symfony.com/schema/dic/services" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <imports>
+        <import resource="services/console.xml" />
+        <import resource="services/controller.xml" />
+        <import resource="services/form.xml" />
+        <import resource="services/routing.xml" />
+        <import resource="services/storage.xml" />
+    </imports>
 
     <parameters>
-        <parameter key="sylius.resource_registry.class">Sylius\Component\Resource\Metadata\Registry</parameter>
-
-        <parameter key="sylius.orm.repository.class">Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository</parameter>
-        <parameter key="sylius.mongodb_odm.repository.class">Sylius\Bundle\ResourceBundle\Doctrine\ODM\MongoDB\DocumentRepository</parameter>
-        <parameter key="sylius.phpcr_odm.repository.class">Sylius\Bundle\ResourceBundle\Doctrine\ODM\PHPCR\DocumentRepository</parameter>
-
-        <parameter key="sylius.expression_language.class">Sylius\Bundle\ResourceBundle\ExpressionLanguage\ExpressionLanguage</parameter>
-
-        <parameter key="sylius.form.extension.collection.class">Sylius\Bundle\ResourceBundle\Form\Extension\CollectionExtension</parameter>
-        <parameter key="sylius.form.type.entity_hidden.class">Sylius\Bundle\ResourceBundle\Form\Type\EntityHiddenType</parameter>
-        <parameter key="sylius.form.type.object_to_identifier.class">Sylius\Bundle\ResourceBundle\Form\Type\ObjectToIdentifierType</parameter>
-        <parameter key="sylius.form.extension.date.class">Sylius\Bundle\ResourceBundle\Form\Extension\DateExtension</parameter>
-        <parameter key="sylius.form.type.resource_choice.class">Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType</parameter>
-
-        <parameter key="sylius.event_subscriber.load_orm_metadata.class">Sylius\Bundle\ResourceBundle\EventListener\LoadORMMetadataSubscriber</parameter>
-        <parameter key="sylius.event_subscriber.load_odm_metadata.class">Sylius\Bundle\ResourceBundle\EventListener\LoadODMMetadataSubscriber</parameter>
-
-        <parameter key="sylius.validator.enabled.class">Sylius\Bundle\ResourceBundle\Validator\EnabledValidator</parameter>
-        <parameter key="sylius.validator.disabled.class">Sylius\Bundle\ResourceBundle\Validator\DisabledValidator</parameter>
-
-        <!-- Sylius State Machine -->
         <parameter key="sylius.state_machine.class">Sylius\Component\Resource\StateMachine\StateMachine</parameter>
-
-        <parameter key="symfony.expression.language.class">Sylius\Bundle\ResourceBundle\ExpressionLanguage\ExpressionLanguage</parameter>
     </parameters>
 
     <services>
-        <service id="sylius.resource_registry" class="%sylius.resource_registry.class%" />
+        <defaults public="true" />
 
-        <service id="sylius.expression_language" class="%sylius.expression_language.class%">
-            <call method="setContainer">
-                <argument type="service" id="service_container" />
-            </call>
+        <service id="sylius.random_generator" class="Sylius\Component\Resource\Generator\RandomnessGenerator" />
+        <service id="sylius.form.type_extension.form.request_handler"
+                 class="Sylius\Bundle\ResourceBundle\Form\Extension\HttpFoundation\HttpFoundationRequestHandler"
+                 decorates="form.type_extension.form.request_handler" decoration-priority="256" public="false" />
+
+        <service id="sylius.resource_registry" class="Sylius\Component\Resource\Metadata\Registry" public="false" />
+
+        <service id="sylius.expression_language" class="Sylius\Bundle\ResourceBundle\ExpressionLanguage\ExpressionLanguage" public="false" />
+
+        <service id="sylius.form.extension.type.collection" class="Sylius\Bundle\ResourceBundle\Form\Extension\CollectionTypeExtension">
+            <tag name="form.type_extension" extended-type="Symfony\Component\Form\Extension\Core\Type\CollectionType" />
         </service>
 
-        <service id="sylius.event_subscriber.load_orm_metadata" class="%sylius.event_subscriber.load_orm_metadata.class%">
+        <service id="sylius.form.type.default" class="Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType">
             <argument type="service" id="sylius.resource_registry" />
-            <tag name="doctrine.event_subscriber" priority="8192" />
-        </service>
-        <service id="sylius.event_subscriber.load_odm_metadata" class="%sylius.event_subscriber.load_odm_metadata.class%">
-            <argument type="service" id="sylius.resource_registry" />
-            <tag name="doctrine_mongodb.odm.event_subscriber" priority="8192" />
+            <argument type="service" id="sylius.registry.form_builder" />
+            <tag name="form.type" />
         </service>
 
-        <service id="sylius.form.type.entity_hidden" class="%sylius.form.type.entity_hidden.class%">
-            <argument type="service" id="doctrine" />
-            <tag name="form.type" alias="entity_hidden" />
+        <service id="sylius.registry.resource_repository" class="Sylius\Component\Registry\ServiceRegistry" public="false">
+            <argument>Sylius\Component\Resource\Repository\RepositoryInterface</argument>
+            <argument>resource repository</argument>
         </service>
-        <service id="sylius.form.type.object_to_identifier" class="%sylius.form.type.object_to_identifier.class%" abstract="true" />
-        <service id="sylius.form.extension.collection"
-                 class="%sylius.form.extension.collection.class%">
-            <tag name="form.type_extension" alias="collection" />
-        </service>
-
-        <service id="sylius.validator.enabled" class="%sylius.validator.enabled.class%">
-            <tag name="validator.constraint_validator" alias="sylius_resource_enabled_validator" />
-        </service>
-        <service id="sylius.validator.disabled" class="%sylius.validator.disabled.class%">
-            <tag name="validator.constraint_validator" alias="sylius_resource_disabled_validator" />
+        <service id="sylius.registry.form_builder" class="Sylius\Component\Registry\ServiceRegistry" public="false">
+            <argument>Sylius\Bundle\ResourceBundle\Form\Builder\DefaultFormBuilderInterface</argument>
+            <argument>form builder</argument>
         </service>
     </services>
 </container>

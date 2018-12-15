@@ -2,8 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    taxon:
-      name: Nama
-    taxonomy:
-      name: Nama
+    form:
+        taxon:
+            description: Keterangan
+            name: Nama
+            parent: Induk
+            slug: Slug
+        taxonomy:
+            name: Nama

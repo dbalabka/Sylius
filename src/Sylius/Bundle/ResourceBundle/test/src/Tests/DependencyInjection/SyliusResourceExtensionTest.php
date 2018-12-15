@@ -9,18 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Tests\DependencyInjection;
 
 use AppBundle\Entity\Book;
-use AppBundle\Form\Type\BookType;
+use AppBundle\Entity\BookTranslation;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\SyliusResourceExtension;
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
-use Sylius\Component\Resource\Factory\Factory;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class SyliusResourceExtensionTest extends AbstractExtensionTestCase
 {
     /**
@@ -28,30 +25,61 @@ class SyliusResourceExtensionTest extends AbstractExtensionTestCase
      */
     public function it_registers_services_and_parameters_for_resources()
     {
-        $this->load(
-            [
-                'resources' => [
-                    'app.book' => [
+        // TODO: Move Resource-Grid integration to a dedicated compiler pass
+        $this->setParameter('kernel.bundles', []);
+
+        $this->load([
+            'resources' => [
+                'app.book' => [
+                    'classes' => [
+                        'model' => Book::class,
+                    ],
+                    'translation' => [
                         'classes' => [
-                            'model' => Book::class,
-                            'form' => [
-                                'default' => BookType::class,
-                                'choice' => ResourceChoiceType::class,
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        );
+                            'model' => BookTranslation::class,
+                         ],
+                    ],
+                ],
+            ],
+        ]);
 
         $this->assertContainerBuilderHasService('app.factory.book');
-        $this->assertContainerBuilderHasService('app.form.type.book');
-        $this->assertContainerBuilderHasService('app.form.type.book_choice');
         $this->assertContainerBuilderHasService('app.repository.book');
         $this->assertContainerBuilderHasService('app.controller.book');
         $this->assertContainerBuilderHasService('app.manager.book');
 
         $this->assertContainerBuilderHasParameter('app.model.book.class', Book::class);
+        $this->assertContainerBuilderHasParameter('app.model.book_translation.class', BookTranslation::class);
+    }
+
+    /**
+     * @test
+     */
+    public function it_aliases_authorization_checker_with_the_one_given_in_configuration()
+    {
+        // TODO: Move Resource-Grid integration to a dedicated compiler pass
+        $this->setParameter('kernel.bundles', []);
+
+        $this->load(['authorization_checker' => 'custom_service']);
+
+        $this->assertContainerBuilderHasAlias('sylius.resource_controller.authorization_checker', 'custom_service');
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_default_translation_parameters()
+    {
+        // TODO: Move ResourceGrid integration to a dedicated compiler pass
+        $this->setParameter('kernel.bundles', []);
+
+        $this->load([
+             'translation' => [
+                 'locale_provider' => 'test.custom_locale_provider',
+             ],
+         ]);
+
+        $this->assertContainerBuilderHasAlias('sylius.translation_locale_provider', 'test.custom_locale_provider');
     }
 
     /**

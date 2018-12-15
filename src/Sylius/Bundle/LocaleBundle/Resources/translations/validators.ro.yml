@@ -2,7 +2,8 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  locale:
-    code:
-      not_blank: Vă rugăm să alegeţi codul de localizare.
-      unique: Codul de localizare trebuie să fie unic.
+    locale:
+        code:
+            not_blank: Vă rugăm să alegeţi codul de localizare.
+            regex: Codul de regionalizare poate conține doar litere, numere - și _.
+            unique: Codul de localizare trebuie să fie unic.

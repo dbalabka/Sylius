@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -16,75 +18,50 @@ use PhpSpec\ObjectBehavior;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 
-/**
- * @author Alexandre Bacco <alexandre.bacco@gmail.com>
- */
-class CustomerSpec extends ObjectBehavior
+final class CustomerSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Core\Model\Customer');
-    }
-
-    function it_implements_user_component_interface()
+    function it_implements_a_user_component_interface(): void
     {
         $this->shouldImplement(CustomerInterface::class);
     }
 
-    function it_has_no_shipping_address_by_default()
+    function it_has_no_billing_address_by_default(): void
     {
-        $this->getShippingAddress()->shouldReturn(null);
+        $this->getDefaultAddress()->shouldReturn(null);
     }
 
-    function it_has_no_billing_address_by_default()
-    {
-        $this->getBillingAddress()->shouldReturn(null);
-    }
-
-    function its_addresses_is_collection()
+    function its_addresses_is_collection(): void
     {
         $this->getAddresses()->shouldHaveType(ArrayCollection::class);
     }
 
-    function it_has_no_addresses_by_default()
+    function it_has_no_addresses_by_default(): void
     {
         $this->getAddresses()->count()->shouldReturn(0);
     }
 
-    function its_shipping_address_is_mutable(AddressInterface $address)
+    function its_billing_address_is_mutable(AddressInterface $address): void
     {
-        $this->setShippingAddress($address);
-        $this->getShippingAddress()->shouldReturn($address);
+        $this->setDefaultAddress($address);
+        $this->getDefaultAddress()->shouldReturn($address);
     }
 
-    function its_billing_address_is_mutable(AddressInterface $address)
-    {
-        $this->setBillingAddress($address);
-        $this->getBillingAddress()->shouldReturn($address);
-    }
-
-    function its_addresses_are_mutable(AddressInterface $address)
+    function its_addresses_are_mutable(AddressInterface $address): void
     {
         $this->addAddress($address);
         $this->hasAddress($address)->shouldReturn(true);
     }
 
-    function it_can_remove_addresses(AddressInterface $address)
+    function it_can_remove_addresses(AddressInterface $address): void
     {
         $this->addAddress($address);
         $this->removeAddress($address);
         $this->hasAddress($address)->shouldReturn(false);
     }
 
-    function it_adds_address_when_billing_address_is_set(AddressInterface $address)
+    function it_adds_address_when_billing_address_is_set(AddressInterface $address): void
     {
-        $this->setBillingAddress($address);
-        $this->hasAddress($address)->shouldReturn(true);
-    }
-
-    function it_adds_address_when_shipping_address_is_set(AddressInterface $address)
-    {
-        $this->setShippingAddress($address);
+        $this->setDefaultAddress($address);
         $this->hasAddress($address)->shouldReturn(true);
     }
 }

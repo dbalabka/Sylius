@@ -9,89 +9,54 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Model;
 
-use Sylius\Component\Resource\Model\ResourceInterface;
-
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-interface ThemeInterface extends ResourceInterface
+interface ThemeInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): string;
+
+    public function getPath(): string;
+
+    public function getTitle(): ?string;
+
+    public function setTitle(?string $title): void;
+
+    public function getDescription(): ?string;
+
+    public function setDescription(?string $description): void;
 
     /**
-     * @param string $name
+     * @return array|ThemeAuthor[]
      */
-    public function setName($name);
+    public function getAuthors(): array;
+
+    public function addAuthor(ThemeAuthor $author): void;
+
+    public function removeAuthor(ThemeAuthor $author): void;
 
     /**
-     * @return string
+     * @return array|ThemeInterface[]
      */
-    public function getPath();
-
-    /**
-     * @param string $path
-     */
-    public function setPath($path);
-
-    /**
-     * @return ThemeAuthor[]
-     */
-    public function getAuthors();
-
-    /**
-     * @param ThemeAuthor $author
-     */
-    public function addAuthor(ThemeAuthor $author);
-
-    /**
-     * @param ThemeAuthor $author
-     */
-    public function removeAuthor(ThemeAuthor $author);
-
-    /**
-     * @return string
-     */
-    public function getTitle();
-
-    /**
-     * @param string $title
-     */
-    public function setTitle($title);
-
-    /**
-     * @return string
-     */
-    public function getDescription();
-
-    /**
-     * @param string $description
-     */
-    public function setDescription($description);
-
-    /**
-     * @return ThemeInterface[]
-     */
-    public function getParents();
+    public function getParents(): array;
 
     /**
      * @param ThemeInterface $theme
      */
-    public function addParent(ThemeInterface $theme);
+    public function addParent(self $theme): void;
 
     /**
      * @param ThemeInterface $theme
      */
-    public function removeParent(ThemeInterface $theme);
+    public function removeParent(self $theme): void;
 
     /**
-     * Should match /^[a-zA-Z0-9]{6,32}$/
-     *
-     * @return string
+     * @return array|ThemeScreenshot[]
      */
-    public function getCode();
+    public function getScreenshots(): array;
+
+    public function addScreenshot(ThemeScreenshot $screenshot): void;
+
+    public function removeScreenshot(ThemeScreenshot $screenshot): void;
 }

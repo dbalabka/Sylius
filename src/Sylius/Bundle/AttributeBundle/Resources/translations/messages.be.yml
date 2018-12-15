@@ -2,10 +2,38 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    attribute:
-      code: Код
-      name: Імя
-      type: Тып
-    attribute_type:
-      configuration: Канфігурацыя
+    form:
+        attribute:
+            add: Дадаць
+            add_attributes: Дадаць атрыбуты
+            choices: Вырыянты выбару
+            code: Код
+            name: Назва
+            translations: Пераклады
+            type: Тып
+        attribute_type:
+            checkbox: Сцяжок
+            configuration: Канфігурацыя
+            date: Дата
+            datetime: Дата і час
+            integer: Цэлы лік
+            percent: Адсотак
+            select: Выбярыце
+            text: Тэкст
+            textarea: Тэкставая вобласць
+            title: Тыпы атрыбутаў
+            validation: Праверка
+        attribute_type_configuration:
+            datetime:
+                format: Фармат
+            date:
+                format: Фармат
+            select:
+                multiple: Некалькі
+                values: Значэнне
+                choose: Выберыце опцыю
+                min: Мінімальная колькасць
+                max: Максімальная колькасць
+            text:
+                min: Мінімальная даўжыня
+                max: Максімальная даўжыня

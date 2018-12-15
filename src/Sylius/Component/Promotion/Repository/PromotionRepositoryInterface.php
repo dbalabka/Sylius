@@ -9,23 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Repository;
 
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * Promotion repository interface.
- *
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 interface PromotionRepositoryInterface extends RepositoryInterface
 {
     /**
-     * Finds all active promotions.
-     *
-     * @return Collection|PromotionInterface[]
+     * @return PromotionInterface[]
      */
-    public function findActive();
+    public function findActive(): array;
+
+    /**
+     * @return PromotionInterface[]
+     */
+    public function findByName(string $name): array;
 }

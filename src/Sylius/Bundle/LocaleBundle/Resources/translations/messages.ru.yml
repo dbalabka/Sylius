@@ -2,7 +2,6 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    locale:
-      enabled: Активен
-      name: Название
+    form:
+        locale:
+            name: Округ

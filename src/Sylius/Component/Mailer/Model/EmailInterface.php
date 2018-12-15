@@ -9,65 +9,47 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Model;
 
-use Sylius\Component\Resource\Model\CodeAwareInterface;
-use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Model\TimestampableInterface;
-use Sylius\Component\Resource\Model\ToggleableInterface;
-
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface EmailInterface extends CodeAwareInterface, ResourceInterface, TimestampableInterface, ToggleableInterface
+interface EmailInterface
 {
-    /**
-     * @return string
-     */
-    public function getSubject();
+    public function getCode(): ?string;
 
-    /**
-     * @param string $subject
-     */
-    public function setSubject($subject);
+    public function setCode(string $code): void;
 
-    /**
-     * @return string
-     */
-    public function getContent();
+    public function isEnabled(): bool;
 
-    /**
-     * @param string $content
-     */
-    public function setContent($content);
+    public function setEnabled(bool $enabled): void;
+
+    public function enable(): void;
+
+    public function disable(): void;
 
     /**
      * @return string
      */
-    public function getTemplate();
+    public function getSubject(): ?string;
 
-    /**
-     * @param string $template
-     */
-    public function setTemplate($template);
+    public function setSubject(string $subject): void;
 
     /**
      * @return string
      */
-    public function getSenderName();
+    public function getContent(): ?string;
 
-    /**
-     * @param string $senderName
-     */
-    public function setSenderName($senderName);
+    public function setContent(string $content);
 
-    /**
-     * @return string
-     */
-    public function getSenderAddress();
+    public function getTemplate(): ?string;
 
-    /**
-     * @param string $senderAddress
-     */
-    public function setSenderAddress($senderAddress);
+    public function setTemplate(string $template): void;
+
+    public function getSenderName(): ?string;
+
+    public function setSenderName(string $senderName): void;
+
+    public function getSenderAddress(): ?string;
+
+    public function setSenderAddress(string $senderAddress): void;
 }

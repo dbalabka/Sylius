@@ -9,20 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
-use Sylius\Bundle\ProductBundle\Doctrine\ORM\VariantRepository as BaseVariantRepository;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Bundle\ProductBundle\Doctrine\ORM\ProductVariantRepository as BaseProductVariantRepository;
 use Sylius\Component\Core\Repository\ProductVariantRepositoryInterface;
 
-/**
- * Product variant repository.
- *
- * @author Alexandre Bacco <alexandre.bacco@gmail.com>
- */
-class ProductVariantRepository extends BaseVariantRepository implements ProductVariantRepositoryInterface
+class ProductVariantRepository extends BaseProductVariantRepository implements ProductVariantRepositoryInterface
 {
-    public function getFormQueryBuilder()
+    /**
+     * {@inheritdoc}
+     */
+    public function createInventoryListQueryBuilder(string $locale): QueryBuilder
     {
-        return $this->getCollectionQueryBuilder();
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere('o.tracked = true')
+            ->setParameter('locale', $locale)
+        ;
     }
 }

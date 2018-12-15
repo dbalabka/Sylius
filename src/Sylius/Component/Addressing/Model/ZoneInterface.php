@@ -9,81 +9,47 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 interface ZoneInterface extends ResourceInterface, CodeAwareInterface
 {
-    const TYPE_COUNTRY = 'country';
-    const TYPE_PROVINCE = 'province';
-    const TYPE_ZONE = 'zone';
+    public const TYPE_COUNTRY = 'country';
+    public const TYPE_PROVINCE = 'province';
+    public const TYPE_ZONE = 'zone';
 
     /**
-     * @return string
+     * @return string[]
      */
-    public function getName();
+    public static function getTypes(): array;
 
-    /**
-     * @param string $name
-     */
-    public function setName($name);
+    public function getName(): ?string;
 
-    /**
-     * @return string
-     */
-    public function getType();
+    public function setName(?string $name): void;
 
-    /**
-     * @param string $type
-     */
-    public function setType($type);
+    public function getType(): ?string;
 
-    /**
-     * @return string
-     */
-    public function getScope();
+    public function setType(?string $type): void;
 
-    /**
-     * @param string $scope
-     */
-    public function setScope($scope);
+    public function getScope(): ?string;
+
+    public function setScope(?string $scope): void;
 
     /**
      * @return Collection|ZoneMemberInterface[]
      */
-    public function getMembers();
+    public function getMembers(): Collection;
 
-    /**
-     * @param Collection|ZoneMemberInterface[] $members
-     */
-    public function setMembers(Collection $members);
+    public function hasMembers(): bool;
 
-    /**
-     * @return bool
-     */
-    public function hasMembers();
+    public function addMember(ZoneMemberInterface $member): void;
 
-    /**
-     * @param ZoneMemberInterface $member
-     */
-    public function addMember(ZoneMemberInterface $member);
+    public function removeMember(ZoneMemberInterface $member): void;
 
-    /**
-     * @param ZoneMemberInterface $member
-     */
-    public function removeMember(ZoneMemberInterface $member);
-
-    /**
-     * @param ZoneMemberInterface $member
-     *
-     * @return bool
-     */
-    public function hasMember(ZoneMemberInterface $member);
+    public function hasMember(ZoneMemberInterface $member): bool;
 }

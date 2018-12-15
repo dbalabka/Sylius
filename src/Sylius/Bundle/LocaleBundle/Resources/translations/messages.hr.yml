@@ -2,7 +2,6 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    locale:
-      enabled: Omogući
-      name: Naziv grupe
+    form:
+        locale:
+            name: Naziv regije

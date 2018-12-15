@@ -9,35 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ProductBundle\Doctrine\ORM;
 
-use Sylius\Bundle\TranslationBundle\Doctrine\ORM\TranslatableResourceRepository;
+use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Product\Repository\ProductRepositoryInterface;
 
-/**
- * Default product repository.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-class ProductRepository extends TranslatableResourceRepository
+class ProductRepository extends EntityRepository implements ProductRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    protected function getQueryBuilder()
+    public function findByName(string $name, string $locale): array
     {
-        return parent::getQueryBuilder()
-            ->select($this->getAlias().', option, variant')
-            ->leftJoin($this->getAlias().'.options', 'option')
-            ->leftJoin($this->getAlias().'.variants', 'variant')
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere('translation.name = :name')
+            ->setParameter('name', $name)
+            ->setParameter('locale', $locale)
+            ->getQuery()
+            ->getResult()
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getAlias()
+    public function findByNamePart(string $phrase, string $locale): array
     {
-        return 'product';
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere('translation.name LIKE :name')
+            ->setParameter('name', '%' . $phrase . '%')
+            ->setParameter('locale', $locale)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

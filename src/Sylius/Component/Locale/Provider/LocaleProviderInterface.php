@@ -9,22 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Locale\Provider;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface LocaleProviderInterface
 {
     /**
      * @return string[]
      */
-    public function getAvailableLocales();
+    public function getAvailableLocalesCodes(): array;
 
-    /**
-     * @param string $locale
-     *
-     * @return bool
-     */
-    public function isLocaleAvailable($locale);
+    public function getDefaultLocaleCode(): string;
 }

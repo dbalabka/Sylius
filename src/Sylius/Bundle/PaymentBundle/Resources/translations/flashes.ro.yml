@@ -2,7 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  payment:
-    complete: Plata a fost finalizată.
-    cancel: Plata a fost anulată.
-    transition_fail: Acţiunea nu a putut fi efectuată având în vedere starea actuală a plății
+    payment:
+        cancelled: 'Plata a fost anulată.'
+        completed: 'Plata a fost finalizată.'
+        failed: 'Plata a eșuat.'
+        processing: 'Plata este în curs de procesare.'
+        refunded: 'Plata a fost returnată cu succes.'
+        unknown: 'A apărut o problemă cu plata.'

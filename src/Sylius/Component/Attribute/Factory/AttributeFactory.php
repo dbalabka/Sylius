@@ -9,30 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Attribute\Factory;
 
+use Sylius\Component\Attribute\AttributeType\AttributeTypeInterface;
+use Sylius\Component\Attribute\Model\AttributeInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class AttributeFactory implements AttributeFactoryInterface
+final class AttributeFactory implements AttributeFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     private $attributeTypesRegistry;
 
-    /**
-     * @param FactoryInterface $factory
-     * @param ServiceRegistryInterface $attributeTypesRegistry
-     */
     public function __construct(FactoryInterface $factory, ServiceRegistryInterface $attributeTypesRegistry)
     {
         $this->factory = $factory;
@@ -42,22 +35,23 @@ class AttributeFactory implements AttributeFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createTyped($type)
+    public function createNew(): AttributeInterface
     {
-        $attribute = $this->factory->createNew();
-        $attribute->setType($type);
-        $attribute->setStorageType($this->attributeTypesRegistry->get($type)->getStorageType());
-
-        return $attribute;
+        return $this->factory->createNew();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createTyped(string $type): AttributeInterface
     {
+        /** @var AttributeTypeInterface $attributeType */
+        $attributeType = $this->attributeTypesRegistry->get($type);
+
+        /** @var AttributeInterface $attribute */
         $attribute = $this->factory->createNew();
-        $attribute->setStorageType($this->attributeTypesRegistry->get($attribute->getType())->getStorageType());
+        $attribute->setType($type);
+        $attribute->setStorageType($attributeType->getStorageType());
 
         return $attribute;
     }

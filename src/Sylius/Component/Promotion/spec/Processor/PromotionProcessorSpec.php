@@ -9,109 +9,111 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Promotion\Processor;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Promotion\Action\PromotionApplicatorInterface;
-use Sylius\Component\Promotion\Checker\PromotionEligibilityCheckerInterface;
+use Sylius\Component\Promotion\Checker\Eligibility\PromotionEligibilityCheckerInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Promotion\Processor\PromotionProcessorInterface;
 use Sylius\Component\Promotion\Provider\PreQualifiedPromotionsProviderInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
-class PromotionProcessorSpec extends ObjectBehavior
+final class PromotionProcessorSpec extends ObjectBehavior
 {
     function let(
-        PreQualifiedPromotionsProviderInterface $activePromotionsProvider,
-        PromotionEligibilityCheckerInterface $checker,
-        PromotionApplicatorInterface $applicator
-    ) {
-        $this->beConstructedWith($activePromotionsProvider, $checker, $applicator);
+        PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
+        PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
+        PromotionApplicatorInterface $promotionApplicator
+    ): void {
+        $this->beConstructedWith($preQualifiedPromotionsProvider, $promotionEligibilityChecker, $promotionApplicator);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Promotion\Processor\PromotionProcessor');
-    }
-
-    function it_should_be_Sylius_promotion_processor()
+    function it_is_a_promotion_processor(): void
     {
         $this->shouldImplement(PromotionProcessorInterface::class);
     }
 
-    function it_should_not_apply_promotions_that_are_not_eligible(
-        $activePromotionsProvider,
-        $checker,
-        $applicator,
+    function it_does_not_apply_promotions_that_are_not_eligible(
+        PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
+        PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
+        PromotionApplicatorInterface $promotionApplicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion
-    ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([]);
-        $activePromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
+    ): void {
+        $subject->getPromotions()->willReturn(new ArrayCollection([]));
+        $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
 
-        $checker->isEligible($subject, $promotion)->shouldBeCalled()->willReturn(false);
-        $applicator->apply($subject, $promotion)->shouldNotBeCalled();
-        $applicator->revert($subject, $promotion)->shouldNotBeCalled();
+        $promotion->isExclusive()->willReturn(false);
+        $promotionEligibilityChecker->isEligible($subject, $promotion)->willReturn(false);
+
+        $promotionApplicator->apply($subject, $promotion)->shouldNotBeCalled();
+        $promotionApplicator->revert($subject, $promotion)->shouldNotBeCalled();
 
         $this->process($subject);
     }
 
-    function it_should_apply_promotions_that_are_eligible(
-        $activePromotionsProvider,
-        $checker,
-        $applicator,
+    function it_applies_promotions_that_are_eligible(
+        PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
+        PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
+        PromotionApplicatorInterface $promotionApplicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion
-    ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([]);
-        $activePromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
+    ): void {
+        $subject->getPromotions()->willReturn(new ArrayCollection([]));
+        $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
 
-        $checker->isEligible($subject, $promotion)->shouldBeCalled()->willReturn(true);
-        $applicator->apply($subject, $promotion)->shouldBeCalled();
-        $applicator->revert($subject, $promotion)->shouldNotBeCalled();
+        $promotion->isExclusive()->willReturn(false);
+        $promotionEligibilityChecker->isEligible($subject, $promotion)->willReturn(true);
+
+        $promotionApplicator->apply($subject, $promotion)->shouldBeCalled();
+        $promotionApplicator->revert($subject, $promotion)->shouldNotBeCalled();
 
         $this->process($subject);
     }
 
-    function it_should_apply_only_exclusive_promotion(
-        $activePromotionsProvider,
-        $checker,
-        $applicator,
+    function it_applies_only_exclusive_promotion(
+        PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
+        PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
+        PromotionApplicatorInterface $promotionApplicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion,
-        PromotionInterface $exlusivePromotion
-    ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([]);
-        $activePromotionsProvider->getPromotions($subject)->willReturn([$promotion, $exlusivePromotion]);
+        PromotionInterface $exclusivePromotion
+    ): void {
+        $subject->getPromotions()->willReturn(new ArrayCollection([]));
+        $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion, $exclusivePromotion]);
 
-        $exlusivePromotion->isExclusive()->shouldBeCalled()->willReturn(true);
-        $checker->isEligible($subject, $promotion)->shouldBeCalled()->willReturn(true);
-        $checker->isEligible($subject, $exlusivePromotion)->shouldBeCalled()->willReturn(true);
-        $applicator->apply($subject, $exlusivePromotion)->shouldBeCalled();
-        $applicator->apply($subject, $promotion)->shouldNotBeCalled();
-        $applicator->revert($subject, $promotion)->shouldNotBeCalled();
-        $applicator->revert($subject, $exlusivePromotion)->shouldNotBeCalled();
+        $exclusivePromotion->isExclusive()->willReturn(true);
+        $promotion->isExclusive()->willReturn(false);
+        $promotionEligibilityChecker->isEligible($subject, $promotion)->willReturn(true);
+        $promotionEligibilityChecker->isEligible($subject, $exclusivePromotion)->willReturn(true);
+
+        $promotionApplicator->apply($subject, $exclusivePromotion)->shouldBeCalled();
+        $promotionApplicator->apply($subject, $promotion)->shouldNotBeCalled();
+        $promotionApplicator->revert($subject, $promotion)->shouldNotBeCalled();
+        $promotionApplicator->revert($subject, $exclusivePromotion)->shouldNotBeCalled();
 
         $this->process($subject);
     }
 
-    function it_should_revert_promotions_that_are_not_eligible_anymore(
-        $activePromotionsProvider,
-        $checker,
-        $applicator,
+    function it_reverts_promotions_that_are_not_eligible_anymore(
+        PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
+        PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
+        PromotionApplicatorInterface $promotionApplicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion
-    ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([$promotion]);
-        $activePromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
+    ): void {
+        $subject->getPromotions()->willReturn(new ArrayCollection([$promotion->getWrappedObject()]));
+        $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
 
-        $checker->isEligible($subject, $promotion)->shouldBeCalled()->willReturn(false);
+        $promotion->isExclusive()->willReturn(false);
+        $promotionEligibilityChecker->isEligible($subject, $promotion)->willReturn(false);
 
-        $applicator->apply($subject, $promotion)->shouldNotBeCalled();
-        $applicator->revert($subject, $promotion)->shouldBeCalled();
+        $promotionApplicator->apply($subject, $promotion)->shouldNotBeCalled();
+        $promotionApplicator->revert($subject, $promotion)->shouldBeCalled();
 
         $this->process($subject);
     }

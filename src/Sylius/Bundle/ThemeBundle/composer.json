@@ -1,54 +1,90 @@
 {
     "name": "sylius/theme-bundle",
     "type": "symfony-bundle",
-    "description": "Themes management for Symfony2 projects.",
+    "description": "Themes management for Symfony projects.",
     "keywords": ["themes", "theming"],
-    "homepage": "http://sylius.org",
+    "homepage": "http://sylius.com",
     "license": "MIT",
     "authors": [
         {
-            "name":     "Kamil Kokot",
+            "name": "Kamil Kokot",
             "homepage": "http://kamil.kokot.me"
         },
         {
-            "name":     "Sylius project",
-            "homepage": "http://sylius.org"
+            "name": "Sylius project",
+            "homepage": "http://sylius.com"
         },
         {
-            "name":     "Community contributions",
+            "name": "Community contributions",
             "homepage": "http://github.com/Sylius/Sylius/contributors"
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.2",
 
-        "sylius/resource-bundle": "^0.17",
-
-        "symfony/symfony": "^2.7.7",
-        "zendframework/zend-hydrator": "^1.0|^2.0"
+        "doctrine/common": "^2.5",
+        "symfony/asset": "^3.4|^4.1.1",
+        "symfony/config": "^3.4|^4.1.1",
+        "symfony/console": "^3.4|^4.1.1",
+        "symfony/dependency-injection": "^3.4|^4.1.1",
+        "symfony/filesystem": "^3.4|^4.1.1",
+        "symfony/finder": "^3.4|^4.1.1",
+        "symfony/form": "^3.4|^4.1.1",
+        "symfony/framework-bundle": "^3.4|^4.1.1",
+        "symfony/http-foundation": "^3.4|^4.1.1",
+        "symfony/http-kernel": "^3.4|^4.1.1",
+        "symfony/options-resolver": "^3.4|^4.1.1",
+        "symfony/templating": "^3.4|^4.1.1",
+        "symfony/translation": "^3.4|^4.1.1",
+        "zendframework/zend-hydrator": "^2.2"
     },
     "require-dev": {
-        "doctrine/doctrine-bundle": "^1.6",
-        "doctrine/orm": "^2.5",
-        "matthiasnoback/symfony-config-test": "^1.4.0",
-        "matthiasnoback/symfony-dependency-injection-test": "^0.7.6",
-        "phpspec/phpspec": "^2.4",
-        "phpunit/phpunit": "^4.1",
-        "symfony/twig-bundle": "^2.7.7"
+        "matthiasnoback/symfony-config-test": "^3.0",
+        "matthiasnoback/symfony-dependency-injection-test": "^2.0",
+        "mikey179/vfsStream": "^1.6",
+        "phpspec/phpspec": "^4.0",
+        "phpunit/phpunit": "^6.5",
+        "sylius/registry": "^1.1",
+        "symfony/browser-kit": "^3.4|^4.1.1",
+        "symfony/security-csrf": "^3.4|^4.1.1",
+        "symfony/twig-bundle": "^3.4|^4.1.1",
+        "twig/twig": "^2.0"
+    },
+    "conflict": {
+        "twig/twig": "^1.0"
     },
     "config": {
         "bin-dir": "bin"
     },
     "autoload": {
-        "psr-4": { "Sylius\\Bundle\\ThemeBundle\\": "" }
+        "psr-4": { "Sylius\\Bundle\\ThemeBundle\\": "" },
+        "exclude-from-classmap": ["/Tests/"]
     },
     "autoload-dev": {
-        "psr-4": { "Sylius\\Bundle\\ThemeBundle\\spec\\": "spec/" }
+        "psr-4": {
+            "Sylius\\Bundle\\ThemeBundle\\Tests\\": "tests/"
+        },
+        "files": ["Tests/Functional/app/AppKernel.php"]
     },
     "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "scripts": {
+        "test": [
+            "@composer validate --strict",
+            "Tests/Functional/bin/console cache:clear --no-warmup --ansi --no-interaction",
+            "bin/phpunit --colors=always",
+            "bin/phpspec run --ansi --no-interaction"
+        ]
+    },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.17-dev"
+            "dev-master": "1.3-dev"
         }
     }
 }

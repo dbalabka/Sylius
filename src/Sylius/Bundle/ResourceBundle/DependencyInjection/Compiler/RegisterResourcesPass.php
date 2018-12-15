@@ -9,32 +9,43 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler;
 
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 
-/**
- * Adds all resources to the registry.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class RegisterResourcesPass implements CompilerPassInterface
+final class RegisterResourcesPass implements CompilerPassInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
-        if (!$container->hasParameter('sylius.resources')) {
+        try {
+            $resources = $container->getParameter('sylius.resources');
+            $registry = $container->findDefinition('sylius.resource_registry');
+        } catch (InvalidArgumentException $exception) {
             return;
         }
 
-        $resources = $container->getParameter('sylius.resources');
-        $registry = $container->getDefinition('sylius.resource_registry');
-
         foreach ($resources as $alias => $configuration) {
+            $this->validateSyliusResource($configuration['classes']['model']);
             $registry->addMethodCall('addFromAliasAndConfiguration', [$alias, $configuration]);
+        }
+    }
+
+    private function validateSyliusResource(string $class): void
+    {
+        if (!in_array(ResourceInterface::class, class_implements($class), true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Class "%s" must implement "%s" to be registered as a Sylius resource.',
+                $class,
+                ResourceInterface::class
+            ));
         }
     }
 }

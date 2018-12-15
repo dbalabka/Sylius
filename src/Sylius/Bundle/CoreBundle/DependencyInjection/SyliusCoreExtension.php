@@ -9,36 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\DependencyInjection;
 
+use Sylius\Bundle\CoreBundle\Routing\Matcher\Dumper\PhpMatcherDumper;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
-use Sylius\Component\Resource\Factory\Factory;
+use Symfony\Bundle\FrameworkBundle\Routing\RedirectableUrlMatcher;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Routing\Generator\Dumper\PhpGeneratorDumper;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 
-/**
- * Core extension.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-class SyliusCoreExtension extends AbstractResourceExtension implements PrependExtensionInterface
+final class SyliusCoreExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
-    /**
-     * @var array
-     */
-    private $bundles = [
+    /** @var array */
+    private static $bundles = [
         'sylius_addressing',
-        'sylius_api',
         'sylius_attribute',
         'sylius_channel',
-        'sylius_contact',
         'sylius_currency',
+        'sylius_customer',
         'sylius_inventory',
         'sylius_locale',
         'sylius_order',
@@ -47,116 +45,89 @@ class SyliusCoreExtension extends AbstractResourceExtension implements PrependEx
         'sylius_product',
         'sylius_promotion',
         'sylius_review',
-        'sylius_report',
-        'sylius_search',
-        'sylius_sequence',
-        'sylius_settings',
         'sylius_shipping',
-        'sylius_mailer',
         'sylius_taxation',
         'sylius_taxonomy',
         'sylius_user',
         'sylius_variation',
-        'sylius_translation',
-        'sylius_rbac',
     ];
 
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
-        $config = $this->processConfiguration(new Configuration(), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
-        $configFiles = [
-            'services.xml',
-            'controller.xml',
-            'form.xml',
-            'api_form.xml',
-            'templating.xml',
-            'twig.xml',
-            'reports.xml',
-            'state_machine.xml',
-            'email.xml',
-            'metadata.xml',
-        ];
+        $loader->load('services.xml');
 
         $env = $container->getParameter('kernel.environment');
         if ('test' === $env || 'test_cached' === $env) {
-            $configFiles[] = 'test_services.xml';
+            $loader->load('test_services.xml');
         }
 
-        foreach ($configFiles as $configFile) {
-            $loader->load($configFile);
+        // This service is temporarily overwritten, due to problems with PhpMatcherDumper in Symfony 4.1.8 and 4.1.9
+        if (Kernel::VERSION === '4.1.8' || Kernel::VERSION === '4.1.9') {
+            $this->overrideRouterDefinition($container);
         }
-
-        $this->loadCheckoutConfiguration($config['checkout'], $container);
-
-        $definition = $container->findDefinition('sylius.context.currency');
-        $definition->replaceArgument(0, new Reference($config['currency_storage']));
-
-        $this->overwriteRuleFactory($container);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function prepend(ContainerBuilder $container)
+    public function prepend(ContainerBuilder $container): void
     {
-        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
+        $config = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
 
         foreach ($container->getExtensions() as $name => $extension) {
-            if (in_array($name, $this->bundles)) {
+            if (in_array($name, self::$bundles, true)) {
                 $container->prependExtensionConfig($name, ['driver' => $config['driver']]);
             }
         }
 
-        $routeClasses = $controllerByClasses = $repositoryByClasses = $syliusByClasses = [];
-
-        foreach ($config['routing'] as $className => $routeConfig) {
-            $routeClasses[$className] = [
-                'field' => $routeConfig['field'],
-                'prefix' => $routeConfig['prefix'],
-            ];
-            $controllerByClasses[$className] = $routeConfig['defaults']['controller'];
-            $repositoryByClasses[$className] = $routeConfig['defaults']['repository'];
-            $syliusByClasses[$className] = $routeConfig['defaults']['sylius'];
-        }
-
         $container->prependExtensionConfig('sylius_theme', ['context' => 'sylius.theme.context.channel_based']);
 
-        $container->setParameter('sylius.route_classes', $routeClasses);
-        $container->setParameter('sylius.controller_by_classes', $controllerByClasses);
-        $container->setParameter('sylius.repository_by_classes', $repositoryByClasses);
-        $container->setParameter('sylius.sylius_by_classes', $syliusByClasses);
-        $container->setParameter('sylius.route_collection_limit', $config['route_collection_limit']);
-        $container->setParameter('sylius.route_uri_filter_regexp', $config['route_uri_filter_regexp']);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $this->prependHwiOauth($container, $loader);
     }
 
-    /**
-     * @param array            $config
-     * @param ContainerBuilder $container
-     */
-    protected function loadCheckoutConfiguration(array $config, ContainerBuilder $container)
+    private function prependHwiOauth(ContainerBuilder $container, LoaderInterface $loader): void
     {
-        foreach ($config['steps'] as $name => $step) {
-            $container->setParameter(sprintf('sylius.checkout.step.%s.template', $name), $step['template']);
+        if (!$container->hasExtension('hwi_oauth')) {
+            return;
         }
+
+        $loader->load('services/integrations/hwi_oauth.xml');
     }
 
-
-    /**
-     * @param ContainerBuilder $container
-     */
-    private function overwriteRuleFactory(ContainerBuilder $container)
+    private function overrideRouterDefinition(ContainerBuilder $container): void
     {
-        $baseFactoryDefinition = new Definition(Factory::class, [new Parameter('sylius.model.promotion_rule.class')]);
-        $promotionRuleFactoryClass = $container->getParameter('sylius.factory.promotion_rule.class');
-        $decoratedPromotionRuleFactoryDefinition = new Definition($promotionRuleFactoryClass, [$baseFactoryDefinition]);
+        $routerDefinition = new Definition(Router::class);
+        $routerDefinition->addTag('monolog.logger', ['channel' => 'router']);
+        $routerDefinition->addTag('container.service_subscriber', ['id' => 'routing.loader']);
+        $routerDefinition->addArgument(new Reference('Psr\Container\ContainerInterface'));
+        $routerDefinition->addArgument($container->getParameter('router.resource'));
+        $routerDefinition->addArgument([
+            'cache_dir' => $container->getParameter('kernel.cache_dir'),
+            'debug' => $container->getParameter('kernel.debug'),
+            'generator_class' => UrlGenerator::class,
+            'generator_base_class' => UrlGenerator::class,
+            'generator_dumper_class' => PhpGeneratorDumper::class,
+            'generator_cache_class' => $container->getParameter('router.cache_class_prefix') . 'UrlGenerator',
+            'matcher_class' => RedirectableUrlMatcher::class,
+            'matcher_base_class' => RedirectableUrlMatcher::class,
+            'matcher_dumper_class' => PhpMatcherDumper::class,
+            'matcher_cache_class' => $container->getParameter('router.cache_class_prefix') . 'UrlMatcher',
+        ]);
+        $routerDefinition->addArgument((new Reference('router.request_context', \Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_INVALID_REFERENCE)));
+        $routerDefinition->addArgument((new Reference('parameter_bag', \Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_INVALID_REFERENCE)));
+        $routerDefinition->addArgument((new Reference('logger', \Symfony\Component\DependencyInjection\ContainerInterface::IGNORE_ON_INVALID_REFERENCE)));
+        $routerDefinition->addMethodCall('setConfigCacheFactory', [new Reference('config_cache_factory')]);
 
-        $container->setDefinition('sylius.factory.promotion_rule', $decoratedPromotionRuleFactoryDefinition);
+        $container->setDefinition('router.default', $routerDefinition);
     }
 }

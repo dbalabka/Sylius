@@ -9,49 +9,116 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\TaxonomyBundle\Doctrine\ORM;
 
-use Sylius\Bundle\TranslationBundle\Doctrine\ORM\TranslatableResourceRepository;
-use Sylius\Component\Taxonomy\Model\TaxonomyInterface;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
-class TaxonRepository extends TranslatableResourceRepository implements TaxonRepositoryInterface
+class TaxonRepository extends EntityRepository implements TaxonRepositoryInterface
 {
-    public function getTaxonsAsList(TaxonomyInterface $taxonomy)
+    /**
+     * {@inheritdoc}
+     */
+    public function findChildren(string $parentCode, ?string $locale = null): array
     {
-        return $this->getQueryBuilder()
-            ->where('o.taxonomy = :taxonomy')
-            ->andWhere('o.parent IS NOT NULL')
-            ->setParameter('taxonomy', $taxonomy)
-            ->orderBy('o.left')
+        return $this->createTranslationBasedQueryBuilder($locale)
+            ->addSelect('child')
+            ->innerJoin('o.parent', 'parent')
+            ->leftJoin('o.children', 'child')
+            ->andWhere('parent.code = :parentCode')
+            ->addOrderBy('o.position')
+            ->setParameter('parentCode', $parentCode)
             ->getQuery()
-            ->getResult();
-    }
-
-    public function findOneByPermalink($permalink)
-    {
-        return $this->getQueryBuilder()
-            ->where('translation.permalink = :permalink')
-            ->setParameter('permalink', $permalink)
-            ->orderBy($this->getAlias().'.left')
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult()
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getNonRootTaxons()
+    public function findOneBySlug(string $slug, string $locale): ?TaxonInterface
     {
-        return $this->getQueryBuilder()
-            ->where($this->getAlias().'.parent IS NOT NULL')
-            ->orderBy($this->getAlias().'.left')
+        return $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.slug = :slug')
+            ->andWhere('translation.locale = :locale')
+            ->setParameter('slug', $slug)
+            ->setParameter('locale', $locale)
             ->getQuery()
-            ->getResult();
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByName(string $name, string $locale): array
+    {
+        return $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.name = :name')
+            ->andWhere('translation.locale = :locale')
+            ->setParameter('name', $name)
+            ->setParameter('locale', $locale)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findRootNodes(): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.parent IS NULL')
+            ->addOrderBy('o.position')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByNamePart(string $phrase, ?string $locale = null): array
+    {
+        return $this->createTranslationBasedQueryBuilder($locale)
+            ->andWhere('translation.name LIKE :name')
+            ->setParameter('name', '%' . $phrase . '%')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createListQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')->leftJoin('o.translations', 'translation');
+    }
+
+    private function createTranslationBasedQueryBuilder(?string $locale): QueryBuilder
+    {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->leftJoin('o.translations', 'translation')
+        ;
+
+        if (null !== $locale) {
+            $queryBuilder
+                ->andWhere('translation.locale = :locale')
+                ->setParameter('locale', $locale)
+            ;
+        }
+
+        return $queryBuilder;
     }
 }

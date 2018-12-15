@@ -2,8 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    channel:
-      name: Naziv grupe
-      description: Opis
-      enabled: Omogući
+    form:
+        channel:
+            color: Boja
+            description: Opis
+            enabled: Omogućeno
+            name: Naziv regije
+            url: URL

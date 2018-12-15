@@ -9,36 +9,41 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\MoneyBundle\DependencyInjection;
 
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
-/**
- * Money extension.
- *
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
- */
-class SyliusMoneyExtension extends Extension
+final class SyliusMoneyExtension extends Extension implements PrependExtensionInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function load(array $config, ContainerBuilder $container)
+    public function load(array $config, ContainerBuilder $container): void
     {
-        $processor = new Processor();
-        $config = $processor->processConfiguration(new Configuration(), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
-        $container->setParameter('sylius.money.locale', $config['locale']);
-        $container->setParameter('sylius.money.currency', $config['currency']);
-
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $container->setParameter('sylius_money.locale', $config['locale']);
 
         $loader->load('services.xml');
-        $loader->load('templating.xml');
-        $loader->load('twig.xml');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prepend(ContainerBuilder $container): void
+    {
+        if (!$container->hasExtension('sylius_currency')) {
+            return;
+        }
+
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('services/integrations/currency.xml');
     }
 }

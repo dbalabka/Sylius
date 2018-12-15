@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\MailerBundle\Sender\Adapter;
 
 use PhpSpec\ObjectBehavior;
@@ -20,29 +22,24 @@ use Sylius\Component\Mailer\Sender\Adapter\AbstractAdapter;
 use Sylius\Component\Mailer\SyliusMailerEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class SwiftMailerAdapterSpec extends ObjectBehavior
+final class SwiftMailerAdapterSpec extends ObjectBehavior
 {
-    function let(\Swift_Mailer $mailer)
+    function let(\Swift_Mailer $mailer): void
     {
         $this->beConstructedWith($mailer);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\MailerBundle\Sender\Adapter\SwiftMailerAdapter');
-    }
-
-    function it_is_an_adapter()
+    function it_is_an_adapter(): void
     {
         $this->shouldHaveType(AbstractAdapter::class);
     }
 
     function it_sends_an_email(
-        $mailer,
+        \Swift_Mailer $mailer,
+        EmailInterface $email,
         EventDispatcherInterface $dispatcher,
-        RenderedEmail $renderedEmail,
-        EmailInterface $email
-    ) {
+        RenderedEmail $renderedEmail
+    ): void {
         $this->setEventDispatcher($dispatcher);
 
         $renderedEmail->getSubject()->shouldBeCalled()->willReturn('subject');
@@ -61,8 +58,8 @@ class SwiftMailerAdapterSpec extends ObjectBehavior
         )->shouldBeCalled();
 
         $this->send(
-            ['pawel@sylius.org'],
-            'arnaud@sylius.org',
+            ['pawel@sylius.com'],
+            'arnaud@sylius.com',
             'arnaud',
             $renderedEmail,
             $email,

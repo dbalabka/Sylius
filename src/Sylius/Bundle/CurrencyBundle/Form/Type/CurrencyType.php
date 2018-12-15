@@ -9,35 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CurrencyBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\CurrencyType as SymfonyCurrencyType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class CurrencyType extends AbstractResourceType
+final class CurrencyType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('exchangeRate', 'number', [
-                'label' => 'sylius.form.currency.exchange_rate',
-            ])
-            ->addEventSubscriber(new AddCodeFormSubscriber('currency'))
+            ->addEventSubscriber(new AddCodeFormSubscriber(SymfonyCurrencyType::class, [
+                'label' => 'sylius.form.currency.code',
+            ]))
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_currency';
     }

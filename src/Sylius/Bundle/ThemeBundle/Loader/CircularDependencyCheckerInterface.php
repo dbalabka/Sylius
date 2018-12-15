@@ -9,19 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Loader;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 interface CircularDependencyCheckerInterface
 {
     /**
-     * @param ThemeInterface $theme
-     *
      * @throws CircularDependencyFoundException
      */
-    public function check(ThemeInterface $theme);
+    public function check(ThemeInterface $theme): void;
 }

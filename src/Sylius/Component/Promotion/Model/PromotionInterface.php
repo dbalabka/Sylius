@@ -9,189 +9,93 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Promotion\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Model\SoftDeletableInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
-interface PromotionInterface extends CodeAwareInterface, SoftDeletableInterface, TimestampableInterface, ResourceInterface
+interface PromotionInterface extends CodeAwareInterface, TimestampableInterface, ResourceInterface
 {
-    /**
-     * @return string
-     */
-    public function getName();
+    public function getName(): ?string;
+
+    public function setName(?string $name): void;
+
+    public function getDescription(): ?string;
+
+    public function setDescription(?string $description): void;
+
+    public function getPriority(): int;
+
+    public function setPriority(?int $priority): void;
+
+    public function isExclusive(): bool;
+
+    public function setExclusive(?bool $exclusive): void;
+
+    public function getUsageLimit(): ?int;
+
+    public function setUsageLimit(?int $usageLimit): void;
+
+    public function getUsed(): int;
+
+    public function setUsed(int $used): void;
+
+    public function incrementUsed(): void;
+
+    public function decrementUsed(): void;
+
+    public function getStartsAt(): ?\DateTimeInterface;
+
+    public function setStartsAt(?\DateTimeInterface $startsAt): void;
+
+    public function getEndsAt(): ?\DateTimeInterface;
+
+    public function setEndsAt(?\DateTimeInterface $endsAt): void;
+
+    public function isCouponBased(): bool;
+
+    public function setCouponBased(?bool $couponBased): void;
 
     /**
-     * @param string $name
+     * @return Collection|PromotionCouponInterface[]
      */
-    public function setName($name);
+    public function getCoupons(): Collection;
+
+    public function hasCoupon(PromotionCouponInterface $coupon): bool;
+
+    public function hasCoupons(): bool;
+
+    public function addCoupon(PromotionCouponInterface $coupon): void;
+
+    public function removeCoupon(PromotionCouponInterface $coupon): void;
 
     /**
-     * @return string
+     * @return Collection|PromotionRuleInterface[]
      */
-    public function getDescription();
+    public function getRules(): Collection;
+
+    public function hasRules(): bool;
+
+    public function hasRule(PromotionRuleInterface $rule): bool;
+
+    public function addRule(PromotionRuleInterface $rule): void;
+
+    public function removeRule(PromotionRuleInterface $rule): void;
 
     /**
-     * @param string $description
+     * @return Collection|PromotionActionInterface[]
      */
-    public function setDescription($description);
+    public function getActions(): Collection;
 
-    /**
-     * @return int
-     */
-    public function getPriority();
+    public function hasActions(): bool;
 
-    /**
-     * @param int $priority
-     */
-    public function setPriority($priority);
+    public function hasAction(PromotionActionInterface $action): bool;
 
-    /**
-     * @return bool
-     */
-    public function isExclusive();
+    public function addAction(PromotionActionInterface $action): void;
 
-    /**
-     * @param bool $exclusive
-     */
-    public function setExclusive($exclusive);
-
-    /**
-     * @return int
-     */
-    public function getUsageLimit();
-
-    /**
-     * @param int $usageLimit
-     */
-    public function setUsageLimit($usageLimit);
-
-    /**
-     * @return int
-     */
-    public function getUsed();
-
-    /**
-     * @param int $used
-     */
-    public function setUsed($used);
-
-    public function incrementUsed();
-
-    /**
-     * @return \DateTime
-     */
-    public function getStartsAt();
-
-    /**
-     * @param \DateTime $startsAt
-     */
-    public function setStartsAt(\DateTime $startsAt = null);
-
-    /**
-     * @return \DateTime
-     */
-    public function getEndsAt();
-
-    /**
-     * @param \DateTime $endsAt
-     */
-    public function setEndsAt(\DateTime $endsAt = null);
-
-    /**
-     * @return bool
-     */
-    public function isCouponBased();
-
-    /**
-     * @param bool $couponBased
-     */
-    public function setCouponBased($couponBased);
-
-    /**
-     * @return Collection|CouponInterface[]
-     */
-    public function getCoupons();
-
-    /**
-     * @param CouponInterface $coupon
-     *
-     * @return bool
-     */
-    public function hasCoupon(CouponInterface $coupon);
-
-    /**
-     * @return bool
-     */
-    public function hasCoupons();
-
-    /**
-     * @param CouponInterface $coupon
-     */
-    public function addCoupon(CouponInterface $coupon);
-
-    /**
-     * @param CouponInterface $coupon
-     */
-    public function removeCoupon(CouponInterface $coupon);
-
-    /**
-     * @return Collection|RuleInterface[]
-     */
-    public function getRules();
-
-    /**
-     * @param RuleInterface $rule
-     *
-     * @return bool
-     */
-    public function hasRule(RuleInterface $rule);
-
-    /**
-     * @return bool
-     */
-    public function hasRules();
-
-    /**
-     * @param RuleInterface $rule
-     */
-    public function addRule(RuleInterface $rule);
-
-    /**
-     * @param RuleInterface $rule
-     */
-    public function removeRule(RuleInterface $rule);
-
-    /**
-     * @return Collection|ActionInterface[]
-     */
-    public function getActions();
-
-    /**
-     * @param ActionInterface $action
-     *
-     * @return bool
-     */
-    public function hasAction(ActionInterface $action);
-
-    /**
-     * @return bool
-     */
-    public function hasActions();
-
-    /**
-     * @param ActionInterface $action
-     */
-    public function addAction(ActionInterface $action);
-
-    /**
-     * @param ActionInterface $action
-     */
-    public function removeAction(ActionInterface $action);
+    public function removeAction(PromotionActionInterface $action): void;
 }

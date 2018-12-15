@@ -2,8 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    channel:
-      name: Navn
-      description: Beskrivelse
-      enabled: Aktivert
+    form:
+        channel:
+            color: Farge
+            description: Beskrivelse
+            enabled: Aktivert
+            name: Navn
+            url: Nettadresse

@@ -2,7 +2,9 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      exchange_rate: Vaihtokurssi
-      enabled: Aktiivinen
+    form:
+        currency:
+            base: Perusvaluutta
+            code: Nimi
+            enabled: Aktiivinen
+            exchange_rate: Vaihtokurssi

@@ -2,6 +2,13 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      enabled: Aktiverad
+    form:
+        currency:
+            base: Basvaluta
+            code: Namn
+            enabled: Aktiverad
+            exchange_rate: Växlingskurs
+        exchange_rate:
+            source_currency: Ursprungsvaluta
+            target_currency: Målvaluta
+            ratio: Kurs

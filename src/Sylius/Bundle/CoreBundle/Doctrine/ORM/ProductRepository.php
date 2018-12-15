@@ -9,192 +9,182 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping;
 use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\Pagerfanta;
 use Sylius\Bundle\ProductBundle\Doctrine\ORM\ProductRepository as BaseProductRepository;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
-use Sylius\Component\Product\Model\ArchetypeInterface;
+use Sylius\Component\Core\Repository\ProductRepositoryInterface;
+use SyliusLabs\AssociationHydrator\AssociationHydrator;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-class ProductRepository extends BaseProductRepository
+class ProductRepository extends BaseProductRepository implements ProductRepositoryInterface
 {
+    /** @var AssociationHydrator */
+    private $associationHydrator;
+
     /**
-     * Create paginator for products categorized under given taxon.
-     *
-     * @param TaxonInterface $taxon
-     * @param array          $criteria
-     *
-     * @return Pagerfanta
+     * {@inheritdoc}
      */
-    public function createByTaxonPaginator(TaxonInterface $taxon, array $criteria = [])
+    public function __construct(EntityManager $entityManager, Mapping\ClassMetadata $class)
     {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-        $queryBuilder
-            ->innerJoin('product.taxons', 'taxon')
-            ->andWhere($queryBuilder->expr()->orX(
-                'taxon = :taxon',
-                ':left < taxon.left AND taxon.right < :right'
-            ))
-            ->setParameter('taxon', $taxon)
-            ->setParameter('left', $taxon->getLeft())
-            ->setParameter('right', $taxon->getRight())
-        ;
+        parent::__construct($entityManager, $class);
 
-        $this->applyCriteria($queryBuilder, $criteria);
-
-        return $this->getPaginator($queryBuilder);
+        $this->associationHydrator = new AssociationHydrator($entityManager, $class);
     }
 
     /**
-     * @param ArchetypeInterface $archetype
-     * @param array $criteria
-     *
-     * @return Pagerfanta
+     * {@inheritdoc}
      */
-    public function createByProductArchetypePaginator(ArchetypeInterface $archetype, array $criteria = [])
+    public function createListQueryBuilder(string $locale, $taxonId = null): QueryBuilder
     {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-        $queryBuilder
-            ->innerJoin('product.archetype', 'archetype')
-            ->addSelect('archetype')
-            ->andWhere('archetype = :archetype')
-            ->setParameter('archetype', $archetype)
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->setParameter('locale', $locale)
         ;
 
-        $this->applyCriteria($queryBuilder, $criteria);
+        if (null !== $taxonId) {
+            $queryBuilder
+                ->innerJoin('o.productTaxons', 'productTaxon')
+                ->andWhere('productTaxon.taxon = :taxonId')
+                ->setParameter('taxonId', $taxonId)
+            ;
+        }
 
-        return $this->getPaginator($queryBuilder);
+        return $queryBuilder;
     }
 
     /**
-     * Create paginator for products categorized under given taxon.
-     *
-     * @param TaxonInterface $taxon
-     *
-     * @return Pagerfanta
+     * {@inheritdoc}
      */
-    public function createByTaxonAndChannelPaginator(TaxonInterface $taxon, ChannelInterface $channel)
-    {
-        $queryBuilder = $this->getCollectionQueryBuilder();
+    public function createShopListQueryBuilder(
+        ChannelInterface $channel,
+        TaxonInterface $taxon,
+        string $locale,
+        array $sorting = [],
+        bool $includeAllDescendants = false
+    ): QueryBuilder {
+        $queryBuilder = $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->innerJoin('o.productTaxons', 'productTaxon');
+
+        if ($includeAllDescendants) {
+            $queryBuilder
+                ->innerJoin('productTaxon.taxon', 'taxon')
+                ->andWhere('taxon.left >= :taxonLeft')
+                ->andWhere('taxon.right <= :taxonRight')
+                ->andWhere('taxon.root = :taxonRoot')
+                ->setParameter('taxonLeft', $taxon->getLeft())
+                ->setParameter('taxonRight', $taxon->getRight())
+                ->setParameter('taxonRoot', $taxon->getRoot())
+            ;
+        } else {
+            $queryBuilder
+                ->andWhere('productTaxon.taxon = :taxon')
+                ->setParameter('taxon', $taxon)
+            ;
+        }
 
         $queryBuilder
-            ->innerJoin('product.taxons', 'taxon')
-            ->innerJoin('product.channels', 'channel')
-            ->andWhere('taxon = :taxon')
-            ->andWhere('channel = :channel')
+            ->andWhere(':channel MEMBER OF o.channels')
+            ->andWhere('o.enabled = true')
+            ->setParameter('locale', $locale)
             ->setParameter('channel', $channel)
-            ->setParameter('taxon', $taxon)
         ;
 
-        return $this->getPaginator($queryBuilder);
-    }
+        // Grid hack, we do not need to join these if we don't sort by price
+        if (isset($sorting['price'])) {
+            // Another hack, the subquery to get the first position variant
+            $subQuery = $this->createQueryBuilder('m')
+                 ->select('min(v.position)')
+                 ->innerJoin('m.variants', 'v')
+                 ->andWhere('m.id = :product_id')
+             ;
 
-    /**
-     * Create filter paginator.
-     *
-     * @param array $criteria
-     * @param array $sorting
-     * @param bool  $deleted
-     *
-     * @return Pagerfanta
-     */
-    public function createFilterPaginator($criteria = [], $sorting = [], $deleted = false)
-    {
-        $queryBuilder = parent::getCollectionQueryBuilder()
-            ->addSelect('variant')
-            ->leftJoin('product.variants', 'variant')
-        ;
-
-        if (!empty($criteria['name'])) {
             $queryBuilder
-                ->andWhere('translation.name LIKE :name')
-                ->setParameter('name', '%'.$criteria['name'].'%')
-            ;
-        }
-        if (!empty($criteria['sku'])) {
-            $queryBuilder
-                ->andWhere('variant.sku = :sku')
-                ->setParameter('sku', $criteria['sku'])
+                ->innerJoin('o.variants', 'variant')
+                ->innerJoin('variant.channelPricings', 'channelPricing')
+                ->andWhere('channelPricing.channelCode = :channelCode')
+                ->andWhere(
+                    $queryBuilder->expr()->in(
+                        'variant.position',
+                        str_replace(':product_id', 'o.id', $subQuery->getDQL())
+                    )
+                )
+                ->setParameter('channelCode', $channel->getCode())
             ;
         }
 
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        if ($deleted) {
-            $this->_em->getFilters()->disable('softdeleteable');
-            $queryBuilder->andWhere('product.deletedAt IS NOT NULL');
-        }
-
-        return $this->getPaginator($queryBuilder);
+        return $queryBuilder;
     }
 
     /**
-     * Get the product data for the details page.
-     *
-     * @param int $id
-     *
-     * @return null|ProductInterface
+     * {@inheritdoc}
      */
-    public function findForDetailsPage($id)
+    public function findLatestByChannel(ChannelInterface $channel, string $locale, int $count): array
     {
-        $this->_em->getFilters()->disable('softdeleteable');
-
-        $queryBuilder = $this->getQueryBuilder();
-        $queryBuilder
-            ->leftJoin('variant.images', 'image')
-            ->addSelect('image')
-            ->andWhere($queryBuilder->expr()->eq('product.id', ':id'))
-            ->setParameter('id', $id)
+        return $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere(':channel MEMBER OF o.channels')
+            ->andWhere('o.enabled = true')
+            ->addOrderBy('o.createdAt', 'DESC')
+            ->setParameter('channel', $channel)
+            ->setParameter('locale', $locale)
+            ->setMaxResults($count)
+            ->getQuery()
+            ->getResult()
         ;
+    }
 
-        $result = $queryBuilder
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByChannelAndSlug(ChannelInterface $channel, string $locale, string $slug): ?ProductInterface
+    {
+        $product = $this->createQueryBuilder('o')
+            ->addSelect('translation')
+            ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
+            ->andWhere('translation.slug = :slug')
+            ->andWhere(':channel MEMBER OF o.channels')
+            ->andWhere('o.enabled = true')
+            ->setParameter('channel', $channel)
+            ->setParameter('locale', $locale)
+            ->setParameter('slug', $slug)
             ->getQuery()
             ->getOneOrNullResult()
         ;
 
-        $this->_em->getFilters()->enable('softdeleteable');
+        $this->associationHydrator->hydrateAssociations($product, [
+            'images',
+            'options',
+            'options.translations',
+            'variants',
+            'variants.channelPricings',
+            'variants.optionValues',
+            'variants.optionValues.translations',
+        ]);
 
-        return $result;
+        return $product;
     }
 
     /**
-     * Find X recently added products.
-     *
-     * @param int              $limit
-     * @param ChannelInterface $channel
-     *
-     * @return ProductInterface[]
+     * {@inheritdoc}
      */
-    public function findLatest($limit = 10, ChannelInterface $channel)
+    public function findOneByCode(string $code): ?ProductInterface
     {
-        return $this->findBy(['channels' => [$channel], 'enabled' => true], ['createdAt' => 'desc'], $limit);
-    }
-
-    protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria = null)
-    {
-        if (isset($criteria['channels'])) {
-            $queryBuilder
-                ->innerJoin('product.channels', 'channel')
-                ->andWhere('channel = :channel')
-                ->setParameter('channel', $criteria['channels'])
-            ;
-            unset($criteria['channels']);
-        }
-
-        parent::applyCriteria($queryBuilder, $criteria);
+        return $this->createQueryBuilder('o')
+            ->where('o.code = :code')
+            ->setParameter('code', $code)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
     }
 }

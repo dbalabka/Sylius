@@ -2,8 +2,7 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  customer:
-    first_name:
-      not_blank: Si us plau, introdueix el teu nom.
-    last_name:
-      not_blank: Si us plau, introdueix el teu cognom.
+    user:
+        email:
+            not_blank: Escriu el teu correu electrònic.
+            invalid: Aquest correu electrònic no és vàlid.

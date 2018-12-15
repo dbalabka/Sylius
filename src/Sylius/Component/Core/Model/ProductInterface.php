@@ -9,27 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
-use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
-use Sylius\Component\Metadata\Model\MetadataSubjectInterface;
 use Sylius\Component\Product\Model\ProductInterface as BaseProductInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 use Sylius\Component\Review\Model\ReviewableInterface;
-use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
-use Sylius\Component\Taxonomy\Model\TaxonsAwareInterface;
+use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface ProductInterface extends
     BaseProductInterface,
-    TaxonsAwareInterface,
+    ProductTaxonsAwareInterface,
     ChannelsAwareInterface,
-    MetadataSubjectInterface,
-    ReviewableInterface
+    ReviewableInterface,
+    ImagesAwareInterface
 {
     /*
      * Variant selection methods.
@@ -39,102 +35,35 @@ interface ProductInterface extends
      * 2) Match  - Each product option is displayed as select field.
      *             User selects the values and we match them to variant.
      */
-    const VARIANT_SELECTION_CHOICE = 'choice';
-    const VARIANT_SELECTION_MATCH = 'match';
+    public const VARIANT_SELECTION_CHOICE = 'choice';
+    public const VARIANT_SELECTION_MATCH = 'match';
 
-    const METADATA_CLASS_IDENTIFIER = 'Product';
-
-    /**
-     * @return string
-     */
-    public function getSku();
+    public function getVariantSelectionMethod(): string;
 
     /**
-     * @param string $sku
+     * @throws \InvalidArgumentException
      */
-    public function setSku($sku);
+    public function setVariantSelectionMethod(?string $variantSelectionMethod): void;
+
+    public function isVariantSelectionMethodChoice(): bool;
+
+    public function getVariantSelectionMethodLabel(): string;
+
+    public function getShortDescription(): ?string;
+
+    public function setShortDescription(?string $shortDescription): void;
+
+    public function getMainTaxon(): ?TaxonInterface;
+
+    public function setMainTaxon(?TaxonInterface $mainTaxon): void;
 
     /**
-     * @return string
+     * @return Collection|ReviewInterface[]
      */
-    public function getVariantSelectionMethod();
+    public function getAcceptedReviews(): Collection;
 
     /**
-     * @param string $variantSelectionMethod
+     * @return ProductTranslationInterface
      */
-    public function setVariantSelectionMethod($variantSelectionMethod);
-
-    /**
-     * @return bool
-     */
-    public function isVariantSelectionMethodChoice();
-
-    /**
-     * @return string
-     */
-    public function getVariantSelectionMethodLabel();
-
-    /**
-     * @return string
-     */
-    public function getShortDescription();
-
-    /**
-     * @param string $shortDescription
-     */
-    public function setShortDescription($shortDescription);
-
-    /**
-     * @return ShippingCategoryInterface
-     */
-    public function getShippingCategory();
-
-    /**
-     * @param ShippingCategoryInterface $category
-     */
-    public function setShippingCategory(ShippingCategoryInterface $category = null);
-
-    /**
-     * Get master variant price.
-     *
-     * @return int
-     */
-    public function getPrice();
-
-    /**
-     * Set master variant price.
-     *
-     * @param int $price
-     */
-    public function setPrice($price);
-
-    /**
-     * @return ZoneInterface
-     */
-    public function getRestrictedZone();
-
-    /**
-     * @param ZoneInterface $zone
-     */
-    public function setRestrictedZone(ZoneInterface $zone = null);
-
-    /**
-     * @return Collection|ImageInterface[]
-     */
-    public function getImages();
-
-    /**
-     * @return ImageInterface
-     */
-    public function getImage();
-
-    /**
-     * @return TaxonInterface
-     */
-    public function getMainTaxon();
-
-    /**
-     * @param TaxonInterface $mainTaxon
-     */
-    public function setMainTaxon(TaxonInterface $mainTaxon = null);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

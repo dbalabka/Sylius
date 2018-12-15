@@ -9,162 +9,72 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Model\SoftDeletableInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
-use Sylius\Component\Sequence\Model\SequenceSubjectInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface OrderInterface extends
-    AdjustableInterface,
-    CommentAwareInterface,
-    ResourceInterface,
-    SoftDeletableInterface,
-    SequenceSubjectInterface,
-    TimestampableInterface
+interface OrderInterface extends AdjustableInterface, ResourceInterface, TimestampableInterface
 {
-    const STATE_CART = 'cart';
-    const STATE_CART_LOCKED = 'cart_locked';
-    const STATE_PENDING = 'pending';
-    const STATE_CONFIRMED = 'confirmed';
-    const STATE_SHIPPED = 'shipped';
-    const STATE_ABANDONED = 'abandoned';
-    const STATE_CANCELLED = 'cancelled';
-    const STATE_RETURNED = 'returned';
+    public const STATE_CART = 'cart';
+    public const STATE_NEW = 'new';
+    public const STATE_CANCELLED = 'cancelled';
+    public const STATE_FULFILLED = 'fulfilled';
+
+    public function getCheckoutCompletedAt(): ?\DateTimeInterface;
+
+    public function setCheckoutCompletedAt(?\DateTimeInterface $checkoutCompletedAt): void;
+
+    public function isCheckoutCompleted(): bool;
+
+    public function completeCheckout(): void;
+
+    public function getNumber(): ?string;
+
+    public function setNumber(?string $number): void;
+
+    public function getNotes(): ?string;
+
+    public function setNotes(?string $notes): void;
 
     /**
-     * @return bool
+     * @return Collection|OrderItemInterface[]
      */
-    public function isCompleted();
+    public function getItems(): Collection;
 
-    public function complete();
+    public function clearItems(): void;
+
+    public function countItems(): int;
+
+    public function addItem(OrderItemInterface $item): void;
+
+    public function removeItem(OrderItemInterface $item): void;
+
+    public function hasItem(OrderItemInterface $item): bool;
+
+    public function getItemsTotal(): int;
+
+    public function recalculateItemsTotal(): void;
+
+    public function getTotal(): int;
+
+    public function getTotalQuantity(): int;
+
+    public function getState(): string;
+
+    public function setState(string $state): void;
+
+    public function isEmpty(): bool;
 
     /**
-     * @return \DateTime
+     * @return Collection|AdjustmentInterface[]
      */
-    public function getCompletedAt();
+    public function getAdjustmentsRecursively(?string $type = null): Collection;
 
-    /**
-     * @param null|\DateTime $completedAt
-     */
-    public function setCompletedAt(\DateTime $completedAt = null);
+    public function getAdjustmentsTotalRecursively(?string $type = null): int;
 
-    /**
-     * @return Collection|OrderItemInterface[] An array or collection of OrderItemInterface
-     */
-    public function getItems();
-
-    /**
-     * @return int
-     */
-    public function countItems();
-
-    /**
-     * @param OrderItemInterface $item
-     */
-    public function addItem(OrderItemInterface $item);
-
-    /**
-     * @param OrderItemInterface $item
-     */
-    public function removeItem(OrderItemInterface $item);
-
-    /**
-     * @param OrderItemInterface $item
-     *
-     * @return bool
-     */
-    public function hasItem(OrderItemInterface $item);
-
-    /**
-     * @return int
-     */
-    public function getItemsTotal();
-
-    public function recalculateItemsTotal();
-
-    /**
-     * @return int
-     */
-    public function getTotal();
-
-    /**
-     * Alias of {@link countItems()}.
-     *
-     * @deprecated To be removed in 1.0. Use {@link countItems()} instead.
-     */
-    public function getTotalItems();
-
-    /**
-     * @return int
-     */
-    public function getTotalQuantity();
-
-    /**
-     * @return bool
-     */
-    public function isEmpty();
-
-    public function clearItems();
-
-    /**
-     * @return string
-     */
-    public function getState();
-
-    /**
-     * @param string $state
-     */
-    public function setState($state);
-
-    /**
-     * Add an identity to this order. Eg. external identity to refer to an ebay order id.
-     *
-     * @param IdentityInterface $identity
-     */
-    public function addIdentity(IdentityInterface $identity);
-
-    /**
-     * @param IdentityInterface $identity
-     */
-    public function removeIdentity(IdentityInterface $identity);
-
-    /**
-     * @param IdentityInterface $identity
-     */
-    public function hasIdentity(IdentityInterface $identity);
-
-    /**
-     * @return Collection|IdentityInterface[]
-     */
-    public function getIdentities();
-
-    /**
-     * @return string
-     */
-    public function getAdditionalInformation();
-
-    /**
-     * @param string $information
-     */
-    public function setAdditionalInformation($information);
-
-    /**
-     * @param string|null $type
-     *
-     * @return array
-     */
-    public function getAdjustmentsRecursively($type = null);
-
-    /**
-     * @param string|null $type
-     *
-     * @return int
-     */
-    public function getAdjustmentsTotalRecursively($type = null);
+    public function removeAdjustmentsRecursively(?string $type = null): void;
 }

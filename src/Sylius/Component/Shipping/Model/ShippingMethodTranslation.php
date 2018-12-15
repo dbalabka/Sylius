@@ -9,31 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
-use Sylius\Component\Translation\Model\AbstractTranslation;
+use Sylius\Component\Resource\Model\AbstractTranslation;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 class ShippingMethodTranslation extends AbstractTranslation implements ShippingMethodTranslationInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __toString()
+    /** @var string */
+    protected $description;
+
+    public function __toString(): string
     {
-        return $this->name;
+        return (string) $this->getName();
     }
 
     /**
@@ -47,7 +42,7 @@ class ShippingMethodTranslation extends AbstractTranslation implements ShippingM
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -55,8 +50,24 @@ class ShippingMethodTranslation extends AbstractTranslation implements ShippingM
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 }

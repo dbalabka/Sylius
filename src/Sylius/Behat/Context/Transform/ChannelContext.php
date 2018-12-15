@@ -9,24 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ChannelContext implements Context
 {
-    /**
-     * @var ChannelRepositoryInterface
-     */
+    /** @var ChannelRepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @param ChannelRepositoryInterface $channelRepository
-     */
     public function __construct(ChannelRepositoryInterface $channelRepository)
     {
         $this->channelRepository = $channelRepository;
@@ -35,15 +30,27 @@ final class ChannelContext implements Context
     /**
      * @Transform /^channel "([^"]+)"$/
      * @Transform /^"([^"]+)" channel/
+     * @Transform /^channel to "([^"]+)"$/
      * @Transform :channel
      */
     public function getChannelByName($channelName)
     {
-        $channel = $this->channelRepository->findOneBy(['name' => $channelName]);
-        if (null === $channel) {
-            throw new \InvalidArgumentException('Channel with name "'.$channelName.'" does not exist');
-        }
+        $channels = $this->channelRepository->findByName($channelName);
 
-        return $channel;
+        Assert::eq(
+            count($channels),
+            1,
+            sprintf('%d channels has been found with name "%s".', count($channels), $channelName)
+        );
+
+        return $channels[0];
+    }
+
+    /**
+     * @Transform all channels
+     */
+    public function getAllChannels()
+    {
+        return $this->channelRepository->findAll();
     }
 }

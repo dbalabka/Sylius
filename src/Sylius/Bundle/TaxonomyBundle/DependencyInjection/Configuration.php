@@ -9,44 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\TaxonomyBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonomyTranslationType;
-use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonomyType;
 use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonTranslationType;
 use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonType;
 use Sylius\Component\Resource\Factory\Factory;
-use Sylius\Component\Taxonomy\Factory\TaxonFactory;
-use Sylius\Component\Taxonomy\Factory\TaxonomyFactory;
+use Sylius\Component\Resource\Factory\TranslatableFactory;
 use Sylius\Component\Taxonomy\Model\Taxon;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
-use Sylius\Component\Taxonomy\Model\Taxonomy;
-use Sylius\Component\Taxonomy\Model\TaxonomyInterface;
-use Sylius\Component\Taxonomy\Model\TaxonomyTranslation;
-use Sylius\Component\Taxonomy\Model\TaxonomyTranslationInterface;
 use Sylius\Component\Taxonomy\Model\TaxonTranslation;
 use Sylius\Component\Taxonomy\Model\TaxonTranslationInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * This class contains the configuration information for the bundle.
- *
- * This information is solely responsible for how the different configuration
- * sections are normalized, and merged.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('sylius_taxonomy');
@@ -55,90 +41,21 @@ class Configuration implements ConfigurationInterface
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
-            ->end();
+            ->end()
+        ;
 
         $this->addResourcesSection($rootNode);
 
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
-    private function addResourcesSection(ArrayNodeDefinition $node)
+    private function addResourcesSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('resources')
                     ->addDefaultsIfNotSet()
                     ->children()
-                        ->arrayNode('taxonomy')
-                            ->addDefaultsIfNotSet()
-                            ->children()
-                                ->variableNode('options')->end()
-                                ->arrayNode('classes')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->scalarNode('model')->defaultValue(Taxonomy::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(TaxonomyInterface::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('repository')->cannotBeEmpty()->end()
-                                        ->scalarNode('factory')->defaultValue(TaxonomyFactory::class)->end()
-                                        ->arrayNode('form')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('default')->defaultValue(TaxonomyType::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('choice')->defaultValue(ResourceChoiceType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('validation_groups')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->arrayNode('default')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius'])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('translation')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->variableNode('options')->end()
-                                        ->arrayNode('classes')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('model')->defaultValue(TaxonomyTranslation::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('interface')->defaultValue(TaxonomyTranslationInterface::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('repository')->cannotBeEmpty()->end()
-                                                ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                                ->arrayNode('form')
-                                                    ->addDefaultsIfNotSet()
-                                                    ->children()
-                                                        ->scalarNode('default')->defaultValue(TaxonomyTranslationType::class)->cannotBeEmpty()->end()
-                                                    ->end()
-                                                ->end()
-                                            ->end()
-                                        ->end()
-                                        ->arrayNode('validation_groups')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->arrayNode('default')
-                                                    ->prototype('scalar')->end()
-                                                    ->defaultValue(['sylius'])
-                                                ->end()
-                                            ->end()
-                                        ->end()
-                                        ->arrayNode('fields')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['name'])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
                         ->arrayNode('taxon')
                             ->addDefaultsIfNotSet()
                             ->children()
@@ -150,22 +67,8 @@ class Configuration implements ConfigurationInterface
                                         ->scalarNode('interface')->defaultValue(TaxonInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
-                                        ->scalarNode('factory')->defaultValue(TaxonFactory::class)->end()
-                                        ->arrayNode('form')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('default')->defaultValue(TaxonType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('validation_groups')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->arrayNode('default')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius'])
-                                        ->end()
+                                        ->scalarNode('factory')->defaultValue(TranslatableFactory::class)->end()
+                                        ->scalarNode('form')->defaultValue(TaxonType::class)->cannotBeEmpty()->end()
                                     ->end()
                                 ->end()
                                 ->arrayNode('translation')
@@ -180,26 +83,8 @@ class Configuration implements ConfigurationInterface
                                                 ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                                 ->scalarNode('repository')->cannotBeEmpty()->end()
                                                 ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                                ->arrayNode('form')
-                                                    ->addDefaultsIfNotSet()
-                                                    ->children()
-                                                        ->scalarNode('default')->defaultValue(TaxonTranslationType::class)->cannotBeEmpty()->end()
-                                                    ->end()
-                                                ->end()
+                                                ->scalarNode('form')->defaultValue(TaxonTranslationType::class)->cannotBeEmpty()->end()
                                             ->end()
-                                        ->end()
-                                        ->arrayNode('validation_groups')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->arrayNode('default')
-                                                    ->prototype('scalar')->end()
-                                                    ->defaultValue(['sylius'])
-                                                ->end()
-                                            ->end()
-                                        ->end()
-                                        ->arrayNode('fields')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['name', 'slug', 'permalink', 'description'])
                                         ->end()
                                     ->end()
                                 ->end()

@@ -9,55 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Sergio Marchesini
- * @author Joseph Bielawski <stloyd@gmail.com>
- */
 interface UserOAuthInterface extends UserAwareInterface, ResourceInterface
 {
-    /**
-     * Get OAuth provider name.
-     *
-     * @return string
-     */
-    public function getProvider();
+    public function getProvider(): ?string;
 
-    /**
-     * Set OAuth provider name.
-     *
-     * @param string $provider
-     */
-    public function setProvider($provider);
+    public function setProvider(?string $provider): void;
 
-    /**
-     * Get OAuth identifier.
-     *
-     * @return string
-     */
-    public function getIdentifier();
+    public function getIdentifier(): ?string;
 
-    /**
-     * Set OAuth identifier.
-     *
-     * @param string $identifier
-     */
-    public function setIdentifier($identifier);
+    public function setIdentifier(?string $identifier): void;
 
-    /**
-     * Get OAuth access token.
-     *
-     * @return string
-     */
-    public function getAccessToken();
+    public function getAccessToken(): ?string;
 
-    /**
-     * Set OAuth access token.
-     *
-     * @param string $accessToken
-     */
-    public function setAccessToken($accessToken);
+    public function setAccessToken(?string $accessToken): void;
+
+    public function getRefreshToken(): ?string;
+
+    public function setRefreshToken(?string $refreshToken): void;
 }

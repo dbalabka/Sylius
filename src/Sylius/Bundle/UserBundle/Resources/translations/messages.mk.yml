@@ -2,6 +2,22 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    customer:
-      phone_number: Телефонски Број
+    form:
+        user:
+            email: Е-пошта
+            enabled: Овозможено
+            password:
+                label: Лозинка
+                confirmation: Верификација
+            remember_me: Запамти ме
+            shipping_address: Адреса за испорака
+            username: Корисничко име
+        user_filter:
+            query: Пребарај
+        user_change_password:
+            confirmation: Потврда
+            current: Тековна лозинка
+            new: Нова лозинка
+        user_reset_password:
+            confirmation: Потврда
+            new: Нова лозинка

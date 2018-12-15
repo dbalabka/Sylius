@@ -9,73 +9,55 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Resource\Model\ArchivableTrait;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
-use Sylius\Component\Translation\Model\AbstractTranslatable;
+use Sylius\Component\Resource\Model\TranslatableTrait;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-class ShippingMethod extends AbstractTranslatable implements ShippingMethodInterface
+class ShippingMethod implements ShippingMethodInterface
 {
-    use TimestampableTrait, ToggleableTrait;
+    use ArchivableTrait, TimestampableTrait, ToggleableTrait;
+    use TranslatableTrait {
+        __construct as private initializeTranslationsCollection;
+        getTranslation as private doGetTranslation;
+    }
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $code;
 
-    /**
-     * @var ShippingCategoryInterface
-     */
+    /** @var int */
+    protected $position;
+
+    /** @var ShippingCategoryInterface */
     protected $category;
 
-    /**
-     * The one of 3 requirement variants.
-     *
-     * @var int
-     */
+    /** @var int */
     protected $categoryRequirement = ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ANY;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $calculator;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $configuration = [];
-
-    /**
-     * @var Collection|RuleInterface[]
-     */
-    protected $rules;
 
     public function __construct()
     {
-        parent::__construct();
+        $this->initializeTranslationsCollection();
 
-        $this->rules = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->translate()->__toString();
+        return $this->getTranslation()->__toString();
     }
 
     /**
@@ -89,7 +71,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -97,7 +79,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -105,7 +87,23 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function getCategory()
+    public function getPosition(): ?int
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition(?int $position): void
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCategory(): ?ShippingCategoryInterface
     {
         return $this->category;
     }
@@ -113,7 +111,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function setCategory(ShippingCategoryInterface $category = null)
+    public function setCategory(?ShippingCategoryInterface $category): void
     {
         $this->category = $category;
     }
@@ -121,7 +119,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function getCategoryRequirement()
+    public function getCategoryRequirement(): ?int
     {
         return $this->categoryRequirement;
     }
@@ -129,7 +127,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function setCategoryRequirement($categoryRequirement)
+    public function setCategoryRequirement(?int $categoryRequirement): void
     {
         $this->categoryRequirement = $categoryRequirement;
     }
@@ -137,31 +135,39 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function getCategoryRequirementLabel()
+    public function getName(): ?string
     {
-        return self::getCategoryRequirementLabels()[$this->categoryRequirement];
+        return $this->getTranslation()->getName();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function setName(?string $name): void
     {
-        return $this->translate()->getName();
+        $this->getTranslation()->setName($name);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setName($name)
+    public function getDescription(): ?string
     {
-        $this->translate()->setName($name);
+        return $this->getTranslation()->getDescription();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getCalculator()
+    public function setDescription(?string $description): void
+    {
+        $this->getTranslation()->setDescription($description);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCalculator(): ?string
     {
         return $this->calculator;
     }
@@ -169,7 +175,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function setCalculator($calculator)
+    public function setCalculator(?string $calculator): void
     {
         $this->calculator = $calculator;
     }
@@ -177,7 +183,7 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function getConfiguration()
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -185,66 +191,27 @@ class ShippingMethod extends AbstractTranslatable implements ShippingMethodInter
     /**
      * {@inheritdoc}
      */
-    public function setConfiguration(array $configuration)
+    public function setConfiguration(array $configuration): void
     {
         $this->configuration = $configuration;
     }
 
     /**
-     * {@inheritdoc}
+     * @return ShippingMethodTranslationInterface
      */
-    public function getRules()
+    public function getTranslation(?string $locale = null): TranslationInterface
     {
-        return $this->rules;
+        /** @var ShippingMethodTranslationInterface $translation */
+        $translation = $this->doGetTranslation($locale);
+
+        return $translation;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasRule(RuleInterface $rule)
+    protected function createTranslation(): ShippingMethodTranslationInterface
     {
-        return $this->rules->contains($rule);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addRule(RuleInterface $rule)
-    {
-        if (!$this->hasRule($rule)) {
-            $rule->setMethod($this);
-            $this->rules->add($rule);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeRule(RuleInterface $rule)
-    {
-        $rule->setMethod(null);
-        $this->rules->removeElement($rule);
-    }
-
-    /**
-     * @return array
-     */
-    public static function getCategoryRequirementLabels()
-    {
-        return [
-            ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_NONE => 'None of the units have to match the method category',
-            ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ANY => 'At least 1 unit has to match the method category',
-            ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ALL => 'All units has to match the method category',
-        ];
-    }
-
-    public function enable()
-    {
-        $this->enabled = true;
-    }
-
-    public function disable()
-    {
-        $this->enabled = false;
+        return new ShippingMethodTranslation();
     }
 }

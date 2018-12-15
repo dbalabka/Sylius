@@ -9,26 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle;
 
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Component\User\Model\CustomerInterface;
-use Sylius\Component\User\Model\GroupInterface;
-use Sylius\Component\User\Model\UserInterface;
-use Sylius\Component\User\Model\UserOAuthInterface;
 
-/**
- * User bundle.
- *
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
- */
-class SyliusUserBundle extends AbstractResourceBundle
+final class SyliusUserBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -38,20 +31,7 @@ class SyliusUserBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    protected function getModelInterfaces()
-    {
-        return [
-            CustomerInterface::class => 'sylius.model.customer.class',
-            UserInterface::class => 'sylius.model.user.class',
-            UserOAuthInterface::class => 'sylius.model.user_oauth.class',
-            GroupInterface::class => 'sylius.model.group.class',
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         return 'Sylius\Component\User\Model';
     }

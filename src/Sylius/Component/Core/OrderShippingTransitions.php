@@ -9,13 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core;
 
-use Sylius\Component\Shipping\ShipmentTransitions;
-
-class OrderShippingTransitions extends ShipmentTransitions
+final class OrderShippingTransitions
 {
-    const GRAPH = 'sylius_order_shipping';
+    public const GRAPH = 'sylius_order_shipping';
 
-    const SYLIUS_PARTIALLY_SHIP = 'partially_ship';
+    public const TRANSITION_REQUEST_SHIPPING = 'request_shipping';
+    public const TRANSITION_PARTIALLY_SHIP = 'partially_ship';
+    public const TRANSITION_SHIP = 'ship';
+    public const TRANSITION_CANCEL = 'cancel';
+
+    private function __construct()
+    {
+    }
 }

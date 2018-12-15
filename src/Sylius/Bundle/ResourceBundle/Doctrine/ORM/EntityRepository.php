@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Doctrine\ORM;
 
 use Doctrine\ORM\EntityRepository as BaseEntityRepository;
@@ -19,90 +21,12 @@ use Pagerfanta\Pagerfanta;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * Doctrine ORM driver entity repository.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class EntityRepository extends BaseEntityRepository implements RepositoryInterface
 {
     /**
-     * @param mixed $id
-     *
-     * @return null|object
-     */
-    public function find($id)
-    {
-        return $this
-            ->getQueryBuilder()
-            ->andWhere($this->getAlias().'.id = '.intval($id))
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-
-    /**
-     * @return array
-     */
-    public function findAll()
-    {
-        return $this
-            ->getCollectionQueryBuilder()
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    /**
-     * @param array $criteria
-     *
-     * @return null|object
-     */
-    public function findOneBy(array $criteria)
-    {
-        $queryBuilder = $this->getQueryBuilder();
-
-        $this->applyCriteria($queryBuilder, $criteria);
-
-        return $queryBuilder
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-
-    /**
-     * @param array $criteria
-     * @param array $sorting
-     * @param int   $limit
-     * @param int   $offset
-     *
-     * @return array
-     */
-    public function findBy(array $criteria, array $sorting = [], $limit = null, $offset = null)
-    {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-
-        $this->applyCriteria($queryBuilder, $criteria);
-        $this->applySorting($queryBuilder, $sorting);
-
-        if (null !== $limit) {
-            $queryBuilder->setMaxResults($limit);
-        }
-
-        if (null !== $offset) {
-            $queryBuilder->setFirstResult($offset);
-        }
-
-        return $queryBuilder
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function add(ResourceInterface $resource)
+    public function add(ResourceInterface $resource): void
     {
         $this->_em->persist($resource);
         $this->_em->flush();
@@ -111,7 +35,7 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function remove(ResourceInterface $resource)
+    public function remove(ResourceInterface $resource): void
     {
         if (null !== $this->find($resource->getId())) {
             $this->_em->remove($resource);
@@ -122,9 +46,9 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function createPaginator(array $criteria = [], array $sorting = [])
+    public function createPaginator(array $criteria = [], array $sorting = []): iterable
     {
-        $queryBuilder = $this->getCollectionQueryBuilder();
+        $queryBuilder = $this->createQueryBuilder('o');
 
         $this->applyCriteria($queryBuilder, $criteria);
         $this->applySorting($queryBuilder, $sorting);
@@ -132,51 +56,29 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
         return $this->getPaginator($queryBuilder);
     }
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     *
-     * @return Pagerfanta
-     */
-    public function getPaginator(QueryBuilder $queryBuilder)
+    protected function getPaginator(QueryBuilder $queryBuilder): Pagerfanta
     {
         // Use output walkers option in DoctrineORMAdapter should be false as it affects performance greatly (see #3775)
-        return new Pagerfanta(new DoctrineORMAdapter($queryBuilder, true, false));
+        return new Pagerfanta(new DoctrineORMAdapter($queryBuilder, false, false));
     }
 
     /**
      * @param array $objects
-     *
-     * @return Pagerfanta
      */
-    public function getArrayPaginator($objects)
+    protected function getArrayPaginator($objects): Pagerfanta
     {
         return new Pagerfanta(new ArrayAdapter($objects));
     }
 
-    /**
-     * @return QueryBuilder
-     */
-    protected function getQueryBuilder()
-    {
-        return $this->createQueryBuilder($this->getAlias());
-    }
-
-    /**
-     * @return QueryBuilder
-     */
-    protected function getCollectionQueryBuilder()
-    {
-        return $this->createQueryBuilder($this->getAlias());
-    }
-
-    /**
-     * @param QueryBuilder $queryBuilder
-     * @param array        $criteria
-     */
-    protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria = [])
+    protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria = []): void
     {
         foreach ($criteria as $property => $value) {
+            if (!in_array($property, array_merge($this->_class->getAssociationNames(), $this->_class->getFieldNames()), true)) {
+                continue;
+            }
+
             $name = $this->getPropertyName($property);
+
             if (null === $value) {
                 $queryBuilder->andWhere($queryBuilder->expr()->isNull($name));
             } elseif (is_array($value)) {
@@ -184,45 +86,32 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
             } elseif ('' !== $value) {
                 $parameter = str_replace('.', '_', $property);
                 $queryBuilder
-                    ->andWhere($queryBuilder->expr()->eq($name, ':'.$parameter))
+                    ->andWhere($queryBuilder->expr()->eq($name, ':' . $parameter))
                     ->setParameter($parameter, $value)
                 ;
             }
         }
     }
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     * @param array        $sorting
-     */
-    protected function applySorting(QueryBuilder $queryBuilder, array $sorting = [])
+    protected function applySorting(QueryBuilder $queryBuilder, array $sorting = []): void
     {
         foreach ($sorting as $property => $order) {
+            if (!in_array($property, array_merge($this->_class->getAssociationNames(), $this->_class->getFieldNames()), true)) {
+                continue;
+            }
+
             if (!empty($order)) {
                 $queryBuilder->addOrderBy($this->getPropertyName($property), $order);
             }
         }
     }
 
-    /**
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getPropertyName($name)
+    protected function getPropertyName(string $name): string
     {
         if (false === strpos($name, '.')) {
-            return $this->getAlias().'.'.$name;
+            return 'o' . '.' . $name;
         }
 
         return $name;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getAlias()
-    {
-        return 'o';
     }
 }

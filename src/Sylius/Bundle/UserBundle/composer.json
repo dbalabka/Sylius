@@ -1,62 +1,92 @@
 {
     "name": "sylius/user-bundle",
     "type": "symfony-bundle",
-    "description": "Users management for Symfony2 projects.",
+    "description": "Users management for Symfony projects.",
     "keywords": ["user", "registration", "login", "groups"],
-    "homepage": "http://sylius.org",
+    "homepage": "http://sylius.com",
     "license": "MIT",
     "authors": [
         {
-            "name":     "Paweł Jędrzejewski",
+            "name": "Paweł Jędrzejewski",
             "homepage": "http://pjedrzejewski.com"
         },
         {
-            "name":     "Michał Marcinkowski",
-            "email":    "michal.marcinkowski@lakion.com"
+            "name": "Michał Marcinkowski",
+            "email": "michal.marcinkowski@lakion.com"
         },
         {
-            "name":     "Łukasz Chruściel",
-            "email":    "lukasz.chrusciel@lakion.com"
+            "name": "Łukasz Chruściel",
+            "email": "lukasz.chrusciel@lakion.com"
         },
         {
-            "name":     "Bartosz Siejka",
+            "name": "Bartosz Siejka",
             "homepage": "http://bsiejka.com"
         },
         {
-            "name":     "Sylius project",
-            "homepage": "http://sylius.org"
+            "name": "Sylius project",
+            "homepage": "http://sylius.com"
         },
         {
-            "name":     "Community contributions",
+            "name": "Community contributions",
             "homepage": "http://github.com/Sylius/Sylius/contributors"
         }
     ],
     "require": {
-        "php": "^5.5.9|^7.0",
+        "php": "^7.2",
 
-        "sylius/user": "0.17.*",
-        "sylius/resource-bundle": "0.17.*",
-        "sylius/mailer-bundle": "0.17.*",
-        "symfony/framework-bundle": "^2.7.7",
-        "hwi/oauth-bundle": "~0.3"
+        "doctrine/orm": "^2.5",
+        "sylius/mailer-bundle": "^1.2",
+        "sylius/resource-bundle": "^1.2",
+        "sylius/user": "^1.2",
+        "symfony/framework-bundle": "^3.4|^4.1.1",
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^2.4",
-        "symfony/form": "^2.7"
+        "hwi/oauth-bundle": "^0.6",
+        "php-http/guzzle6-adapter": "^1.1",
+        "phpspec/phpspec": "^4.0",
+        "phpunit/phpunit": "^6.5",
+        "symfony/dependency-injection": "^3.4|^4.1.1",
+        "symfony/security-bundle": "^3.4|^4.1.1",
+        "symfony/swiftmailer-bundle": "^3.1"
+    },
+    "suggest": {
+        "hwi/oauth-bundle": "For OAuth integration"
     },
     "config": {
         "bin-dir": "bin"
     },
     "autoload": {
-        "psr-4": { "Sylius\\Bundle\\UserBundle\\": "" }
+        "psr-4": { "Sylius\\Bundle\\UserBundle\\": "" },
+        "exclude-from-classmap": ["/Tests/"]
     },
     "autoload-dev": {
-        "psr-4": { "Sylius\\Bundle\\UserBundle\\spec\\": "spec/" }
+        "psr-4": {
+            "Sylius\\Bundle\\UserBundle\\Tests\\": "tests/"
+        },
+        "files": ["Tests/Functional/app/AppKernel.php"]
     },
     "minimum-stability": "dev",
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../*/*"
+        }
+    ],
+    "scripts": {
+        "test": [
+            "@composer validate --strict",
+            "Tests/Functional/bin/console cache:clear --no-warmup --ansi --no-interaction",
+            "Tests/Functional/bin/console doctrine:database:create --if-not-exists --ansi --no-interaction",
+            "Tests/Functional/bin/console doctrine:schema:update --force --ansi --no-interaction",
+            "bin/phpunit --colors=always",
+            "bin/phpspec run --ansi --no-interaction"
+        ]
+    },
     "extra": {
         "branch-alias": {
-            "dev-master": "0.17-dev"
+            "dev-master": "1.3-dev"
         }
     }
 }

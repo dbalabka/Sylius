@@ -2,8 +2,39 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  menu:
-    admin:
-      main:
-        configuration:
-          header: Configuratie
+    menu:
+        admin:
+            main:
+                catalog:
+                    association_types: Relatietypes
+                    attributes: Attributen
+                    header: Catalogus
+                    inventory: Locaties
+                    options: Opties
+                    products: Producten
+                    taxons: Taxa
+                configuration:
+                    admin_users: Beheerders
+                    channels: Kanalen
+                    countries: Landen
+                    currencies: Valuta's
+                    exchange_rates: Wisselkoersen
+                    header: Configuratie
+                    locales: Talen/Regio's
+                    payment_methods: Betaalmethoden
+                    shipping_categories: Verzend categorieën
+                    shipping_methods: Verzendmethoden
+                    tax_categories: Belastingcategorieën
+                    tax_rates: BTW-tarieven
+                    zones: Zones
+                marketing:
+                    header: Marketing
+                    product_reviews: Productbeoordelingen
+                    promotions: Promoties
+                customers:
+                    customers: Klanten
+                    groups: Groepen
+                    header: Klant
+                sales:
+                    header: Verkoop
+                    orders: Bestellingen

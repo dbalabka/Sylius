@@ -9,61 +9,74 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\Form\Type;
 
-use Sylius\Bundle\AttributeBundle\Form\EventSubscriber\BuildAttributeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
+use Sylius\Bundle\ResourceBundle\Form\Registry\FormTypeRegistryInterface;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
+use Sylius\Component\Attribute\Model\AttributeInterface;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Leszek Prabucki <leszek.prabucki@gmail.com>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class AttributeType extends AbstractResourceType
+abstract class AttributeType extends AbstractResourceType
 {
-    /**
-     * @var string
-     */
-    protected $subjectName;
+    /** @var string */
+    protected $attributeTranslationType;
+
+    /** @var FormTypeRegistryInterface */
+    protected $formTypeRegistry;
 
     /**
-     * @param string $dataClass
-     * @param array $validationGroups
-     * @param string $subjectName
+     * {@inheritdoc}
      */
-    public function __construct($dataClass, array $validationGroups, $subjectName)
-    {
+    public function __construct(
+        string $dataClass,
+        array $validationGroups,
+        string $attributeTranslationType,
+        FormTypeRegistryInterface $formTypeRegistry
+    ) {
         parent::__construct($dataClass, $validationGroups);
 
-        $this->subjectName = $subjectName;
+        $this->attributeTranslationType = $attributeTranslationType;
+        $this->formTypeRegistry = $formTypeRegistry;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->addEventSubscriber(new BuildAttributeFormSubscriber($builder->getFormFactory()))
             ->addEventSubscriber(new AddCodeFormSubscriber())
-            ->add('translations', 'a2lix_translationsForms', [
-                'form_type' => sprintf('sylius_%s_attribute_translation', $this->subjectName),
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => $this->attributeTranslationType,
                 'label' => 'sylius.form.attribute.translations',
             ])
-            ->add('type', 'sylius_attribute_type_choice', [
+            ->add('type', AttributeTypeChoiceType::class, [
                 'label' => 'sylius.form.attribute.type',
                 'disabled' => true,
             ])
         ;
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
-    {
-        return sprintf('sylius_%s_attribute', $this->subjectName);
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $attribute = $event->getData();
+
+            if (!$attribute instanceof AttributeInterface) {
+                return;
+            }
+
+            if (!$this->formTypeRegistry->has($attribute->getType(), 'configuration')) {
+                return;
+            }
+
+            $event->getForm()->add('configuration', $this->formTypeRegistry->get($attribute->getType(), 'configuration'), [
+                'auto_initialize' => false,
+                'label' => 'sylius.form.attribute_type.configuration',
+            ]);
+        });
     }
 }

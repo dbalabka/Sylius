@@ -9,91 +9,51 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Metadata;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface MetadataInterface
 {
-    /**
-     * @return string
-     */
-    public function getAlias();
+    public function getAlias(): string;
+
+    public function getApplicationName(): string;
+
+    public function getName(): string;
+
+    public function getHumanizedName(): string;
+
+    public function getPluralName(): string;
+
+    public function getDriver(): string;
 
     /**
-     * @return string
+     * @return ?string
      */
-    public function getApplicationName();
+    public function getTemplatesNamespace(): ?string;
 
     /**
-     * @return string
-     */
-    public function getName();
-
-    /**
-     * @return string
-     */
-    public function getHumanizedName();
-
-    /**
-     * @return string
-     */
-    public function getPluralName();
-
-    /**
-     * @return string
-     */
-    public function getDriver();
-
-    /**
-     * @return string
-     */
-    public function getTemplatesNamespace();
-
-    /**
-     * @param string $name
+     * @return string|array
      *
      * @throws \InvalidArgumentException
-     *
-     * @return string|array
      */
-    public function getParameter($name);
+    public function getParameter(string $name);
 
     /**
-     * @param $name
-     *
-     * @return bool
+     * Return all the metadata parameters.
      */
-    public function hasParameter($name);
+    public function getParameters(): array;
+
+    public function hasParameter(string $name): bool;
 
     /**
-     * @param string $name
-     *
      * @throws \InvalidArgumentException
-     *
-     * @return string|array
      */
-    public function getClass($name);
+    public function getClass(string $name): string;
 
-    /**
-     * @param $name
-     *
-     * @return bool
-     */
-    public function hasClass($name);
+    public function hasClass(string $name): bool;
 
-    /**
-     * @param string $serviceName
-     *
-     * @return string
-     */
-    public function getServiceId($serviceName);
+    public function getServiceId(string $serviceName): string;
 
-    /**
-     * @param string $permissionName
-     *
-     * @return string
-     */
-    public function getPermissionCode($permissionName);
+    public function getPermissionCode(string $permissionName): string;
 }

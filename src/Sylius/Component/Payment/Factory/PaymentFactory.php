@@ -9,33 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Payment\Factory;
 
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
-class PaymentFactory implements PaymentFactoryInterface
+final class PaymentFactory implements PaymentFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @param FactoryInterface $factory
-     */
     public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): PaymentInterface
     {
         return $this->factory->createNew();
     }
@@ -43,12 +37,12 @@ class PaymentFactory implements PaymentFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createWithAmountAndCurrency($amount, $currency)
+    public function createWithAmountAndCurrencyCode(int $amount, string $currencyCode): PaymentInterface
     {
         /** @var PaymentInterface $payment */
         $payment = $this->factory->createNew();
         $payment->setAmount($amount);
-        $payment->setCurrency($currency);
+        $payment->setCurrencyCode($currencyCode);
 
         return $payment;
     }

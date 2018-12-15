@@ -9,127 +9,63 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Inventory\Model\StockableInterface;
-use Sylius\Component\Metadata\Model\MetadataSubjectInterface;
-use Sylius\Component\Pricing\Model\PriceableInterface;
-use Sylius\Component\Product\Model\VariantInterface as BaseVariantInterface;
+use Sylius\Component\Product\Model\ProductVariantInterface as BaseVariantInterface;
+use Sylius\Component\Resource\Model\VersionedInterface;
 use Sylius\Component\Shipping\Model\ShippableInterface;
+use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxableInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductVariantInterface extends
     BaseVariantInterface,
     ShippableInterface,
     StockableInterface,
-    PriceableInterface,
-    MetadataSubjectInterface,
-    TaxableInterface
+    TaxableInterface,
+    VersionedInterface,
+    ProductImagesAwareInterface
 {
-    const METADATA_CLASS_IDENTIFIER = 'ProductVariant';
+    public function getWeight(): ?float;
+
+    public function setWeight(?float $weight): void;
+
+    public function getWidth(): ?float;
+
+    public function setWidth(?float $width): void;
+
+    public function getHeight(): ?float;
+
+    public function setHeight(?float $height): void;
+
+    public function getDepth(): ?float;
+
+    public function setDepth(?float $depth): void;
+
+    public function setTaxCategory(?TaxCategoryInterface $category): void;
+
+    public function setShippingCategory(?ShippingCategoryInterface $shippingCategory): void;
 
     /**
-     * @return Collection|ProductVariantImageInterface[]
+     * @return Collection|ChannelPricingInterface[]
      */
-    public function getImages();
+    public function getChannelPricings(): Collection;
 
-    /**
-     * Get variant main image if any.
-     * Fall-back on product master variant
-     *
-     * @return ImageInterface
-     */
-    public function getImage();
+    public function getChannelPricingForChannel(ChannelInterface $channel): ?ChannelPricingInterface;
 
-    /**
-     * @param ProductVariantImageInterface $image
-     *
-     * @return bool
-     */
-    public function hasImage(ProductVariantImageInterface $image);
+    public function hasChannelPricingForChannel(ChannelInterface $channel): bool;
 
-    /**
-     * @param ProductVariantImageInterface $image
-     */
-    public function addImage(ProductVariantImageInterface $image);
+    public function hasChannelPricing(ChannelPricingInterface $channelPricing): bool;
 
-    /**
-     * @param ProductVariantImageInterface $image
-     */
-    public function removeImage(ProductVariantImageInterface $image);
+    public function addChannelPricing(ChannelPricingInterface $channelPricing): void;
 
-    /**
-     * @return int
-     */
-    public function getSold();
+    public function removeChannelPricing(ChannelPricingInterface $channelPricing): void;
 
-    /**
-     * @param int $sold
-     */
-    public function setSold($sold);
+    public function isShippingRequired(): bool;
 
-    /**
-     * @return float
-     */
-    public function getWeight();
-
-    /**
-     * @param float $weight
-     */
-    public function setWeight($weight);
-
-    /**
-     * @return float
-     */
-    public function getWidth();
-
-    /**
-     * @param float $width
-     */
-    public function setWidth($width);
-
-    /**
-     * @return float
-     */
-    public function getHeight();
-
-    /**
-     * @param float $height
-     */
-    public function setHeight($height);
-
-    /**
-     * @return float
-     */
-    public function getDepth();
-
-    /**
-     * @param float $depth
-     */
-    public function setDepth($depth);
-
-    /**
-     * @return int
-     */
-    public function getOriginalPrice();
-
-    /**
-     * @param int|null $originalPrice
-     */
-    public function setOriginalPrice($originalPrice);
-
-    /**
-     * @return bool
-     */
-    public function isPriceReduced();
-
-    /**
-     * @param TaxCategoryInterface $category
-     */
-    public function setTaxCategory(TaxCategoryInterface $category = null);
+    public function setShippingRequired(bool $shippingRequired): void;
 }

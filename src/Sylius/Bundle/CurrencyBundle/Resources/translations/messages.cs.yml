@@ -2,7 +2,13 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      exchange_rate: Směnný kurz
-      enabled: Povoleno
+    form:
+        currency:
+            base: Základní měna
+            code: Jméno
+            enabled: Povoleno
+            exchange_rate: Směnný kurz
+        exchange_rate:
+            source_currency: Zdrojová měna
+            target_currency: Cílová měna
+            ratio: Poměr

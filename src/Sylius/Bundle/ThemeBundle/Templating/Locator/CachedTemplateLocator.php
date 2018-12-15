@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Templating\Locator;
 
 use Doctrine\Common\Cache\Cache;
@@ -16,25 +18,14 @@ use Sylius\Bundle\ThemeBundle\Locator\ResourceNotFoundException;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Symfony\Component\Templating\TemplateReferenceInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class CachedTemplateLocator implements TemplateLocatorInterface
 {
-    /**
-     * @var TemplateLocatorInterface
-     */
+    /** @var TemplateLocatorInterface */
     private $decoratedTemplateLocator;
 
-    /**
-     * @var Cache
-     */
+    /** @var Cache */
     private $cache;
 
-    /**
-     * @param TemplateLocatorInterface $decoratedTemplateLocator
-     * @param Cache $cache
-     */
     public function __construct(TemplateLocatorInterface $decoratedTemplateLocator, Cache $cache)
     {
         $this->decoratedTemplateLocator = $decoratedTemplateLocator;
@@ -44,7 +35,7 @@ final class CachedTemplateLocator implements TemplateLocatorInterface
     /**
      * {@inheritdoc}
      */
-    public function locateTemplate(TemplateReferenceInterface $template, ThemeInterface $theme)
+    public function locateTemplate(TemplateReferenceInterface $template, ThemeInterface $theme): string
     {
         $cacheKey = $this->getCacheKey($template, $theme);
         if ($this->cache->contains($cacheKey)) {
@@ -60,14 +51,8 @@ final class CachedTemplateLocator implements TemplateLocatorInterface
         return $this->decoratedTemplateLocator->locateTemplate($template, $theme);
     }
 
-    /**
-     * @param TemplateReferenceInterface $template
-     * @param ThemeInterface $theme
-     *
-     * @return string
-     */
-    private function getCacheKey(TemplateReferenceInterface $template, ThemeInterface $theme)
+    private function getCacheKey(TemplateReferenceInterface $template, ThemeInterface $theme): string
     {
-        return $template->getLogicalName().'|'.$theme->getName();
+        return $template->getLogicalName() . '|' . $theme->getName();
     }
 }

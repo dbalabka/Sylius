@@ -9,31 +9,56 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle\Doctrine\ORM;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface;
 
-/**
- * Order repository.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class OrderRepository extends EntityRepository implements OrderRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function findRecentOrders($amount = 10)
+    public function countPlacedOrders(): int
     {
-        $queryBuilder = $this->getQueryBuilder();
+        return (int) $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->andWhere('o.state != :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 
-        $this->_em->getFilters()->disable('softdeleteable');
+    /**
+     * {@inheritdoc}
+     */
+    public function createCartQueryBuilder(): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')
+            ->addSelect('channel')
+            ->addSelect('customer')
+            ->innerJoin('o.channel', 'channel')
+            ->leftJoin('o.customer', 'customer')
+            ->andWhere('o.state = :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
+        ;
+    }
 
-        return $queryBuilder
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
-            ->setMaxResults($amount)
-            ->orderBy('o.completedAt', 'desc')
+    /**
+     * {@inheritdoc}
+     */
+    public function findLatest(int $count): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->addOrderBy('o.checkoutCompletedAt', 'DESC')
+            ->setMaxResults($count)
             ->getQuery()
             ->getResult()
         ;
@@ -42,25 +67,60 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function isNumberUsed($number)
+    public function findOneByNumber(string $number): ?OrderInterface
     {
-        return (bool) $this->createQueryBuilder('o')
-            ->select('COUNT(o.id)')
-            ->where('o.number = :number')
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
+            ->andWhere('o.number = :number')
+            ->setParameter('state', OrderInterface::STATE_CART)
             ->setParameter('number', $number)
             ->getQuery()
-            ->getSingleScalarResult() > 0
+            ->getOneOrNullResult()
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getQueryBuilder()
+    public function findOneByTokenValue(string $tokenValue): ?OrderInterface
     {
-        return parent::getQueryBuilder()
-            ->leftJoin('o.items', 'item')
-            ->addSelect('item')
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
+            ->andWhere('o.tokenValue = :tokenValue')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('tokenValue', $tokenValue)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findCartById($id): ?OrderInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :id')
+            ->andWhere('o.state = :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findCartsNotModifiedSince(\DateTimeInterface $terminalDate): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state = :state')
+            ->andWhere('o.updatedAt < :terminalDate')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('terminalDate', $terminalDate)
+            ->getQuery()
+            ->getResult()
         ;
     }
 }

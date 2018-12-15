@@ -9,40 +9,29 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Review\Factory;
 
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Review\Model\ReviewableInterface;
+use Sylius\Component\Review\Model\ReviewerInterface;
+use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-class ReviewFactory implements ReviewFactoryInterface
+final class ReviewFactory implements ReviewFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $subjectRepository;
-
-    /**
-     * @param FactoryInterface $factory
-     * @param RepositoryInterface $subjectRepository
-     */
-    public function __construct(FactoryInterface $factory, RepositoryInterface $subjectRepository)
+    public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
-        $this->subjectRepository = $subjectRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): ReviewInterface
     {
         return $this->factory->createNew();
     }
@@ -50,14 +39,23 @@ class ReviewFactory implements ReviewFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createForSubject($subjectId)
+    public function createForSubject(ReviewableInterface $subject): ReviewInterface
     {
-        if (null === $subject = $this->subjectRepository->find($subjectId)) {
-            throw new \InvalidArgumentException(sprintf('Review subject with id "%s" does not exist.', $subjectId));
-        }
-
+        /** @var ReviewInterface $review */
         $review = $this->factory->createNew();
         $review->setReviewSubject($subject);
+
+        return $review;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createForSubjectWithReviewer(ReviewableInterface $subject, ?ReviewerInterface $reviewer): ReviewInterface
+    {
+        /** @var ReviewInterface $review */
+        $review = $this->createForSubject($subject);
+        $review->setAuthor($reviewer);
 
         return $review;
     }

@@ -9,30 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AttributeBundle\Form\Type\AttributeType\Configuration;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class DatetimeAttributeConfigurationType extends AbstractType
+final class DatetimeAttributeConfigurationType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('format', 'text', ['label' => 'sylius.form.attribute_type_configuration.datetime.format'])
+            ->add('format', TextType::class, [
+                'label' => 'sylius.form.attribute_type_configuration.datetime.format',
+                'required' => false,
+            ])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix(): string
     {
         return 'sylius_attribute_type_configuration_datetime';
     }

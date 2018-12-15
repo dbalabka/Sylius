@@ -2,18 +2,14 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    group:
-      name: Tên
-      roles: Vai trò
-    user:
-      password:
-        label: Mật khẩu
-    customer:
-      groups: Nhóm
-    user_filter:
-      query: Tìm kiếm
-    user_change_password:
-      confirmation: Xác nhận
-    user_reset_password:
-      confirmation: Xác nhận
+    form:
+        user:
+            enabled: Đã kích hoạt
+            password:
+                label: Mật khẩu
+        user_filter:
+            query: Tìm kiếm
+        user_change_password:
+            confirmation: Xác nhận
+        user_reset_password:
+            confirmation: Xác nhận

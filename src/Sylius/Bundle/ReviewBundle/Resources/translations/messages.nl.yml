@@ -2,10 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Titel
-      comment: Commentaar
-      author: Auteur
-      status:
-        new: Nieuw
+    form:
+        review:
+            author: Auteur
+            comment: Commentaar
+            header: Voeg een review toe
+            rating: Beoordeling
+            status:
+                approved: Goedgekeurd
+                label: Status
+                new: Nieuw
+                rejected: Afgewezen
+            submit: Verzend
+            title: Titel

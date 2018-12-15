@@ -9,61 +9,47 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\Type;
 
-use Sylius\Component\Addressing\Model\CountryInterface;
-use Symfony\Component\Intl\Intl;
-use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\ReversedTransformer;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
-class CountryCodeChoiceType extends CountryChoiceType
+final class CountryCodeChoiceType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    /** @var RepositoryInterface */
+    private $countryRepository;
+
+    public function __construct(RepositoryInterface $countryRepository)
     {
-        parent::configureOptions($resolver);
-
-        $choices = function (Options $options) {
-            if (null === $options['enabled']) {
-                $countries = $this->countryRepository->findAll();
-            } else {
-                $countries = $this->countryRepository->findBy(['enabled' => $options['enabled']]);
-            }
-
-            return $this->getCountryCodes($countries);
-        };
-
-        $resolver->setDefault('choice_list', null);
-        $resolver->setDefault('choices', $choices);
+        $this->countryRepository = $countryRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->addModelTransformer(new ReversedTransformer(new ResourceToIdentifierTransformer($this->countryRepository, 'code')));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent(): string
+    {
+        return CountryChoiceType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_country_code_choice';
-    }
-
-    /**
-     * @param CountryInterface[] $countries
-     *
-     * @return array
-     */
-    private function getCountryCodes(array $countries)
-    {
-        $countryCodes = [];
-
-        /* @var CountryInterface $country */
-        foreach ($countries as $country) {
-            $countryCodes[$country->getCode()] = Intl::getRegionBundle()->getCountryName($country->getCode());
-        }
-
-        return $countryCodes;
     }
 }

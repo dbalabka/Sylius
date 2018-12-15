@@ -9,60 +9,47 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\AddressingBundle\Form\Type;
 
-use Sylius\Component\Addressing\Model\ProvinceInterface;
-use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\ReversedTransformer;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
-class ProvinceCodeChoiceType extends ProvinceChoiceType
+final class ProvinceCodeChoiceType extends AbstractType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    /** @var RepositoryInterface */
+    private $provinceRepository;
+
+    public function __construct(RepositoryInterface $provinceRepository)
     {
-        parent::configureOptions($resolver);
-
-        $choices = function (Options $options) {
-            if (null === $options['country']) {
-                $provinces = $this->provinceRepository->findAll();
-            } else {
-                $provinces = $options['country']->getProvinces();
-            }
-
-            return $this->getProvinceCodes($provinces);
-        };
-
-        $resolver->setDefault('choice_list', null);
-        $resolver->setDefault('choices', $choices);
+        $this->provinceRepository = $provinceRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function buildForm(FormBuilderInterface $builder, array $options): void
+    {
+        $builder->addModelTransformer(new ReversedTransformer(new ResourceToIdentifierTransformer($this->provinceRepository, 'code')));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getParent(): string
+    {
+        return ProvinceChoiceType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix(): string
     {
         return 'sylius_province_code_choice';
-    }
-
-    /**
-     * @param ProvinceInterface[] $provinces
-     *
-     * @return array
-     */
-    private function getProvinceCodes($provinces)
-    {
-        $provincesCodes = [];
-
-        /* @var ProvinceInterface $province */
-        foreach ($provinces as $province) {
-            $provincesCodes[$province->getCode()] = $province->getName();
-        }
-
-        return $provincesCodes;
     }
 }

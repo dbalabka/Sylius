@@ -2,6 +2,13 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    tax_category:
-      description: Descrição
+    form:
+        tax_category:
+            name: Nome
+            description: Descrição
+        tax_rate:
+            category: Categoria
+            name: Nome
+            amount: Quantia
+            included_in_price: Incluído no preço?
+            calculator: Calculadora

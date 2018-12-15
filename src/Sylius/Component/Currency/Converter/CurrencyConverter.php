@@ -9,73 +9,67 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Currency\Converter;
 
-use Sylius\Component\Currency\Model\CurrencyInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Currency\Model\ExchangeRateInterface;
+use Sylius\Component\Currency\Repository\ExchangeRateRepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class CurrencyConverter implements CurrencyConverterInterface
+final class CurrencyConverter implements CurrencyConverterInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
-    protected $currencyRepository;
+    /** @var ExchangeRateRepositoryInterface */
+    private $exchangeRateRepository;
 
-    /**
-     * @var array
-     */
+    /** @var array|ExchangeRateInterface[] */
     private $cache;
 
-    /**
-     * @param RepositoryInterface $currencyRepository
-     */
-    public function __construct(RepositoryInterface $currencyRepository)
+    public function __construct(ExchangeRateRepositoryInterface $exchangeRateRepository)
     {
-        $this->currencyRepository = $currencyRepository;
+        $this->exchangeRateRepository = $exchangeRateRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function convertFromBase($amount, $targetCurrencyCode)
+    public function convert(int $amount, string $sourceCurrencyCode, string $targetCurrencyCode): int
     {
-        $currency = $this->getCurrency($targetCurrencyCode);
-
-        if (null === $currency) {
-            throw new UnavailableCurrencyException($targetCurrencyCode);
+        if ($sourceCurrencyCode === $targetCurrencyCode) {
+            return $amount;
         }
 
-        return (int) round($amount * $currency->getExchangeRate());
+        $exchangeRate = $this->findExchangeRate($sourceCurrencyCode, $targetCurrencyCode);
+
+        if (null === $exchangeRate) {
+            return $amount;
+        }
+
+        if ($exchangeRate->getSourceCurrency()->getCode() === $sourceCurrencyCode) {
+            return (int) round($amount * $exchangeRate->getRatio());
+        }
+
+        return (int) round($amount / $exchangeRate->getRatio());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function convertToBase($amount, $sourceCurrencyCode)
+    private function findExchangeRate(string $sourceCode, string $targetCode): ?ExchangeRateInterface
     {
-        $currency = $this->getCurrency($sourceCurrencyCode);
+        $sourceTargetIndex = $this->createIndex($sourceCode, $targetCode);
 
-        if (null === $currency) {
-            throw new UnavailableCurrencyException($sourceCurrencyCode);
+        if (isset($this->cache[$sourceTargetIndex])) {
+            return $this->cache[$sourceTargetIndex];
         }
 
-        return (int) round($amount / $currency->getExchangeRate());
+        $targetSourceIndex = $this->createIndex($targetCode, $sourceCode);
+
+        if (isset($this->cache[$targetSourceIndex])) {
+            return $this->cache[$targetSourceIndex];
+        }
+
+        return $this->cache[$sourceTargetIndex] = $this->exchangeRateRepository->findOneWithCurrencyPair($sourceCode, $targetCode);
     }
 
-    /**
-     * @param string $code
-     *
-     * @return CurrencyInterface
-     */
-    private function getCurrency($code)
+    private function createIndex(string $prefix, string $suffix): string
     {
-        if (isset($this->cache[$code])) {
-            return $this->cache[$code];
-        }
-
-        return $this->cache[$code] = $this->currencyRepository->findOneBy(['code' => $code]);
+        return sprintf('%s-%s', $prefix, $suffix);
     }
 }

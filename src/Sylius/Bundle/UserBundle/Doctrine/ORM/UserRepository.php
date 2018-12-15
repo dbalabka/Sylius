@@ -9,179 +9,26 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UserBundle\Doctrine\ORM;
 
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\Pagerfanta;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
-use Sylius\Component\Core\Model\UserInterface;
+use Sylius\Component\User\Model\UserInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class UserRepository extends EntityRepository implements UserRepositoryInterface
 {
     /**
-     * @param array $criteria
-     * @param array $sorting
-     *
-     * @return Pagerfanta
+     * {@inheritdoc}
      */
-    public function createFilterPaginator($criteria = [], $sorting = [])
+    public function findOneByEmail(string $email): ?UserInterface
     {
-        $queryBuilder = parent::getCollectionQueryBuilder();
-
-        if (isset($criteria['query'])) {
-            $queryBuilder
-                ->leftJoin($this->getAlias().'.customer', 'customer')
-                ->where('customer.emailCanonical LIKE :query')
-                ->orWhere('customer.firstName LIKE :query')
-                ->orWhere('customer.lastName LIKE :query')
-                ->orWhere($this->getAlias().'.username LIKE :query')
-                ->setParameter('query', '%'.$criteria['query'].'%')
-            ;
-        }
-        if (isset($criteria['enabled'])) {
-            $queryBuilder
-                ->andWhere('o.enabled = :enabled')
-                ->setParameter('enabled', $criteria['enabled'])
-            ;
-        }
-
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        return $this->getPaginator($queryBuilder);
-    }
-
-    /**
-     * Get the user data for the details page.
-     *
-     * @param int $id
-     *
-     * @return null|UserInterface
-     */
-    public function findForDetailsPage($id)
-    {
-        $queryBuilder = $this->getQueryBuilder();
-        $queryBuilder
-            ->leftJoin($this->getAlias().'.customer', 'customer')
-            ->addSelect('customer')
-            ->where($queryBuilder->expr()->eq($this->getAlias().'.id', ':id'))
-            ->setParameter('id', $id)
-        ;
-
-        $result = $queryBuilder
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-
-        return $result;
-    }
-
-    /**
-     * @param \DateTime   $from
-     * @param \DateTime   $to
-     * @param null|string $status
-     *
-     * @return mixed
-     */
-    public function countBetweenDates(\DateTime $from, \DateTime $to, $status = null)
-    {
-        $queryBuilder = $this->getCollectionQueryBuilderBetweenDates($from, $to);
-        if (null !== $status) {
-            $queryBuilder
-                ->andWhere('o.status = :status')
-                ->setParameter('status', $status)
-            ;
-        }
-
-        return $queryBuilder
-            ->select('count(o.id)')
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
-    }
-
-    /**
-     * @param array $configuration
-     *
-     * @return array
-     */
-    public function getRegistrationStatistic(array $configuration = [])
-    {
-        $groupBy = '';
-        foreach ($configuration['groupBy'] as $groupByArray) {
-            $groupBy = $groupByArray.'(date)'.' '.$groupBy;
-        }
-        $groupBy = substr($groupBy, 0, -1);
-        $groupBy = str_replace(' ', ', ', $groupBy);
-
-        $queryBuilder = $this->getEntityManager()->getConnection()->createQueryBuilder();
-
-        $queryBuilder
-            ->select('DATE(u.created_at) as date', ' count(u.id) as user_total')
-            ->from('sylius_user', 'u')
-            ->where($queryBuilder->expr()->gte('u.created_at', ':from'))
-            ->andWhere($queryBuilder->expr()->lte('u.created_at', ':to'))
-            ->setParameter('from', $configuration['start']->format('Y-m-d H:i:s'))
-            ->setParameter('to', $configuration['end']->format('Y-m-d H:i:s'))
-            ->groupBy($groupBy)
-            ->orderBy($groupBy)
-        ;
-
-        return $queryBuilder
-            ->execute()
-            ->fetchAll();
-    }
-
-    /**
-     * @param string $email
-     *
-     * @return mixed
-     *
-     * @throws NonUniqueResultException
-     */
-    public function findOneByEmail($email)
-    {
-        $queryBuilder = $this->getQueryBuilder();
-
-        $queryBuilder
-            ->leftJoin($this->getAlias().'.customer', 'customer')
-            ->andWhere($queryBuilder->expr()->eq('customer.emailCanonical', ':email'))
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.emailCanonical = :email')
             ->setParameter('email', $email)
-        ;
-
-        return $queryBuilder
             ->getQuery()
             ->getOneOrNullResult()
-        ;
-    }
-
-    /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     *
-     * @return QueryBuilder
-     */
-    protected function getCollectionQueryBuilderBetweenDates(\DateTime $from, \DateTime $to)
-    {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-
-        return $queryBuilder
-            ->andWhere($queryBuilder->expr()->gte('o.createdAt', ':from'))
-            ->andWhere($queryBuilder->expr()->lte('o.createdAt', ':to'))
-            ->setParameter('from', $from)
-            ->setParameter('to', $to)
         ;
     }
 }

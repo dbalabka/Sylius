@@ -9,27 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Factory\FactoryInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class NewResourceFactory implements NewResourceFactoryInterface
+final class NewResourceFactory implements NewResourceFactoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function create(RequestConfiguration $requestConfiguration, FactoryInterface $factory)
+    public function create(RequestConfiguration $requestConfiguration, FactoryInterface $factory): ResourceInterface
     {
         if (null === $method = $requestConfiguration->getFactoryMethod()) {
             return $factory->createNew();
         }
 
-        $callable = [$factory, $method];
-        $arguments = $requestConfiguration->getFactoryArguments();
+        if (is_array($method) && 2 === count($method)) {
+            $factory = $method[0];
+            $method = $method[1];
+        }
 
-        return call_user_func_array($callable, $arguments);
+        $arguments = array_values($requestConfiguration->getFactoryArguments());
+
+        return $factory->$method(...$arguments);
     }
 }

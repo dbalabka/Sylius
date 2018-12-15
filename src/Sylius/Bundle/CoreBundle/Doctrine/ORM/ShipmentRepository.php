@@ -9,80 +9,53 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
-use Pagerfanta\Pagerfanta;
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\Model\ShipmentInterface;
+use Sylius\Component\Core\Repository\ShipmentRepositoryInterface;
 
-class ShipmentRepository extends EntityRepository
+class ShipmentRepository extends EntityRepository implements ShipmentRepositoryInterface
 {
     /**
-     * @param array $criteria
-     * @param array $sorting
-     *
-     * @return Pagerfanta
+     * {@inheritdoc}
      */
-    public function createFilterPaginator($criteria = [], $sorting = [])
+    public function createListQueryBuilder(): QueryBuilder
     {
-        $this->_em->getFilters()->disable('softdeleteable');
-
-        $queryBuilder = $this->getCollectionQueryBuilder();
-
-        $queryBuilder
-            ->innerJoin($this->getAlias().'.order', 'shipmentOrder')
-            ->innerJoin('shipmentOrder.shippingAddress', 'address')
-            ->addSelect('shipmentOrder')
-            ->addSelect('address')
-        ;
-
-        if (!empty($criteria['number'])) {
-            $queryBuilder
-                ->andWhere('shipmentOrder.number = :number')
-                ->setParameter('number', $criteria['number'])
-            ;
-        }
-        if (!empty($criteria['channel'])) {
-            $queryBuilder
-                ->andWhere('shipmentOrder.channel = :channel')
-                ->setParameter('channel', $criteria['channel'])
-            ;
-        }
-        if (!empty($criteria['shippingAddress'])) {
-            $queryBuilder
-                ->andWhere('address.lastName LIKE :shippingAddress')
-                ->setParameter('shippingAddress', '%'.$criteria['shippingAddress'].'%')
-            ;
-        }
-        if (!empty($criteria['createdAtFrom'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->gte($this->getAlias().'.createdAt', ':createdAtFrom'))
-                ->setParameter('createdAtFrom', date('Y-m-d 00:00:00', strtotime($criteria['createdAtFrom'])))
-            ;
-        }
-        if (!empty($criteria['createdAtTo'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->lte($this->getAlias().'.createdAt', ':createdAtTo'))
-                ->setParameter('createdAtTo', date('Y-m-d 23:59:59', strtotime($criteria['createdAtTo'])))
-            ;
-        }
-
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        return $this->getPaginator($queryBuilder);
+        return $this->createQueryBuilder('o');
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    protected function getAlias()
+    public function findOneByOrderId($shipmentId, $orderId): ?ShipmentInterface
     {
-        return 's';
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :shipmentId')
+            ->andWhere('o.order = :orderId')
+            ->setParameter('shipmentId', $shipmentId)
+            ->setParameter('orderId', $orderId)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByName(string $name, string $locale): array
+    {
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.name = :name')
+            ->andWhere('translation.locale = :locale')
+            ->setParameter('name', $name)
+            ->setParameter('localeCode', $locale)
+            ->getQuery()
+            ->getResult()
+        ;
     }
 }

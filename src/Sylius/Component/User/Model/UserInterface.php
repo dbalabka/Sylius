@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Model;
 
 use Doctrine\Common\Collections\Collection;
@@ -17,11 +19,6 @@ use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\ToggleableInterface;
 use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 interface UserInterface extends
     AdvancedUserInterface,
     CredentialsHolderInterface,
@@ -30,102 +27,61 @@ interface UserInterface extends
     TimestampableInterface,
     ToggleableInterface
 {
-    const DEFAULT_ROLE = 'ROLE_USER';
+    public const DEFAULT_ROLE = 'ROLE_USER';
 
-    /**
-     * @return string
-     */
-    public function getEmail();
+    public function getEmail(): ?string;
 
-    /**
-     * @param string $email
-     */
-    public function setEmail($email);
+    public function setEmail(?string $email): void;
 
     /**
      * Gets normalized email (should be used in search and sort queries).
-     *
-     * @return string
      */
-    public function getEmailCanonical();
+    public function getEmailCanonical(): ?string;
 
-    /**
-     * @param string $emailCanonical
-     */
-    public function setEmailCanonical($emailCanonical);
+    public function setEmailCanonical(?string $emailCanonical): void;
 
-    /**
-     * @return CustomerInterface
-     */
-    public function getCustomer();
-
-    /**
-     * @param CustomerInterface $customer
-     */
-    public function setCustomer(CustomerInterface $customer = null);
-
-    /**
-     * @param string $username
-     */
-    public function setUsername($username);
+    public function setUsername(?string $username): void;
 
     /**
      * Gets normalized username (should be used in search and sort queries).
-     *
-     * @return string
      */
-    public function getUsernameCanonical();
+    public function getUsernameCanonical(): ?string;
 
-    /**
-     * @param string $usernameCanonical
-     */
-    public function setUsernameCanonical($usernameCanonical);
+    public function setUsernameCanonical(?string $usernameCanonical): void;
 
-    /**
-     * @param bool $locked
-     */
-    public function setLocked($locked);
+    public function setLocked(bool $locked): void;
 
-    /**
-     * @return string
-     */
-    public function getConfirmationToken();
+    public function getEmailVerificationToken(): ?string;
 
-    /**
-     * @param string $confirmationToken
-     */
-    public function setConfirmationToken($confirmationToken);
+    public function setEmailVerificationToken(?string $verificationToken): void;
 
-    /**
-     * Sets the timestamp that the user requested a password reset.
-     *
-     * @param null|\DateTime $date
-     */
-    public function setPasswordRequestedAt(\DateTime $date = null);
+    public function getPasswordResetToken(): ?string;
 
-    /**
-     * Checks whether the password reset request has expired.
-     *
-     * @param \DateInterval $ttl Requests older than this time interval will be considered expired
-     *
-     * @return bool true if the user's password request is non expired, false otherwise
-     */
-    public function isPasswordRequestNonExpired(\DateInterval $ttl);
+    public function setPasswordResetToken(?string $passwordResetToken): void;
 
-    /**
-     * @param \DateTime $date
-     */
-    public function setCredentialsExpireAt(\DateTime $date = null);
+    public function getPasswordRequestedAt(): ?\DateTimeInterface;
 
-    /**
-     * @return \DateTime
-     */
-    public function getLastLogin();
+    public function setPasswordRequestedAt(?\DateTimeInterface $date): void;
 
-    /**
-     * @param \DateTime $time
-     */
-    public function setLastLogin(\DateTime $time = null);
+    public function isPasswordRequestNonExpired(\DateInterval $ttl): bool;
+
+    public function isVerified(): bool;
+
+    public function getVerifiedAt(): ?\DateTimeInterface;
+
+    public function setVerifiedAt(?\DateTimeInterface $verifiedAt): void;
+
+    public function getExpiresAt(): ?\DateTimeInterface;
+
+    public function setExpiresAt(?\DateTimeInterface $date): void;
+
+    public function getCredentialsExpireAt(): ?\DateTimeInterface;
+
+    public function setCredentialsExpireAt(?\DateTimeInterface $date): void;
+
+    public function getLastLogin(): ?\DateTimeInterface;
+
+    public function setLastLogin(?\DateTimeInterface $time): void;
 
     /**
      * Never use this to check if this user has access to anything!
@@ -134,50 +90,19 @@ interface UserInterface extends
      * instead, e.g.
      *
      *         $securityContext->isGranted('ROLE_USER');
-     *
-     * @param string $role
-     *
-     * @return bool
      */
-    public function hasRole($role);
+    public function hasRole(string $role): bool;
+
+    public function addRole(string $role): void;
+
+    public function removeRole(string $role): void;
 
     /**
-     * This overwrites any previous roles.
-     *
-     * @param array $roles
-     */
-    public function setRoles(array $roles);
-
-    /**
-     * @param string $role
-     */
-    public function addRole($role);
-
-    /**
-     * @param string $role
-     */
-    public function removeRole($role);
-
-    /**
-     * Gets connected OAuth accounts.
-     *
      * @return Collection|UserOAuthInterface[]
      */
-    public function getOAuthAccounts();
+    public function getOAuthAccounts(): Collection;
 
-    /**
-     * Gets connected OAuth account.
-     *
-     * @param string $provider
-     *
-     * @return null|UserOAuthInterface
-     */
-    public function getOAuthAccount($provider);
+    public function getOAuthAccount(string $provider): ?UserOAuthInterface;
 
-    /**
-     * Connects OAuth account.
-     *
-     * @param UserOAuthInterface $oauth
-     */
-    public function addOAuthAccount(UserOAuthInterface $oauth);
+    public function addOAuthAccount(UserOAuthInterface $oauth): void;
 }

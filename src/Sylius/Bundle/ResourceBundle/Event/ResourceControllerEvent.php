@@ -9,48 +9,36 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Event;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
 class ResourceControllerEvent extends GenericEvent
 {
-    const TYPE_ERROR = 'error';
-    const TYPE_WARNING = 'warning';
-    const TYPE_INFO = 'info';
-    const TYPE_SUCCESS = 'success';
+    public const TYPE_ERROR = 'error';
+    public const TYPE_WARNING = 'warning';
+    public const TYPE_INFO = 'info';
+    public const TYPE_SUCCESS = 'success';
 
-    /**
-     * @var string
-     */
-    protected $messageType = '';
+    /** @var string */
+    private $messageType = '';
 
-    /**
-     * @var string
-     */
-    protected $message = '';
+    /** @var string */
+    private $message = '';
 
-    /**
-     * @var array
-     */
-    protected $messageParameters = [];
+    /** @var array */
+    private $messageParameters = [];
 
-    /**
-     * @var int
-     */
-    protected $errorCode = 500;
+    /** @var int */
+    private $errorCode = 500;
 
-    /**
-     * Stop event propagation
-     *
-     * @param string $message
-     * @param string $type
-     * @param array  $parameters
-     */
-    public function stop($message, $type = self::TYPE_ERROR, $parameters = [], $errorCode = 500)
+    /** @var Response */
+    private $response;
+
+    public function stop(string $message, string $type = self::TYPE_ERROR, array $parameters = [], int $errorCode = 500)
     {
         $this->messageType = $type;
         $this->message = $message;
@@ -60,101 +48,66 @@ class ResourceControllerEvent extends GenericEvent
         $this->stopPropagation();
     }
 
-    /**
-     * Alias
-     *
-     * @return bool
-     */
-    public function isStopped()
+    public function isStopped(): bool
     {
         return $this->isPropagationStopped();
     }
 
-    /**
-     * Get messageType property
-     *
-     * @return string
-     */
-    public function getMessageType()
+    public function getMessageType(): string
     {
         return $this->messageType;
     }
 
     /**
-     * Sets messageType property
-     *
      * @param string $messageType Should be one of ResourceEvent's TYPE constants
-     *
-     * @return $this
      */
-    public function setMessageType($messageType)
+    public function setMessageType($messageType): void
     {
         $this->messageType = $messageType;
     }
 
-    /**
-     * Get message property
-     *
-     * @return string
-     */
-    public function getMessage()
+    public function getMessage(): string
     {
         return $this->message;
     }
 
-    /**
-     * Sets message property
-     *
-     * @param string $message
-     *
-     * @return $this
-     */
-    public function setMessage($message)
+    public function setMessage(string $message): void
     {
         $this->message = $message;
     }
 
-    /**
-     * Get messageParameters property
-     *
-     * @return array
-     */
-    public function getMessageParameters()
+    public function getMessageParameters(): array
     {
         return $this->messageParameters;
     }
 
-    /**
-     * Sets messageParameters property
-     *
-     * @param array $messageParameters
-     *
-     * @return $this
-     */
-    public function setMessageParameters(array $messageParameters)
+    public function setMessageParameters(array $messageParameters): void
     {
         $this->messageParameters = $messageParameters;
     }
 
-    /**
-     * Get errorCode property
-     *
-     * @return int
-     */
-    public function getErrorCode()
+    public function getErrorCode(): int
     {
         return $this->errorCode;
     }
 
-    /**
-     * Sets errorCode property
-     *
-     * @param int $errorCode
-     *
-     * @return $this
-     */
-    public function setErrorCode($errorCode)
+    public function setErrorCode(int $errorCode): void
     {
         $this->errorCode = $errorCode;
+    }
+
+    public function setResponse(Response $response): void
+    {
+        $this->response = $response;
+    }
+
+    public function hasResponse(): bool
+    {
+        return null !== $this->response;
+    }
+
+    public function getResponse(): ?Response
+    {
+        return $this->response;
     }
 }

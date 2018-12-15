@@ -2,9 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Название
-      author: Автор
-      status:
-        new: Новый
+    form:
+        review:
+            author: Автор
+            comment: Комментарий
+            header: Добавить отзыв
+            rating: Рейтинг
+            status:
+                approved: Одобрено
+                label: Статус
+                new: Новый
+                rejected: Отклонено
+            submit: Отправить
+            title: Название

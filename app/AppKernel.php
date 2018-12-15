@@ -9,29 +9,12 @@
  * file that was distributed with this source code.
  */
 
-use Sylius\Bundle\CoreBundle\Kernel\Kernel;
-
 /**
- * Sylius application kernel.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
+ * @internal
  */
-class AppKernel extends Kernel
-{
-    /**
-     * {@inheritdoc}
-     */
-    public function registerBundles()
-    {
-        $bundles = array(
-            // Put here your own bundles!
-        );
 
-        if (in_array($this->environment, array('dev', 'test'))) {
-            $bundles[] = new \Symfony\Bundle\DebugBundle\DebugBundle();
-            $bundles[] = new \Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
-        }
+declare(strict_types=1);
 
-        return array_merge(parent::registerBundles(), $bundles);
-    }
-}
+@trigger_error('The "AppKernel" class located at "app/AppKernel.php" is deprecated since Sylius 1.3. Use "Kernel" class located at "src/Kernel.php" instead.', E_USER_DEPRECATED);
+
+class_alias(Kernel::class, AppKernel::class);

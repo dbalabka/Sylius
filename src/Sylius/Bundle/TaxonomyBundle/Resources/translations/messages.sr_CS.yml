@@ -2,8 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    taxon:
-      name: Ime
-    taxonomy:
-      name: Ime
+    form:
+        taxon:
+            description: Opis
+            name: Ime
+            parent: Roditelj
+        taxonomy:
+            name: Ime

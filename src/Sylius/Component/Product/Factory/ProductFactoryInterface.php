@@ -9,19 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Factory;
 
-use Sylius\Component\Translation\Factory\TranslatableFactoryInterface;
+use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Resource\Factory\TranslatableFactoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductFactoryInterface extends TranslatableFactoryInterface
 {
-    /**
-     * @param mixed $archetypeCode
-     *
-     * @return ProductInterface
-     */
-    public function createFromArchetype($archetypeCode);
+    public function createWithVariant(): ProductInterface;
 }

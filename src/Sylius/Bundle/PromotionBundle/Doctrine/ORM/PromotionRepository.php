@@ -9,66 +9,42 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PromotionBundle\Doctrine\ORM;
 
 use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Sylius\Component\Promotion\Repository\PromotionRepositoryInterface;
 
-/**
- * Promotion repository.
- *
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 class PromotionRepository extends EntityRepository implements PromotionRepositoryInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function findActive()
+    public function findActive(): array
     {
-        $qb = $this
-            ->getCollectionQueryBuilder()
-            ->orderBy($this->getPropertyName('priority'), 'DESC')
-        ;
-
-        $this->filterByActive($qb);
-
-        return $qb
+        return $this->filterByActive($this->createQueryBuilder('o'))
+            ->addOrderBy('o.priority', 'desc')
             ->getQuery()
             ->getResult()
         ;
     }
 
-    protected function getCollectionQueryBuilder()
+    /**
+     * {@inheritdoc}
+     */
+    public function findByName(string $name): array
     {
-        return parent::getCollectionQueryBuilder()
-            ->leftJoin($this->getPropertyName('rules'), 'r')
-            ->addSelect('r')
-            ->leftJoin($this->getPropertyName('actions'), 'a')
-            ->addSelect('a');
+        return $this->findBy(['name' => $name]);
     }
 
-    protected function filterByActive(QueryBuilder $qb, \Datetime $date = null)
+    protected function filterByActive(QueryBuilder $queryBuilder, ?\DateTimeInterface $date = null): QueryBuilder
     {
-        if (null === $date) {
-            $date = new \Datetime();
-        }
-
-        return $qb
-            ->where(
-                $qb->expr()->orX(
-                    $qb->expr()->isNull($this->getPropertyName('startsAt')),
-                    $qb->expr()->lt($this->getPropertyName('startsAt'), ':date')
-                )
-            )
-            ->andWhere(
-                $qb->expr()->orX(
-                    $qb->expr()->isNull($this->getPropertyName('endsAt')),
-                    $qb->expr()->gt($this->getPropertyName('endsAt'), ':date')
-                )
-            )
-            ->setParameter('date', $date)
+        return $queryBuilder
+            ->andWhere('o.startsAt IS NULL OR o.startsAt < :date')
+            ->andWhere('o.endsAt IS NULL OR o.endsAt > :date')
+            ->setParameter('date', $date ?: new \DateTime())
         ;
     }
 }

@@ -9,113 +9,89 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Model;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
-use Sylius\Component\Resource\Model\SoftDeletableInterface;
-use Sylius\Component\Translation\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\SlugAwareInterface;
+use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-interface TaxonInterface extends CodeAwareInterface, SoftDeletableInterface, TaxonTranslationInterface, TranslatableInterface
+interface TaxonInterface extends CodeAwareInterface, TranslatableInterface, ResourceInterface, SlugAwareInterface
 {
-    /**
-     * @return TaxonomyInterface
-     */
-    public function getTaxonomy();
+    public function isRoot(): bool;
 
     /**
-     * @param null|TaxonomyInterface $taxonomy
+     * @return TaxonInterface|null
      */
-    public function setTaxonomy(TaxonomyInterface $taxonomy = null);
+    public function getRoot(): ?self;
 
     /**
-     * @return bool
+     * @return TaxonInterface|null
      */
-    public function isRoot();
+    public function getParent(): ?self;
 
     /**
-     * @return TaxonInterface
+     * @param TaxonInterface|null $taxon
      */
-    public function getParent();
-
-    /**
-     * @param null|TaxonInterface $taxon
-     */
-    public function setParent(TaxonInterface $taxon = null);
+    public function setParent(?self $taxon): void;
 
     /**
      * @return Collection|TaxonInterface[]
      */
-    public function getChildren();
+    public function getAncestors(): Collection;
 
     /**
-     * @param TaxonInterface $taxon
-     *
-     * @return bool
+     * @return Collection|TaxonInterface[]
      */
-    public function hasChild(TaxonInterface $taxon);
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function addChild(TaxonInterface $taxon);
+    public function getChildren(): Collection;
 
     /**
      * @param TaxonInterface $taxon
      */
-    public function removeChild(TaxonInterface $taxon);
+    public function hasChild(self $taxon): bool;
+
+    public function hasChildren(): bool;
 
     /**
-     * @return string
+     * @param TaxonInterface $taxon
      */
-    public function getName();
+    public function addChild(self $taxon): void;
 
     /**
-     * @param string $name
+     * @param TaxonInterface $taxon
      */
-    public function setName($name);
+    public function removeChild(self $taxon): void;
+
+    public function getName(): ?string;
+
+    public function setName(?string $name): void;
+
+    public function getDescription(): ?string;
+
+    public function setDescription(?string $description): void;
+
+    public function getLeft(): ?int;
+
+    public function setLeft(?int $left): void;
+
+    public function getRight(): ?int;
+
+    public function setRight(?int $right): void;
+
+    public function getLevel(): ?int;
+
+    public function setLevel(?int $level): void;
+
+    public function getPosition(): ?int;
+
+    public function setPosition(?int $position): void;
 
     /**
-     * @return string
+     * @return TaxonTranslationInterface
      */
-    public function getPermalink();
-
-    /**
-     * @param string $permalink
-     */
-    public function setPermalink($permalink);
-
-    /**
-     * @return int
-     */
-    public function getLeft();
-
-    /**
-     * @param int $left
-     */
-    public function setLeft($left);
-
-    /**
-     * @return int
-     */
-    public function getRight();
-
-    /**
-     * @param int $right
-     */
-    public function setRight($right);
-
-    /**
-     * @return int
-     */
-    public function getLevel();
-
-    /**
-     * @param int $level
-     */
-    public function setLevel($level);
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

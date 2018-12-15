@@ -2,7 +2,6 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    locale:
-      enabled: Povoleno
-      name: Jméno
+    form:
+        locale:
+            name: Jméno

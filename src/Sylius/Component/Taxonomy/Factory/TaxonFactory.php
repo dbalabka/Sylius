@@ -9,40 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Factory;
 
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class TaxonFactory implements TaxonFactoryInterface
+final class TaxonFactory implements TaxonFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $taxonomyRepository;
-
-    /**
-     * @param FactoryInterface $factory
-     * @param RepositoryInterface $taxonomyRepository
-     */
-    public function __construct(FactoryInterface $factory, RepositoryInterface $taxonomyRepository)
+    public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
-        $this->taxonomyRepository = $taxonomyRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): TaxonInterface
     {
         return $this->factory->createNew();
     }
@@ -50,15 +37,11 @@ class TaxonFactory implements TaxonFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createForTaxonomy($taxonomyId)
+    public function createForParent(TaxonInterface $parent): TaxonInterface
     {
-        if (null === $taxonomy = $this->taxonomyRepository->find($taxonomyId)) {
-            throw new \InvalidArgumentException(sprintf('Taxonomy with id "%s" does not exist.', $taxonomyId));
-        }
+        $taxon = $this->createNew();
+        $taxon->setParent($parent);
 
-        $coupon = $this->factory->createNew();
-        $coupon->setTaxonomy($taxonomy);
-
-        return $coupon;
+        return $taxon;
     }
 }

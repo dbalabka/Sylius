@@ -9,49 +9,52 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+use Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Factory\Factory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * This class contains the configuration information for the bundle.
- *
- * This information is solely responsible for how the different configuration
- * sections are normalized, and merged.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('sylius_resource');
 
         $this->addResourcesSection($rootNode);
         $this->addSettingsSection($rootNode);
+        $this->addTranslationsSection($rootNode);
+        $this->addDriversSection($rootNode);
+
+        $rootNode
+            ->children()
+                ->scalarNode('authorization_checker')
+                    ->defaultValue('sylius.resource_controller.authorization_checker.disabled')
+                    ->cannotBeEmpty()
+                ->end()
+            ->end()
+        ;
 
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
-    private function addResourcesSection(ArrayNodeDefinition $node)
+    private function addResourcesSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('resources')
                     ->useAttributeAsKey('name')
-                    ->prototype('array')
+                    ->arrayPrototype()
                         ->children()
                             ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
                             ->variableNode('options')->end()
@@ -65,18 +68,7 @@ class Configuration implements ConfigurationInterface
                                     ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                     ->scalarNode('repository')->cannotBeEmpty()->end()
                                     ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                    ->arrayNode('form')
-                                        ->prototype('scalar')->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->arrayNode('validation_groups')
-                                ->addDefaultsIfNotSet()
-                                ->children()
-                                    ->arrayNode('default')
-                                        ->prototype('scalar')->end()
-                                        ->defaultValue([])
-                                    ->end()
+                                    ->scalarNode('form')->defaultValue(DefaultResourceType::class)->cannotBeEmpty()->end()
                                 ->end()
                             ->end()
                             ->arrayNode('translation')
@@ -91,23 +83,8 @@ class Configuration implements ConfigurationInterface
                                             ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                             ->scalarNode('repository')->cannotBeEmpty()->end()
                                             ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                            ->arrayNode('form')
-                                                ->prototype('scalar')->end()
-                                            ->end()
+                                            ->scalarNode('form')->defaultValue(DefaultResourceType::class)->cannotBeEmpty()->end()
                                         ->end()
-                                    ->end()
-                                    ->arrayNode('validation_groups')
-                                        ->addDefaultsIfNotSet()
-                                        ->children()
-                                            ->arrayNode('default')
-                                                ->prototype('scalar')->end()
-                                                ->defaultValue([])
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                    ->arrayNode('fields')
-                                        ->prototype('scalar')->end()
-                                        ->defaultValue([])
                                     ->end()
                                 ->end()
                             ->end()
@@ -118,10 +95,7 @@ class Configuration implements ConfigurationInterface
         ;
     }
 
-    /**
-     * @param $node
-     */
-    private function addSettingsSection(ArrayNodeDefinition $node)
+    private function addSettingsSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
@@ -131,7 +105,7 @@ class Configuration implements ConfigurationInterface
                         ->variableNode('paginate')->defaultNull()->end()
                         ->variableNode('limit')->defaultNull()->end()
                         ->arrayNode('allowed_paginate')
-                            ->prototype('integer')->end()
+                            ->integerPrototype()->end()
                             ->defaultValue([10, 20, 30])
                         ->end()
                         ->integerNode('default_page_size')->defaultValue(10)->end()
@@ -140,6 +114,31 @@ class Configuration implements ConfigurationInterface
                         ->booleanNode('filterable')->defaultFalse()->end()
                         ->variableNode('criteria')->defaultNull()->end()
                     ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function addTranslationsSection(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->arrayNode('translation')
+                    ->canBeDisabled()
+                    ->children()
+                        ->scalarNode('locale_provider')->defaultValue('sylius.translation_locale_provider.immutable')->cannotBeEmpty()->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function addDriversSection(ArrayNodeDefinition $node): void
+    {
+        $node
+            ->children()
+                ->arrayNode('drivers')
+                    ->defaultValue([SyliusResourceBundle::DRIVER_DOCTRINE_ORM])
+                    ->enumPrototype()->values(SyliusResourceBundle::getAvailableDrivers())->end()
                 ->end()
             ->end()
         ;

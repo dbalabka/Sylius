@@ -9,18 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Registry;
 
 /**
  * This exception should be thrown by service registry
  * when given type already exists.
- *
- * @author Saša Stamenković <umpirsky@gmail.com>
  */
 class ExistingServiceException extends \InvalidArgumentException
 {
-    public function __construct($type)
+    public function __construct(string $context, string $type)
     {
-        parent::__construct(sprintf('Service of type "%s" already exist.', $type));
+        parent::__construct(sprintf('%s of type "%s" already exists.', $context, $type));
     }
 }

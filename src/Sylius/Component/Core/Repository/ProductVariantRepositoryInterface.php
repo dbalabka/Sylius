@@ -9,19 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Repository;
 
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Component\Product\Repository\ProductVariantRepositoryInterface as BaseProductVariantRepositoryInterface;
 
-/**
- * This interface should be implemented by repository of product variants.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface ProductVariantRepositoryInterface extends RepositoryInterface
+interface ProductVariantRepositoryInterface extends BaseProductVariantRepositoryInterface
 {
-    /**
-     * Get query builder for the form choice field.
-     */
-    public function getFormQueryBuilder();
+    public function createInventoryListQueryBuilder(string $locale): QueryBuilder;
 }

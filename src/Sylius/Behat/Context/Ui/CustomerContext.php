@@ -9,35 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\Customer\CustomerShowPage;
-use Sylius\Behat\Page\ElementNotFoundException;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
+use Behat\Mink\Exception\ElementNotFoundException;
+use Sylius\Behat\Page\Admin\Customer\ShowPageInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- */
-class CustomerContext implements Context
+final class CustomerContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var CustomerShowPage
-     */
+    /** @var ShowPageInterface */
     private $customerShowPage;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param CustomerShowPage $customerShowPage
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
-        CustomerShowPage $customerShowPage
+        ShowPageInterface $customerShowPage
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->customerShowPage = $customerShowPage;
@@ -52,7 +44,13 @@ class CustomerContext implements Context
 
         $this->customerShowPage->open(['id' => $customer->getId()]);
 
-        expect($this->customerShowPage)->toThrow(new ElementNotFoundException('Element not found.'))->during('deleteAccount');
+        try {
+            $this->customerShowPage->deleteAccount();
+        } catch (ElementNotFoundException $exception) {
+            return;
+        }
+
+        throw new \DomainException('Delete account should throw an exception!');
     }
 
     /**
@@ -64,6 +62,6 @@ class CustomerContext implements Context
 
         $this->customerShowPage->open(['id' => $deletedUser->getCustomer()->getId()]);
 
-        expect($this->customerShowPage->isRegistered())->toBe(false);
+        Assert::false($this->customerShowPage->isRegistered());
     }
 }

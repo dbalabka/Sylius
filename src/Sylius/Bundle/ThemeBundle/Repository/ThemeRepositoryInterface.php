@@ -9,20 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Repository;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-interface ThemeRepositoryInterface extends RepositoryInterface
+interface ThemeRepositoryInterface
 {
     /**
-     * @param string $name
-     *
-     * @return ThemeInterface|null
+     * @return array|ThemeInterface[]
      */
-    public function findOneByName($name);
+    public function findAll(): array;
+
+    public function findOneByName(string $name): ?ThemeInterface;
+
+    public function findOneByTitle(string $title): ?ThemeInterface;
 }

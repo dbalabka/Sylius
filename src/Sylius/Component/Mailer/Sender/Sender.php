@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Mailer\Sender;
 
 use Sylius\Component\Mailer\Provider\DefaultSettingsProviderInterface;
@@ -16,41 +18,20 @@ use Sylius\Component\Mailer\Provider\EmailProviderInterface;
 use Sylius\Component\Mailer\Renderer\Adapter\AdapterInterface as RendererAdapterInterface;
 use Sylius\Component\Mailer\Sender\Adapter\AdapterInterface as SenderAdapterInterface;
 
-/**
- * Basic sender, which uses adapters system.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
-class Sender implements SenderInterface
+final class Sender implements SenderInterface
 {
-    /**
-     * @var RendererAdapterInterface
-     */
-    protected $rendererAdapter;
+    /** @var RendererAdapterInterface */
+    private $rendererAdapter;
 
-    /**
-     * @var SenderAdapterInterface
-     */
-    protected $senderAdapter;
+    /** @var SenderAdapterInterface */
+    private $senderAdapter;
 
-    /**
-     * @var EmailProviderInterface
-     */
-    protected $provider;
+    /** @var EmailProviderInterface */
+    private $provider;
 
-    /**
-     * @var DefaultSettingsProviderInterface
-     */
-    protected $defaultSettingsProvider;
+    /** @var DefaultSettingsProviderInterface */
+    private $defaultSettingsProvider;
 
-    /**
-     * @param RendererAdapterInterface         $rendererAdapter
-     * @param SenderAdapterInterface           $senderAdapter
-     * @param EmailProviderInterface           $provider
-     * @param DefaultSettingsProviderInterface $defaultSettingsProvider
-     */
     public function __construct(
         RendererAdapterInterface $rendererAdapter,
         SenderAdapterInterface $senderAdapter,
@@ -66,7 +47,7 @@ class Sender implements SenderInterface
     /**
      * {@inheritdoc}
      */
-    public function send($code, array $recipients, array $data = [])
+    public function send(string $code, array $recipients, array $data = [], array $attachments = [], array $replyTo = []): void
     {
         $email = $this->provider->getEmail($code);
 
@@ -79,6 +60,15 @@ class Sender implements SenderInterface
 
         $renderedEmail = $this->rendererAdapter->render($email, $data);
 
-        $this->senderAdapter->send($recipients, $senderAddress, $senderName, $renderedEmail, $email, $data);
+        $this->senderAdapter->send(
+            $recipients,
+            $senderAddress,
+            $senderName,
+            $renderedEmail,
+            $email,
+            $data,
+            $attachments,
+            $replyTo
+        );
     }
 }

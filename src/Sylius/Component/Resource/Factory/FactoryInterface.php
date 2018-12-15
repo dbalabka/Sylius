@@ -9,18 +9,13 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Resource\Factory;
 
-/**
- * Should be implemented by services responsible for creating new instance of a resource.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface FactoryInterface
 {
     /**
-     * Create a new resource.
-     *
      * @return object
      */
     public function createNew();

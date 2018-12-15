@@ -9,25 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Model;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-interface OrderItemUnitInterface extends AdjustableInterface
+use Sylius\Component\Resource\Model\ResourceInterface;
+
+interface OrderItemUnitInterface extends ResourceInterface, AdjustableInterface
 {
-    /**
-     * @return mixed
-     */
-    public function getId();
+    public function getTotal(): int;
 
-    /**
-     * @return int
-     */
-    public function getTotal();
-
-    /**
-     * @return OrderItemInterface
-     */
-    public function getOrderItem();
+    public function getOrderItem(): OrderItemInterface;
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Review\Model;
 
 use PhpSpec\ObjectBehavior;
@@ -16,63 +18,55 @@ use Sylius\Component\Review\Model\ReviewableInterface;
 use Sylius\Component\Review\Model\ReviewerInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class ReviewSpec extends ObjectBehavior
+final class ReviewSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Review\Model\Review');
-    }
-
-    function it_implements_review_interace()
+    function it_implements_review_interface(): void
     {
         $this->shouldImplement(ReviewInterface::class);
     }
 
-    function it_has_title()
+    function it_has_a_title(): void
     {
         $this->setTitle('review title');
         $this->getTitle()->shouldReturn('review title');
     }
 
-    function it_has_rating()
+    function it_has_a_rating(): void
     {
         $this->setRating(5);
         $this->getRating()->shouldReturn(5);
     }
 
-    function it_has_comment()
+    function it_has_a_comment(): void
     {
         $this->setComment('Lorem ipsum dolor');
         $this->getComment()->shouldReturn('Lorem ipsum dolor');
     }
 
-    function it_has_author(ReviewerInterface $author)
+    function it_has_an_author(ReviewerInterface $author): void
     {
         $this->setAuthor($author);
         $this->getAuthor()->shouldReturn($author);
     }
 
-    function it_has_status()
+    function it_has_a_status(): void
     {
         $this->getStatus()->shouldReturn(ReviewInterface::STATUS_NEW);
     }
 
-    function it_has_review_subject(ReviewableInterface $reviewSubject)
+    function it_has_a_review_subject(ReviewableInterface $reviewSubject): void
     {
         $this->setReviewSubject($reviewSubject);
         $this->getReviewSubject()->shouldReturn($reviewSubject);
     }
 
-    function it_has_created_at(\DateTime $createdAt)
+    function it_has_a_created_at(\DateTime $createdAt): void
     {
         $this->setCreatedAt($createdAt);
         $this->getCreatedAt()->shouldReturn($createdAt);
     }
 
-    function it_has_updated_at(\DateTime $updatedAt)
+    function it_has_an_updated_at(\DateTime $updatedAt): void
     {
         $this->setUpdatedAt($updatedAt);
         $this->getUpdatedAt()->shouldReturn($updatedAt);

@@ -2,6 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    taxon:
-      description: Descrição
+    form:
+        taxon:
+            description: Descrição
+            name: Nome
+            parent: Pai
+        taxonomy:
+            name: Nome

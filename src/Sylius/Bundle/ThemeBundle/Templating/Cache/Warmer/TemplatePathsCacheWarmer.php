@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Templating\Cache\Warmer;
 
 use Doctrine\Common\Cache\Cache;
@@ -20,37 +22,20 @@ use Symfony\Bundle\FrameworkBundle\CacheWarmer\TemplateFinderInterface;
 use Symfony\Component\HttpKernel\CacheWarmer\CacheWarmerInterface;
 use Symfony\Component\Templating\TemplateReferenceInterface;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class TemplatePathsCacheWarmer implements CacheWarmerInterface
 {
-    /**
-     * @var TemplateFinderInterface
-     */
+    /** @var TemplateFinderInterface */
     private $templateFinder;
 
-    /**
-     * @var TemplateLocatorInterface
-     */
+    /** @var TemplateLocatorInterface */
     private $templateLocator;
 
-    /**
-     * @var ThemeRepositoryInterface
-     */
+    /** @var ThemeRepositoryInterface */
     private $themeRepository;
 
-    /**
-     * @var Cache
-     */
+    /** @var Cache */
     private $cache;
 
-    /**
-     * @param TemplateFinderInterface $templateFinder
-     * @param TemplateLocatorInterface $templateLocator
-     * @param ThemeRepositoryInterface $themeRepository
-     * @param Cache $cache
-     */
     public function __construct(
         TemplateFinderInterface $templateFinder,
         TemplateLocatorInterface $templateLocator,
@@ -66,7 +51,7 @@ final class TemplatePathsCacheWarmer implements CacheWarmerInterface
     /**
      * {@inheritdoc}
      */
-    public function warmUp($cacheDir)
+    public function warmUp($cacheDir): void
     {
         $templates = $this->templateFinder->findAllTemplates();
 
@@ -79,15 +64,12 @@ final class TemplatePathsCacheWarmer implements CacheWarmerInterface
     /**
      * {@inheritdoc}
      */
-    public function isOptional()
+    public function isOptional(): bool
     {
         return true;
     }
 
-    /**
-     * @param TemplateReferenceInterface $template
-     */
-    private function warmUpTemplate(TemplateReferenceInterface $template)
+    private function warmUpTemplate(TemplateReferenceInterface $template): void
     {
         /** @var ThemeInterface $theme */
         foreach ($this->themeRepository->findAll() as $theme) {
@@ -95,11 +77,7 @@ final class TemplatePathsCacheWarmer implements CacheWarmerInterface
         }
     }
 
-    /**
-     * @param TemplateReferenceInterface $template
-     * @param ThemeInterface $theme
-     */
-    private function warmUpThemeTemplate(TemplateReferenceInterface $template, ThemeInterface $theme)
+    private function warmUpThemeTemplate(TemplateReferenceInterface $template, ThemeInterface $theme): void
     {
         try {
             $location = $this->templateLocator->locateTemplate($template, $theme);
@@ -110,14 +88,8 @@ final class TemplatePathsCacheWarmer implements CacheWarmerInterface
         $this->cache->save($this->getCacheKey($template, $theme), $location);
     }
 
-    /**
-     * @param TemplateReferenceInterface $template
-     * @param ThemeInterface $theme
-     *
-     * @return string
-     */
-    private function getCacheKey(TemplateReferenceInterface $template, ThemeInterface $theme)
+    private function getCacheKey(TemplateReferenceInterface $template, ThemeInterface $theme): string
     {
-        return $template->getLogicalName().'|'.$theme->getName();
+        return $template->getLogicalName() . '|' . $theme->getName();
     }
 }

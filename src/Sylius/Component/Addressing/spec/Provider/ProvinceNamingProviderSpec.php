@@ -9,75 +9,106 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Addressing\Provider;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Addressing\Model\AddressInterface;
 use Sylius\Component\Addressing\Model\ProvinceInterface;
+use Sylius\Component\Addressing\Provider\ProvinceNamingProvider;
 use Sylius\Component\Addressing\Provider\ProvinceNamingProviderInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
-class ProvinceNamingProviderSpec extends ObjectBehavior
+final class ProvinceNamingProviderSpec extends ObjectBehavior
 {
-    function let(RepositoryInterface $provinceRepository)
+    function let(RepositoryInterface $provinceRepository): void
     {
         $this->beConstructedWith($provinceRepository);
     }
 
-    function it_is_initializable()
+    function it_is_initializable(): void
     {
-        $this->shouldHaveType('Sylius\Component\Addressing\Provider\ProvinceNamingProvider');
+        $this->shouldHaveType(ProvinceNamingProvider::class);
     }
 
-    function it_implements_province_name_provider_interface()
+    function it_implements_province_name_provider_interface(): void
     {
         $this->shouldHaveType(ProvinceNamingProviderInterface::class);
     }
 
     function it_throws_invalid_argument_exception_when_province_with_given_code_is_not_found(
-        RepositoryInterface $provinceRepository
-    ) {
+        RepositoryInterface $provinceRepository,
+        AddressInterface $address
+    ): void {
+        $address->getProvinceName()->willReturn(null);
+        $address->getProvinceCode()->willReturn('ZZ-TOP');
         $provinceRepository->findOneBy(['code' => 'ZZ-TOP'])->willReturn(null);
 
-        $this->shouldThrow(\InvalidArgumentException::class)->during('getName', ['provinceCode' => 'ZZ-TOP']);
-        $this->shouldThrow(\InvalidArgumentException::class)->during('getAbbreviation', ['provinceCode' => 'ZZ-TOP']);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getName', [$address]);
+        $this->shouldThrow(\InvalidArgumentException::class)->during('getAbbreviation', [$address]);
     }
 
-    function it_gets_province_name_by_its_code(
+    function it_gets_province_name_if_province_with_given_code_exist_in_database(
         RepositoryInterface $provinceRepository,
-        ProvinceInterface $province
-    ) {
-        $province->getCode()->willReturn('IE-UL');
+        ProvinceInterface $province,
+        AddressInterface $address
+    ): void {
+        $address->getProvinceCode()->willReturn('IE-UL');
+        $address->getProvinceName()->willReturn(null);
+        $provinceRepository->findOneBy(['code' => 'IE-UL'])->willReturn($province);
         $province->getName()->willReturn('Ulster');
 
-        $provinceRepository->findOneBy(['code' => 'IE-UL'])->willReturn($province);
-
-        $this->getName('IE-UL')->shouldReturn('Ulster');
+        $this->getName($address)->shouldReturn('Ulster');
     }
 
-    function it_gets_province_abbreviation_by_its_code(
+    function it_gets_province_name_form_address(AddressInterface $address): void
+    {
+        $address->getProvinceName()->willReturn('Ulster');
+
+        $this->getName($address)->shouldReturn('Ulster');
+    }
+
+    function it_returns_nothing_if_province_name_and_code_are_not_given_in_an_address(AddressInterface $address): void
+    {
+        $address->getProvinceCode()->willReturn(null);
+        $address->getProvinceName()->willReturn(null);
+
+        $this->getName($address)->shouldReturn('');
+        $this->getAbbreviation($address)->shouldReturn('');
+    }
+
+    function it_gets_province_abbreviation_by_its_code_if_province_exists_in_database(
         RepositoryInterface $provinceRepository,
-        ProvinceInterface $province
-    ) {
-        $province->getCode()->willReturn('IE-UL');
+        ProvinceInterface $province,
+        AddressInterface $address
+    ): void {
+        $address->getProvinceName()->willReturn(null);
+        $address->getProvinceCode()->willReturn('IE-UL');
+        $provinceRepository->findOneBy(['code' => 'IE-UL'])->willReturn($province);
         $province->getAbbreviation()->willReturn('ULS');
 
-        $provinceRepository->findOneBy(['code' => 'IE-UL'])->willReturn($province);
-
-        $this->getAbbreviation('IE-UL')->shouldReturn('ULS');
+        $this->getAbbreviation($address)->shouldReturn('ULS');
     }
 
-    function it_gets_province_code_if_its_abbreviation_is_not_set(
+    function it_gets_province_name_if_its_abbreviation_is_not_set_but_province_exists_in_database(
         RepositoryInterface $provinceRepository,
-        ProvinceInterface $province
-    ) {
-        $province->getCode()->willReturn('IE-UL');
-        $province->getAbbreviation()->willReturn(null);
-
+        ProvinceInterface $province,
+        AddressInterface $address
+    ): void {
+        $address->getProvinceName()->willReturn(null);
+        $address->getProvinceCode()->willReturn('IE-UL');
         $provinceRepository->findOneBy(['code' => 'IE-UL'])->willReturn($province);
+        $province->getAbbreviation()->willReturn(null);
+        $province->getName()->willReturn('Ulster');
 
-        $this->getAbbreviation('IE-UL')->shouldReturn('IE-UL');
+        $this->getAbbreviation($address)->shouldReturn('Ulster');
+    }
+
+    function it_gets_province_name_form_address_if_its_abbreviation_is_not_set(AddressInterface $address): void
+    {
+        $address->getProvinceName()->willReturn('Ulster');
+
+        $this->getAbbreviation($address)->shouldReturn('Ulster');
     }
 }

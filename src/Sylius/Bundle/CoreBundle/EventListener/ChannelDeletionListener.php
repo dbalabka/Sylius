@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\EventListener;
 
 use Sylius\Bundle\ChannelBundle\Doctrine\ORM\ChannelRepository;
@@ -16,21 +18,11 @@ use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 
-/**
- * Listener to prevent the deletion of last enabled channel.
- *
- * @author Gustavo Perdomo <gperdomor@gmail.com>
- */
-class ChannelDeletionListener
+final class ChannelDeletionListener
 {
-    /**
-     * @var ChannelRepository
-     */
+    /** @var ChannelRepository */
     private $channelRepository;
 
-    /**
-     * @param ChannelRepository $repository
-     */
     public function __construct(ChannelRepository $repository)
     {
         $this->channelRepository = $repository;
@@ -38,10 +30,8 @@ class ChannelDeletionListener
 
     /**
      * Prevent channel deletion if no more channels enabled.
-     *
-     * @param ResourceControllerEvent $event
      */
-    public function onChannelPreDelete(ResourceControllerEvent $event)
+    public function onChannelPreDelete(ResourceControllerEvent $event): void
     {
         $channel = $event->getSubject();
 
@@ -55,7 +45,7 @@ class ChannelDeletionListener
         $results = $this->channelRepository->findBy(['enabled' => true]);
 
         if (!$results || (count($results) === 1 && current($results) === $channel)) {
-            $event->stop('error.at_least_one');
+            $event->stop('sylius.channel.delete_error');
         }
     }
 }

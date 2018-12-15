@@ -9,13 +9,34 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Model;
 
-use Sylius\Component\Association\Model\AssociationInterface as BaseAssociationInterface;
+use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Resource\Model\ResourceInterface;
+use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
-interface ProductAssociationInterface extends BaseAssociationInterface
+interface ProductAssociationInterface extends TimestampableInterface, ResourceInterface
 {
+    public function getType(): ?ProductAssociationTypeInterface;
+
+    public function setType(?ProductAssociationTypeInterface $type): void;
+
+    public function getOwner(): ?ProductInterface;
+
+    public function setOwner(?ProductInterface $owner): void;
+
+    /**
+     * @return Collection|ProductInterface[]
+     */
+    public function getAssociatedProducts(): Collection;
+
+    public function addAssociatedProduct(ProductInterface $product): void;
+
+    public function removeAssociatedProduct(ProductInterface $product): void;
+
+    public function hasAssociatedProduct(ProductInterface $product): bool;
+
+    public function clearAssociatedProducts(): void;
 }

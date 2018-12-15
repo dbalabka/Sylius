@@ -2,6 +2,7 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    collection:
-      delete: Obrisati
+    form:
+        collection:
+            add: Dodaj
+            delete: Obrisati

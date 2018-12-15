@@ -2,7 +2,10 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  payment:
-    complete: Betalingen er fullført.
-    cancel: Betalingen er avbrutt.
-    transition_fail: Handlingen kunne ikke utføres gitt gjeldende status for betaling
+    payment:
+        cancelled: 'Betalingen er avbrutt.'
+        completed: 'Betalingen er fullført.'
+        failed: 'Betalingen mislyktes.'
+        processing: 'Betalingen behandles.'
+        refunded: 'Betalingen har blitt refundert.'
+        unknown: 'Det oppstod et ukjent problem med betaling.'

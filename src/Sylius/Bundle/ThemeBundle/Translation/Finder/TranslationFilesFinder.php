@@ -9,23 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Translation\Finder;
 
 use Sylius\Bundle\ThemeBundle\Factory\FinderFactoryInterface;
+use Symfony\Component\Finder\SplFileInfo;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 final class TranslationFilesFinder implements TranslationFilesFinderInterface
 {
-    /**
-     * @var FinderFactoryInterface
-     */
+    /** @var FinderFactoryInterface */
     private $finderFactory;
 
-    /**
-     * @param FinderFactoryInterface $finderFactory
-     */
     public function __construct(FinderFactoryInterface $finderFactory)
     {
         $this->finderFactory = $finderFactory;
@@ -34,28 +29,28 @@ final class TranslationFilesFinder implements TranslationFilesFinderInterface
     /**
      * {@inheritdoc}
      */
-    public function findTranslationFiles($path)
+    public function findTranslationFiles(string $path): array
     {
         $themeFiles = $this->getFiles($path);
 
         $translationsFiles = [];
         foreach ($themeFiles as $themeFile) {
-            if (!$this->isTranslationFile($themeFile)) {
+            $themeFilepath = (string) $themeFile;
+
+            if (!$this->isTranslationFile($themeFilepath)) {
                 continue;
             }
 
-            $translationsFiles[] = (string) $themeFile;
+            $translationsFiles[] = $themeFilepath;
         }
 
         return $translationsFiles;
     }
 
     /**
-     * @param string $path
-     *
-     * @return array
+     * @return iterable|SplFileInfo[]
      */
-    private function getFiles($path)
+    private function getFiles(string $path): iterable
     {
         $finder = $this->finderFactory->create();
 
@@ -67,14 +62,9 @@ final class TranslationFilesFinder implements TranslationFilesFinderInterface
         return $finder;
     }
 
-    /**
-     * @param string $file
-     *
-     * @return bool
-     */
-    private function isTranslationFile($file)
+    private function isTranslationFile(string $file): bool
     {
-        return false !== strpos($file, 'translations/')
+        return false !== strpos($file, 'translations' . \DIRECTORY_SEPARATOR)
             && (bool) preg_match('/^[^\.]+?\.[a-zA-Z_]{2,}?\.[a-z0-9]{2,}?$/', basename($file));
     }
 }

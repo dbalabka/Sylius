@@ -8,13 +8,15 @@ sylius:
             last_name: Last name
             phone_number: Phone number
             postcode: Postcode
-            street: Street
+            street: Street address
             province: Province
+            zone: Zone
         country:
             add_province: Add province
             name: Name
             provinces: Provinces
             select: Select
+            enabled: Enabled
         province:
             name: Name
             abbreviation: Abbreviation
@@ -29,6 +31,8 @@ sylius:
                 province: Province
                 zone: Zone
             scope: Scope
+            scopes:
+                all: All
             select: Select
             select_scope: Select scope
         zone_member:

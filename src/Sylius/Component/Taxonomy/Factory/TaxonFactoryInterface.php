@@ -9,21 +9,14 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Factory;
 
-use Sylius\Component\Translation\Factory\TranslatableFactoryInterface;
+use Sylius\Component\Resource\Factory\FactoryInterface;
+use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface TaxonFactoryInterface extends TranslatableFactoryInterface
+interface TaxonFactoryInterface extends FactoryInterface
 {
-    /**
-     * @param mixed $promotionId
-     *
-     * @return TaxonInterface
-     *
-     * @throws \InvalidArgumentException
-     */
-    public function createForTaxonomy($taxonomyId);
+    public function createForParent(TaxonInterface $parent): TaxonInterface;
 }

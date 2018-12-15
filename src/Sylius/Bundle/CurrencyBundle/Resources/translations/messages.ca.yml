@@ -2,6 +2,8 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    currency:
-      enabled: Activat
+    form:
+        currency:
+            base: Moneda base
+            code: Nom
+            enabled: Activat

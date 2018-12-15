@@ -9,63 +9,51 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Core\Repository\ProductRepositoryInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ProductContext implements Context
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var ProductRepositoryInterface */
     private $productRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $productVariantRepository;
-
-    /**
-     * @param RepositoryInterface $productRepository
-     * @param RepositoryInterface $productVariantRepository
-     */
-    public function __construct(RepositoryInterface $productRepository, RepositoryInterface $productVariantRepository)
+    public function __construct(ProductRepositoryInterface $productRepository)
     {
         $this->productRepository = $productRepository;
-        $this->productVariantRepository = $productVariantRepository;
     }
 
     /**
-     * @Transform /^product "([^"]+)"$/
-     * @Transform /^"([^"]+)" product$/
+     * @Transform /^product(?:|s) "([^"]+)"$/
+     * @Transform /^"([^"]+)" product(?:|s)$/
+     * @Transform /^(?:a|an) "([^"]+)"$/
      * @Transform :product
      */
     public function getProductByName($productName)
     {
-        $product = $this->productRepository->findOneBy(['name' => $productName]);
-        if (null === $product) {
-            throw new \InvalidArgumentException(sprintf('Product with name "%s" does not exist', $productName));
-        }
+        $products = $this->productRepository->findByName($productName, 'en_US');
 
-        return $product;
+        Assert::eq(
+            count($products),
+            1,
+            sprintf('%d products has been found with name "%s".', count($products), $productName)
+        );
+
+        return $products[0];
     }
 
     /**
-     * @Transform /^"([^"]+)" variant of product "([^"]+)"$/
+     * @Transform /^products "([^"]+)" and "([^"]+)"$/
+     * @Transform /^products "([^"]+)", "([^"]+)" and "([^"]+)"$/
      */
-    public function getProductVariantByNameAndProduct($variantName, $productName)
+    public function getProductsByNames(...$productsNames)
     {
-        $product = $this->getProductByName($productName);
-
-        $productVariant = $this->productVariantRepository->findOneBy(['presentation' => $variantName, 'object' => $product]);
-        if (null === $productVariant) {
-            throw new \InvalidArgumentException(sprintf('Product variant with name "%s" of product "%s" does not exist', $variantName, $productName));
-        }
-
-        return $productVariant;
+        return array_map(function ($productName) {
+            return $this->getProductByName($productName);
+        }, $productsNames);
     }
 }

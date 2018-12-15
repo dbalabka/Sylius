@@ -2,9 +2,16 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    review:
-      title: Naslov
-      author: Autor
-      status:
-        new: Novo
+    form:
+        review:
+            author: Autor
+            comment: Komentar
+            header: Dodaj osvrt
+            rating: Ocjena
+            status:
+                approved: Odobreno
+                label: Status
+                new: Novo
+                rejected: Odbijeno
+            submit: Potvrdi
+            title: Naslov

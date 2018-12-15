@@ -9,36 +9,24 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ShipmentUnit implements ShipmentUnitInterface
 {
     use TimestampableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var ShipmentInterface
-     */
+    /** @var ShipmentInterface */
     protected $shipment;
 
-    /**
-     * @var ShippableInterface
-     */
+    /** @var ShippableInterface */
     protected $shippable;
-
-    /**
-     * @var string
-     */
-    protected $shippingState = ShipmentInterface::STATE_READY;
 
     public function __construct()
     {
@@ -46,11 +34,11 @@ class ShipmentUnit implements ShipmentUnitInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function __toString()
     {
-        return (string) $this->id;
+        return (string) $this->getId();
     }
 
     /**
@@ -64,7 +52,7 @@ class ShipmentUnit implements ShipmentUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getShipment()
+    public function getShipment(): ?ShipmentInterface
     {
         return $this->shipment;
     }
@@ -72,7 +60,7 @@ class ShipmentUnit implements ShipmentUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function setShipment(ShipmentInterface $shipment = null)
+    public function setShipment(?ShipmentInterface $shipment): void
     {
         $this->shipment = $shipment;
     }
@@ -80,32 +68,13 @@ class ShipmentUnit implements ShipmentUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippable()
+    public function getShippable(): ?ShippableInterface
     {
         return $this->shippable;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setShippable(ShippableInterface $shippable)
+    public function setShippable(?ShippableInterface $shippable): void
     {
         $this->shippable = $shippable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getShippingState()
-    {
-        return $this->shippingState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setShippingState($state)
-    {
-        $this->shippingState = $state;
     }
 }

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Shipping\Calculator;
 
 use PhpSpec\ObjectBehavior;
@@ -19,27 +21,19 @@ use Sylius\Component\Shipping\Calculator\UndefinedShippingMethodException;
 use Sylius\Component\Shipping\Model\ShipmentInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class DelegatingCalculatorSpec extends ObjectBehavior
+final class DelegatingCalculatorSpec extends ObjectBehavior
 {
-    function let(ServiceRegistryInterface $registry)
+    function let(ServiceRegistryInterface $registry): void
     {
         $this->beConstructedWith($registry);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Shipping\Calculator\DelegatingCalculator');
-    }
-
-    function it_implements_Sylius_delegating_shipping_calculator_interface()
+    function it_implements_delegating_shipping_calculator_interface(): void
     {
         $this->shouldImplement(DelegatingCalculatorInterface::class);
     }
 
-    function it_should_complain_if_shipment_has_no_method_defined(ShipmentInterface $shipment)
+    function it_should_complain_if_shipment_has_no_method_defined(ShipmentInterface $shipment): void
     {
         $shipment->getMethod()->willReturn(null);
 
@@ -50,11 +44,11 @@ class DelegatingCalculatorSpec extends ObjectBehavior
     }
 
     function it_should_delegate_calculation_to_a_calculator_defined_on_shipping_method(
-        $registry,
+        ServiceRegistryInterface $registry,
         ShipmentInterface $shipment,
         ShippingMethodInterface $method,
         CalculatorInterface $calculator
-    ) {
+    ): void {
         $shipment->getMethod()->willReturn($method);
 
         $method->getCalculator()->willReturn('default');

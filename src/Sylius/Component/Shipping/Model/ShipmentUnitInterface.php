@@ -9,38 +9,18 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ShipmentUnitInterface extends TimestampableInterface, ResourceInterface
 {
-    /**
-     * @return ShipmentInterface
-     */
-    public function getShipment();
+    public function getShipment(): ?ShipmentInterface;
 
-    /**
-     * @param ShipmentInterface|null $shipment
-     */
-    public function setShipment(ShipmentInterface $shipment = null);
+    public function setShipment(?ShipmentInterface $shipment): void;
 
-    /**
-     * @return ShippableInterface
-     */
-    public function getShippable();
-
-    /**
-     * @return string
-     */
-    public function getShippingState();
-
-    /**
-     * @param string $state
-     */
-    public function setShippingState($state);
+    public function getShippable(): ?ShippableInterface;
 }

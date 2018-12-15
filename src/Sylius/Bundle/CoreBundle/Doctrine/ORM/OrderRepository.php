@@ -9,430 +9,383 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
-use Pagerfanta\Pagerfanta;
-use Sylius\Bundle\CartBundle\Doctrine\ORM\CartRepository;
-use Sylius\Component\Core\Model\CouponInterface;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping;
+use Doctrine\ORM\QueryBuilder;
+use Sylius\Bundle\OrderBundle\Doctrine\ORM\OrderRepository as BaseOrderRepository;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PromotionCouponInterface;
+use Sylius\Component\Core\OrderCheckoutStates;
+use Sylius\Component\Core\OrderPaymentStates;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
+use SyliusLabs\AssociationHydrator\AssociationHydrator;
 
-class OrderRepository extends CartRepository implements OrderRepositoryInterface
+class OrderRepository extends BaseOrderRepository implements OrderRepositoryInterface
 {
-    /**
-     * Create customer orders paginator.
-     *
-     * @param CustomerInterface $customer
-     * @param array             $sorting
-     *
-     * @return Pagerfanta
-     */
-    public function createByCustomerPaginator(CustomerInterface $customer, array $sorting = [])
-    {
-        $queryBuilder = $this->getCollectionQueryBuilderByCustomer($customer, $sorting);
+    /** @var AssociationHydrator */
+    protected $associationHydrator;
 
-        return $this->getPaginator($queryBuilder);
+    /**
+     * {@inheritdoc}
+     */
+    public function __construct(EntityManager $entityManager, Mapping\ClassMetadata $class)
+    {
+        parent::__construct($entityManager, $class);
+
+        $this->associationHydrator = new AssociationHydrator($entityManager, $class);
     }
 
     /**
-     * Gets orders for customer.
-     *
-     * @param CustomerInterface $customer
-     * @param array             $sorting
-     *
-     * @return array
+     * {@inheritdoc}
      */
-    public function findByCustomer(CustomerInterface $customer, array $sorting = [])
+    public function createListQueryBuilder(): QueryBuilder
     {
-        $queryBuilder = $this->getCollectionQueryBuilderByCustomer($customer, $sorting);
+        return $this->createQueryBuilder('o')
+            ->addSelect('channel')
+            ->addSelect('customer')
+            ->innerJoin('o.channel', 'channel')
+            ->leftJoin('o.customer', 'customer')
+            ->andWhere('o.state != :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
+        ;
+    }
 
-        return $queryBuilder
+    /**
+     * {@inheritdoc}
+     */
+    public function createByCustomerIdQueryBuilder($customerId): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.customer = :customerId')
+            ->andWhere('o.state != :state')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('state', OrderInterface::STATE_CART)
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createByCustomerAndChannelIdQueryBuilder($customerId, $channelId): QueryBuilder
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.customer = :customerId')
+            ->andWhere('o.channel = :channelId')
+            ->andWhere('o.state != :state')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('channelId', $channelId)
+            ->setParameter('state', OrderInterface::STATE_CART)
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByCustomer(CustomerInterface $customer): array
+    {
+        return $this->createByCustomerIdQueryBuilder($customer->getId())
             ->getQuery()
             ->getResult()
         ;
     }
 
     /**
-     * Get the order data for the details page.
-     *
-     * @param int $id
-     *
-     * @return OrderInterface|null
+     * {@inheritdoc}
      */
-    public function findForDetailsPage($id)
+    public function findForCustomerStatistics(CustomerInterface $customer): array
     {
-        $this->_em->getFilters()->disable('softdeleteable');
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.customer = :customerId')
+            ->andWhere('o.state = :state')
+            ->setParameter('customerId', $customer->getId())
+            ->setParameter('state', OrderInterface::STATE_FULFILLED)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 
-        $queryBuilder = $this->getQueryBuilder();
-        $queryBuilder
-            ->leftJoin('o.adjustments', 'adjustment')
-            ->leftJoin('o.customer', 'customer')
-            ->leftJoin('item.units', 'itemUnit')
-            ->leftJoin('o.shipments', 'shipment')
-            ->leftJoin('shipment.method', 'shippingMethod')
-            ->leftJoin('o.payments', 'payments')
-            ->leftJoin('payments.method', 'paymentMethods')
-            ->leftJoin('item.variant', 'variant')
-            ->leftJoin('variant.images', 'image')
-            ->leftJoin('variant.object', 'product')
-            ->leftJoin('variant.options', 'optionValue')
-            ->leftJoin('optionValue.option', 'option')
-            ->leftJoin('o.billingAddress', 'billingAddress')
-            ->leftJoin('o.shippingAddress', 'shippingAddress')
-            ->addSelect('adjustment')
-            ->addSelect('customer')
-            ->addSelect('itemUnit')
-            ->addSelect('shipment')
-            ->addSelect('shippingMethod')
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneForPayment($id): ?OrderInterface
+    {
+        return $this->createQueryBuilder('o')
             ->addSelect('payments')
             ->addSelect('paymentMethods')
-            ->addSelect('variant')
-            ->addSelect('image')
-            ->addSelect('product')
-            ->addSelect('option')
-            ->addSelect('optionValue')
-            ->addSelect('billingAddress')
-            ->addSelect('shippingAddress')
-            ->andWhere($queryBuilder->expr()->eq('o.id', ':id'))
+            ->leftJoin('o.payments', 'payments')
+            ->leftJoin('payments.method', 'paymentMethods')
+            ->andWhere('o.id = :id')
             ->setParameter('id', $id)
-        ;
-
-        return $queryBuilder
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
 
     /**
-     * Create filter paginator.
-     *
-     * @param array   $criteria
-     * @param array   $sorting
-     * @param bool $deleted
-     *
-     * @return Pagerfanta
-     */
-    public function createFilterPaginator($criteria = [], $sorting = [], $deleted = false)
-    {
-        $queryBuilder = parent::getCollectionQueryBuilder();
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
-            ->leftJoin('o.customer', 'customer')
-            ->addSelect('customer')
-        ;
-
-        if ($deleted) {
-            $this->_em->getFilters()->disable('softdeleteable');
-        }
-
-        if (!empty($criteria['number'])) {
-            $queryBuilder
-                ->andWhere('o.number = :number')
-                ->setParameter('number', $criteria['number'])
-            ;
-        }
-        if (!empty($criteria['totalFrom'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->gte('o.total', ':totalFrom'))
-                ->setParameter('totalFrom', $criteria['totalFrom'] * 100)
-            ;
-        }
-        if (!empty($criteria['totalTo'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->lte('o.total', ':totalTo'))
-                ->setParameter('totalTo', $criteria['totalTo'] * 100)
-            ;
-        }
-        if (!empty($criteria['createdAtFrom'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->gte('o.createdAt', ':createdAtFrom'))
-                ->setParameter('createdAtFrom', $criteria['createdAtFrom'])
-            ;
-        }
-        if (!empty($criteria['createdAtTo'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->lte('o.createdAt', ':createdAtTo'))
-                ->setParameter('createdAtTo', $criteria['createdAtTo'])
-            ;
-        }
-        if (!empty($criteria['paymentState'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->eq('o.paymentState', ':paymentState'))
-                ->setParameter('paymentState', $criteria['paymentState'])
-            ;
-        }
-        if (!empty($criteria['channel'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->eq('o.channel', ':channel'))
-                ->setParameter('channel', $criteria['channel'])
-            ;
-        }
-
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        return $this->getPaginator($queryBuilder);
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function countByCustomerAndCoupon(CustomerInterface $customer, CouponInterface $coupon)
+    public function countByCustomerAndCoupon(CustomerInterface $customer, PromotionCouponInterface $coupon): int
     {
-        $this->_em->getFilters()->disable('softdeleteable');
-
-        $queryBuilder = $this->getQueryBuilder();
-        $queryBuilder
-            ->select('count(o.id)')
-            ->innerJoin('o.promotionCoupon', 'coupon')
+        return (int) $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
             ->andWhere('o.customer = :customer')
-            ->andWhere('o.completedAt IS NOT NULL')
-            ->andWhere('coupon = :coupon')
+            ->andWhere('o.promotionCoupon = :coupon')
+            ->andWhere('o.state NOT IN (:states)')
             ->setParameter('customer', $customer)
             ->setParameter('coupon', $coupon)
-        ;
-
-        $count = (int) $queryBuilder
+            ->setParameter('states', [OrderInterface::STATE_CART, OrderInterface::STATE_CANCELLED])
             ->getQuery()
             ->getSingleScalarResult()
         ;
-
-        $this->_em->getFilters()->enable('softdeleteable');
-
-        return $count;
-    }
-
-    /**
-     * Create checkouts paginator.
-     *
-     * @param array   $criteria
-     * @param array   $sorting
-     * @param bool $deleted
-     *
-     * @return Pagerfanta
-     */
-    public function createCheckoutsPaginator($criteria = [], $sorting = [], $deleted = false)
-    {
-        $queryBuilder = parent::getCollectionQueryBuilder();
-        $queryBuilder->andWhere($queryBuilder->expr()->isNull('o.completedAt'));
-
-        if ($deleted) {
-            $this->_em->getFilters()->disable('softdeleteable');
-        }
-
-        if (!empty($criteria['createdAtFrom'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->gte('o.createdAt', ':createdAtFrom'))
-                ->setParameter('createdAtFrom', $criteria['createdAtFrom'])
-            ;
-        }
-        if (!empty($criteria['createdAtTo'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->lte('o.createdAt', ':createdAtTo'))
-                ->setParameter('createdAtTo', $criteria['createdAtTo'])
-            ;
-        }
-        if (!empty($criteria['channel'])) {
-            $queryBuilder
-                ->andWhere($queryBuilder->expr()->eq('o.channel', ':channel'))
-                ->setParameter('channel', $criteria['channel'])
-            ;
-        }
-
-        if (empty($sorting)) {
-            if (!is_array($sorting)) {
-                $sorting = [];
-            }
-            $sorting['updatedAt'] = 'desc';
-        }
-
-        $this->applySorting($queryBuilder, $sorting);
-
-        return $this->getPaginator($queryBuilder);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function countByCustomerAndPaymentState(CustomerInterface $customer, $state)
+    public function countByCustomer(CustomerInterface $customer): int
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-
-        $queryBuilder
-            ->select('count(o.id)')
+        return (int) $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
             ->andWhere('o.customer = :customer')
-            ->andWhere('o.paymentState = :state')
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
+            ->andWhere('o.state NOT IN (:states)')
             ->setParameter('customer', $customer)
-            ->setParameter('state', $state)
-        ;
-
-        return (int) $queryBuilder
+            ->setParameter('states', [OrderInterface::STATE_CART, OrderInterface::STATE_CANCELLED])
             ->getQuery()
             ->getSingleScalarResult()
         ;
     }
 
-    public function findBetweenDates(\DateTime $from, \DateTime $to, $state = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByNumberAndCustomer(string $number, CustomerInterface $customer): ?OrderInterface
     {
-        $queryBuilder = $this->getCollectionQueryBuilderBetweenDates($from, $to, $state);
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.customer = :customer')
+            ->andWhere('o.number = :number')
+            ->setParameter('customer', $customer)
+            ->setParameter('number', $number)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
 
-        return $queryBuilder
+    /**
+     * {@inheritdoc}
+     */
+    public function findCartByChannel($id, ChannelInterface $channel): ?OrderInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :id')
+            ->andWhere('o.state = :state')
+            ->andWhere('o.channel = :channel')
+            ->setParameter('id', $id)
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('channel', $channel)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findLatestCartByChannelAndCustomer(ChannelInterface $channel, CustomerInterface $customer): ?OrderInterface
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state = :state')
+            ->andWhere('o.channel = :channel')
+            ->andWhere('o.customer = :customer')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('channel', $channel)
+            ->setParameter('customer', $customer)
+            ->addOrderBy('o.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTotalSalesForChannel(ChannelInterface $channel): int
+    {
+        return (int) $this->createQueryBuilder('o')
+            ->select('SUM(o.total)')
+            ->andWhere('o.channel = :channel')
+            ->andWhere('o.state = :state')
+            ->setParameter('channel', $channel)
+            ->setParameter('state', OrderInterface::STATE_FULFILLED)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function countFulfilledByChannel(ChannelInterface $channel): int
+    {
+        return (int) $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->andWhere('o.channel = :channel')
+            ->andWhere('o.state = :state')
+            ->setParameter('channel', $channel)
+            ->setParameter('state', OrderInterface::STATE_FULFILLED)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findLatestInChannel(int $count, ChannelInterface $channel): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.channel = :channel')
+            ->andWhere('o.state != :state')
+            ->addOrderBy('o.checkoutCompletedAt', 'DESC')
+            ->setParameter('channel', $channel)
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setMaxResults($count)
             ->getQuery()
             ->getResult()
         ;
     }
 
-    public function countBetweenDates(\DateTime $from, \DateTime $to, $state = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function findOrdersUnpaidSince(\DateTimeInterface $terminalDate): array
     {
-        $queryBuilder = $this->getCollectionQueryBuilderBetweenDates($from, $to, $state);
-
-        return $queryBuilder
-            ->select('count(o.id)')
+        return $this->createQueryBuilder('o')
+            ->where('o.checkoutState = :checkoutState')
+            ->andWhere('o.paymentState != :paymentState')
+            ->andWhere('o.state = :orderState')
+            ->andWhere('o.checkoutCompletedAt < :terminalDate')
+            ->setParameter('checkoutState', OrderCheckoutStates::STATE_COMPLETED)
+            ->setParameter('paymentState', OrderPaymentStates::STATE_PAID)
+            ->setParameter('orderState', OrderInterface::STATE_NEW)
+            ->setParameter('terminalDate', $terminalDate)
             ->getQuery()
-            ->getSingleScalarResult()
-        ;
-    }
-
-    public function revenueBetweenDates(\DateTime $from, \DateTime $to, $state = null)
-    {
-        $queryBuilder = $this->getCollectionQueryBuilderBetweenDates($from, $to, $state);
-
-        return $queryBuilder
-            ->select('sum(o.total)')
-            ->getQuery()
-            ->getSingleScalarResult()
+            ->getResult()
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function revenueBetweenDatesGroupByDate(array $configuration = [])
+    public function findCartForSummary($id): ?OrderInterface
     {
-        $groupBy = '';
-        foreach ($configuration['groupBy'] as $groupByArray) {
-            $groupBy = $groupByArray.'(date)'.' '.$groupBy;
-        }
-        $groupBy = substr($groupBy, 0, -1);
-        $groupBy = str_replace(' ', ', ', $groupBy);
-
-        $queryBuilder = $this->getQueryBuilderBetweenDatesGroupByDate(
-            $configuration['start'],
-            $configuration['end'],
-            $groupBy);
-
-        $baseCurrencyCode = $configuration['baseCurrency'] ? 'in '.$configuration['baseCurrency']->getCode() : '';
-        $queryBuilder
-            ->select('DATE(o.completed_at) as date', 'TRUNCATE(SUM(o.total * o.exchange_rate)/ 100,2) as "total sum '.$baseCurrencyCode.'"')
+        /** @var OrderInterface $order */
+        $order = $this->createQueryBuilder('o')
+            ->andWhere('o.id = :id')
+            ->andWhere('o.state = :state')
+            ->setParameter('id', $id)
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
 
-        return $queryBuilder
-            ->execute()
-            ->fetchAll();
+        $this->associationHydrator->hydrateAssociations($order, [
+            'adjustments',
+            'items',
+            'items.adjustments',
+            'items.units',
+            'items.units.adjustments',
+            'items.variant',
+            'items.variant.optionValues',
+            'items.variant.optionValues.translations',
+            'items.variant.product',
+            'items.variant.product.translations',
+            'items.variant.product.images',
+            'items.variant.product.options',
+            'items.variant.product.options.translations',
+        ]);
+
+        return $order;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function ordersBetweenDatesGroupByDate(array $configuration = [])
+    public function findCartForAddressing($id): ?OrderInterface
     {
-        $groupBy = '';
-
-        foreach ($configuration['groupBy'] as $groupByElement) {
-            $groupBy = $groupByElement.'(date)'.' '.$groupBy;
-        }
-
-        $groupBy = substr($groupBy, 0, -1);
-        $groupBy = str_replace(' ', ', ', $groupBy);
-
-        $queryBuilder = $this->getQueryBuilderBetweenDatesGroupByDate(
-            $configuration['start'],
-            $configuration['end'],
-            $groupBy);
-
-        $queryBuilder
-            ->select('DATE(o.completed_at) as date', 'COUNT(o.id) as "Number of orders"')
+        /** @var OrderInterface $order */
+        $order = $this->createQueryBuilder('o')
+            ->andWhere('o.id = :id')
+            ->andWhere('o.state = :state')
+            ->setParameter('id', $id)
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
 
-        return $queryBuilder
-            ->execute()
-            ->fetchAll();
+        $this->associationHydrator->hydrateAssociations($order, [
+            'items',
+            'items.variant',
+            'items.variant.product',
+            'items.variant.product.translations',
+        ]);
+
+        return $order;
     }
 
-    protected function getQueryBuilderBetweenDatesGroupByDate(\DateTime $from, \DateTime $to, $groupBy = 'Date(date)')
+    /**
+     * {@inheritdoc}
+     */
+    public function findCartForSelectingShipping($id): ?OrderInterface
     {
-        $queryBuilder = $this->getEntityManager()->getConnection()->createQueryBuilder();
-
-        return $queryBuilder
-            ->from($this->getClassMetadata($this->_entityName)->getTableName(), 'o')
-            ->where($queryBuilder->expr()->gte('o.completed_at', ':from'))
-            ->andWhere($queryBuilder->expr()->lte('o.completed_at', ':to'))
-            ->setParameter('from', $from->format('Y-m-d H:i:s'))
-            ->setParameter('to', $to->format('Y-m-d H:i:s'))
-            ->groupBy($groupBy)
-            ->orderBy($groupBy)
-        ;
-    }
-
-    public function findExpired(\DateTime $expiresAt, $state = OrderInterface::STATE_PENDING)
-    {
-        $queryBuilder = $this->getQueryBuilder();
-
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->lt($this->getAlias().'.expiresAt', ':expiresAt'))
-            ->andWhere($this->getAlias().'.state = :state')
-            ->setParameter('expiresAt', $expiresAt)
-            ->setParameter('state', $state)
+        /** @var OrderInterface $order */
+        $order = $this->createQueryBuilder('o')
+            ->andWhere('o.id = :id')
+            ->andWhere('o.state = :state')
+            ->setParameter('id', $id)
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
 
-        return $queryBuilder->getQuery()->getResult();
+        $this->associationHydrator->hydrateAssociations($order, [
+            'items',
+            'items.variant',
+            'items.variant.product',
+            'items.variant.product.translations',
+        ]);
+
+        return $order;
     }
 
-    protected function getCollectionQueryBuilderBetweenDates(\DateTime $from, \DateTime $to, $state = null)
+    /**
+     * {@inheritdoc}
+     */
+    public function findCartForSelectingPayment($id): ?OrderInterface
     {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-        if (null !== $state) {
-            $queryBuilder
-                ->andWhere('o.state = :state')
-                ->setParameter('state', $state)
-            ;
-        }
-
-        return $queryBuilder
-            ->andWhere($queryBuilder->expr()->gte('o.createdAt', ':from'))
-            ->andWhere($queryBuilder->expr()->lte('o.createdAt', ':to'))
-            ->setParameter('from', $from)
-            ->setParameter('to', $to)
-        ;
-    }
-
-    protected function getCollectionQueryBuilderByCustomer(CustomerInterface $customer, array $sorting = [])
-    {
-        $queryBuilder = $this->getCollectionQueryBuilder();
-
-        $queryBuilder
-            ->innerJoin('o.customer', 'customer')
-            ->andWhere('customer = :customer')
-            ->setParameter('customer', $customer)
+        /** @var OrderInterface $order */
+        $order = $this->createQueryBuilder('o')
+            ->andWhere('o.id = :id')
+            ->andWhere('o.state = :state')
+            ->setParameter('id', $id)
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
 
-        $this->applySorting($queryBuilder, $sorting);
+        $this->associationHydrator->hydrateAssociations($order, [
+            'items',
+            'items.variant',
+            'items.variant.product',
+            'items.variant.product.translations',
+        ]);
 
-        return $queryBuilder;
-    }
-
-    protected function getCollectionQueryBuilder()
-    {
-        $queryBuilder = parent::getCollectionQueryBuilder();
-
-        return $queryBuilder->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'));
+        return $order;
     }
 }

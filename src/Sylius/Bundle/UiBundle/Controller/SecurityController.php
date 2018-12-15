@@ -9,55 +9,66 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\UiBundle\Controller;
 
+use Sylius\Bundle\UiBundle\Form\Type\SecurityLoginType;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class SecurityController
 {
-    /**
-     * @var AuthenticationUtils
-     */
+    /** @var AuthenticationUtils */
     private $authenticationUtils;
 
-    /**
-     * @var FormFactoryInterface
-     */
+    /** @var FormFactoryInterface */
     private $formFactory;
 
-    /**
-     * @var EngineInterface
-     */
+    /** @var EngineInterface */
     private $templatingEngine;
 
-    /**
-     * @param AuthenticationUtils $authenticationUtils
-     * @param FormFactoryInterface $formFactory
-     * @param EngineInterface $templatingEngine
-     */
-    public function __construct(AuthenticationUtils $authenticationUtils, FormFactoryInterface $formFactory, EngineInterface $templatingEngine)
-    {
+    /** @var AuthorizationCheckerInterface */
+    private $authorizationChecker;
+
+    /** @var RouterInterface */
+    private $router;
+
+    public function __construct(
+        AuthenticationUtils $authenticationUtils,
+        FormFactoryInterface $formFactory,
+        EngineInterface $templatingEngine,
+        AuthorizationCheckerInterface $authorizationChecker,
+        RouterInterface $router
+    ) {
         $this->authenticationUtils = $authenticationUtils;
         $this->formFactory = $formFactory;
         $this->templatingEngine = $templatingEngine;
+        $this->authorizationChecker = $authorizationChecker;
+        $this->router = $router;
     }
 
-    /**
-     * @param Request $request
-     */
-    public function loginAction(Request $request)
+    public function loginAction(Request $request): Response
     {
+        $alreadyLoggedInRedirectRoute = $request->attributes->get('_sylius')['logged_in_route'] ?? null;
+
+        if ($alreadyLoggedInRedirectRoute && $this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
+            return new RedirectResponse($this->router->generate($alreadyLoggedInRedirectRoute));
+        }
+
         $lastError = $this->authenticationUtils->getLastAuthenticationError();
         $lastUsername = $this->authenticationUtils->getLastUsername();
 
-        $template = $request->attributes->get('_sylius[template]', 'SyliusUiBundle:Security:login.html.twig', true);
-        $formType = $request->attributes->get('_sylius[form]', 'sylius_security_login', true);
+        $options = $request->attributes->get('_sylius');
+
+        $template = $options['template'] ?? '@SyliusUi/Security/login.html.twig';
+        $formType = $options['form'] ?? SecurityLoginType::class;
         $form = $this->formFactory->createNamed('', $formType);
 
         return $this->templatingEngine->renderResponse($template, [
@@ -67,18 +78,12 @@ final class SecurityController
         ]);
     }
 
-    /**
-     * @param Request $request
-     */
-    public function checkAction(Request $request)
+    public function checkAction(Request $request): void
     {
         throw new \RuntimeException('You must configure the check path to be handled by the firewall.');
     }
 
-    /**
-     * @param Request $request
-     */
-    public function logoutAction(Request $request)
+    public function logoutAction(Request $request): void
     {
         throw new \RuntimeException('You must configure the logout path to be handled by the firewall.');
     }

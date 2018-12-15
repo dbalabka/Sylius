@@ -9,28 +9,27 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Hateoas\Configuration\Route;
 use Hateoas\Representation\Factory\PagerfantaFactory;
 use Pagerfanta\Pagerfanta;
+use Sylius\Bundle\ResourceBundle\Grid\View\ResourceGridView;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class ResourcesCollectionProvider implements ResourcesCollectionProviderInterface
+final class ResourcesCollectionProvider implements ResourcesCollectionProviderInterface
 {
-    /**
-     * @var PagerfantaFactory
-     */
+    /** @var ResourcesResolverInterface */
+    private $resourcesResolver;
+
+    /** @var PagerfantaFactory */
     private $pagerfantaRepresentationFactory;
 
-    /**
-     * @param PagerfantaFactory $pagerfantaRepresentationFactory
-     */
-    public function __construct(PagerfantaFactory $pagerfantaRepresentationFactory)
+    public function __construct(ResourcesResolverInterface $resourcesResolver, PagerfantaFactory $pagerfantaRepresentationFactory)
     {
+        $this->resourcesResolver = $resourcesResolver;
         $this->pagerfantaRepresentationFactory = $pagerfantaRepresentationFactory;
     }
 
@@ -39,17 +38,33 @@ class ResourcesCollectionProvider implements ResourcesCollectionProviderInterfac
      */
     public function get(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
     {
-        $resources = $this->getResources($requestConfiguration, $repository);
+        $resources = $this->resourcesResolver->getResources($requestConfiguration, $repository);
+        $paginationLimits = [];
 
-        if ($resources instanceof Pagerfanta) {
+        if ($resources instanceof ResourceGridView) {
+            $paginator = $resources->getData();
+            $paginationLimits = $resources->getDefinition()->getLimits();
+        } else {
+            $paginator = $resources;
+        }
+
+        if ($paginator instanceof Pagerfanta) {
             $request = $requestConfiguration->getRequest();
-            $resources->setMaxPerPage($requestConfiguration->getPaginationMaxPerPage());
-            $resources->setCurrentPage($request->query->get('page', 1));
+
+            $paginator->setMaxPerPage($this->resolveMaxPerPage(
+                $request->query->has('limit') ? $request->query->getInt('limit') : null,
+                $requestConfiguration->getPaginationMaxPerPage(),
+                $paginationLimits
+            ));
+            $paginator->setCurrentPage($request->query->get('page', 1));
+
+            // This prevents Pagerfanta from querying database from a template
+            $paginator->getCurrentPageResults();
 
             if (!$requestConfiguration->isHtmlRequest()) {
                 $route = new Route($request->attributes->get('_route'), array_merge($request->attributes->get('_route_params'), $request->query->all()));
 
-                return $this->pagerfantaRepresentationFactory->createRepresentation($resources, $route);
+                return $this->pagerfantaRepresentationFactory->createRepresentation($paginator, $route);
             }
         }
 
@@ -57,29 +72,20 @@ class ResourcesCollectionProvider implements ResourcesCollectionProviderInterfac
     }
 
     /**
-     * @param RequestConfiguration $requestConfiguration
-     * @param RepositoryInterface $repository
-     *
-     * @return mixed
+     * @param int[] $gridLimits
      */
-    private function getResources(RequestConfiguration $requestConfiguration, RepositoryInterface $repository)
+    private function resolveMaxPerPage(?int $requestLimit, int $configurationLimit, array $gridLimits = []): int
     {
-        if (null !== $repositoryMethod = $requestConfiguration->getRepositoryMethod()) {
-            $callable = [$repository, $repositoryMethod];
-
-            $resources = call_user_func_array($callable, $requestConfiguration->getRepositoryArguments());
-
-            return $resources;
+        if (null === $requestLimit) {
+            return reset($gridLimits) ?: $configurationLimit;
         }
 
-        if (!$requestConfiguration->isPaginated() && !$requestConfiguration->isLimited()) {
-            return $repository->findAll();
+        if (!empty($gridLimits)) {
+            $maxGridLimit = max($gridLimits);
+
+            return $requestLimit > $maxGridLimit ? $maxGridLimit : $requestLimit;
         }
 
-        if (!$requestConfiguration->isPaginated()) {
-            return $repository->findBy($requestConfiguration->getCriteria(), $requestConfiguration->getSorting(), $requestConfiguration->getLimit());
-        }
-
-        return $repository->createPaginator($requestConfiguration->getCriteria(), $requestConfiguration->getSorting());
+        return $requestLimit;
     }
 }

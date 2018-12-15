@@ -9,43 +9,31 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class RequestConfigurationFactory implements RequestConfigurationFactoryInterface
+final class RequestConfigurationFactory implements RequestConfigurationFactoryInterface
 {
-    const API_VERSION_HEADER = 'Accept';
-    const API_GROUPS_HEADER = 'Accept';
+    private const API_VERSION_HEADER = 'Accept';
+    private const API_GROUPS_HEADER = 'Accept';
 
-    const API_VERSION_REGEXP = '/(v|version)=(?P<version>[0-9\.]+)/i';
-    const API_GROUPS_REGEXP = '/(g|groups)=(?P<groups>[a-z,_\s]+)/i';
+    private const API_VERSION_REGEXP = '/(v|version)=(?P<version>[0-9\.]+)/i';
+    private const API_GROUPS_REGEXP = '/(g|groups)=(?P<groups>[a-z,_\s]+)/i';
 
-    /**
-     * @var ParametersParser
-     */
+    /** @var ParametersParserInterface */
     private $parametersParser;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $configurationClass;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $defaultParameters;
 
-    /**
-     * @param ParametersParser $parametersParser
-     * @param string $configurationClass
-     * @param array $defaultParameters
-     */
-    public function __construct(ParametersParser $parametersParser, $configurationClass, array $defaultParameters = [])
+    public function __construct(ParametersParserInterface $parametersParser, string $configurationClass, array $defaultParameters = [])
     {
         $this->parametersParser = $parametersParser;
         $this->configurationClass = $configurationClass;
@@ -55,31 +43,31 @@ class RequestConfigurationFactory implements RequestConfigurationFactoryInterfac
     /**
      * {@inheritdoc}
      */
-    public function create(MetadataInterface $metadata, Request $request)
+    public function create(MetadataInterface $metadata, Request $request): RequestConfiguration
     {
-        $parameters = $this->parseApiParameters($request);
+        $parameters = array_merge($this->defaultParameters, $this->parseApiParameters($request));
         $parameters = $this->parametersParser->parseRequestValues($parameters, $request);
 
         return new $this->configurationClass($metadata, $request, new Parameters($parameters));
     }
 
     /**
-     * @param Request $request
-     *
-     * @return array
+     * @throws \InvalidArgumentException
      */
-    private function parseApiParameters(Request $request)
+    private function parseApiParameters(Request $request): array
     {
         $parameters = [];
 
-        if ($request->headers->has(self::API_VERSION_HEADER)) {
-            if (preg_match(self::API_VERSION_REGEXP, $request->headers->get(self::API_VERSION_HEADER), $matches)) {
+        $apiVersionHeaders = $request->headers->get(self::API_VERSION_HEADER, null, false);
+        foreach ($apiVersionHeaders as $apiVersionHeader) {
+            if (preg_match(self::API_VERSION_REGEXP, $apiVersionHeader, $matches)) {
                 $parameters['serialization_version'] = $matches['version'];
             }
         }
 
-        if ($request->headers->has(self::API_GROUPS_HEADER)) {
-            if (preg_match(self::API_GROUPS_REGEXP, $request->headers->get(self::API_GROUPS_HEADER), $matches)) {
+        $apiGroupsHeaders = $request->headers->get(self::API_GROUPS_HEADER, null, false);
+        foreach ($apiGroupsHeaders as $apiGroupsHeader) {
+            if (preg_match(self::API_GROUPS_REGEXP, $apiGroupsHeader, $matches)) {
                 $parameters['serialization_groups'] = array_map('trim', explode(',', $matches['groups']));
             }
         }

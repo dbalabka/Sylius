@@ -9,66 +9,50 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Behat\Context\Ui;
 
 use Behat\Behat\Context\Context;
-use Sylius\Behat\Page\Customer\CustomerShowPage;
-use Sylius\Behat\Page\ElementNotFoundException;
-use Sylius\Behat\Page\User\LoginPage;
-use Sylius\Component\Core\Test\Services\SharedStorageInterface;
+use Sylius\Behat\Page\Admin\Customer\ShowPageInterface;
+use Sylius\Behat\Page\Shop\HomePageInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Model\ShopUserInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class UserContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var UserRepositoryInterface
-     */
+    /** @var UserRepositoryInterface */
     private $userRepository;
 
-    /**
-     * @var CustomerShowPage
-     */
+    /** @var ShowPageInterface */
     private $customerShowPage;
 
-    /**
-     * @var LoginPage
-     */
-    private $loginPage;
+    /** @var HomePageInterface */
+    private $homePage;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param UserRepositoryInterface $userRepository
-     * @param CustomerShowPage $customerShowPage
-     * @param LoginPage $loginPage
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         UserRepositoryInterface $userRepository,
-        CustomerShowPage $customerShowPage,
-        LoginPage $loginPage
+        ShowPageInterface $customerShowPage,
+        HomePageInterface $homePage
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->userRepository = $userRepository;
         $this->customerShowPage = $customerShowPage;
-        $this->loginPage = $loginPage;
+        $this->homePage = $homePage;
     }
 
     /**
-     * @Given /^I log in as "([^"]*)" with "([^"]*)" password$/
+     * @When I log out
      */
-    public function iLogInAs($login, $password)
+    public function iLogOut()
     {
-        $this->loginPage->open();
-        $this->loginPage->logIn($login, $password);
+        $this->homePage->logOut();
     }
 
     /**
@@ -76,30 +60,13 @@ final class UserContext implements Context
      */
     public function iDeleteAccount($email)
     {
+        /** @var ShopUserInterface $user */
         $user = $this->userRepository->findOneByEmail($email);
 
         $this->sharedStorage->set('deleted_user', $user);
 
         $this->customerShowPage->open(['id' => $user->getCustomer()->getId()]);
         $this->customerShowPage->deleteAccount();
-    }
-
-    /**
-     * @When I try to delete my own account
-     */
-    public function iTryDeletingMyOwnAccount()
-    {
-        $admin = $this->sharedStorage->get('admin');
-
-        $this->customerShowPage->open(['id' => $admin->getId()]);
-    }
-
-    /**
-     * @Then I should not be able to do it
-     */
-    public function iShouldNotBeAbleToDeleteMyOwnAccount()
-    {
-        expect($this->customerShowPage)->toThrow(new ElementNotFoundException('Element not found.'))->during('deleteAccount');
     }
 
     /**
@@ -111,6 +78,6 @@ final class UserContext implements Context
 
         $this->customerShowPage->open(['id' => $deletedUser->getCustomer()->getId()]);
 
-        expect($this->customerShowPage->isRegistered())->toBe(false);
+        Assert::false($this->customerShowPage->isRegistered());
     }
 }

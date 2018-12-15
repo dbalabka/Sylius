@@ -9,34 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ThemeBundle\Templating\Locator;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Bundle\ThemeBundle\Locator\ResourceLocatorInterface;
 use Sylius\Bundle\ThemeBundle\Locator\ResourceNotFoundException;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
-use Sylius\Bundle\ThemeBundle\Templating\Locator\TemplateLocator;
 use Sylius\Bundle\ThemeBundle\Templating\Locator\TemplateLocatorInterface;
 use Symfony\Component\Templating\TemplateReferenceInterface;
 
-/**
- * @mixin TemplateLocator
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-class TemplateLocatorSpec extends ObjectBehavior
+final class TemplateLocatorSpec extends ObjectBehavior
 {
-    function let(ResourceLocatorInterface $resourceLocator)
+    function let(ResourceLocatorInterface $resourceLocator): void
     {
         $this->beConstructedWith($resourceLocator);
     }
 
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ThemeBundle\Templating\Locator\TemplateLocator');
-    }
-
-    function it_implements_template_locator_interface()
+    function it_implements_template_locator_interface(): void
     {
         $this->shouldImplement(TemplateLocatorInterface::class);
     }
@@ -45,22 +36,22 @@ class TemplateLocatorSpec extends ObjectBehavior
         ResourceLocatorInterface $resourceLocator,
         TemplateReferenceInterface $template,
         ThemeInterface $theme
-    ) {
-        $template->getPath()->willReturn('@AcmeBundle/Resources/views/index.html.twig');
+    ): void {
+        $template->getPath()->willReturn('@AcmeBundle/Resources/views/Directory/index.html.twig');
 
-        $resourceLocator->locateResource('@AcmeBundle/Resources/views/index.html.twig', $theme)->willReturn('/acme/index.html.twig');
+        $resourceLocator->locateResource('@AcmeBundle/Resources/views/Directory/index.html.twig', $theme)->willReturn('/acme/index.html.twig');
 
         $this->locateTemplate($template, $theme)->shouldReturn('/acme/index.html.twig');
     }
 
-    function it_does_not_catch_exceptions_throwed_while_locating_template_to_resource_locator_even(
+    function it_does_not_catch_exceptions_thrown_while_locating_template_to_resource_locator_even(
         ResourceLocatorInterface $resourceLocator,
         TemplateReferenceInterface $template,
         ThemeInterface $theme
-    ) {
-        $template->getPath()->willReturn('@AcmeBundle/Resources/views/index.html.twig');
+    ): void {
+        $template->getPath()->willReturn('@AcmeBundle/Resources/views/Directory/index.html.twig');
 
-        $resourceLocator->locateResource('@AcmeBundle/Resources/views/index.html.twig', $theme)->willThrow(ResourceNotFoundException::class);
+        $resourceLocator->locateResource('@AcmeBundle/Resources/views/Directory/index.html.twig', $theme)->willThrow(ResourceNotFoundException::class);
 
         $this->shouldThrow(ResourceNotFoundException::class)->during('locateTemplate', [$template, $theme]);
     }

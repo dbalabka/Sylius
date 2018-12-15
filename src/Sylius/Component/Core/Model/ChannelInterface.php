@@ -9,63 +9,55 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
+use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
 use Sylius\Component\Currency\Model\CurrenciesAwareInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Locale\Model\LocalesAwareInterface;
-use Sylius\Component\Payment\Model\PaymentMethodsAwareInterface;
-use Sylius\Component\Shipping\Model\ShippingMethodsAwareInterface;
-use Sylius\Component\Taxonomy\Model\TaxonomiesAwareInterface;
 
-/**
- * Model implementing this interface should reference several:
- *   - Currencies;
- *   - Locales;
- *   - Payment methods;
- *   - Shipping methods;
- *   - Taxonomies.
- *
- * @author Paweł Jędrzejewski <pjedrzejewski@diweb.pl>
- */
 interface ChannelInterface extends
     BaseChannelInterface,
     CurrenciesAwareInterface,
-    LocalesAwareInterface,
-    PaymentMethodsAwareInterface,
-    ShippingMethodsAwareInterface,
-    TaxonomiesAwareInterface
+    LocalesAwareInterface
 {
-    /**
-     * @return ThemeInterface
-     */
-    public function getTheme();
+    public function getBaseCurrency(): ?CurrencyInterface;
 
-    /**
-     * @param ThemeInterface|null $theme
-     */
-    public function setTheme(ThemeInterface $theme = null);
+    public function setBaseCurrency(?CurrencyInterface $currency): void;
 
-    /**
-     * @param LocaleInterface $locale
-     */
-    public function setDefaultLocale(LocaleInterface $locale);
+    public function getDefaultLocale(): ?LocaleInterface;
 
-    /**
-     * @return LocaleInterface
-     */
-    public function getDefaultLocale();
+    public function setDefaultLocale(?LocaleInterface $locale): void;
 
-    /**
-     * @param CurrencyInterface $currency
-     */
-    public function setDefaultCurrency(CurrencyInterface $currency);
+    public function getDefaultTaxZone(): ?ZoneInterface;
 
-    /**
-     * @return CurrencyInterface
-     */
-    public function getDefaultCurrency();
+    public function setDefaultTaxZone(?ZoneInterface $defaultTaxZone): void;
+
+    public function getTaxCalculationStrategy(): ?string;
+
+    public function setTaxCalculationStrategy(?string $taxCalculationStrategy): void;
+
+    public function getThemeName(): ?string;
+
+    public function setThemeName(?string $themeName): void;
+
+    public function getContactEmail(): ?string;
+
+    public function setContactEmail(?string $contactEmail): void;
+
+    public function isSkippingShippingStepAllowed(): bool;
+
+    public function setSkippingShippingStepAllowed(bool $skippingShippingStepAllowed): void;
+
+    public function isSkippingPaymentStepAllowed(): bool;
+
+    public function setSkippingPaymentStepAllowed(bool $skippingPaymentStepAllowed): void;
+
+    public function isAccountVerificationRequired(): bool;
+
+    public function setAccountVerificationRequired(bool $accountVerificationRequired): void;
 }

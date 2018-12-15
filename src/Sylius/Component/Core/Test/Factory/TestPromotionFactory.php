@@ -9,24 +9,20 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Test\Factory;
 
+use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\PromotionInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
-class TestPromotionFactory implements TestPromotionFactoryInterface
+final class TestPromotionFactory implements TestPromotionFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $promotionFactory;
 
-    /**
-     * @param FactoryInterface $promotionFactory
-     */
     public function __construct(FactoryInterface $promotionFactory)
     {
         $this->promotionFactory = $promotionFactory;
@@ -35,13 +31,13 @@ class TestPromotionFactory implements TestPromotionFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function create($name)
+    public function create(string $name): PromotionInterface
     {
+        /** @var PromotionInterface $promotion */
         $promotion = $this->promotionFactory->createNew();
 
         $promotion->setName($name);
-        $promotion->setCode($this->getCodeFromName($name));
-        $promotion->setDescription('Promotion '.$name);
+        $promotion->setCode(StringInflector::nameToLowercaseCode($name));
         $promotion->setStartsAt(new \DateTime('-3 days'));
         $promotion->setEndsAt(new \DateTime('+3 days'));
 
@@ -51,21 +47,11 @@ class TestPromotionFactory implements TestPromotionFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createForChannel($name, ChannelInterface $channel)
+    public function createForChannel(string $name, ChannelInterface $channel): PromotionInterface
     {
         $promotion = $this->create($name);
         $promotion->addChannel($channel);
 
         return $promotion;
-    }
-
-    /**
-     * @param string $promotionName
-     *
-     * @return string
-     */
-    private function getCodeFromName($promotionName)
-    {
-        return str_replace(' ', '_', strtolower($promotionName));
     }
 }

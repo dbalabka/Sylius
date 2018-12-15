@@ -2,8 +2,11 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-  form:
-    taxon:
-      name: Name
-    taxonomy:
-      name: Name
+    form:
+        taxon:
+            description: Beschreibung
+            name: Name
+            parent: Parent
+            slug: Kategorie SEO-URL
+        taxonomy:
+            name: Name

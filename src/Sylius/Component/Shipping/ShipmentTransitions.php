@@ -9,17 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Shipping;
 
-class ShipmentTransitions
+final class ShipmentTransitions
 {
-    const GRAPH = 'sylius_shipment';
+    public const GRAPH = 'sylius_shipment';
 
-    const SYLIUS_HOLD = 'hold';
-    const SYLIUS_RELEASE = 'release';
-    const SYLIUS_BACKORDER = 'backorder';
-    const SYLIUS_PREPARE = 'prepare';
-    const SYLIUS_SHIP = 'ship';
-    const SYLIUS_RETURN = 'return';
-    const SYLIUS_CANCEL = 'cancel';
+    public const TRANSITION_CREATE = 'create';
+    public const TRANSITION_SHIP = 'ship';
+    public const TRANSITION_CANCEL = 'cancel';
+
+    private function __construct()
+    {
+    }
 }

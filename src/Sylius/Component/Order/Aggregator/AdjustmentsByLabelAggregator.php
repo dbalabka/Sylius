@@ -9,23 +9,23 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Aggregator;
 
 use Sylius\Component\Order\Model\AdjustmentInterface;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class AdjustmentsByLabelAggregator implements AdjustmentsAggregatorInterface
 {
     /**
      * {@inheritdoc}
      */
-    public function aggregate(array $adjustments)
+    public function aggregate(iterable $adjustments): array
     {
         $aggregatedAdjustments = [];
         foreach ($adjustments as $adjustment) {
-            $this->assertElementIsAdjustment($adjustment);
+            Assert::isInstanceOf($adjustment, AdjustmentInterface::class);
 
             if (!isset($aggregatedAdjustments[$adjustment->getLabel()])) {
                 $aggregatedAdjustments[$adjustment->getLabel()] = 0;
@@ -35,17 +35,5 @@ final class AdjustmentsByLabelAggregator implements AdjustmentsAggregatorInterfa
         }
 
         return $aggregatedAdjustments;
-    }
-
-    /**
-     * @param mixed $adjustment
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function assertElementIsAdjustment($adjustment)
-    {
-        if (!$adjustment instanceof AdjustmentInterface) {
-            throw new \InvalidArgumentException('Each adjustments array element must implement '.AdjustmentInterface::class.'.');
-        }
     }
 }

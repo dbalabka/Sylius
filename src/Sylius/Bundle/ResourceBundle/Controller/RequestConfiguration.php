@@ -9,41 +9,25 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-/**
- * Resource controller configuration.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Gustavo Perdomo <gperdomor@gmail.com>
- */
 class RequestConfiguration
 {
-    /**
-     * @var Request
-     */
-    protected $request;
+    /** @var Request */
+    private $request;
 
-    /**
-     * @var MetadataInterface
-     */
-    protected $metadata;
+    /** @var MetadataInterface */
+    private $metadata;
 
-    /**
-     * @var Parameters
-     */
-    protected $parameters;
+    /** @var Parameters */
+    private $parameters;
 
-    /**
-     * @param MetadataInterface $metadata
-     * @param Request $request
-     * @param Parameters $parameters
-     */
     public function __construct(MetadataInterface $metadata, Request $request, Parameters $parameters)
     {
         $this->metadata = $metadata;
@@ -92,17 +76,23 @@ class RequestConfiguration
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return null|string
+     * @return string|null
      */
     public function getDefaultTemplate($name)
     {
-        return sprintf('%s:%s.%s', $this->metadata->getTemplatesNamespace() ?: ':', $name, 'twig');
+        $templatesNamespace = (string) $this->metadata->getTemplatesNamespace();
+
+        if (false !== strpos($templatesNamespace, ':')) {
+            return sprintf('%s:%s.%s', $templatesNamespace ?: ':', $name, 'twig');
+        }
+
+        return sprintf('%s/%s.%s', $templatesNamespace, $name, 'twig');
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return mixed|null
      */
@@ -118,27 +108,34 @@ class RequestConfiguration
     }
 
     /**
-     * @return mixed|null
+     * @return string|null
      */
     public function getFormType()
     {
-        $form = $this->parameters->get('form', sprintf('%s_%s', $this->metadata->getApplicationName(), $this->metadata->getName()));
-
-        if (is_array($form) && array_key_exists('type', $form)) {
+        $form = $this->parameters->get('form');
+        if (isset($form['type'])) {
             return $form['type'];
         }
 
-        return $form;
+        if (is_string($form)) {
+            return $form;
+        }
+
+        $form = $this->metadata->getClass('form');
+        if (is_string($form)) {
+            return $form;
+        }
+
+        return sprintf('%s_%s', $this->metadata->getApplicationName(), $this->metadata->getName());
     }
 
     /**
-     * @return mixed|null
+     * @return array
      */
     public function getFormOptions()
     {
-        $form = $this->parameters->get('form', sprintf('%s_%s', $this->metadata->getApplicationName(), $this->metadata->getName()));
-
-        if (is_array($form) && array_key_exists('options', $form)) {
+        $form = $this->parameters->get('form');
+        if (isset($form['options'])) {
             return $form['options'];
         }
 
@@ -146,21 +143,21 @@ class RequestConfiguration
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return string
      */
     public function getRouteName($name)
     {
-        $sectionPrefix = $this->getSection() ? $this->getSection().'_' : '';
+        $sectionPrefix = $this->getSection() ? $this->getSection() . '_' : '';
 
         return sprintf('%s_%s%s_%s', $this->metadata->getApplicationName(), $sectionPrefix, $this->metadata->getName(), $name);
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return mixed|null|string
+     * @return mixed|string|null
      */
     public function getRedirectRoute($name)
     {
@@ -184,24 +181,24 @@ class RequestConfiguration
     /**
      * Get url hash fragment (#text) which is you configured.
      *
-     * @return null|string
+     * @return string
      */
     public function getRedirectHash()
     {
         $redirect = $this->parameters->get('redirect');
 
         if (!is_array($redirect) || empty($redirect['hash'])) {
-            return null;
+            return '';
         }
 
-        return '#'.$redirect['hash'];
+        return '#' . $redirect['hash'];
     }
 
     /**
      * Get redirect referer, This will detected by configuration
      * If not exists, The `referrer` from headers will be used.
      *
-     * @return null|string
+     * @return string
      */
     public function getRedirectReferer()
     {
@@ -228,14 +225,38 @@ class RequestConfiguration
     {
         $redirect = $this->parameters->get('redirect');
 
-        if (!is_array($redirect) || empty($redirect['parameters'])) {
+        if ($this->areParametersIntentionallyEmptyArray($redirect)) {
+            return [];
+        }
+
+        if (!is_array($redirect)) {
             $redirect = ['parameters' => []];
         }
 
-        $parameters = $redirect['parameters'];
+        $parameters = $redirect['parameters'] ?? [];
+        $parameters = $this->addExtraRedirectParameters($parameters);
 
         if (null !== $resource) {
             $parameters = $this->parseResourceValues($parameters, $resource);
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * @param array $parameters
+     */
+    private function addExtraRedirectParameters($parameters): array
+    {
+        $vars = $this->getVars();
+        $accessor = PropertyAccess::createPropertyAccessor();
+
+        if ($accessor->isReadable($vars, '[redirect][parameters]')) {
+            $extraParameters = $accessor->getValue($vars, '[redirect][parameters]');
+
+            if (is_array($extraParameters)) {
+                $parameters = array_merge($parameters, $extraParameters);
+            }
         }
 
         return $parameters;
@@ -268,7 +289,9 @@ class RequestConfiguration
      */
     public function isPaginated()
     {
-        return (bool) $this->parameters->get('paginate', true);
+        $pagination = $this->parameters->get('paginate', true);
+
+        return $pagination !== false && $pagination !== null;
     }
 
     /**
@@ -288,8 +311,6 @@ class RequestConfiguration
     }
 
     /**
-     * @param array $criteria
-     *
      * @return array
      */
     public function getCriteria(array $criteria = [])
@@ -312,8 +333,6 @@ class RequestConfiguration
     }
 
     /**
-     * @param array $sorting
-     *
      * @return array
      */
     public function getSorting(array $sorting = [])
@@ -335,7 +354,7 @@ class RequestConfiguration
     }
 
     /**
-     * @param $parameter
+     * @param string $parameter
      * @param array $defaults
      *
      * @return array
@@ -349,7 +368,7 @@ class RequestConfiguration
     }
 
     /**
-     * @return string|null
+     * @return array|string|null
      */
     public function getRepositoryMethod()
     {
@@ -381,7 +400,7 @@ class RequestConfiguration
     }
 
     /**
-     * @return string|null
+     * @return array|string|null
      */
     public function getFactoryMethod()
     {
@@ -413,8 +432,6 @@ class RequestConfiguration
     }
 
     /**
-     * @param null $message
-     *
      * @return mixed|null
      */
     public function getFlashMessage($message)
@@ -459,11 +476,7 @@ class RequestConfiguration
      */
     public function hasPermission()
     {
-        if (!$this->parameters->has('permission')) {
-            return true;
-        }
-
-        return false !== $this->parameters->get('permission');
+        return false !== $this->parameters->get('permission', false);
     }
 
     /**
@@ -475,15 +488,17 @@ class RequestConfiguration
      */
     public function getPermission($name)
     {
-        if (!$this->hasPermission()) {
+        $permission = $this->parameters->get('permission');
+
+        if (null === $permission) {
             throw new \LogicException('Current action does not require any authorization.');
         }
 
-        if (!$this->parameters->has('permission')) {
+        if (true === $permission) {
             return sprintf('%s.%s.%s', $this->metadata->getApplicationName(), $this->metadata->getName(), $name);
         }
 
-        return $this->parameters->get('permission');
+        return $permission;
     }
 
     /**
@@ -504,13 +519,15 @@ class RequestConfiguration
         return (bool) $redirect['header'];
     }
 
+    public function getVars()
+    {
+        return $this->parameters->get('vars', []);
+    }
+
     /**
-     * @param array  $parameters
      * @param object $resource
-     *
-     * @return array
      */
-    private function parseResourceValues(array $parameters, $resource)
+    private function parseResourceValues(array $parameters, $resource): array
     {
         $accessor = PropertyAccess::createPropertyAccessor();
 
@@ -529,5 +546,68 @@ class RequestConfiguration
         }
 
         return $parameters;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasGrid()
+    {
+        return $this->parameters->has('grid');
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \LogicException
+     */
+    public function getGrid()
+    {
+        if (!$this->hasGrid()) {
+            throw new \LogicException('Current action does not use grid.');
+        }
+
+        return $this->parameters->get('grid');
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasStateMachine()
+    {
+        return $this->parameters->has('state_machine');
+    }
+
+    /**
+     * @return string
+     */
+    public function getStateMachineGraph()
+    {
+        $options = $this->parameters->get('state_machine');
+
+        return $options['graph'] ?? null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getStateMachineTransition()
+    {
+        $options = $this->parameters->get('state_machine');
+
+        return $options['transition'] ?? null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCsrfProtectionEnabled()
+    {
+        return $this->parameters->get('csrf_protection', true);
+    }
+
+    private function areParametersIntentionallyEmptyArray($redirect): bool
+    {
+        return isset($redirect['parameters']) && is_array($redirect['parameters']) && empty($redirect['parameters']);
     }
 }

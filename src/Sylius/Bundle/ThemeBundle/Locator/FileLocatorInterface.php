@@ -9,28 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ThemeBundle\Locator;
 
-/**
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
 interface FileLocatorInterface
 {
     /**
-     * @param string $name
-     *
-     * @return string
-     *
      * @throws \InvalidArgumentException If name is not valid or file was not found
      */
-    public function locateFileNamed($name);
+    public function locateFileNamed(string $name): string;
 
     /**
-     * @param string $name
-     *
-     * @return array
-     *
      * @throws \InvalidArgumentException If name is not valid or files were not found
      */
-    public function locateFilesNamed($name);
+    public function locateFilesNamed(string $name): array;
 }

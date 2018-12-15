@@ -9,40 +9,28 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Product\Factory;
 
+use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductVariantInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ProductVariantFactory implements ProductVariantFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $factory;
 
-    /**
-     * @var RepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @param FactoryInterface $factory
-     * @param RepositoryInterface $productRepository
-     */
-    public function __construct(FactoryInterface $factory, RepositoryInterface $productRepository)
+    public function __construct(FactoryInterface $factory)
     {
         $this->factory = $factory;
-        $this->productRepository = $productRepository;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createNew()
+    public function createNew(): ProductVariantInterface
     {
         return $this->factory->createNew();
     }
@@ -50,13 +38,9 @@ class ProductVariantFactory implements ProductVariantFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createForProductWithId($id)
+    public function createForProduct(ProductInterface $product): ProductVariantInterface
     {
-        $product = $this->productRepository->find($id);
-        if (null === $product) {
-            throw new \InvalidArgumentException(sprintf('Product with id "%s" does not exist.', $id));
-        }
-
+        /** @var ProductVariantInterface $variant */
         $variant = $this->createNew();
         $variant->setProduct($product);
 

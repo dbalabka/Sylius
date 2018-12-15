@@ -9,36 +9,30 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\ToggleableTrait;
+use Symfony\Component\Intl\Intl;
 
-/**
- * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Gustavo Perdomo <gperdomor@gmail.com>
- */
 class Country implements CountryInterface
 {
     use ToggleableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
     /**
      * Country code ISO 3166-1 alpha-2.
      *
-     * @var string
+     * @var string|null
      */
     protected $code;
 
-    /**
-     * @var Collection|ProvinceInterface[]
-     */
+    /** @var Collection|ProvinceInterface[] */
     protected $provinces;
 
     public function __construct()
@@ -46,12 +40,9 @@ class Country implements CountryInterface
         $this->provinces = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->code;
+        return (string) ($this->getName() ?? $this->getCode());
     }
 
     /**
@@ -65,7 +56,7 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getCode(): ?string
     {
         return $this->code;
     }
@@ -73,7 +64,7 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setCode(?string $code): void
     {
         $this->code = $code;
     }
@@ -81,7 +72,15 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function getProvinces()
+    public function getName(?string $locale = null): ?string
+    {
+        return Intl::getRegionBundle()->getCountryName($this->code, $locale);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getProvinces(): Collection
     {
         return $this->provinces;
     }
@@ -89,15 +88,7 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function setProvinces(Collection $provinces)
-    {
-        $this->provinces = $provinces;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasProvinces()
+    public function hasProvinces(): bool
     {
         return !$this->provinces->isEmpty();
     }
@@ -105,7 +96,7 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function addProvince(ProvinceInterface $province)
+    public function addProvince(ProvinceInterface $province): void
     {
         if (!$this->hasProvince($province)) {
             $this->provinces->add($province);
@@ -116,7 +107,7 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function removeProvince(ProvinceInterface $province)
+    public function removeProvince(ProvinceInterface $province): void
     {
         if ($this->hasProvince($province)) {
             $this->provinces->removeElement($province);
@@ -127,7 +118,7 @@ class Country implements CountryInterface
     /**
      * {@inheritdoc}
      */
-    public function hasProvince(ProvinceInterface $province)
+    public function hasProvince(ProvinceInterface $province): bool
     {
         return $this->provinces->contains($province);
     }

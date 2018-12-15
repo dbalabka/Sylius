@@ -9,28 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\OrderBundle;
 
+use Sylius\Bundle\OrderBundle\DependencyInjection\Compiler\RegisterCartContextsPass;
+use Sylius\Bundle\OrderBundle\DependencyInjection\Compiler\RegisterProcessorsPass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Component\Order\Model\AdjustmentInterface;
-use Sylius\Component\Order\Model\CommentInterface;
-use Sylius\Component\Order\Model\IdentityInterface;
-use Sylius\Component\Order\Model\OrderInterface;
-use Sylius\Component\Order\Model\OrderItemInterface;
-use Sylius\Component\Order\Model\OrderItemUnitInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-/**
- * Sales order management bundle.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class SyliusOrderBundle extends AbstractResourceBundle
+final class SyliusOrderBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedDrivers()
+    public function getSupportedDrivers(): array
     {
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
@@ -40,22 +34,18 @@ class SyliusOrderBundle extends AbstractResourceBundle
     /**
      * {@inheritdoc}
      */
-    protected function getModelInterfaces()
+    public function build(ContainerBuilder $container): void
     {
-        return [
-            AdjustmentInterface::class => 'sylius.model.adjustment.class',
-            CommentInterface::class => 'sylius.model.comment.class',
-            OrderInterface::class => 'sylius.model.order.class',
-            OrderItemInterface::class => 'sylius.model.order_item.class',
-            OrderItemUnitInterface::class => 'sylius.model.order_item_unit.class',
-            IdentityInterface::class => 'sylius.model.order_identity.class',
-        ];
+        parent::build($container);
+
+        $container->addCompilerPass(new RegisterProcessorsPass());
+        $container->addCompilerPass(new RegisterCartContextsPass());
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         return 'Sylius\Component\Order\Model';
     }

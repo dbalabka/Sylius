@@ -9,112 +9,76 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Component\Payment\Model;
 
 use PhpSpec\ObjectBehavior;
-use Sylius\Component\Payment\Model\CreditCardInterface;
 use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class PaymentSpec extends ObjectBehavior
+final class PaymentSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Component\Payment\Model\Payment');
-    }
-
-    function it_implements_sylius_payment_interface()
+    function it_implements_sylius_payment_interface(): void
     {
         $this->shouldImplement(PaymentInterface::class);
     }
 
-    function it_has_no_id_by_default()
+    function it_has_no_id_by_default(): void
     {
         $this->getId()->shouldReturn(null);
     }
 
-    function it_has_no_payment_method_by_default()
+    function it_has_no_payment_method_by_default(): void
     {
         $this->getMethod()->shouldReturn(null);
     }
 
-    function its_payment_method_is_mutable(PaymentMethodInterface $method)
+    function its_payment_method_is_mutable(PaymentMethodInterface $method): void
     {
         $this->setMethod($method);
         $this->getMethod()->shouldReturn($method);
     }
 
-    function it_has_no_source_by_default()
+    function it_has_no_currency_code_by_default(): void
     {
-        $this->getSource()->shouldReturn(null);
+        $this->getCurrencyCode()->shouldReturn(null);
     }
 
-    function it_allows_to_assign_a_source(CreditCardInterface $source)
+    function its_currency_code_is_mutable(): void
     {
-        $this->setSource($source);
-        $this->getSource()->shouldReturn($source);
+        $this->setCurrencyCode('EUR');
+        $this->getCurrencyCode()->shouldReturn('EUR');
     }
 
-    function it_allows_to_remove_a_source(CreditCardInterface $source)
-    {
-        $this->setSource($source);
-        $this->setSource(null);
-        $this->getSource()->shouldReturn(null);
-    }
-
-    function it_has_no_currency_by_default()
-    {
-        $this->getCurrency()->shouldReturn(null);
-    }
-
-    function its_currency_is_mutable()
-    {
-        $this->setCurrency('EUR');
-        $this->getCurrency()->shouldReturn('EUR');
-    }
-
-    function it_has_amount_equal_to_0_by_default()
+    function it_has_amount_equal_to_0_by_default(): void
     {
         $this->getAmount()->shouldReturn(0);
     }
 
-    function its_amount_is_mutable()
+    function its_amount_is_mutable(): void
     {
         $this->setAmount(4999);
         $this->getAmount()->shouldReturn(4999);
     }
 
-    function its_amount_should_accept_only_integer()
+    function it_has_cart_state_by_default(): void
     {
-        $this->setAmount(4498);
-        $this->getAmount()->shouldBeInteger();
-        $this->shouldThrow('\InvalidArgumentException')->duringSetAmount(44.98 * 100);
-        $this->shouldThrow('\InvalidArgumentException')->duringSetAmount('4498');
-        $this->shouldThrow('\InvalidArgumentException')->duringSetAmount(round(44.98 * 100));
-        $this->shouldThrow('\InvalidArgumentException')->duringSetAmount([4498]);
-        $this->shouldThrow('\InvalidArgumentException')->duringSetAmount(new \stdClass());
+        $this->getState()->shouldReturn(PaymentInterface::STATE_CART);
     }
 
-    function it_has_new_state_by_default()
-    {
-        $this->getState()->shouldReturn(PaymentInterface::STATE_NEW);
-    }
-
-    function its_state_is_mutable()
+    function its_state_is_mutable(): void
     {
         $this->setState(PaymentInterface::STATE_COMPLETED);
         $this->getState()->shouldReturn(PaymentInterface::STATE_COMPLETED);
     }
 
-    function it_initializes_creation_date_by_default()
+    function it_initializes_creation_date_by_default(): void
     {
         $this->getCreatedAt()->shouldHaveType('DateTime');
     }
 
-    function its_creation_date_is_mutable()
+    function its_creation_date_is_mutable(): void
     {
         $date = new \DateTime('last year');
 
@@ -122,26 +86,12 @@ class PaymentSpec extends ObjectBehavior
         $this->getCreatedAt()->shouldReturn($date);
     }
 
-    function its_deletion_date_is_mutable(\DateTime $deletionTime)
-    {
-        $this->setDeletedAt($deletionTime);
-        $this->getDeletedAt()->shouldReturn($deletionTime);
-    }
-
-    function it_can_be_deleted()
-    {
-        $date = new \DateTime('last year');
-
-        $this->setDeletedAt($date);
-        $this->isDeleted()->shouldReturn(true);
-    }
-
-    function it_has_no_last_update_date_by_default()
+    function it_has_no_last_update_date_by_default(): void
     {
         $this->getUpdatedAt()->shouldReturn(null);
     }
 
-    function its_last_update_date_is_mutable()
+    function its_last_update_date_is_mutable(): void
     {
         $date = new \DateTime('last year');
 
@@ -149,23 +99,9 @@ class PaymentSpec extends ObjectBehavior
         $this->getUpdatedAt()->shouldReturn($date);
     }
 
-    function its_details_are_mutable()
+    function its_details_are_mutable(): void
     {
         $this->setDetails(['foo', 'bar']);
         $this->getDetails()->shouldReturn(['foo', 'bar']);
-    }
-
-    function its_details_could_be_set_from_traversable()
-    {
-        $details = new \ArrayObject(['foo', 'bar']);
-
-        $this->setDetails($details);
-        $this->getDetails()->shouldReturn(['foo', 'bar']);
-    }
-
-    function it_throws_exception_if_details_given_are_neither_array_nor_traversable()
-    {
-        $this->shouldThrow('Sylius\Component\Resource\Exception\UnexpectedTypeException')
-            ->duringSetDetails('invalidDetails');
     }
 }

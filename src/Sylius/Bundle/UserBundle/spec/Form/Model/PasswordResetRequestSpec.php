@@ -9,21 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\UserBundle\Form\Model;
 
 use PhpSpec\ObjectBehavior;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
-class PasswordResetRequestSpec extends ObjectBehavior
+final class PasswordResetRequestSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\UserBundle\Form\Model\PasswordResetRequest');
-    }
-
-    function it_has_email()
+    function it_has_email(): void
     {
         $this->setEmail('test@example.com');
         $this->getEmail()->shouldReturn('test@example.com');

@@ -9,36 +9,17 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Inventory\Model;
 
-use Sylius\Component\Resource\Model\TimestampableTrait;
-
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class InventoryUnit implements InventoryUnitInterface
 {
-    use TimestampableTrait;
-
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var StockableInterface
-     */
+    /** @var StockableInterface */
     protected $stockable;
-
-    /**
-     * @var string
-     */
-    protected $inventoryState = InventoryUnitInterface::STATE_CHECKOUT;
-
-    public function __construct()
-    {
-        $this->createdAt = new \DateTime();
-    }
 
     /**
      * {@inheritdoc}
@@ -51,56 +32,13 @@ class InventoryUnit implements InventoryUnitInterface
     /**
      * {@inheritdoc}
      */
-    public function getStockable()
+    public function getStockable(): ?StockableInterface
     {
         return $this->stockable;
     }
 
-    /**
-     * @param StockableInterface $stockable
-     */
-    public function setStockable(StockableInterface $stockable)
+    public function setStockable(StockableInterface $stockable): void
     {
         $this->stockable = $stockable;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInventoryName()
-    {
-        return $this->stockable->getInventoryName();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getInventoryState()
-    {
-        return $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setInventoryState($state)
-    {
-        $this->inventoryState = $state;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isSold()
-    {
-        return InventoryUnitInterface::STATE_SOLD === $this->inventoryState;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isBackordered()
-    {
-        return InventoryUnitInterface::STATE_BACKORDERED === $this->inventoryState;
     }
 }

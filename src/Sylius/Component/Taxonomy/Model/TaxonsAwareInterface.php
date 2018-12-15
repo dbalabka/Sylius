@@ -9,41 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Taxonomy\Model;
 
 use Doctrine\Common\Collections\Collection;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface TaxonsAwareInterface
 {
     /**
-     * @param string $taxonomy
-     *
      * @return Collection|TaxonInterface[]
      */
-    public function getTaxons($taxonomy = null);
+    public function getTaxons(): Collection;
 
-    /**
-     * @param Collection $collection
-     */
-    public function setTaxons(Collection $collection);
+    public function hasTaxon(TaxonInterface $taxon): bool;
 
-    /**
-     * @param TaxonInterface $taxon
-     *
-     * @return bool
-     */
-    public function hasTaxon(TaxonInterface $taxon);
+    public function addTaxon(TaxonInterface $taxon): void;
 
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function addTaxon(TaxonInterface $taxon);
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function removeTaxon(TaxonInterface $taxon);
+    public function removeTaxon(TaxonInterface $taxon): void;
 }

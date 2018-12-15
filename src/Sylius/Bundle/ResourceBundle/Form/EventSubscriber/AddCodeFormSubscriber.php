@@ -9,46 +9,45 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ResourceBundle\Form\EventSubscriber;
 
+use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Intl\Exception\UnexpectedTypeException;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
-class AddCodeFormSubscriber implements EventSubscriberInterface
+final class AddCodeFormSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $type;
+
+    /** @var array */
+    private $options;
 
     /**
      * @param string $type
      */
-    public function __construct($type = 'text')
+    public function __construct(?string $type = null, array $options = [])
     {
-        $this->type = $type;
+        $this->type = $type ?? TextType::class;
+        $this->options = $options;
     }
 
     /**
      * {@inheritdoc}
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             FormEvents::PRE_SET_DATA => 'preSetData',
         ];
     }
 
-    /**
-     * @param FormEvent $event
-     */
-    public function preSetData(FormEvent $event)
+    public function preSetData(FormEvent $event): void
     {
         $resource = $event->getData();
         $disabled = false;
@@ -60,6 +59,10 @@ class AddCodeFormSubscriber implements EventSubscriberInterface
         }
 
         $form = $event->getForm();
-        $form->add('code', $this->type, ['label' => 'sylius.ui.code', 'disabled' => $disabled]);
+        $form->add('code', $this->type, array_merge(
+            ['label' => 'sylius.ui.code'],
+            $this->options,
+            ['disabled' => $disabled]
+        ));
     }
 }

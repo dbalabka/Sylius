@@ -1,30 +1,32 @@
-{% form_theme form 'bootstrap_3_layout.html.twig' %}
+{% form_theme form '@SyliusUi/Form/theme.html.twig' %}
 
-<div class="login-box">
-    <div class="login-logo">
-        <a href="http://sylius.org" target="_blank">
-            <img src="{{ asset('assets/img/logo.png') }}" alt="Sylius" class="login-logo-sylius" />
-        </a>
-    </div>
-    <div class="login-box-body">
+{% import '@SyliusUi/Macro/messages.html.twig' as messages %}
+
+<div class="ui middle aligned center aligned grid">
+    <div class="column">
+        {{ sonata_block_render_event('sylius.admin.login.before_form', {'form': form}) }}
+
+        {% if paths.logo is defined %}
+        <img src="{{ asset(paths.logo) }}" class="ui fluid image" id="logo">
+        {% endif %}
+
         {% if last_error %}
-            <div class="alert alert-danger alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                {{ last_error.message }}
+            <div class="ui left aligned basic segment">
+                {{ messages.error(last_error.message) }}
             </div>
         {% endif %}
 
-        <form action="{{ action|default('/') }}" method="post">
-            {{ form_row(form._username, {'value': last_username|default('')}) }}
-            {{ form_row(form._password) }}
-            {{ form_row(form._remember_me) }}
-            <div class="row">
-                <div class="col-xs-8">
-                </div>
-                <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">{{ 'sylius.ui.sign_in'|trans }}</button>
-                </div>
+        {{ form_start(form, {'action': action|default('/'), 'attr': {'class': 'ui large loadable form', 'novalidate': 'novalidate'}}) }}
+            <div class="ui left aligned segment">
+                {{ form_row(form._username, {'value': last_username|default('')}) }}
+                {{ form_row(form._password) }}
+                {{ form_row(form._remember_me) }}
+                <input type="hidden" name="_csrf_admin_security_token" value="{{ csrf_token('admin_authenticate') }}">
+                <button type="submit" class="ui fluid large primary submit button">Login</button>
             </div>
-        </form>
+
+            {{ sonata_block_render_event('sylius.admin.login.form', {'form': form}) }}
+
+        {{ form_end(form, {'render_rest': false}) }}
     </div>
 </div>

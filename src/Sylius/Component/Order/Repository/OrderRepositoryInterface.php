@@ -9,30 +9,33 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Order\Repository;
 
+use Doctrine\ORM\QueryBuilder;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
-use Sylius\Component\Sequence\Repository\HashSubjectRepositoryInterface;
 
-/**
- * Order repository interface.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-interface OrderRepositoryInterface extends RepositoryInterface, HashSubjectRepositoryInterface
+interface OrderRepositoryInterface extends RepositoryInterface
 {
-    /**
-     * @param int $amount
-     *
-     * @return OrderInterface[]
-     */
-    public function findRecentOrders($amount = 10);
+    public function countPlacedOrders(): int;
 
     /**
-     * @param int|string $number
-     *
-     * @return bool
+     * @return array|OrderInterface[]
      */
-    public function isNumberUsed($number);
+    public function findLatest(int $count): array;
+
+    public function findOneByNumber(string $number): ?OrderInterface;
+
+    public function findOneByTokenValue(string $tokenValue): ?OrderInterface;
+
+    public function findCartById($id): ?OrderInterface;
+
+    /**
+     * @return array|OrderInterface[]
+     */
+    public function findCartsNotModifiedSince(\DateTimeInterface $terminalDate): array;
+
+    public function createCartQueryBuilder(): QueryBuilder;
 }

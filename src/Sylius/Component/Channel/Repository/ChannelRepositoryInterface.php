@@ -9,32 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Channel\Repository;
 
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ChannelRepositoryInterface extends RepositoryInterface
 {
-    /**
-     * @return ChannelInterface[]
-     */
-    public function findAll();
+    public function findOneByHostname(string $hostname): ?ChannelInterface;
+
+    public function findOneByCode(string $code): ?ChannelInterface;
 
     /**
-     * @param string $hostname
-     *
-     * @return ChannelInterface|null
+     * @return iterable|ChannelInterface[]
      */
-    public function findOneByHostname($hostname);
-
-    /**
-     * @param string $code
-     *
-     * @return ChannelInterface|null
-     */
-    public function findOneByCode($code);
+    public function findByName(string $name): iterable;
 }

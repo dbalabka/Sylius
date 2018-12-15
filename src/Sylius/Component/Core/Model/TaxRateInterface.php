@@ -9,29 +9,16 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Taxation\Model\TaxRateInterface as BaseTaxRateInterface;
 
-/**
- * Tax rate interface.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface TaxRateInterface extends BaseTaxRateInterface
 {
-    /**
-     * Get zone.
-     *
-     * @return ZoneInterface
-     */
-    public function getZone();
+    public function getZone(): ?ZoneInterface;
 
-    /**
-     * Set zone.
-     *
-     * @param ZoneInterface $zone
-     */
-    public function setZone(ZoneInterface $zone);
+    public function setZone(?ZoneInterface $zone): void;
 }

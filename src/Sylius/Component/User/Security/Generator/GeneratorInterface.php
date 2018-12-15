@@ -9,17 +9,11 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\User\Security\Generator;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface GeneratorInterface
 {
-    /**
-     * @param int $length determines length of a generated string
-     *
-     * @return string
-     */
-    public function generate($length);
+    public function generate(): string;
 }

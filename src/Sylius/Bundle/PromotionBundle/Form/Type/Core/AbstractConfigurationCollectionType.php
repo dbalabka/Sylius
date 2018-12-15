@@ -9,23 +9,21 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\PromotionBundle\Form\Type\Core;
 
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- */
 abstract class AbstractConfigurationCollectionType extends AbstractType
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     protected $registry;
 
     public function __construct(ServiceRegistryInterface $registry)
@@ -36,18 +34,20 @@ abstract class AbstractConfigurationCollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $prototypes = [];
-
         foreach (array_keys($this->registry->all()) as $type) {
-            $prototypeOptions = array_replace(
-                ['configuration_type' => $type],
-                $options['options']
+            $formBuilder = $builder->create(
+                $options['prototype_name'],
+                $options['entry_type'],
+                array_replace(
+                    $options['entry_options'],
+                    ['configuration_type' => $type]
+                )
             );
-            $form = $builder->create($options['prototype_name'], $options['type'], $prototypeOptions);
 
-            $prototypes[$type] = $form->getForm();
+            $prototypes[$type] = $formBuilder->getForm();
         }
 
         $builder->setAttribute('prototypes', $prototypes);
@@ -56,12 +56,12 @@ abstract class AbstractConfigurationCollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         $view->vars['prototypes'] = [];
 
         foreach ($form->getConfig()->getAttribute('prototypes') as $type => $prototype) {
-            /* @var FormInterface $prototype */
+            /** @var FormInterface $prototype */
             $view->vars['prototypes'][$type] = $prototype->createView($view);
         }
     }
@@ -69,26 +69,21 @@ abstract class AbstractConfigurationCollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'type' => $this->getFormTypeOption(),
             'allow_add' => true,
             'allow_delete' => true,
             'by_reference' => false,
+            'error_bubbling' => false,
         ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function getParent(): string
     {
-        return 'collection';
+        return CollectionType::class;
     }
-
-    /**
-     * @return string
-     */
-    abstract public function getFormTypeOption();
 }

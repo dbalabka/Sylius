@@ -9,24 +9,15 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Component\Addressing\Provider;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
+use Sylius\Component\Addressing\Model\AddressInterface;
+
 interface ProvinceNamingProviderInterface
 {
-    /**
-     * @param string $provinceCode
-     *
-     * @return string
-     */
-    public function getName($provinceCode);
+    public function getName(AddressInterface $address): string;
 
-    /**
-     * @param string $provinceCode
-     *
-     * @return string
-     */
-    public function getAbbreviation($provinceCode);
+    public function getAbbreviation(AddressInterface $address): string;
 }

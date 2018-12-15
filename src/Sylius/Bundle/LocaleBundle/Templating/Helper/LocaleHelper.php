@@ -9,41 +9,35 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sylius\Bundle\LocaleBundle\Templating\Helper;
 
-use Sylius\Component\Locale\Context\LocaleContextInterface;
+use Sylius\Component\Locale\Converter\LocaleConverterInterface;
 use Symfony\Component\Templating\Helper\Helper;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
-class LocaleHelper extends Helper
+final class LocaleHelper extends Helper implements LocaleHelperInterface
 {
-    /**
-     * @var LocaleContextInterface
-     */
-    private $localeContext;
+    /** @var LocaleConverterInterface */
+    private $localeConverter;
 
-    /**
-     * @param LocaleContextInterface $localeContext
-     */
-    public function __construct(LocaleContextInterface $localeContext)
+    public function __construct(LocaleConverterInterface $localeConverter)
     {
-        $this->localeContext = $localeContext;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurrentLocale()
-    {
-        return $this->localeContext->getCurrentLocale();
+        $this->localeConverter = $localeConverter;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function convertCodeToName(string $localeCode): ?string
+    {
+        return $this->localeConverter->convertCodeToName($localeCode);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getName(): string
     {
         return 'sylius_locale';
     }

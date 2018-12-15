@@ -9,33 +9,22 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace spec\Sylius\Bundle\ThemeBundle\Context;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
-use Sylius\Bundle\ThemeBundle\Context\SettableThemeContext;
 use Sylius\Bundle\ThemeBundle\Context\ThemeContextInterface;
-use Sylius\Bundle\ThemeBundle\HierarchyProvider\ThemeHierarchyProviderInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @mixin SettableThemeContext
- *
- * @author Kamil Kokot <kamil.kokot@lakion.com>
- */
-class SettableThemeContextSpec extends ObjectBehavior
+final class SettableThemeContextSpec extends ObjectBehavior
 {
-    function it_is_initializable()
-    {
-        $this->shouldHaveType('Sylius\Bundle\ThemeBundle\Context\SettableThemeContext');
-    }
-
-    function it_implements_theme_context_interface()
+    function it_implements_theme_context_interface(): void
     {
         $this->shouldImplement(ThemeContextInterface::class);
     }
 
-    function it_has_theme(ThemeInterface $theme)
+    function it_has_theme(ThemeInterface $theme): void
     {
         $this->getTheme()->shouldReturn(null);
 
