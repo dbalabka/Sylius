@@ -24,39 +24,20 @@ use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Anna Walasek <anna.walasek@lakion.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class CartContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var SummaryPageInterface
-     */
+    /** @var SummaryPageInterface */
     private $summaryPage;
 
-    /**
-     * @var ShowPageInterface
-     */
+    /** @var ShowPageInterface */
     private $productShowPage;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param SummaryPageInterface $summaryPage
-     * @param ShowPageInterface $productShowPage
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         SummaryPageInterface $summaryPage,
@@ -428,13 +409,8 @@ final class CartContext implements Context
         Assert::same($this->summaryPage->getCartTotal(), $total);
     }
 
-    /**
-     * @param string $price
-     *
-     * @return int
-     */
-    private function getPriceFromString($price)
+    private function getPriceFromString(string $price): int
     {
-        return (int) round(str_replace(['€', '£', '$'], '', $price) * 100, 2);
+        return (int) round((float) str_replace(['€', '£', '$'], '', $price) * 100, 2);
     }
 }

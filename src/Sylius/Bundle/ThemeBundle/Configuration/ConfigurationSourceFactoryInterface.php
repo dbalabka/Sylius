@@ -18,28 +18,16 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ConfigurationSourceFactoryInterface
 {
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     public function buildConfiguration(ArrayNodeDefinition $node): void;
 
     /**
      * @see ConfigurationProviderInterface
      *
-     * @param ContainerBuilder $container
-     * @param array $config
-     *
      * @return Reference|Definition Configuration provider service
      */
     public function initializeSource(ContainerBuilder $container, array $config);
 
-    /**
-     * @return string
-     */
     public function getName(): string;
 }

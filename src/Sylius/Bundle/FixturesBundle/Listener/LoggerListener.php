@@ -15,19 +15,11 @@ namespace Sylius\Bundle\FixturesBundle\Listener;
 
 use Psr\Log\LoggerInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class LoggerListener extends AbstractListener implements BeforeSuiteListenerInterface, BeforeFixtureListenerInterface
 {
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
 
-    /**
-     * @param LoggerInterface $logger
-     */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;

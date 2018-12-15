@@ -19,9 +19,6 @@ use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class NewResourceFactorySpec extends ObjectBehavior
 {
     function it_implements_new_resource_factory_interface(): void
@@ -50,6 +47,21 @@ final class NewResourceFactorySpec extends ObjectBehavior
         $requestConfiguration->getFactoryArguments()->willReturn(['00032']);
 
         $factory->createNew('00032')->willReturn($resource);
+
+        $this->create($requestConfiguration, $factory)->shouldReturn($resource);
+    }
+
+    function it_calls_proper_service_based_on_configuration(
+        RequestConfiguration $requestConfiguration,
+        FactoryInterface $factory,
+        FactoryInterface $customFactory,
+        ResourceInterface $resource
+    ): void {
+        $requestConfiguration->getFactoryMethod()->willReturn([$customFactory, 'createNew']);
+        $requestConfiguration->getFactoryArguments()->willReturn(['foo', 'bar']);
+
+        $customFactory->createNew('foo', 'bar')->willReturn($resource);
+        $factory->createNew()->shouldNotBeCalled();
 
         $this->create($requestConfiguration, $factory)->shouldReturn($resource);
     }

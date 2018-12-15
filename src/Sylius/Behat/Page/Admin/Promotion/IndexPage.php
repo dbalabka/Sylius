@@ -17,14 +17,9 @@ use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
     /**
-     * @param PromotionInterface $promotion
-     *
      * @return int
      */
     public function getUsageNumber(PromotionInterface $promotion)
@@ -55,7 +50,6 @@ class IndexPage extends BaseIndexPage implements IndexPageInterface
     }
 
     /**
-     * @param PromotionInterface $promotion
      * @param string $header
      *
      * @return NodeElement

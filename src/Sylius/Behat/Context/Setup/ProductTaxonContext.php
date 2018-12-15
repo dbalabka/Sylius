@@ -20,25 +20,14 @@ use Sylius\Component\Core\Model\ProductTaxonInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ProductTaxonContext implements Context
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productTaxonFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $objectManager;
 
-    /**
-     * @param FactoryInterface $productTaxonFactory
-     * @param ObjectManager $objectManager
-     */
     public function __construct(
         FactoryInterface $productTaxonFactory,
         ObjectManager $objectManager
@@ -57,12 +46,11 @@ final class ProductTaxonContext implements Context
         $productTaxon = $this->createProductTaxon($taxon, $product, (int) $position - 1);
         $product->addProductTaxon($productTaxon);
 
-        $this->objectManager->flush($product);
+        $this->objectManager->persist($product);
+        $this->objectManager->flush();
     }
 
     /**
-     * @param TaxonInterface $taxon
-     * @param ProductInterface $product
      * @param int|null $position
      *
      * @return ProductTaxonInterface

@@ -21,24 +21,14 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ResourceTranslationsType extends AbstractType
 {
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     private $definedLocalesCodes;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultLocaleCode;
 
-    /**
-     * @param TranslationLocaleProviderInterface $localeProvider
-     */
     public function __construct(TranslationLocaleProviderInterface $localeProvider)
     {
         $this->definedLocalesCodes = $localeProvider->getDefinedLocalesCodes();
@@ -84,7 +74,7 @@ final class ResourceTranslationsType extends AbstractType
                 return [
                     'required' => $localeCode === $this->defaultLocaleCode,
                 ];
-            }
+            },
         ]);
     }
 

@@ -15,14 +15,9 @@ namespace Sylius\Bundle\ThemeBundle\HierarchyProvider;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ThemeHierarchyProviderInterface
 {
     /**
-     * @param ThemeInterface $theme
-     *
      * @return array|ThemeInterface[]
      *
      * @throws \InvalidArgumentException If dependencies could not be resolved.

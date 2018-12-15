@@ -16,14 +16,8 @@ namespace Sylius\Bundle\FixturesBundle\Suite;
 use Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface;
 use Sylius\Bundle\FixturesBundle\Listener\ListenerInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface SuiteInterface
 {
-    /**
-     * @return string
-     */
     public function getName(): string;
 
     /**

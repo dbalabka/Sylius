@@ -15,11 +15,8 @@ namespace Sylius\Behat\Page\Admin\ProductVariant;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class GeneratePage extends SymfonyPage implements GeneratePageInterface
 {
     public function generate()
@@ -56,7 +53,7 @@ class GeneratePage extends SymfonyPage implements GeneratePageInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_admin_product_variant_generate';
     }
@@ -88,7 +85,7 @@ class GeneratePage extends SymfonyPage implements GeneratePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_product_generate_variants_variants_%position%_code',
@@ -98,8 +95,6 @@ class GeneratePage extends SymfonyPage implements GeneratePageInterface
     }
 
     /**
-     * @param NodeElement $element
-     *
      * @return NodeElement
      *
      * @throws ElementNotFoundException

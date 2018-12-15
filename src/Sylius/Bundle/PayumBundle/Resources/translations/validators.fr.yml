@@ -12,6 +12,6 @@ sylius:
                 not_blank: Veuillez entrer votre nom d'utilisateur PayPal.
         stripe:
             secret_key:
-                not_blank: Veuillez entrer votre clé secrète.
+                not_blank: Veuillez entrer votre clé secrète Stripe.
             publishable_key:
-                not_blank: Veuillez entrer votre clé privée.
+                not_blank: Veuillez entrer votre clé publique Stripe.

@@ -19,9 +19,6 @@ use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
     /**
@@ -67,11 +64,10 @@ final class IndexPage extends BaseIndexPage implements IndexPageInterface
         });
     }
 
-
     /**
      * {@inheritdoc}
      */
-    public function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'on_hand_quantity' => '.onHand[data-product-variant-id="%id%"]',

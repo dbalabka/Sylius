@@ -13,34 +13,20 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ThemeBundle\Translation\Resource;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TranslationResource implements TranslationResourceInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $locale;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $format;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $domain;
 
-    /**
-     * @param string $filepath
-     */
     public function __construct(string $filepath)
     {
         $this->name = $filepath;

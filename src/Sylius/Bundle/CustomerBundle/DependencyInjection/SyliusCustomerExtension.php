@@ -18,9 +18,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class SyliusCustomerExtension extends AbstractResourceExtension
 {
     /**
@@ -29,7 +26,7 @@ final class SyliusCustomerExtension extends AbstractResourceExtension
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 

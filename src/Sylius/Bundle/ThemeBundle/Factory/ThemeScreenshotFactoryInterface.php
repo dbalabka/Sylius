@@ -15,15 +15,7 @@ namespace Sylius\Bundle\ThemeBundle\Factory;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeScreenshot;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ThemeScreenshotFactoryInterface
 {
-    /**
-     * @param array $data
-     *
-     * @return ThemeScreenshot
-     */
     public function createFromArray(array $data): ThemeScreenshot;
 }

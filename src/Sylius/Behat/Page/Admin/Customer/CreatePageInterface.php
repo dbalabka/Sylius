@@ -15,9 +15,6 @@ namespace Sylius\Behat\Page\Admin\Customer;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
     /**
@@ -66,6 +63,11 @@ interface CreatePageInterface extends BaseCreatePageInterface
      * @return bool
      */
     public function hasCheckedCreateOption();
+
+    /**
+     * @return bool
+     */
+    public function hasCreateOption();
 
     /**
      * @return bool

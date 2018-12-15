@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Ui\Shop\Checkout;
@@ -16,31 +25,17 @@ use Sylius\Component\Core\Model\PromotionInterface;
 use Sylius\Component\Core\Model\ShippingMethodInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CheckoutCompleteContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var CompletePageInterface
-     */
+    /** @var CompletePageInterface */
     private $completePage;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param CompletePageInterface $completePage
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         CompletePageInterface $completePage,
@@ -108,7 +103,7 @@ final class CheckoutCompleteContext implements Context
      */
     public function iShouldSeeThisShippingAddressAsShippingAddress($fullName)
     {
-        $address = $this->sharedStorage->get('shipping_address_'.StringInflector::nameToLowercaseCode($fullName));
+        $address = $this->sharedStorage->get('shipping_address_' . StringInflector::nameToLowercaseCode($fullName));
 
         Assert::true($this->completePage->hasShippingAddress($address));
     }
@@ -118,7 +113,7 @@ final class CheckoutCompleteContext implements Context
      */
     public function iShouldSeeThisBillingAddressAsBillingAddress($fullName)
     {
-        $address = $this->sharedStorage->get('billing_address_'.StringInflector::nameToLowercaseCode($fullName));
+        $address = $this->sharedStorage->get('billing_address_' . StringInflector::nameToLowercaseCode($fullName));
 
         Assert::true($this->completePage->hasBillingAddress($address));
     }

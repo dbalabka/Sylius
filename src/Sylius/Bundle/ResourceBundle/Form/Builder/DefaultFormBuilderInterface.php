@@ -16,15 +16,7 @@ namespace Sylius\Bundle\ResourceBundle\Form\Builder;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface DefaultFormBuilderInterface
 {
-    /**
-     * @param MetadataInterface $metadata
-     * @param FormBuilderInterface $formBuilder
-     * @param array $options
-     */
     public function build(MetadataInterface $metadata, FormBuilderInterface $formBuilder, array $options): void;
 }

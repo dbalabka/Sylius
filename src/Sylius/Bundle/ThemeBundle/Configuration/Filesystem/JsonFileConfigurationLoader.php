@@ -15,19 +15,11 @@ namespace Sylius\Bundle\ThemeBundle\Configuration\Filesystem;
 
 use Sylius\Bundle\ThemeBundle\Filesystem\FilesystemInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class JsonFileConfigurationLoader implements ConfigurationLoaderInterface
 {
-    /**
-     * @var FilesystemInterface
-     */
+    /** @var FilesystemInterface */
     private $filesystem;
 
-    /**
-     * @param FilesystemInterface $filesystem
-     */
     public function __construct(FilesystemInterface $filesystem)
     {
         $this->filesystem = $filesystem;
@@ -48,9 +40,6 @@ final class JsonFileConfigurationLoader implements ConfigurationLoaderInterface
         );
     }
 
-    /**
-     * @param string $path
-     */
     private function assertFileExists(string $path): void
     {
         if (!$this->filesystem->exists($path)) {

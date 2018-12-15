@@ -23,36 +23,20 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\DataTransformerInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ProductsToProductAssociationsTransformer implements DataTransformerInterface
 {
-    /**
-     * @var FactoryInterface
-     */
-    protected $productAssociationFactory;
+    /** @var FactoryInterface */
+    private $productAssociationFactory;
 
-    /**
-     * @var ProductRepositoryInterface
-     */
-    protected $productRepository;
+    /** @var ProductRepositoryInterface */
+    private $productRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
-    protected $productAssociationTypeRepository;
+    /** @var RepositoryInterface */
+    private $productAssociationTypeRepository;
 
-    /**
-     * @var Collection
-     */
+    /** @var Collection */
     private $productAssociations;
 
-    /**
-     * @param FactoryInterface $productAssociationFactory
-     * @param ProductRepositoryInterface $productRepository
-     * @param RepositoryInterface $productAssociationTypeRepository
-     */
     public function __construct(
         FactoryInterface $productAssociationFactory,
         ProductRepositoryInterface $productRepository,
@@ -112,11 +96,6 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         return $productAssociations;
     }
 
-    /**
-     * @param Collection $products
-     *
-     * @return string|null
-     */
     private function getCodesAsStringFromProducts(Collection $products): ?string
     {
         if ($products->isEmpty()) {
@@ -133,11 +112,6 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         return implode(',', $codes);
     }
 
-    /**
-     * @param string $productAssociationTypeCode
-     *
-     * @return ProductAssociationInterface
-     */
     private function getProductAssociationByTypeCode(string $productAssociationTypeCode): ProductAssociationInterface
     {
         foreach ($this->productAssociations as $productAssociation) {
@@ -158,10 +132,6 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         return $productAssociation;
     }
 
-    /**
-     * @param ProductAssociationInterface $productAssociation
-     * @param string $productCodes
-     */
     private function setAssociatedProductsByProductCodes(
         ProductAssociationInterface $productAssociation,
         string $productCodes
@@ -174,9 +144,6 @@ final class ProductsToProductAssociationsTransformer implements DataTransformerI
         }
     }
 
-    /**
-     * @param Collection|null $productAssociations
-     */
     private function setProductAssociations(?Collection $productAssociations): void
     {
         $this->productAssociations = $productAssociations;

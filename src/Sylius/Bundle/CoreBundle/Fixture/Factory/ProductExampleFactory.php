@@ -19,6 +19,7 @@ use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelPricingInterface;
 use Sylius\Component\Core\Model\ImageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductTaxonInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Core\Uploader\ImageUploaderInterface;
@@ -34,107 +35,56 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 class ProductExampleFactory extends AbstractExampleFactory implements ExampleFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productVariantFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $channelPricingFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productTaxonFactory;
 
-    /**
-     * @var ProductVariantGeneratorInterface
-     */
+    /** @var ProductVariantGeneratorInterface */
     private $variantGenerator;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productAttributeValueFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productImageFactory;
 
-    /**
-     * @var ImageUploaderInterface
-     */
+    /** @var ImageUploaderInterface */
     private $imageUploader;
 
-    /**
-     * @var SlugGeneratorInterface
-     */
+    /** @var SlugGeneratorInterface */
     private $slugGenerator;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $taxonRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $productAttributeRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $productOptionRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $localeRepository;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param FactoryInterface $productFactory
-     * @param FactoryInterface $productVariantFactory
-     * @param FactoryInterface $channelPricing
-     * @param ProductVariantGeneratorInterface $variantGenerator
-     * @param FactoryInterface $productAttributeValueFactory
-     * @param FactoryInterface $productImageFactory
-     * @param FactoryInterface $productTaxonFactory
-     * @param ImageUploaderInterface $imageUploader
-     * @param SlugGeneratorInterface $slugGenerator
-     * @param RepositoryInterface $taxonRepository
-     * @param RepositoryInterface $productAttributeRepository
-     * @param RepositoryInterface $productOptionRepository
-     * @param RepositoryInterface $channelRepository
-     * @param RepositoryInterface $localeRepository
-     */
     public function __construct(
         FactoryInterface $productFactory,
         FactoryInterface $productVariantFactory,
@@ -273,10 +223,6 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         ;
     }
 
-    /**
-     * @param ProductInterface $product
-     * @param array $options
-     */
     private function createTranslations(ProductInterface $product, array $options): void
     {
         foreach ($this->getLocales() as $localeCode) {
@@ -290,10 +236,6 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         }
     }
 
-    /**
-     * @param ProductInterface $product
-     * @param array $options
-     */
     private function createRelations(ProductInterface $product, array $options): void
     {
         foreach ($options['channels'] as $channel) {
@@ -309,10 +251,6 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         }
     }
 
-    /**
-     * @param ProductInterface $product
-     * @param array $options
-     */
     private function createVariants(ProductInterface $product, array $options): void
     {
         try {
@@ -340,10 +278,6 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         }
     }
 
-    /**
-     * @param ProductVariantInterface $productVariant
-     * @param string $channelCode
-     */
     private function createChannelPricings(ProductVariantInterface $productVariant, string $channelCode): void
     {
         /** @var ChannelPricingInterface $channelPricing */
@@ -354,20 +288,29 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         $productVariant->addChannelPricing($channelPricing);
     }
 
-    /**
-     * @param ProductInterface $product
-     * @param array $options
-     */
     private function createImages(ProductInterface $product, array $options): void
     {
         foreach ($options['images'] as $image) {
-            $imagePath = array_shift($image);
+            if (!array_key_exists('path', $image)) {
+                @trigger_error(
+                    'It is deprecated since Sylius 1.3 to pass indexed array as an image definition. ' .
+                    'Please use associative array with "path" and "type" keys instead.',
+                    \E_USER_DEPRECATED
+                );
+
+                $imagePath = array_shift($image);
+                $imageType = array_pop($image);
+            } else {
+                $imagePath = $image['path'];
+                $imageType = $image['type'] ?? null;
+            }
+
             $uploadedImage = new UploadedFile($imagePath, basename($imagePath));
 
             /** @var ImageInterface $productImage */
             $productImage = $this->productImageFactory->createNew();
             $productImage->setFile($uploadedImage);
-            $productImage->setType(end($image) ?: null);
+            $productImage->setType($imageType);
 
             $this->imageUploader->upload($productImage);
 
@@ -375,13 +318,10 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         }
     }
 
-    /**
-     * @param ProductInterface $product
-     * @param array $options
-     */
     private function createProductTaxons(ProductInterface $product, array $options): void
     {
         foreach ($options['taxons'] as $taxon) {
+            /** @var ProductTaxonInterface $productTaxon */
             $productTaxon = $this->productTaxonFactory->createNew();
             $productTaxon->setProduct($product);
             $productTaxon->setTaxon($taxon);
@@ -390,9 +330,6 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
         }
     }
 
-    /**
-     * @return iterable
-     */
     private function getLocales(): iterable
     {
         /** @var LocaleInterface[] $locales */
@@ -403,10 +340,6 @@ class ProductExampleFactory extends AbstractExampleFactory implements ExampleFac
     }
 
     /**
-     * @param ProductAttributeInterface $productAttribute
-     *
-     * @return mixed
-     *
      * @throws \BadMethodCallException
      */
     private function getRandomValueForProductAttribute(ProductAttributeInterface $productAttribute)

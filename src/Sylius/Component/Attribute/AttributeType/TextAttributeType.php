@@ -19,9 +19,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class TextAttributeType implements AttributeTypeInterface
 {
     public const TYPE = 'text';
@@ -65,13 +62,6 @@ final class TextAttributeType implements AttributeTypeInterface
         }
     }
 
-    /**
-     * @param ExecutionContextInterface $context
-     * @param string|null $value
-     * @param array $validationConfiguration
-     *
-     * @return ConstraintViolationListInterface
-     */
     private function getValidationErrors(
         ExecutionContextInterface $context,
         ?string $value,
@@ -84,7 +74,7 @@ final class TextAttributeType implements AttributeTypeInterface
             $constraints = [new NotBlank([])];
         }
 
-        if (isset($validationConfiguration['min']) && isset($validationConfiguration['max'])) {
+        if (isset($validationConfiguration['min'], $validationConfiguration['max'])) {
             $constraints[] = new Length(
                 [
                     'min' => $validationConfiguration['min'],

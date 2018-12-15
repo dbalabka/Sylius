@@ -13,13 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Model;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface ResourceInterface
 {
-    /**
-     * @return mixed
-     */
     public function getId();
 }

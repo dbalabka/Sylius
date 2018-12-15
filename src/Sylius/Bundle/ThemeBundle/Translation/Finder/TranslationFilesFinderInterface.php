@@ -13,14 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ThemeBundle\Translation\Finder;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface TranslationFilesFinderInterface
 {
     /**
-     * @param string $path
-     *
      * @return array Paths to translation files
      */
     public function findTranslationFiles(string $path): array;

@@ -28,9 +28,6 @@ use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeScreenshot;
 use Zend\Hydrator\HydrationInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ThemeLoaderSpec extends ObjectBehavior
 {
     function let(
@@ -105,7 +102,7 @@ final class ThemeLoaderSpec extends ObjectBehavior
                 'parents' => [],
                 'authors' => [['name' => 'Richard Rynkowsky']],
                 'screenshots' => [],
-            ]
+            ],
         ]);
 
         $themeFactory->create('first/theme', '/theme/path')->willReturn($theme);

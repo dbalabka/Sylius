@@ -19,29 +19,18 @@ use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 class LocaleFixture extends AbstractFixture
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $localeFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $localeManager;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $baseLocaleCode;
 
     /**
-     * @param FactoryInterface $localeFactory
-     * @param ObjectManager $localeManager
      * @param string $baseLocaleCode
      */
     public function __construct(FactoryInterface $localeFactory, ObjectManager $localeManager, $baseLocaleCode)
@@ -86,7 +75,7 @@ class LocaleFixture extends AbstractFixture
         $optionsNode
             ->children()
                 ->arrayNode('locales')
-                    ->prototype('scalar')
+                    ->scalarPrototype()
         ;
     }
 }

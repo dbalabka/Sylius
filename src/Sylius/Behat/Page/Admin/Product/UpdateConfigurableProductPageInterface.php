@@ -16,9 +16,6 @@ namespace Sylius\Behat\Page\Admin\Product;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface UpdateConfigurableProductPageInterface extends UpdatePageInterface
 {
     /**
@@ -49,9 +46,6 @@ interface UpdateConfigurableProductPageInterface extends UpdatePageInterface
      */
     public function isMainTaxonChosen($taxonName);
 
-    /**
-     * @param TaxonInterface $taxon
-     */
     public function selectMainTaxon(TaxonInterface $taxon);
 
     /**

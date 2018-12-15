@@ -13,38 +13,25 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
+use Doctrine\Common\Inflector\Inflector;
 use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Resource\Model\ResourceInterface;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class FlashHelper implements FlashHelperInterface
 {
-    /**
-     * @var SessionInterface
-     */
+    /** @var SessionInterface */
     private $session;
 
-    /**
-     * @var TranslatorInterface
-     */
+    /** @var TranslatorInterface */
     private $translator;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultLocale;
 
-    /**
-     * @param SessionInterface $session
-     * @param TranslatorInterface $translator
-     * @param string $defaultLocale
-     */
     public function __construct(SessionInterface $session, TranslatorInterface $translator, string $defaultLocale)
     {
         $this->session = $session;
@@ -79,16 +66,11 @@ final class FlashHelper implements FlashHelperInterface
         $this->addFlash($event->getMessageType(), $event->getMessage(), $event->getMessageParameters());
     }
 
-    /**
-     * @param RequestConfiguration $requestConfiguration
-     * @param string $actionName
-     * @param string $type
-     */
     private function addFlashWithType(RequestConfiguration $requestConfiguration, string $actionName, string $type): void
     {
         $metadata = $requestConfiguration->getMetadata();
         $metadataName = ucfirst($metadata->getHumanizedName());
-        $parameters = ['%resource%' => $metadataName];
+        $parameters = $this->getParametersWithName($metadataName, $actionName);
 
         $message = (string) $requestConfiguration->getFlashMessage($actionName);
         if (empty($message)) {
@@ -114,26 +96,17 @@ final class FlashHelper implements FlashHelperInterface
         );
     }
 
-    /**
-     * @param string $type
-     * @param string $message
-     * @param array $parameters
-     */
     private function addFlash(string $type, string $message, array $parameters = []): void
     {
         if (!empty($parameters)) {
             $message = $this->prepareMessage($message, $parameters);
         }
 
-        $this->session->getBag('flashes')->add($type, $message);
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $this->session->getBag('flashes');
+        $flashBag->add($type, $message);
     }
 
-    /**
-     * @param string $message
-     * @param array $parameters
-     *
-     * @return array
-     */
     private function prepareMessage(string $message, array $parameters): array
     {
         return [
@@ -142,23 +115,11 @@ final class FlashHelper implements FlashHelperInterface
         ];
     }
 
-    /**
-     * @param string $actionName
-     *
-     * @return string
-     */
     private function getResourceMessage(string $actionName): string
     {
         return sprintf('sylius.resource.%s', $actionName);
     }
 
-    /**
-     * @param string $message
-     * @param string $locale
-     * @param array $parameters
-     *
-     * @return bool
-     */
     private function isTranslationDefined(string $message, string $locale, array $parameters): bool
     {
         if ($this->translator instanceof TranslatorBagInterface) {
@@ -168,5 +129,14 @@ final class FlashHelper implements FlashHelperInterface
         }
 
         return $message !== $this->translator->trans($message, $parameters, 'flashes');
+    }
+
+    private function getParametersWithName(string $metadataName, string $actionName): array
+    {
+        if (stripos($actionName, 'bulk') !== false) {
+            return ['%resources%' => ucfirst(Inflector::pluralize($metadataName))];
+        }
+
+        return ['%resource%' => ucfirst($metadataName)];
     }
 }

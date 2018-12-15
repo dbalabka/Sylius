@@ -16,9 +16,6 @@ namespace Sylius\Behat\Page\Admin\Currency;
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
     /**
@@ -38,7 +35,6 @@ class IndexPage extends BaseIndexPage implements IndexPageInterface
     }
 
     /**
-     * @param CurrencyInterface $currency
      * @param string $status
      *
      * @return bool

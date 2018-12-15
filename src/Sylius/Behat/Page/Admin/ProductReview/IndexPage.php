@@ -16,9 +16,6 @@ namespace Sylius\Behat\Page\Admin\ProductReview;
 use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
     /**
@@ -38,8 +35,6 @@ class IndexPage extends BaseIndexPage implements IndexPageInterface
     }
 
     /**
-     * @param array $parameters
-     *
      * @return NodeElement
      */
     private function getActionButtonsField(array $parameters)

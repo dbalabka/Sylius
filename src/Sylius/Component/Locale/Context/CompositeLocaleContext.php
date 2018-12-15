@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of the Sylius package.
  *
@@ -14,14 +15,9 @@ namespace Sylius\Component\Locale\Context;
 
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CompositeLocaleContext implements LocaleContextInterface
 {
-    /**
-     * @var PriorityQueue|LocaleContextInterface[]
-     */
+    /** @var PriorityQueue|LocaleContextInterface[] */
     private $localeContexts;
 
     public function __construct()
@@ -29,10 +25,6 @@ final class CompositeLocaleContext implements LocaleContextInterface
         $this->localeContexts = new PriorityQueue();
     }
 
-    /**
-     * @param LocaleContextInterface $localeContext
-     * @param int $priority
-     */
     public function addContext(LocaleContextInterface $localeContext, int $priority = 0): void
     {
         $this->localeContexts->insert($localeContext, $priority);

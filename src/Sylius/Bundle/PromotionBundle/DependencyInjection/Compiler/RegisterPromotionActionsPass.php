@@ -17,9 +17,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class RegisterPromotionActionsPass implements CompilerPassInterface
 {
     /**
@@ -37,7 +34,7 @@ final class RegisterPromotionActionsPass implements CompilerPassInterface
         $promotionActionTypeToLabelMap = [];
         foreach ($container->findTaggedServiceIds('sylius.promotion_action') as $id => $attributes) {
             if (!isset($attributes[0]['type'], $attributes[0]['label'], $attributes[0]['form_type'])) {
-                throw new \InvalidArgumentException('Tagged promotion action `'.$id.'` needs to have `type`, `form_type` and `label` attributes.');
+                throw new \InvalidArgumentException('Tagged promotion action `' . $id . '` needs to have `type`, `form_type` and `label` attributes.');
             }
 
             $promotionActionTypeToLabelMap[$attributes[0]['type']] = $attributes[0]['label'];

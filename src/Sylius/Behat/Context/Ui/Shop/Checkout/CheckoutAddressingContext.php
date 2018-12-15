@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Ui\Shop\Checkout;
@@ -14,43 +23,23 @@ use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CheckoutAddressingContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var AddressPageInterface
-     */
+    /** @var AddressPageInterface */
     private $addressPage;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $addressFactory;
 
-    /**
-     * @var AddressComparatorInterface
-     */
+    /** @var AddressComparatorInterface */
     private $addressComparator;
 
-    /**
-     * @var SelectShippingPageInterface
-     */
+    /** @var SelectShippingPageInterface */
     private $selectShippingPage;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param AddressPageInterface $addressPage
-     * @param FactoryInterface $addressFactory
-     * @param AddressComparatorInterface $addressComparator
-     * @param SelectShippingPageInterface $selectShippingPage
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         AddressPageInterface $addressPage,
@@ -82,6 +71,16 @@ final class CheckoutAddressingContext implements Context
     {
         $this->addressPage->open();
         $this->iSpecifyTheEmail($email);
+        $this->iSpecifyTheShippingAddressAs($address);
+        $this->iCompleteTheAddressingStep();
+    }
+
+    /**
+     * @When /^I complete addressing step with ("[^"]+" based shipping address)$/
+     */
+    public function iCompleteAddressingStepWithBasedShippingAddress(AddressInterface $address): void
+    {
+        $this->addressPage->open();
         $this->iSpecifyTheShippingAddressAs($address);
         $this->iCompleteTheAddressingStep();
     }
@@ -406,7 +405,7 @@ final class CheckoutAddressingContext implements Context
      */
     private function assertElementValidationMessage($type, $element, $expectedMessage)
     {
-        $element = sprintf('%s_%s', $type, implode('_', explode(' ', $element)));
+        $element = sprintf('%s_%s', $type, str_replace(' ', '_', $element));
         Assert::true($this->addressPage->checkValidationMessageFor($element, $expectedMessage));
     }
 }

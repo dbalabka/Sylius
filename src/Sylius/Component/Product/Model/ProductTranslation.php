@@ -15,39 +15,24 @@ namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\AbstractTranslation;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 class ProductTranslation extends AbstractTranslation implements ProductTranslationInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $slug;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $description;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $metaKeywords;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $metaDescription;
 
     /**

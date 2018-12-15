@@ -15,13 +15,11 @@ namespace Sylius\Bundle\CoreBundle\Tests\Fixture;
 
 use Doctrine\Common\Persistence\ObjectManager;
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\CoreBundle\Fixture\Factory\ExampleFactoryInterface;
 use Sylius\Bundle\CoreBundle\Fixture\ProductAssociationFixture;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
-final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
+final class ProductAssociationFixtureTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
@@ -65,7 +63,7 @@ final class ProductAssociationFixtureTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertConfigurationIsValid(
             [[
-                'custom' => [['associated_products' => ['product-1', 'product-2']]]
+                'custom' => [['associated_products' => ['product-1', 'product-2']]],
             ]],
             'custom.*.associated_products')
         ;

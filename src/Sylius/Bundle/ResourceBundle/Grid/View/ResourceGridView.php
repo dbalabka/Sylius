@@ -19,28 +19,14 @@ use Sylius\Component\Grid\Parameters;
 use Sylius\Component\Grid\View\GridView;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ResourceGridView extends GridView
 {
-    /**
-     * @var MetadataInterface
-     */
+    /** @var MetadataInterface */
     private $metadata;
 
-    /**
-     * @var RequestConfiguration
-     */
+    /** @var RequestConfiguration */
     private $requestConfiguration;
 
-    /**
-     * @param mixed $data
-     * @param Grid $gridDefinition
-     * @param Parameters $parameters
-     * @param MetadataInterface $resourceMetadata
-     * @param RequestConfiguration $requestConfiguration
-     */
     public function __construct(
         $data,
         Grid $gridDefinition,
@@ -54,17 +40,11 @@ class ResourceGridView extends GridView
         $this->requestConfiguration = $requestConfiguration;
     }
 
-    /**
-     * @return MetadataInterface
-     */
     public function getMetadata(): MetadataInterface
     {
         return $this->metadata;
     }
 
-    /**
-     * @return RequestConfiguration
-     */
     public function getRequestConfiguration(): RequestConfiguration
     {
         return $this->requestConfiguration;

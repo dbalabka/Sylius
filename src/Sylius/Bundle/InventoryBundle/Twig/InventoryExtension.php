@@ -15,19 +15,11 @@ namespace Sylius\Bundle\InventoryBundle\Twig;
 
 use Sylius\Bundle\InventoryBundle\Templating\Helper\InventoryHelper;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class InventoryExtension extends \Twig_Extension
 {
-    /**
-     * @var InventoryHelper
-     */
+    /** @var InventoryHelper */
     private $helper;
 
-    /**
-     * @param InventoryHelper $helper
-     */
     public function __construct(InventoryHelper $helper)
     {
         $this->helper = $helper;

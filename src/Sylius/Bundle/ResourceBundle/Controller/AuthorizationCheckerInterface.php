@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ResourceBundle\Controller;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface AuthorizationCheckerInterface
 {
     /**
@@ -27,11 +24,6 @@ interface AuthorizationCheckerInterface
      * - show
      * - delete
      * - custom_action
-     *
-     * @param RequestConfiguration $configuration
-     * @param string $permission
-     *
-     * @return bool
      */
     public function isGranted(RequestConfiguration $configuration, string $permission): bool;
 }

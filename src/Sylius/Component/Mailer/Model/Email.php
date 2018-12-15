@@ -13,50 +13,31 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Mailer\Model;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Email implements EmailInterface
 {
-    /**
-     * @var mixed
-     */
-    protected $id;
+    /** @var mixed */
+    private $id;
 
-    /**
-     * @var string
-     */
-    protected $code;
+    /** @var string */
+    private $code;
 
-    /**
-     * @var bool
-     */
-    protected $enabled = true;
+    /** @var bool */
+    private $enabled = true;
 
-    /**
-     * @var string
-     */
-    protected $subject;
+    /** @var string */
+    private $subject;
 
-    /**
-     * @var string
-     */
-    protected $content;
+    /** @var string */
+    private $content;
 
-    /**
-     * @var string
-     */
-    protected $template;
+    /** @var string */
+    private $template;
 
-    /**
-     * @var string
-     */
-    protected $senderName;
+    /** @var string */
+    private $senderName;
 
-    /**
-     * @var string
-     */
-    protected $senderAddress;
+    /** @var string */
+    private $senderAddress;
 
     /**
      * {@inheritdoc}
@@ -90,9 +71,6 @@ final class Email implements EmailInterface
         return $this->enabled;
     }
 
-    /**
-     * @param bool $enabled
-     */
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;

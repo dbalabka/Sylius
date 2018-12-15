@@ -23,38 +23,20 @@ use Sylius\Component\Taxation\Calculator\CalculatorInterface;
 use Sylius\Component\Taxation\Resolver\TaxRateResolverInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 class OrderItemsTaxesApplicator implements OrderTaxesApplicatorInterface
 {
-    /**
-     * @var CalculatorInterface
-     */
+    /** @var CalculatorInterface */
     private $calculator;
 
-    /**
-     * @var AdjustmentFactoryInterface
-     */
+    /** @var AdjustmentFactoryInterface */
     private $adjustmentFactory;
 
-    /**
-     * @var IntegerDistributorInterface
-     */
+    /** @var IntegerDistributorInterface */
     private $distributor;
 
-    /**
-     * @var TaxRateResolverInterface
-     */
+    /** @var TaxRateResolverInterface */
     private $taxRateResolver;
 
-    /**
-     * @param CalculatorInterface $calculator
-     * @param AdjustmentFactoryInterface $adjustmentFactory
-     * @param IntegerDistributorInterface $distributor
-     * @param TaxRateResolverInterface $taxRateResolver
-     */
     public function __construct(
         CalculatorInterface $calculator,
         AdjustmentFactoryInterface $adjustmentFactory,
@@ -94,17 +76,11 @@ class OrderItemsTaxesApplicator implements OrderTaxesApplicatorInterface
                 }
 
                 $this->addAdjustment($unit, $splitTaxes[$i], $taxRate->getLabel(), $taxRate->isIncludedInPrice());
-                $i++;
+                ++$i;
             }
         }
     }
 
-    /**
-     * @param OrderItemUnitInterface $unit
-     * @param int $taxAmount
-     * @param string $label
-     * @param bool $included
-     */
     private function addAdjustment(OrderItemUnitInterface $unit, int $taxAmount, string $label, bool $included): void
     {
         $unitTaxAdjustment = $this->adjustmentFactory

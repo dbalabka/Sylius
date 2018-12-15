@@ -15,41 +15,23 @@ namespace Sylius\Component\Resource\Metadata;
 
 use Doctrine\Common\Inflector\Inflector;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Metadata implements MetadataInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $applicationName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $driver;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $templatesNamespace;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $parameters;
 
-    /**
-     * @param string $name
-     * @param string $applicationName
-     * @param array $parameters
-     */
     private function __construct(string $name, string $applicationName, array $parameters)
     {
         $this->name = $name;
@@ -61,12 +43,6 @@ final class Metadata implements MetadataInterface
         $this->parameters = $parameters;
     }
 
-    /**
-     * @param string $alias
-     * @param array $parameters
-     *
-     * @return self
-     */
     public static function fromAliasAndConfiguration(string $alias, array $parameters): self
     {
         [$applicationName, $name] = self::parseAlias($alias);
@@ -79,7 +55,7 @@ final class Metadata implements MetadataInterface
      */
     public function getAlias(): string
     {
-        return $this->applicationName.'.'.$this->name;
+        return $this->applicationName . '.' . $this->name;
     }
 
     /**
@@ -194,15 +170,10 @@ final class Metadata implements MetadataInterface
         return sprintf('%s.%s.%s', $this->applicationName, $this->name, $permissionName);
     }
 
-    /**
-     * @param string $alias
-     *
-     * @return array
-     */
     private static function parseAlias(string $alias): array
     {
         if (false === strpos($alias, '.')) {
-            throw new \InvalidArgumentException('Invalid alias supplied, it should conform to the following format "<applicationName>.<name>".');
+            throw new \InvalidArgumentException(sprintf('Invalid alias "%s" supplied, it should conform to the following format "<applicationName>.<name>".', $alias));
         }
 
         return explode('.', $alias);

@@ -19,74 +19,45 @@ use Sylius\Component\Product\Model\ProductVariant as BaseVariant;
 use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ProductVariant extends BaseVariant implements ProductVariantInterface
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $version = 1;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $onHold = 0;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $onHand = 0;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $tracked = false;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     protected $weight;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     protected $width;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     protected $height;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     protected $depth;
 
-    /**
-     * @var TaxCategoryInterface
-     */
+    /** @var TaxCategoryInterface */
     protected $taxCategory;
 
-    /**
-     * @var ShippingCategoryInterface
-     */
+    /** @var ShippingCategoryInterface */
     protected $shippingCategory;
 
-    /**
-     * @var Collection
-     */
+    /** @var Collection */
     protected $channelPricings;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $shippingRequired = true;
 
-    /**
-     * @var Collection|ProductImageInterface[]
-     */
+    /** @var Collection|ProductImageInterface[] */
     protected $images;
 
     public function __construct()
@@ -97,9 +68,6 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
         $this->images = new ArrayCollection();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         $string = (string) $this->getProduct()->getName();
@@ -108,10 +76,10 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
             $string .= '(';
 
             foreach ($this->getOptionValues() as $option) {
-                $string .= $option->getOption()->getName().': '.$option->getValue().', ';
+                $string .= $option->getOption()->getName() . ': ' . $option->getValue() . ', ';
             }
 
-            $string = substr($string, 0, -2).')';
+            $string = substr($string, 0, -2) . ')';
         }
 
         return $string;

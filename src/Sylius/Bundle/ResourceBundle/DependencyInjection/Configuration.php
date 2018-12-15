@@ -21,9 +21,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
@@ -51,16 +48,13 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function addResourcesSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('resources')
                     ->useAttributeAsKey('name')
-                    ->prototype('array')
+                    ->arrayPrototype()
                         ->children()
                             ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
                             ->variableNode('options')->end()
@@ -101,9 +95,6 @@ final class Configuration implements ConfigurationInterface
         ;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function addSettingsSection(ArrayNodeDefinition $node): void
     {
         $node
@@ -114,7 +105,7 @@ final class Configuration implements ConfigurationInterface
                         ->variableNode('paginate')->defaultNull()->end()
                         ->variableNode('limit')->defaultNull()->end()
                         ->arrayNode('allowed_paginate')
-                            ->prototype('integer')->end()
+                            ->integerPrototype()->end()
                             ->defaultValue([10, 20, 30])
                         ->end()
                         ->integerNode('default_page_size')->defaultValue(10)->end()
@@ -128,9 +119,6 @@ final class Configuration implements ConfigurationInterface
         ;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function addTranslationsSection(ArrayNodeDefinition $node): void
     {
         $node
@@ -144,16 +132,13 @@ final class Configuration implements ConfigurationInterface
         ;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function addDriversSection(ArrayNodeDefinition $node): void
     {
         $node
             ->children()
                 ->arrayNode('drivers')
                     ->defaultValue([SyliusResourceBundle::DRIVER_DOCTRINE_ORM])
-                    ->prototype('enum')->values(SyliusResourceBundle::getAvailableDrivers())->end()
+                    ->enumPrototype()->values(SyliusResourceBundle::getAvailableDrivers())->end()
                 ->end()
             ->end()
         ;

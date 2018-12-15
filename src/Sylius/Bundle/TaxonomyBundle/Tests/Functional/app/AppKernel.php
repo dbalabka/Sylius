@@ -9,12 +9,19 @@
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\HttpKernel\Kernel;
 
-/**
- * @author Magdalena Banasiak <magdalena.banasiak@gmail.com>
- */
 class AppKernel extends Kernel
 {
     /**
@@ -29,9 +36,9 @@ class AppKernel extends Kernel
             new JMS\SerializerBundle\JMSSerializerBundle(),
             new Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
+            new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sylius\Bundle\TaxonomyBundle\SyliusTaxonomyBundle(),
             new Sylius\Bundle\ResourceBundle\SyliusResourceBundle(),
-            new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Symfony\Bundle\TwigBundle\TwigBundle(),
         ];
     }

@@ -15,9 +15,6 @@ namespace Sylius\Component\Review\Model;
 
 use Doctrine\Common\Collections\Collection;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface ReviewableInterface
 {
     /**
@@ -30,23 +27,11 @@ interface ReviewableInterface
      */
     public function getReviews(): Collection;
 
-    /**
-     * @param ReviewInterface $review
-     */
     public function addReview(ReviewInterface $review): void;
 
-    /**
-     * @param ReviewInterface $review
-     */
     public function removeReview(ReviewInterface $review): void;
 
-    /**
-     * @return float|null
-     */
     public function getAverageRating(): ?float;
 
-    /**
-     * @param float $averageRating
-     */
     public function setAverageRating(float $averageRating): void;
 }

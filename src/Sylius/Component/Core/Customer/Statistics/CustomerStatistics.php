@@ -15,14 +15,9 @@ namespace Sylius\Component\Core\Customer\Statistics;
 
 use Webmozart\Assert\Assert;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class CustomerStatistics
 {
-    /**
-     * @var array|PerChannelCustomerStatistics[]
-     */
+    /** @var array|PerChannelCustomerStatistics[] */
     private $perChannelsStatistics;
 
     /**
@@ -35,9 +30,6 @@ final class CustomerStatistics
         $this->perChannelsStatistics = $perChannelStatistics;
     }
 
-    /**
-     * @return int
-     */
     public function getAllOrdersCount(): int
     {
         return array_sum(array_map(function (PerChannelCustomerStatistics $statistics) {

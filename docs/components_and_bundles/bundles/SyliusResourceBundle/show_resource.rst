@@ -9,7 +9,7 @@ Let's assume that you have a ``app.book`` resource registered. To display a sing
 
 .. code-block:: yaml
 
-    # app/config/routing.yml
+    # config/routes.yaml
 
     app_book_show:
         path: /books/{id}
@@ -86,6 +86,28 @@ Creating yet another action to change the method called could be a solution but 
                     arguments: [$author]
 
 Internally, it simply uses the ``$repository->findOneNewestByAuthor($author)`` method, where ``author`` is taken from the current request.
+
+Using Custom Repository Service
+-------------------------------
+
+If you would like to use your own service to get the resource, then try the following configuration:
+
+.. code-block:: yaml
+
+    # config/routes.yaml
+
+    app_book_show:
+        path: /books/{author}
+        methods: [GET]
+        defaults:
+            _controller: app.controller.book:showAction
+            _sylius:
+                repository:
+                    method: ["expr:service('app.repository.custom_book_repository')", "findOneNewestByAuthor"]
+                    arguments: [$author]
+
+
+With this configuration, method ``findOneNewestByAuthor`` from service with ID ``app.repository.custom_book_repository`` will be called to get the resource.
 
 Configuration Reference
 -----------------------

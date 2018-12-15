@@ -15,15 +15,10 @@ namespace Sylius\Bundle\ThemeBundle\Context;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ThemeContextInterface
 {
     /**
      * Should not throw any exception if failed to get theme.
-     *
-     * @return ThemeInterface|null
      */
     public function getTheme(): ?ThemeInterface;
 }

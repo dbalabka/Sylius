@@ -16,13 +16,10 @@ namespace Sylius\Component\Core\Model;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
 use Sylius\Component\Product\Model\ProductInterface as BaseProductInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 use Sylius\Component\Review\Model\ReviewableInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface ProductInterface extends
     BaseProductInterface,
     ProductTaxonsAwareInterface,
@@ -41,50 +38,32 @@ interface ProductInterface extends
     public const VARIANT_SELECTION_CHOICE = 'choice';
     public const VARIANT_SELECTION_MATCH = 'match';
 
-    /**
-     * @return string
-     */
     public function getVariantSelectionMethod(): string;
 
     /**
-     * @param string|null $variantSelectionMethod
-     *
      * @throws \InvalidArgumentException
      */
     public function setVariantSelectionMethod(?string $variantSelectionMethod): void;
 
-    /**
-     * @return bool
-     */
     public function isVariantSelectionMethodChoice(): bool;
 
-    /**
-     * @return string
-     */
     public function getVariantSelectionMethodLabel(): string;
 
-    /**
-     * @return string|null
-     */
     public function getShortDescription(): ?string;
 
-    /**
-     * @param string|null $shortDescription
-     */
     public function setShortDescription(?string $shortDescription): void;
 
-    /**
-     * @return TaxonInterface|null
-     */
     public function getMainTaxon(): ?TaxonInterface;
 
-    /**
-     * @param TaxonInterface|null $mainTaxon
-     */
     public function setMainTaxon(?TaxonInterface $mainTaxon): void;
 
     /**
      * @return Collection|ReviewInterface[]
      */
     public function getAcceptedReviews(): Collection;
+
+    /**
+     * @return ProductTranslationInterface
+     */
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

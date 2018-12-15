@@ -17,33 +17,17 @@ use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Saša Stamenković <umpirsky@gmail.com>
- * @author Gustavo Perdomo <gperdomor@gmail.com>
- */
 class RequestConfiguration
 {
-    /**
-     * @var Request
-     */
+    /** @var Request */
     private $request;
 
-    /**
-     * @var MetadataInterface
-     */
+    /** @var MetadataInterface */
     private $metadata;
 
-    /**
-     * @var Parameters
-     */
+    /** @var Parameters */
     private $parameters;
 
-    /**
-     * @param MetadataInterface $metadata
-     * @param Request $request
-     * @param Parameters $parameters
-     */
     public function __construct(MetadataInterface $metadata, Request $request, Parameters $parameters)
     {
         $this->metadata = $metadata;
@@ -92,9 +76,9 @@ class RequestConfiguration
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return null|string
+     * @return string|null
      */
     public function getDefaultTemplate($name)
     {
@@ -108,7 +92,7 @@ class RequestConfiguration
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return mixed|null
      */
@@ -159,21 +143,21 @@ class RequestConfiguration
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return string
      */
     public function getRouteName($name)
     {
-        $sectionPrefix = $this->getSection() ? $this->getSection().'_' : '';
+        $sectionPrefix = $this->getSection() ? $this->getSection() . '_' : '';
 
         return sprintf('%s_%s%s_%s', $this->metadata->getApplicationName(), $sectionPrefix, $this->metadata->getName(), $name);
     }
 
     /**
-     * @param $name
+     * @param string $name
      *
-     * @return mixed|null|string
+     * @return mixed|string|null
      */
     public function getRedirectRoute($name)
     {
@@ -207,7 +191,7 @@ class RequestConfiguration
             return '';
         }
 
-        return '#'.$redirect['hash'];
+        return '#' . $redirect['hash'];
     }
 
     /**
@@ -249,7 +233,7 @@ class RequestConfiguration
             $redirect = ['parameters' => []];
         }
 
-        $parameters = isset($redirect['parameters']) ? $redirect['parameters'] : [];
+        $parameters = $redirect['parameters'] ?? [];
         $parameters = $this->addExtraRedirectParameters($parameters);
 
         if (null !== $resource) {
@@ -261,10 +245,8 @@ class RequestConfiguration
 
     /**
      * @param array $parameters
-     *
-     * @return array
      */
-    private function addExtraRedirectParameters($parameters)
+    private function addExtraRedirectParameters($parameters): array
     {
         $vars = $this->getVars();
         $accessor = PropertyAccess::createPropertyAccessor();
@@ -307,9 +289,9 @@ class RequestConfiguration
      */
     public function isPaginated()
     {
-        $pagintion = $this->parameters->get('paginate', true);
+        $pagination = $this->parameters->get('paginate', true);
 
-        return $pagintion !== false && $pagintion !== null;
+        return $pagination !== false && $pagination !== null;
     }
 
     /**
@@ -329,8 +311,6 @@ class RequestConfiguration
     }
 
     /**
-     * @param array $criteria
-     *
      * @return array
      */
     public function getCriteria(array $criteria = [])
@@ -353,8 +333,6 @@ class RequestConfiguration
     }
 
     /**
-     * @param array $sorting
-     *
      * @return array
      */
     public function getSorting(array $sorting = [])
@@ -376,7 +354,7 @@ class RequestConfiguration
     }
 
     /**
-     * @param $parameter
+     * @param string $parameter
      * @param array $defaults
      *
      * @return array
@@ -390,7 +368,7 @@ class RequestConfiguration
     }
 
     /**
-     * @return string|null
+     * @return array|string|null
      */
     public function getRepositoryMethod()
     {
@@ -422,7 +400,7 @@ class RequestConfiguration
     }
 
     /**
-     * @return string|null
+     * @return array|string|null
      */
     public function getFactoryMethod()
     {
@@ -454,8 +432,6 @@ class RequestConfiguration
     }
 
     /**
-     * @param null $message
-     *
      * @return mixed|null
      */
     public function getFlashMessage($message)
@@ -549,12 +525,9 @@ class RequestConfiguration
     }
 
     /**
-     * @param array  $parameters
      * @param object $resource
-     *
-     * @return array
      */
-    private function parseResourceValues(array $parameters, $resource)
+    private function parseResourceValues(array $parameters, $resource): array
     {
         $accessor = PropertyAccess::createPropertyAccessor();
 
@@ -612,7 +585,7 @@ class RequestConfiguration
     {
         $options = $this->parameters->get('state_machine');
 
-        return isset($options['graph']) ? $options['graph'] : null;
+        return $options['graph'] ?? null;
     }
 
     /**
@@ -622,7 +595,7 @@ class RequestConfiguration
     {
         $options = $this->parameters->get('state_machine');
 
-        return isset($options['transition']) ? $options['transition'] : null;
+        return $options['transition'] ?? null;
     }
 
     /**
@@ -633,12 +606,7 @@ class RequestConfiguration
         return $this->parameters->get('csrf_protection', true);
     }
 
-    /**
-     * @param mixed $redirect
-     *
-     * @return bool
-     */
-    private function areParametersIntentionallyEmptyArray($redirect)
+    private function areParametersIntentionallyEmptyArray($redirect): bool
     {
         return isset($redirect['parameters']) && is_array($redirect['parameters']) && empty($redirect['parameters']);
     }

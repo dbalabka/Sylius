@@ -16,19 +16,11 @@ namespace Sylius\Bundle\ThemeBundle\Locator;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ApplicationResourceLocator implements ResourceLocatorInterface
 {
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private $filesystem;
 
-    /**
-     * @param Filesystem $filesystem
-     */
     public function __construct(Filesystem $filesystem)
     {
         $this->filesystem = $filesystem;

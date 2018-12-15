@@ -18,9 +18,6 @@ use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 
-/**
- * @author Aram Alipoor <aram.alipoor@gmail.com>
- */
 class TaxonRepository extends EntityRepository implements TaxonRepositoryInterface
 {
     /**
@@ -94,7 +91,7 @@ class TaxonRepository extends EntityRepository implements TaxonRepositoryInterfa
     {
         return $this->createTranslationBasedQueryBuilder($locale)
             ->andWhere('translation.name LIKE :name')
-            ->setParameter('name', '%'.$phrase.'%')
+            ->setParameter('name', '%' . $phrase . '%')
             ->getQuery()
             ->getResult()
         ;
@@ -108,11 +105,6 @@ class TaxonRepository extends EntityRepository implements TaxonRepositoryInterfa
         return $this->createQueryBuilder('o')->leftJoin('o.translations', 'translation');
     }
 
-    /**
-     * @param string|null $locale
-     *
-     * @return QueryBuilder
-     */
     private function createTranslationBasedQueryBuilder(?string $locale): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('o')

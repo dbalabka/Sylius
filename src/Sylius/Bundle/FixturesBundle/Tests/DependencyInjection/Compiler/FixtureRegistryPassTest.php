@@ -19,9 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class FixtureRegistryPassTest extends AbstractCompilerPassTestCase
 {
     /**
@@ -30,7 +27,7 @@ final class FixtureRegistryPassTest extends AbstractCompilerPassTestCase
     public function it_registers_fixtures(): void
     {
         $this->setDefinition('sylius_fixtures.fixture_registry', new Definition());
-        $this->setDefinition('acme.fixture', (new Definition())->addTag('sylius_fixtures.fixture'));
+        $this->setDefinition('acme.fixture', (new Definition())->addTag(FixtureRegistryPass::FIXTURE_SERVICE_TAG));
 
         $this->compile();
 

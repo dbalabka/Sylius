@@ -22,36 +22,24 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
  * @see BaseUrlPackage
- *
- * @author Stefan Doorn <stefan@efectos.nl>
  */
 class UrlPackage extends BaseUrlPackage
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $baseUrls = [];
 
-    /**
-     * @var UrlPackage
-     */
+    /** @var UrlPackage */
     private $sslPackage;
 
-    /**
-     * @var ThemeContextInterface
-     */
+    /** @var ThemeContextInterface */
     protected $themeContext;
 
-    /**
-     * @var PathResolverInterface
-     */
+    /** @var PathResolverInterface */
     protected $pathResolver;
 
     /**
      * @param string|array $baseUrls Base asset URLs
      * @param VersionStrategyInterface $versionStrategy The version strategy
-     * @param ThemeContextInterface $themeContext
-     * @param PathResolverInterface $pathResolver
      * @param ContextInterface|null $context Context
      */
     public function __construct(
@@ -112,10 +100,6 @@ class UrlPackage extends BaseUrlPackage
         return $this->getBaseUrl($path) . $url;
     }
 
-    /**
-     * @param array $urls
-     * @return array
-     */
     private function getSslUrls(array $urls): array
     {
         $sslUrls = [];

@@ -16,16 +16,13 @@ namespace Sylius\Bundle\ThemeBundle\Tests\Functional;
 use Sylius\Bundle\ThemeBundle\Asset\Installer\AssetsInstallerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class AssetTest extends WebTestCase
 {
     protected function tearDown()
     {
         parent::tearDown();
 
-        file_put_contents(__DIR__.'/../Fixtures/themes/FirstTestTheme/TestBundle/public/theme_asset.txt', 'Theme asset'.PHP_EOL);
+        file_put_contents(__DIR__ . '/../Fixtures/themes/FirstTestTheme/TestBundle/public/theme_asset.txt', 'Theme asset' . \PHP_EOL);
     }
 
     /**
@@ -63,7 +60,7 @@ final class AssetTest extends WebTestCase
         $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
 
         sleep(1);
-        file_put_contents(__DIR__.'/../Fixtures/themes/FirstTestTheme/TestBundle/public/theme_asset.txt', 'Theme asset modified');
+        file_put_contents(__DIR__ . '/../Fixtures/themes/FirstTestTheme/TestBundle/public/theme_asset.txt', 'Theme asset modified');
         clearstatcache();
 
         $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
@@ -107,7 +104,7 @@ final class AssetTest extends WebTestCase
         return $webDirectory;
     }
 
-    private function assertFileContent($lines, $webDirectory)
+    private function assertFileContent($lines, $webDirectory): void
     {
         foreach ($lines as $line) {
             if (empty($line)) {
@@ -116,7 +113,7 @@ final class AssetTest extends WebTestCase
 
             [$expectedText, $assetFile] = explode(': ', $line);
 
-            $contents = file_get_contents($webDirectory.$assetFile);
+            $contents = file_get_contents($webDirectory . $assetFile);
 
             $this->assertEquals($expectedText, trim($contents));
         }

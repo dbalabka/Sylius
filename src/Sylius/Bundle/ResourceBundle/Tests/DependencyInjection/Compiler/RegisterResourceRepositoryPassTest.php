@@ -15,14 +15,12 @@ namespace Sylius\Bundle\ResourceBundle\Tests\DependencyInjection\Compiler;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractCompilerPassTestCase;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\DefinitionHasMethodCallConstraint;
+use PHPUnit\Framework\Constraint\LogicalNot;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Compiler\RegisterResourceRepositoryPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class RegisterResourceRepositoryPassTest extends AbstractCompilerPassTestCase
 {
     /**
@@ -108,11 +106,6 @@ final class RegisterResourceRepositoryPassTest extends AbstractCompilerPassTestC
         $container->addCompilerPass(new RegisterResourceRepositoryPass());
     }
 
-    /**
-     * @param string $serviceId
-     * @param string $method
-     * @param array $arguments
-     */
     private function assertContainerBuilderNotHasServiceDefinitionWithMethodCall(
         string $serviceId,
         string $method,
@@ -122,7 +115,7 @@ final class RegisterResourceRepositoryPassTest extends AbstractCompilerPassTestC
 
         self::assertThat(
             $definition,
-            new \PHPUnit_Framework_Constraint_Not(new DefinitionHasMethodCallConstraint($method, $arguments))
+            new LogicalNot(new DefinitionHasMethodCallConstraint($method, $arguments))
         );
     }
 }

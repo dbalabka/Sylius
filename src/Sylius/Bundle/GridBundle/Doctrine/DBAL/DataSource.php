@@ -20,24 +20,14 @@ use Sylius\Component\Grid\Data\DataSourceInterface;
 use Sylius\Component\Grid\Data\ExpressionBuilderInterface;
 use Sylius\Component\Grid\Parameters;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class DataSource implements DataSourceInterface
 {
-    /**
-     * @var QueryBuilder
-     */
+    /** @var QueryBuilder */
     private $queryBuilder;
 
-    /**
-     * @var ExpressionBuilderInterface
-     */
+    /** @var ExpressionBuilderInterface */
     private $expressionBuilder;
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     */
     public function __construct(QueryBuilder $queryBuilder)
     {
         $this->queryBuilder = $queryBuilder;
@@ -52,9 +42,11 @@ final class DataSource implements DataSourceInterface
         switch ($condition) {
             case DataSourceInterface::CONDITION_AND:
                 $this->queryBuilder->andWhere($expression);
+
                 break;
             case DataSourceInterface::CONDITION_OR:
                 $this->queryBuilder->orWhere($expression);
+
                 break;
         }
     }

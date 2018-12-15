@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ResourceBundle;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- */
 interface ResourceBundleInterface
 {
     public const MAPPING_XML = 'xml';
@@ -28,8 +25,6 @@ interface ResourceBundleInterface
      * @see SyliusResourceBundle::DRIVER_DOCTRINE_ORM
      * @see SyliusResourceBundle::DRIVER_DOCTRINE_MONGODB_ODM
      * @see SyliusResourceBundle::DRIVER_DOCTRINE_PHPCR_ODM
-     *
-     * @return array
      */
     public function getSupportedDrivers(): array;
 }

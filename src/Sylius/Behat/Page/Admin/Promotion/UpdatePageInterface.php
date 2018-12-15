@@ -15,13 +15,8 @@ namespace Sylius\Behat\Page\Admin\Promotion;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-
     /**
      * @param int|null $priority
      */
@@ -63,14 +58,8 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
      */
     public function checkChannel($name);
 
-    /**
-     * @param \DateTimeInterface $dateTime
-     */
     public function setStartsAt(\DateTimeInterface $dateTime);
 
-    /**
-     * @param \DateTimeInterface $dateTime
-     */
     public function setEndsAt(\DateTimeInterface $dateTime);
 
     /**

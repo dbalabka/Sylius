@@ -16,29 +16,26 @@ namespace Sylius\Bundle\ThemeBundle\Locator;
 use Sylius\Bundle\ThemeBundle\Factory\FinderFactoryInterface;
 use Symfony\Component\Finder\SplFileInfo;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class RecursiveFileLocator implements FileLocatorInterface
 {
-    /**
-     * @var FinderFactoryInterface
-     */
+    /** @var FinderFactoryInterface */
     private $finderFactory;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $paths;
 
+    /** @var int */
+    private $depth;
+
     /**
-     * @param FinderFactoryInterface $finderFactory
      * @param array|string[] $paths An array of paths where to look for resources
+     * @param int|null $depth Restrict depth to search for configuration file inside theme folder
      */
-    public function __construct(FinderFactoryInterface $finderFactory, array $paths)
+    public function __construct(FinderFactoryInterface $finderFactory, array $paths, ?int $depth = null)
     {
         $this->finderFactory = $finderFactory;
         $this->paths = $paths;
+        $this->depth = $depth;
     }
 
     /**
@@ -57,11 +54,6 @@ final class RecursiveFileLocator implements FileLocatorInterface
         return iterator_to_array($this->doLocateFilesNamed($name));
     }
 
-    /**
-     * @param string $name
-     *
-     * @return \Generator
-     */
     private function doLocateFilesNamed(string $name): \Generator
     {
         $this->assertNameIsNotEmpty($name);
@@ -70,6 +62,11 @@ final class RecursiveFileLocator implements FileLocatorInterface
         foreach ($this->paths as $path) {
             try {
                 $finder = $this->finderFactory->create();
+
+                if ($this->depth !== null) {
+                    $finder->depth(sprintf('<= %d', $this->depth));
+                }
+
                 $finder
                     ->files()
                     ->name($name)
@@ -95,9 +92,6 @@ final class RecursiveFileLocator implements FileLocatorInterface
         }
     }
 
-    /**
-     * @param string $name
-     */
     private function assertNameIsNotEmpty(string $name): void
     {
         if (null === $name || '' === $name) {

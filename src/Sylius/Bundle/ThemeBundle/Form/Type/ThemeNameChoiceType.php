@@ -19,19 +19,11 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ThemeNameChoiceType extends AbstractType
 {
-    /**
-     * @var ThemeRepositoryInterface
-     */
+    /** @var ThemeRepositoryInterface */
     private $themeRepository;
 
-    /**
-     * @param ThemeRepositoryInterface $themeRepository
-     */
     public function __construct(ThemeRepositoryInterface $themeRepository)
     {
         $this->themeRepository = $themeRepository;
@@ -48,7 +40,7 @@ final class ThemeNameChoiceType extends AbstractType
 
                 $choices = [];
                 foreach ($themes as $theme) {
-                    $choices[(string) $theme] = $theme->getName();
+                    $choices[$theme->getTitle() ?: $theme->getName()] = $theme->getName();
                 }
 
                 return $choices;

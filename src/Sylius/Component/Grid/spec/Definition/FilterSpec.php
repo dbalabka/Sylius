@@ -15,9 +15,6 @@ namespace spec\Sylius\Component\Grid\Definition;
 
 use PhpSpec\ObjectBehavior;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class FilterSpec extends ObjectBehavior
 {
     function let(): void
@@ -50,8 +47,8 @@ final class FilterSpec extends ObjectBehavior
 
     function its_template_is_mutable(): void
     {
-        $this->setTemplate('SyliusGridBundle:Filter:template.html.twig');
-        $this->getTemplate()->shouldReturn('SyliusGridBundle:Filter:template.html.twig');
+        $this->setTemplate('@SyliusGrid/Filter/template.html.twig');
+        $this->getTemplate()->shouldReturn('@SyliusGrid/Filter/template.html.twig');
     }
 
     function it_has_no_options_by_default(): void

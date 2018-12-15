@@ -15,19 +15,11 @@ namespace Sylius\Bundle\MoneyBundle\Twig;
 
 use Sylius\Bundle\MoneyBundle\Templating\Helper\ConvertMoneyHelperInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ConvertMoneyExtension extends \Twig_Extension
 {
-    /**
-     * @var ConvertMoneyHelperInterface
-     */
+    /** @var ConvertMoneyHelperInterface */
     private $helper;
 
-    /**
-     * @param ConvertMoneyHelperInterface $helper
-     */
     public function __construct(ConvertMoneyHelperInterface $helper)
     {
         $this->helper = $helper;

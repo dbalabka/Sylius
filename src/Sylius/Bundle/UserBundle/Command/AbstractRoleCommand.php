@@ -22,9 +22,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 
-/**
- * @author Loïc Frémont <loic@mobizel.com>
- */
 abstract class AbstractRoleCommand extends ContainerAwareCommand
 {
     /**
@@ -39,7 +36,6 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
         }
 
         if (!$input->getOption('user-type')) {
-
             // Do not ask if there's only 1 user type configured
             if (count($availableUserTypes) === 1) {
                 $input->setOption('user-type', $availableUserTypes[0]);
@@ -54,9 +50,10 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
         if (!$input->getArgument('email')) {
             $question = new Question('Please enter an email:');
             $question->setValidator(function ($email) {
-                if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    throw new \RuntimeException("The email you entered is invalid.");
+                if (!filter_var($email, \FILTER_VALIDATE_EMAIL)) {
+                    throw new \RuntimeException('The email you entered is invalid.');
                 }
+
                 return $email;
             });
             $email = $this->getHelper('question')->ask($input, $output, $question);
@@ -67,8 +64,9 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
             $question = new Question('Please enter user\'s roles (separated by space):');
             $question->setValidator(function ($roles) {
                 if (strlen($roles) < 1) {
-                    throw new \RuntimeException("The value cannot be blank.");
+                    throw new \RuntimeException('The value cannot be blank.');
                 }
+
                 return $roles;
             });
             $roles = $this->getHelper('question')->ask($input, $output, $question);
@@ -100,11 +98,6 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param string $email
-     * @param string $userType
-     *
-     * @return UserInterface
-     *
      * @throws \InvalidArgumentException
      */
     protected function findUserByEmail(string $email, string $userType): UserInterface
@@ -119,11 +112,6 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
         return $user;
     }
 
-    /**
-     * @param string $userType
-     *
-     * @return ObjectManager
-     */
     protected function getEntityManager(string $userType): ObjectManager
     {
         $class = $this->getUserModelClass($userType);
@@ -131,11 +119,6 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
         return $this->getContainer()->get('doctrine')->getManagerForClass($class);
     }
 
-    /**
-     * @param string $userType
-     *
-     * @return UserRepositoryInterface
-     */
     protected function getUserRepository(string $userType): UserRepositoryInterface
     {
         $class = $this->getUserModelClass($userType);
@@ -143,9 +126,6 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
         return $this->getEntityManager($userType)->getRepository($class);
     }
 
-    /**
-     * @return array
-     */
     protected function getAvailableUserTypes(): array
     {
         $config = $this->getContainer()->getParameter('sylius.user.users');
@@ -159,10 +139,6 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param string $userType
-     *
-     * @return string
-     *
      * @throws \InvalidArgumentException
      */
     protected function getUserModelClass(string $userType): string
@@ -171,14 +147,9 @@ abstract class AbstractRoleCommand extends ContainerAwareCommand
         if (empty($config[$userType]['user']['classes']['model'])) {
             throw new \InvalidArgumentException(sprintf('User type %s misconfigured.', $userType));
         }
+
         return $config[$userType]['user']['classes']['model'];
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @param UserInterface $user
-     * @param array $securityRoles
-     */
     abstract protected function executeRoleCommand(InputInterface $input, OutputInterface $output, UserInterface $user, array $securityRoles): void;
 }

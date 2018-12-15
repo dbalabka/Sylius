@@ -15,40 +15,19 @@ namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\User\Model\UserInterface as BaseUserInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface AdminUserInterface extends BaseUserInterface
 {
     public const DEFAULT_ADMIN_ROLE = 'ROLE_ADMINISTRATION_ACCESS';
 
-    /**
-     * @return string|null
-     */
     public function getFirstName(): ?string;
 
-    /**
-     * @param string|null $firstName
-     */
     public function setFirstName(?string $firstName): void;
 
-    /**
-     * @return string|null
-     */
     public function getLastName(): ?string;
 
-    /**
-     * @param string|null $lastName
-     */
     public function setLastName(?string $lastName): void;
 
-    /**
-     * @return string|null
-     */
     public function getLocaleCode(): ?string;
 
-    /**
-     * @param string|null $code
-     */
     public function setLocaleCode(?string $code): void;
 }

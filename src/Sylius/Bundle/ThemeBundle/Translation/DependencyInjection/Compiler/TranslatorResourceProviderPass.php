@@ -18,9 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TranslatorResourceProviderPass implements CompilerPassInterface
 {
     /**
@@ -43,11 +40,6 @@ final class TranslatorResourceProviderPass implements CompilerPassInterface
         ));
     }
 
-    /**
-     * @param Definition $symfonyTranslator
-     *
-     * @return array
-     */
     private function extractResourcesFilesFromSymfonyTranslator(Definition $symfonyTranslator): array
     {
         try {

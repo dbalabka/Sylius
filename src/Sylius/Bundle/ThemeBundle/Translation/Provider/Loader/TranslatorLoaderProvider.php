@@ -15,14 +15,9 @@ namespace Sylius\Bundle\ThemeBundle\Translation\Provider\Loader;
 
 use Symfony\Component\Translation\Loader\LoaderInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TranslatorLoaderProvider implements TranslatorLoaderProviderInterface
 {
-    /**
-     * @var LoaderInterface[]
-     */
+    /** @var LoaderInterface[] */
     private $loaders;
 
     /**

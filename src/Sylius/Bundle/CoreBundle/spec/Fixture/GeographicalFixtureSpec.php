@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace spec\Sylius\Bundle\CoreBundle\Fixture;
@@ -13,9 +22,6 @@ use Sylius\Component\Addressing\Model\ProvinceInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class GeographicalFixtureSpec extends ObjectBehavior
 {
     function let(
@@ -137,6 +143,7 @@ final class GeographicalFixtureSpec extends ObjectBehavior
         $zone->setCode('POLAND')->shouldBeCalled();
         $zone->setName('Poland')->shouldBeCalled();
         $zone->setType(ZoneInterface::TYPE_COUNTRY)->shouldBeCalled();
+        $zone->setScope('tax')->shouldBeCalled();
 
         $countryManager->persist($country)->shouldBeCalled();
         $zoneManager->persist($zone)->shouldBeCalled();
@@ -253,7 +260,7 @@ final class GeographicalFixtureSpec extends ObjectBehavior
                 'countries' => ['PL'],
                 'provinces' => [],
                 'zones' => [],
-            ]
+            ],
         ]]]);
     }
 
@@ -265,7 +272,7 @@ final class GeographicalFixtureSpec extends ObjectBehavior
                 'countries' => [],
                 'provinces' => ['PL-SL'],
                 'zones' => [],
-            ]
+            ],
         ]]]);
     }
 
@@ -277,7 +284,7 @@ final class GeographicalFixtureSpec extends ObjectBehavior
                 'countries' => [],
                 'provinces' => [],
                 'zones' => ['DAWG'],
-            ]
+            ],
         ]]]);
     }
 }

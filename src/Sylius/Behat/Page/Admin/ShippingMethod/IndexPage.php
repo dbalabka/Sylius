@@ -15,9 +15,6 @@ namespace Sylius\Behat\Page\Admin\ShippingMethod;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPage as BaseIndexPage;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
     /**
@@ -41,7 +38,7 @@ class IndexPage extends BaseIndexPage implements IndexPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'filter_archival' => '#criteria_archival',

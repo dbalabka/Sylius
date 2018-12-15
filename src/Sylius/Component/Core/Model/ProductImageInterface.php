@@ -15,14 +15,8 @@ namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
 
-/**
- * @author Saidul Islam <saidul.04@gmail.com>
- */
 interface ProductImageInterface extends ImageInterface
 {
-    /**
-     * @return bool
-     */
     public function hasProductVariants(): bool;
 
     /**
@@ -30,20 +24,9 @@ interface ProductImageInterface extends ImageInterface
      */
     public function getProductVariants(): Collection;
 
-    /**
-     * @param ProductVariantInterface $productVariant
-     */
     public function addProductVariant(ProductVariantInterface $productVariant): void;
 
-    /**
-     * @param ProductVariantInterface $productVariant
-     */
     public function removeProductVariant(ProductVariantInterface $productVariant): void;
 
-    /**
-     * @param ProductVariantInterface $productVariant
-     *
-     * @return bool
-     */
     public function hasProductVariant(ProductVariantInterface $productVariant): bool;
 }

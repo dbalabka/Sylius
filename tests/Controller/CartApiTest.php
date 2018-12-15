@@ -18,22 +18,15 @@ use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Order\Model\OrderItemInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class CartApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithAccept = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'ACCEPT' => 'application/json',
@@ -429,7 +422,6 @@ EOT;
         }
 EOT;
 
-
         $this->client->request('PUT', $this->getCartItemUrl($cart, $cartItem), [], [], static::$authorizedHeaderWithContentType, $data);
 
         $response = $this->client->getResponse();
@@ -564,8 +556,6 @@ EOT;
     }
 
     /**
-     * @param OrderInterface $cart
-     *
      * @return string
      */
     private function getCartUrl(OrderInterface $cart)
@@ -574,8 +564,6 @@ EOT;
     }
 
     /**
-     * @param OrderInterface $cart
-     *
      * @return string
      */
     private function getCartItemListUrl(OrderInterface $cart)
@@ -584,8 +572,6 @@ EOT;
     }
 
     /**
-     * @param OrderInterface $cart
-     * @param OrderItemInterface $cartItem
      * @return string
      */
     private function getCartItemUrl(OrderInterface $cart, OrderItemInterface $cartItem)

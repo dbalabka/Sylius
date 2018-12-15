@@ -34,6 +34,8 @@ sylius:
             locales: زبان ها
             payment_methods: روش‌های پرداخت
             shipping_methods: شیوه های ارسال
+            skipping_shipping_step_allowed: اگر فقط یک روش ارسال موجود باشد,از مرحله ارسال پرش شود?
+            skipping_payment_step_allowed: اگر فقط یک روش پرداخت موجود باشد,از مرحله پرداخت پرش شود?
             tax_calculation_strategy: استراتژی محاسبه مالیات
             tax_zone_default: منطقه مالیاتی پیش فرض
             taxonomies: رده بندی
@@ -61,7 +63,7 @@ sylius:
             restricted_zone: مناطق ممنوع
             short_description: شرح کوتاه
             variant_selection_method: انتخاب نوع ترکیب بندی
-            main_taxon: رده اصلی
+            main_taxon: طبقه بندی اصلی
             channels: کانال های فروش
             enabled: فعال
         product_filter:
@@ -108,6 +110,7 @@ sylius:
             on_hand: موجودی
             price: قیمت
             sku: کد محصول
+            shipping_required: آیا ارسال مورد نیاز است?
             weight: وزن
             width: عرض
         attribute:
@@ -159,8 +162,8 @@ sylius:
             intl: Intl
             json_encode: JSON
             mbstring: Multibyte String
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -189,8 +192,8 @@ sylius:
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
             non_deprecated: معتبر
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start
@@ -198,7 +201,7 @@ sylius:
             timezone: منطقه زمانی
             timezone_deprecated:
                 header: منطقه زمانی نامعتبر
-                help: 'منطقه زمانی %timezone% نامعتبر است. لطفا تنظیمات مربوطه را در فایل php.ini اصلاح کنید (برای دیدن لیست منطقه های زمانی نامعتبر به آدرس http://php.net/manual/en/timezones.others.php مراجعه کنید).'
+                help: منطقه زمانی %timezone% نامعتبر است. لطفا تنظیمات مربوطه را در فایل php.ini اصلاح کنید (برای دیدن لیست منطقه های زمانی نامعتبر به آدرس http://php.net/manual/en/timezones.others.php مراجعه کنید).
             version: ورژن PHP
             version_recommended: ورژن توصیه شده PHP
     payum_gateway:

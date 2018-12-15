@@ -16,19 +16,11 @@ namespace Sylius\Component\Resource\Translation;
 use Sylius\Component\Resource\Model\TranslatableInterface;
 use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInterface;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 final class TranslatableEntityLocaleAssigner implements TranslatableEntityLocaleAssignerInterface
 {
-    /**
-     * @var TranslationLocaleProviderInterface
-     */
+    /** @var TranslationLocaleProviderInterface */
     private $translationLocaleProvider;
 
-    /**
-     * @param TranslationLocaleProviderInterface $translationLocaleProvider
-     */
     public function __construct(TranslationLocaleProviderInterface $translationLocaleProvider)
     {
         $this->translationLocaleProvider = $translationLocaleProvider;

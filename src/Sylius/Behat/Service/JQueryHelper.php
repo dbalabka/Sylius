@@ -15,14 +15,8 @@ namespace Sylius\Behat\Service;
 
 use Behat\Mink\Session;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 abstract class JQueryHelper
 {
-    /**
-     * @param Session $session
-     */
     public static function waitForAsynchronousActionsToFinish(Session $session)
     {
         $session->wait(5000, '0 === jQuery.active');

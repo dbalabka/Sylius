@@ -16,9 +16,6 @@ namespace Sylius\Component\Grid\Filter;
 use Sylius\Component\Grid\Data\DataSourceInterface;
 use Sylius\Component\Grid\Filtering\FilterInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class EntityFilter implements FilterInterface
 {
     /**
@@ -30,7 +27,7 @@ final class EntityFilter implements FilterInterface
             return;
         }
 
-        $fields = isset($options['fields']) ? $options['fields'] : [$name];
+        $fields = $options['fields'] ?? [$name];
 
         $expressionBuilder = $dataSource->getExpressionBuilder();
 

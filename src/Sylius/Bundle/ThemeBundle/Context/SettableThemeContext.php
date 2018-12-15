@@ -15,14 +15,9 @@ namespace Sylius\Bundle\ThemeBundle\Context;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SettableThemeContext implements ThemeContextInterface
 {
-    /**
-     * @var ThemeInterface
-     */
+    /** @var ThemeInterface */
     private $theme;
 
     /**

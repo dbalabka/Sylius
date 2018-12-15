@@ -15,9 +15,6 @@ namespace Sylius\Bundle\ThemeBundle\Loader;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CircularDependencyFoundException extends \DomainException
 {
     /**
@@ -37,11 +34,6 @@ final class CircularDependencyFoundException extends \DomainException
         parent::__construct($message, 0, $previous);
     }
 
-    /**
-     * @param array $themes
-     *
-     * @return array
-     */
     private function getCycleFromArray(array $themes): array
     {
         while (reset($themes) !== end($themes) || 1 === count($themes)) {
@@ -55,11 +47,6 @@ final class CircularDependencyFoundException extends \DomainException
         return $themes;
     }
 
-    /**
-     * @param array $themes
-     *
-     * @return string
-     */
     private function formatCycleToString(array $themes): string
     {
         $themesNames = array_map(function (ThemeInterface $theme) {

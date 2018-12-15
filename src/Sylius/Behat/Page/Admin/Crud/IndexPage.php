@@ -15,31 +15,20 @@ namespace Sylius\Behat\Page\Admin\Crud;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Behat\Service\Accessor\TableAccessorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class IndexPage extends SymfonyPage implements IndexPageInterface
 {
-    /**
-     * @var TableAccessorInterface
-     */
+    /** @var TableAccessorInterface */
     private $tableAccessor;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $routeName;
 
     /**
-     * @param Session $session
-     * @param array $parameters
-     * @param RouterInterface $router
-     * @param TableAccessorInterface $tableAccessor
      * @param string $routeName
      */
     public function __construct(
@@ -149,15 +138,37 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
         return $tableAccessor->getFieldFromRow($table, $resourceRow, 'actions');
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function checkResourceOnPage(array $parameters): void
+    {
+        $tableAccessor = $this->getTableAccessor();
+        $table = $this->getElement('table');
+
+        $resourceRow = $tableAccessor->getRowWithFields($table, $parameters);
+        $bulkCheckbox = $resourceRow->find('css', '.bulk-select-checkbox');
+
+        Assert::notNull($bulkCheckbox);
+
+        $bulkCheckbox->check();
+    }
+
     public function filter()
     {
         $this->getElement('filter')->press();
     }
 
+    public function bulkDelete(): void
+    {
+        $this->getElement('bulk_actions', ['%text%' => 'Bulk actions'])->pressButton('Delete');
+        $this->getElement('confirmation_button')->click();
+    }
+
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return $this->routeName;
     }
@@ -173,9 +184,11 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
+            'bulk_actions' => '.accordion:contains("%text%")',
+            'confirmation_button' => '#confirmation-button',
             'filter' => 'button:contains("Filter")',
             'table' => '.table',
         ]);

@@ -22,19 +22,11 @@ use Symfony\Component\Form\ReversedTransformer;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class ZoneCodeChoiceType extends AbstractType
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $zoneRepository;
 
-    /**
-     * @param RepositoryInterface $zoneRepository
-     */
     public function __construct(RepositoryInterface $zoneRepository)
     {
         $this->zoneRepository = $zoneRepository;
@@ -57,10 +49,11 @@ final class ZoneCodeChoiceType extends AbstractType
             ->setDefaults([
                 'choice_filter' => null,
                 'choices' => function (Options $options): iterable {
-                    $zones =  $this->zoneRepository->findAll();
+                    $zones = $this->zoneRepository->findAll();
                     if ($options['choice_filter']) {
                         $zones = array_filter($zones, $options['choice_filter']);
                     }
+
                     return $zones;
                 },
                 'choice_value' => 'code',

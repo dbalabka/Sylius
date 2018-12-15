@@ -13,14 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ShopBundle\EmailManager;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface ContactEmailManagerInterface
 {
-    /**
-     * @param array $data
-     * @param array $recipients
-     */
     public function sendContactRequest(array $data, array $recipients): void;
 }

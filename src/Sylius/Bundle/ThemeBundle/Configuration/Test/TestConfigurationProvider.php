@@ -15,19 +15,11 @@ namespace Sylius\Bundle\ThemeBundle\Configuration\Test;
 
 use Sylius\Bundle\ThemeBundle\Configuration\ConfigurationProviderInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TestConfigurationProvider implements ConfigurationProviderInterface
 {
-    /**
-     * @var TestThemeConfigurationManagerInterface
-     */
+    /** @var TestThemeConfigurationManagerInterface */
     private $testThemeConfigurationManager;
 
-    /**
-     * @param TestThemeConfigurationManagerInterface $testThemeConfigurationManager
-     */
     public function __construct(TestThemeConfigurationManagerInterface $testThemeConfigurationManager)
     {
         $this->testThemeConfigurationManager = $testThemeConfigurationManager;

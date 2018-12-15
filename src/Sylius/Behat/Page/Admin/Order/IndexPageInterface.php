@@ -15,20 +15,11 @@ namespace Sylius\Behat\Page\Admin\Order;
 
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface as BaseIndexPageInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface IndexPageInterface extends BaseIndexPageInterface
 {
-    /**
-     * @param \DateTimeInterface $dateTime
-     */
-    public function specifyFilterDateFrom(\DateTimeInterface $dateTime);
+    public function specifyFilterDateFrom(string $dateTime);
 
-    /**
-     * @param \DateTimeInterface $dateTime
-     */
-    public function specifyFilterDateTo(\DateTimeInterface $dateTime);
+    public function specifyFilterDateTo(string $dateTime);
 
     /**
      * @param string $channelName

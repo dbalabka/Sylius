@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the Sylius package.
+ * This file is part of the Sylius package.
  *
  * (c) Paweł Jędrzejewski
  *
@@ -18,22 +18,9 @@ use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface CartItemFactoryInterface extends FactoryInterface
 {
-    /**
-     * @param ProductInterface $product
-     *
-     * @return OrderItemInterface
-     */
     public function createForProduct(ProductInterface $product): OrderItemInterface;
 
-    /**
-     * @param OrderInterface $order
-     *
-     * @return OrderItemInterface
-     */
     public function createForCart(OrderInterface $order): OrderItemInterface;
 }

@@ -13,14 +13,8 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Exception;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class RaceConditionException extends UpdateHandlingException
 {
-    /**
-     * @param \Exception|null $previous
-     */
     public function __construct(?\Exception $previous = null)
     {
         parent::__construct(

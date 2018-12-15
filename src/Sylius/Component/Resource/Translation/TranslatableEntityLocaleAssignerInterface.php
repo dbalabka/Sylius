@@ -15,13 +15,7 @@ namespace Sylius\Component\Resource\Translation;
 
 use Sylius\Component\Resource\Model\TranslatableInterface;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 interface TranslatableEntityLocaleAssignerInterface
 {
-    /**
-     * @param TranslatableInterface $translatableEntity
-     */
     public function assignLocale(TranslatableInterface $translatableEntity): void;
 }

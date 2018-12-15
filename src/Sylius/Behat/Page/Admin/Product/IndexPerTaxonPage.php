@@ -17,9 +17,6 @@ use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Page\Admin\Crud\IndexPage as CrudIndexPage;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class IndexPerTaxonPage extends CrudIndexPage implements IndexPerTaxonPageInterface
 {
     /**
@@ -62,7 +59,7 @@ class IndexPerTaxonPage extends CrudIndexPage implements IndexPerTaxonPageInterf
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'save_configuration_button' => '.sylius-save-position',

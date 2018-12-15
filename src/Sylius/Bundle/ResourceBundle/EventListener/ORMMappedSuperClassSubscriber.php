@@ -19,15 +19,8 @@ use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 
-/**
- * @author Ivan Molchanov <ivan.molchanov@opensoftdev.ru>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
 {
-    /**
-     * @return array
-     */
     public function getSubscribedEvents(): array
     {
         return [
@@ -35,9 +28,6 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         ];
     }
 
-    /**
-     * @param LoadClassMetadataEventArgs $eventArgs
-     */
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void
     {
         $metadata = $eventArgs->getClassMetadata();
@@ -51,9 +41,6 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
     }
 
-    /**
-     * @param ClassMetadataInfo $metadata
-     */
     private function convertToEntityIfNeeded(ClassMetadataInfo $metadata): void
     {
         if (false === $metadata->isMappedSuperclass) {
@@ -71,10 +58,6 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
     }
 
-    /**
-     * @param ClassMetadataInfo $metadata
-     * @param Configuration $configuration
-     */
     private function setAssociationMappings(ClassMetadataInfo $metadata, Configuration $configuration): void
     {
         $class = $metadata->getName();
@@ -111,9 +94,6 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
     }
 
-    /**
-     * @param ClassMetadataInfo $metadata
-     */
     private function unsetAssociationMappings(ClassMetadataInfo $metadata): void
     {
         if (false === $this->isResource($metadata)) {
@@ -127,11 +107,6 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
     }
 
-    /**
-     * @param int $type
-     *
-     * @return bool
-     */
     private function isRelation(int $type): bool
     {
         return in_array(

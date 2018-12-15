@@ -26,10 +26,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Bartosz Siejka <bartosz.siejka@lakion.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
@@ -51,9 +47,6 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function addResourcesSection(ArrayNodeDefinition $node): void
     {
         $node

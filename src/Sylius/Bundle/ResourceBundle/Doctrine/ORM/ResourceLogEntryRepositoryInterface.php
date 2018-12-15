@@ -15,15 +15,7 @@ namespace Sylius\Bundle\ResourceBundle\Doctrine\ORM;
 
 use Doctrine\ORM\QueryBuilder;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface ResourceLogEntryRepositoryInterface
 {
-    /**
-     * @param string $objectId
-     *
-     * @return QueryBuilder
-     */
     public function createByObjectIdQueryBuilder(string $objectId): QueryBuilder;
 }

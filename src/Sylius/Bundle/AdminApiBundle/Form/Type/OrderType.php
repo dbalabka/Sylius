@@ -27,20 +27,13 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\ReversedTransformer;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class OrderType extends AbstractResourceType
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $localeRepository;
 
     /**
      * {@inheritdoc}
-     *
-     * @param RepositoryInterface $localeRepository
      */
     public function __construct(string $dataClass, array $validationGroups = [], RepositoryInterface $localeRepository)
     {
@@ -75,7 +68,9 @@ final class OrderType extends AbstractResourceType
                 $order = $event->getData();
 
                 /** @var ChannelInterface $channel */
-                if (null !== $channel = $order->getChannel()) {
+                $channel = $order->getChannel();
+
+                if (null !== $channel) {
                     $order->setCurrencyCode($channel->getBaseCurrency()->getCode());
                 }
             })

@@ -24,10 +24,8 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Arnaud Langlade <aRn0D.dev@gmail.com>
- */
+@trigger_error(sprintf('The "%s" class is deprecated since Sylius 1.3. Doctrine MongoDB and PHPCR support will no longer be supported in Sylius 2.0.', DoctrinePHPCRDriver::class), \E_USER_DEPRECATED);
+
 final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
 {
     /**
@@ -39,10 +37,6 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
         $this->addResourceListeners($container, $metadata);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
     protected function addResourceListeners(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $defaultOptions = [
@@ -85,11 +79,11 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
                 new Reference($metadata->getServiceId('manager')),
                 $options['parent_path_default'],
                 $options['parent_path_autocreate'],
-                $options['parent_path_force']
+                $options['parent_path_force'],
             ]);
             $defaultPath->addTag('kernel.event_listener', [
                 'event' => $createEventName,
-                'method' => 'onPreCreate'
+                'method' => 'onPreCreate',
             ]);
 
             $container->setDefinition(
@@ -105,15 +99,15 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
         if ($options['name_filter']) {
             $nameFilter = new Definition(NameFilterListener::class);
             $nameFilter->setArguments([
-                new Reference($metadata->getServiceId('manager'))
+                new Reference($metadata->getServiceId('manager')),
             ]);
             $nameFilter->addTag('kernel.event_listener', [
                 'event' => $createEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
             $nameFilter->addTag('kernel.event_listener', [
                 'event' => $updateEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
 
             $container->setDefinition(
@@ -129,15 +123,15 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
         if ($options['name_resolver']) {
             $nameResolver = new Definition(NameResolverListener::class);
             $nameResolver->setArguments([
-                new Reference($metadata->getServiceId('manager'))
+                new Reference($metadata->getServiceId('manager')),
             ]);
             $nameResolver->addTag('kernel.event_listener', [
                 'event' => $createEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
             $nameResolver->addTag('kernel.event_listener', [
                 'event' => $updateEventName,
-                'method' => 'onEvent'
+                'method' => 'onEvent',
             ]);
 
             $container->setDefinition(

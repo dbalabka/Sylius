@@ -15,17 +15,14 @@ namespace Sylius\Component\Core\Uploader;
 
 use Gaufrette\Filesystem;
 use Sylius\Component\Core\Model\ImageInterface;
+use Symfony\Component\HttpFoundation\File\File;
+use Webmozart\Assert\Assert;
 
 class ImageUploader implements ImageUploaderInterface
 {
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     protected $filesystem;
 
-    /**
-     * @param Filesystem $filesystem
-     */
     public function __construct(Filesystem $filesystem)
     {
         $this->filesystem = $filesystem;
@@ -40,14 +37,19 @@ class ImageUploader implements ImageUploaderInterface
             return;
         }
 
+        $file = $image->getFile();
+
+        /** @var File $file */
+        Assert::isInstanceOf($file, File::class);
+
         if (null !== $image->getPath() && $this->has($image->getPath())) {
             $this->remove($image->getPath());
         }
 
         do {
-            $hash = md5(uniqid((string) mt_rand(), true));
-            $path = $this->expandPath($hash.'.'.$image->getFile()->guessExtension());
-        } while ($this->filesystem->has($path));
+            $hash = bin2hex(random_bytes(16));
+            $path = $this->expandPath($hash . '.' . $file->guessExtension());
+        } while ($this->isAdBlockingProne($path) || $this->filesystem->has($path));
 
         $image->setPath($path);
 
@@ -69,11 +71,6 @@ class ImageUploader implements ImageUploaderInterface
         return false;
     }
 
-    /**
-     * @param string $path
-     *
-     * @return string
-     */
     private function expandPath(string $path): string
     {
         return sprintf(
@@ -84,13 +81,16 @@ class ImageUploader implements ImageUploaderInterface
         );
     }
 
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
     private function has(string $path): bool
     {
         return $this->filesystem->has($path);
+    }
+
+    /**
+     * Will return true if the path is prone to be blocked by ad blockers
+     */
+    private function isAdBlockingProne(string $path): bool
+    {
+        return strpos($path, 'ad') !== false;
     }
 }

@@ -16,9 +16,6 @@ namespace Sylius\Bundle\AddressingBundle\Twig;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Symfony\Component\Intl\Intl;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class CountryNameExtension extends \Twig_Extension
 {
     /**
@@ -31,12 +28,6 @@ class CountryNameExtension extends \Twig_Extension
         ];
     }
 
-    /**
-     * @param mixed  $country
-     * @param string|null $locale
-     *
-     * @return string
-     */
     public function translateCountryIsoCode($country, ?string $locale = null): string
     {
         if ($country instanceof CountryInterface) {

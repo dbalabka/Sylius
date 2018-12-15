@@ -23,9 +23,6 @@ use Sylius\Component\Resource\Translation\Provider\TranslationLocaleProviderInte
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class BuildAttributesFormSubscriberSpec extends ObjectBehavior
 {
     function let(FactoryInterface $attributeValueFactory, TranslationLocaleProviderInterface $localeProvider): void
@@ -37,7 +34,7 @@ final class BuildAttributesFormSubscriberSpec extends ObjectBehavior
     {
         static::getSubscribedEvents()->shouldReturn([
             FormEvents::PRE_SET_DATA => 'preSetData',
-            FormEvents::POST_SUBMIT => 'postSubmit'
+            FormEvents::POST_SUBMIT => 'postSubmit',
         ]);
     }
 

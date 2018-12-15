@@ -19,29 +19,17 @@ use Sylius\Bundle\CoreBundle\Fixture\Factory\AbstractExampleFactory;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class ApiClientExampleFactory extends AbstractExampleFactory
 {
-    /**
-     * @var ClientManagerInterface
-     */
+    /** @var ClientManagerInterface */
     private $clientManager;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param ClientManagerInterface $clientManager
-     */
     public function __construct(ClientManagerInterface $clientManager)
     {
         $this->clientManager = $clientManager;

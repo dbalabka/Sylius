@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the Sylius package.
+ * This file is part of the Sylius package.
  *
  * (c) Paweł Jędrzejewski
  *
@@ -22,9 +22,6 @@ use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Product\Resolver\ProductVariantResolverInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class CartItemFactorySpec extends ObjectBehavior
 {
     function let(FactoryInterface $decoratedFactory, ProductVariantResolverInterface $variantResolver): void

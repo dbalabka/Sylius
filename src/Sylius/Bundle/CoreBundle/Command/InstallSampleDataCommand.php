@@ -17,12 +17,8 @@ use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class InstallSampleDataCommand extends AbstractInstallCommand
 {
     /**
@@ -62,11 +58,11 @@ EOT
             return 0;
         }
 
-
         try {
-            $rootDir = $this->getContainer()->getParameter('kernel.root_dir') . '/../';
-            $this->ensureDirectoryExistsAndIsWritable($rootDir . self::WEB_MEDIA_DIRECTORY, $output);
-            $this->ensureDirectoryExistsAndIsWritable($rootDir . self::WEB_MEDIA_IMAGE_DIRECTORY, $output);
+            $publicDir = $this->getContainer()->getParameter('sylius_core.public_dir');
+
+            $this->ensureDirectoryExistsAndIsWritable($publicDir . '/media/', $output);
+            $this->ensureDirectoryExistsAndIsWritable($publicDir . '/media/image/', $output);
         } catch (\RuntimeException $exception) {
             $outputStyle->writeln($exception->getMessage());
 

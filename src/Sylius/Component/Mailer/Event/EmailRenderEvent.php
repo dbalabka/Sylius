@@ -16,58 +16,35 @@ namespace Sylius\Component\Mailer\Event;
 use Sylius\Component\Mailer\Renderer\RenderedEmail;
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
 class EmailRenderEvent extends Event
 {
-    /**
-     * @var RenderedEmail
-     */
+    /** @var RenderedEmail */
     protected $renderedEmail;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     protected $recipients;
 
-    /**
-     * @param RenderedEmail $renderedEmail
-     * @param array $recipients
-     */
     public function __construct(RenderedEmail $renderedEmail, array $recipients = [])
     {
         $this->renderedEmail = $renderedEmail;
         $this->recipients = $recipients;
     }
 
-    /**
-     * @return RenderedEmail
-     */
     public function getRenderedEmail(): RenderedEmail
     {
         return $this->renderedEmail;
     }
 
-    /**
-     * @param RenderedEmail $renderedEmail
-     */
     public function setRenderedEmail(RenderedEmail $renderedEmail): void
     {
         $this->renderedEmail = $renderedEmail;
     }
 
-    /**
-     * @return array
-     */
     public function getRecipients(): array
     {
         return $this->recipients;
     }
 
-    /**
-     * @param array $recipients
-     */
     public function setRecipients(array $recipients): void
     {
         $this->recipients = $recipients;

@@ -13,20 +13,19 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ThemeBundle\Tests\Translation;
 
+use PHPUnit\Framework\Assert;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\ThemeBundle\Translation\Provider\Loader\TranslatorLoaderProvider;
 use Sylius\Bundle\ThemeBundle\Translation\Provider\Resource\TranslatorResourceProvider;
 use Sylius\Bundle\ThemeBundle\Translation\Translator;
-use Symfony\Component\Translation\Exception\InvalidArgumentException;
 use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\MessageCatalogue;
 use Symfony\Component\Translation\MessageSelector;
 
 /**
  * @see \Symfony\Component\Translation\Tests\TranslatorTest
- *
- * @author Jan Góralski <jan.goralski@lakion.com>
  */
-final class TranslatorTest extends \PHPUnit_Framework_TestCase
+final class TranslatorTest extends TestCase
 {
     /**
      * @test
@@ -44,7 +43,7 @@ final class TranslatorTest extends \PHPUnit_Framework_TestCase
      */
     public function it_instantiates_with_valid_options(array $options): void
     {
-        $this->createTranslator('en', $options);
+        Assert::assertInstanceOf(Translator::class, $this->createTranslator('en', $options));
     }
 
     /**
@@ -71,7 +70,7 @@ final class TranslatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      * @dataProvider getInvalidLocalesTests
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function its_throws_exception_on_setting_invalid_fallback_locales($locale): void
     {
@@ -87,6 +86,8 @@ final class TranslatorTest extends \PHPUnit_Framework_TestCase
     {
         $translator = $this->createTranslator('fr');
         $translator->setFallbackLocales(['fr', $locale]);
+
+        Assert::assertSame(['fr', $locale], $translator->getFallbackLocales());
     }
 
     /**
@@ -96,7 +97,10 @@ final class TranslatorTest extends \PHPUnit_Framework_TestCase
     public function it_adds_resources_with_valid_locales($locale): void
     {
         $translator = $this->createTranslator('fr');
+        $translator->addLoader('array', new ArrayLoader());
         $translator->addResource('array', ['foo' => 'foofoo'], $locale);
+
+        Assert::assertSame('foofoo', $translator->trans('foo', [], null, $locale));
     }
 
     /**
@@ -358,10 +362,8 @@ final class TranslatorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $locale
      * @param string[] $options
-     *
-     * @return Translator
      */
-    private function createTranslator($locale = 'en', $options = [])
+    private function createTranslator($locale = 'en', $options = []): Translator
     {
         $loaderProvider = new TranslatorLoaderProvider();
         $resourceProvider = new TranslatorResourceProvider();

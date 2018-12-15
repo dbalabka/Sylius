@@ -17,19 +17,11 @@ use FOS\RestBundle\View\View;
 use FOS\RestBundle\View\ViewHandler as RestViewHandler;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ViewHandler implements ViewHandlerInterface
 {
-    /**
-     * @var RestViewHandler
-     */
+    /** @var RestViewHandler */
     private $restViewHandler;
 
-    /**
-     * @param RestViewHandler $restViewHandler
-     */
     public function __construct(RestViewHandler $restViewHandler)
     {
         $this->restViewHandler = $restViewHandler;

@@ -13,20 +13,22 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ResourceBundle\Validator;
 
+use Sylius\Bundle\ResourceBundle\Validator\Constraints\UniqueWithinCollectionConstraint;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class UniqueWithinCollectionConstraintValidator extends ConstraintValidator
 {
     /**
      * {@inheritdoc}
      */
-    public function validate($collectionOfEntities, Constraint $constraint)
+    public function validate($collectionOfEntities, Constraint $constraint): void
     {
+        /** @var UniqueWithinCollectionConstraint $constraint */
+        Assert::isInstanceOf($constraint, UniqueWithinCollectionConstraint::class);
+
         $propertyAccessor = PropertyAccess::createPropertyAccessor();
         $collectionOfEntitiesCodes = [];
 
@@ -39,6 +41,7 @@ final class UniqueWithinCollectionConstraintValidator extends ConstraintValidato
 
             if (!array_key_exists($checkingAttribute, $collectionOfEntitiesCodes)) {
                 $collectionOfEntitiesCodes[$checkingAttribute] = $key;
+
                 continue;
             }
 

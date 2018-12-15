@@ -20,19 +20,11 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class GenerateProductVariantsSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var ProductVariantGeneratorInterface
-     */
+    /** @var ProductVariantGeneratorInterface */
     private $generator;
 
-    /**
-     * @param ProductVariantGeneratorInterface $generator
-     */
     public function __construct(ProductVariantGeneratorInterface $generator)
     {
         $this->generator = $generator;
@@ -48,9 +40,6 @@ final class GenerateProductVariantsSubscriber implements EventSubscriberInterfac
         ];
     }
 
-    /**
-     * @param FormEvent $event
-     */
     public function preSetData(FormEvent $event): void
     {
         /** @var ProductInterface $product */

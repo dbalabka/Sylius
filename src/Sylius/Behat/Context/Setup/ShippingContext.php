@@ -30,49 +30,26 @@ use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodTranslationInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ShippingContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var ShippingMethodRepositoryInterface
-     */
+    /** @var ShippingMethodRepositoryInterface */
     private $shippingMethodRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $zoneRepository;
 
-    /**
-     * @var ShippingMethodExampleFactory
-     */
+    /** @var ShippingMethodExampleFactory */
     private $shippingMethodExampleFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $shippingMethodTranslationFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $shippingMethodManager;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param ShippingMethodRepositoryInterface $shippingMethodRepository
-     * @param RepositoryInterface $zoneRepository
-     * @param ShippingMethodExampleFactory $shippingMethodExampleFactory
-     * @param FactoryInterface $shippingMethodTranslationFactory
-     * @param ObjectManager $shippingMethodManager
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ShippingMethodRepositoryInterface $shippingMethodRepository,
@@ -201,8 +178,9 @@ final class ShippingContext implements Context
 
     /**
      * @Given the store allows shipping with :firstName and :secondName
+     * @Given the store allows shipping with :firstName, :secondName and :thirdName
      */
-    public function theStoreAllowsShippingWithAnd(...$names)
+    public function theStoreAllowsShippingWithAnd(string ...$names): void
     {
         foreach ($names as $name) {
             $this->theStoreAllowsShippingMethodWithName($name);
@@ -476,7 +454,6 @@ final class ShippingContext implements Context
     }
 
     /**
-     * @param array $channels
      * @param int $amount
      *
      * @return array
@@ -493,9 +470,6 @@ final class ShippingContext implements Context
         return $configuration;
     }
 
-    /**
-     * @param ShippingMethodInterface $shippingMethod
-     */
     private function saveShippingMethod(ShippingMethodInterface $shippingMethod)
     {
         $this->shippingMethodRepository->add($shippingMethod);

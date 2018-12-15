@@ -15,13 +15,7 @@ namespace Sylius\Bundle\FixturesBundle\Listener;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ListenerInterface extends ConfigurationInterface
 {
-    /**
-     * @return string
-     */
     public function getName(): string;
 }

@@ -32,7 +32,7 @@ Having this method you may be rendering its result in a new action of the ``Prod
 
 See example below:
 
-**1.** Create a new Controller class under the ``AppBundle/Controller`` namespace.
+**1.** Create a new Controller class under the ``App\Controller`` namespace.
 
 Remember that it has to extend a proper base class. How can you check that?
 
@@ -51,7 +51,7 @@ getting a list of recommended products from your external api.
 
     <?php
 
-    namespace AppBundle\Controller;
+    namespace App\Controller;
 
     use FOS\RestBundle\View\View;
     use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
@@ -66,7 +66,7 @@ getting a list of recommended products from your external api.
          *
          * @return Response
          */
-        public function showAction(Request $request)
+        public function showAction(Request $request): Response
         {
             $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
@@ -99,7 +99,7 @@ getting a list of recommended products from your external api.
         }
     }
 
-**2.** In order to use your controller and its actions you need to configure it in the ``app/config/config.yml``.
+**2.** In order to use your controller and its actions you need to configure it in the ``config/_sylius.yaml``.
 
 .. code-block:: yaml
 
@@ -107,14 +107,14 @@ getting a list of recommended products from your external api.
         resources:
             product:
                 classes:
-                    controller: AppBundle\Controller\ProductController
+                    controller: App\Controller\ProductController
 
 How to customize a Standard Controller:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's assume that you would like to add some logic to the Homepage.
 
-**1.** Create a new Controller class under the ``AppBundle/Controller/Shop`` namespace.
+**1.** Create a new Controller class under the ``App/Controller/Shop`` namespace.
 
 If you still need the methods of the original HomepageController, then copy its body to the new class.
 
@@ -122,7 +122,7 @@ If you still need the methods of the original HomepageController, then copy its 
 
     <?php
 
-    namespace AppBundle\Controller\Shop;
+    namespace App\Controller\Shop;
 
     use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
     use Symfony\Component\HttpFoundation\Request;
@@ -148,7 +148,7 @@ If you still need the methods of the original HomepageController, then copy its 
          *
          * @return Response
          */
-        public function indexAction(Request $request)
+        public function indexAction(Request $request): Response
         {
             return $this->templatingEngine->renderResponse('@SyliusShop/Homepage/index.html.twig');
         }
@@ -158,29 +158,22 @@ If you still need the methods of the original HomepageController, then copy its 
          *
          * @return Response
          */
-        public function customAction(Request $request)
+        public function customAction(Request $request): Response
         {
             // Put your custom logic here
         }
     }
 
-**2.** The next thing you have to do is to override the ``sylius.controller.shop.homepage`` service definition in the ``app/config/services.yml``.
+**2.** The next thing you have to do is to override the ``sylius.controller.shop.homepage`` service definition in the ``config/services.yaml``.
 
 .. code-block:: yaml
 
-    # app/config/services.yml
+    # config/services.yaml
     services:
         sylius.controller.shop.homepage:
-            class: AppBundle\Controller\Shop\HomepageController
+            class: App\Controller\Shop\HomepageController
             arguments: ['@templating']
-
-Remember to import the ``app/config/services.yml`` into the ``app/config/config.yml``.
-
-.. code-block:: yaml
-
-    # app/config/config.yml
-    imports:
-        - { resource: "services.yml" }
+            tags: ['controller.service_arguments']
 
 .. tip::
 

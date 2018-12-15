@@ -14,22 +14,16 @@ declare(strict_types=1);
 namespace Sylius\Behat\Page\Admin\Crud;
 
 use Behat\Mink\Element\NodeElement;
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface IndexPageInterface extends SymfonyPageInterface
 {
     /**
-     * @param array $parameters
-     *
      * @return bool
      */
     public function isSingleResourceOnPage(array $parameters);
 
     /**
-     * @param array $parameters
      * @param string $element
      *
      * @return bool
@@ -49,18 +43,16 @@ interface IndexPageInterface extends SymfonyPageInterface
     public function sortBy($fieldName);
 
     /**
-     * @param array $parameters
-     *
      * @return bool
      */
     public function deleteResourceOnPage(array $parameters);
 
     /**
-     * @param array $parameters
-     *
      * @return NodeElement
      */
     public function getActionsForResource(array $parameters);
+
+    public function checkResourceOnPage(array $parameters): void;
 
     /**
      * @return int
@@ -68,4 +60,6 @@ interface IndexPageInterface extends SymfonyPageInterface
     public function countItems();
 
     public function filter();
+
+    public function bulkDelete(): void;
 }

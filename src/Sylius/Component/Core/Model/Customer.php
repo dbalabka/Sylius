@@ -19,29 +19,18 @@ use Sylius\Component\Customer\Model\Customer as BaseCustomer;
 use Sylius\Component\User\Model\UserInterface as BaseUserInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class Customer extends BaseCustomer implements CustomerInterface
 {
-    /**
-     * @var Collection|OrderInterface[]
-     */
+    /** @var Collection|OrderInterface[] */
     protected $orders;
 
-    /**
-     * @var AddressInterface
-     */
+    /** @var AddressInterface */
     protected $defaultAddress;
 
-    /**
-     * @var Collection|AddressInterface[]
-     */
+    /** @var Collection|AddressInterface[] */
     protected $addresses;
 
-    /**
-     * @var ShopUserInterface
-     */
+    /** @var ShopUserInterface */
     protected $user;
 
     public function __construct()
@@ -129,7 +118,7 @@ class Customer extends BaseCustomer implements CustomerInterface
      */
     public function setUser(?BaseUserInterface $user): void
     {
-         if ($this->user === $user) {
+        if ($this->user === $user) {
             return;
         }
 

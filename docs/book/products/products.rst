@@ -63,20 +63,20 @@ And then using the ProductVariantFactory create a variant for your product.
 
 .. code-block:: php
 
-     /** @var ProductVariantFactoryInterface $productvariantFactory **/
+     /** @var ProductVariantFactoryInterface $productVariantFactory **/
      $productVariantFactory = $this->get('sylius.factory.product_variant');
 
-     /** @var ProductVariantInterface $product */
-     $variant = $productVariantFactory->createNew();
+     /** @var ProductVariantInterface $productVariant */
+     $productVariant = $productVariantFactory->createNew();
 
 Having created a Variant, provide it with the required attributes and attach it to your Product.
 
 .. code-block:: php
 
-     $variant->setName('Hardcover');
-     $variant->setCode('1001');
-     $variant->setPosition(1);
-     $variant->setProduct($product);
+     $productVariant->setName('Hardcover');
+     $productVariant->setCode('1001');
+     $productVariant->setPosition(1);
+     $productVariant->setProduct($product);
 
 Finally save your Variant in the database using a repository.
 
@@ -120,10 +120,9 @@ Firstly let's learn how to prepare an exemplary Option and its values.
 
 .. code-block:: php
 
-     /* @var $option OptionInterface */
+     /** @var ProductOptionInterface $option */
      $option = $this->get('sylius.factory.product_option')->createNew();
      $option->setCode('t_shirt_color');
-
      $option->setName('T-Shirt Color');
 
      // Prepare an array with values for your option, with codes, locale code and option values.
@@ -134,7 +133,7 @@ Firstly let's learn how to prepare an exemplary Option and its values.
      ];
 
      foreach ($valuesData as $code => $values) {
-         /* @var $values OptionValueInterface */
+         /** @var ProductOptionValueInterface $optionValue */
          $optionValue = $this->get('sylius.factory.product_option_value')->createNew();
 
          $optionValue->setCode($code);
@@ -153,7 +152,7 @@ After you have an Option created and you keep it as ``$option`` variable let's a
      $product->addOption($option);
 
      // Having option of a product you can generate variants. Sylius has a service for that operation.
-     /** @var VariantGeneratorInterface $variantGenerator */
+     /** @var ProductVariantGeneratorInterface $variantGenerator */
      $variantGenerator = $this->get('sylius.generator.product_variant');
 
      $variantGenerator->generate($product);

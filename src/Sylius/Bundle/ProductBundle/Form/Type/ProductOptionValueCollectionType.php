@@ -25,8 +25,6 @@ use Webmozart\Assert\Assert;
  * implementation, designed to handle option values assigned to object variant.
  * Array of OptionInterface objects should be passed as 'options' option to build proper
  * set of choice types with option values list.
- *
- * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class ProductOptionValueCollectionType extends AbstractType
 {
@@ -50,11 +48,12 @@ final class ProductOptionValueCollectionType extends AbstractType
             $builder->add((string) $option->getCode(), ProductOptionValueChoiceType::class, [
                 'label' => $option->getName() ?: $option->getCode(),
                 'option' => $option,
-                'property_path' => '['.$i.']',
+                'property_path' => '[' . $i . ']',
                 'block_name' => 'entry',
             ]);
         }
     }
+
     /**
      * {@inheritdoc}
      */
@@ -66,6 +65,7 @@ final class ProductOptionValueCollectionType extends AbstractType
             ])
         ;
     }
+
     /**
      * {@inheritdoc}
      */
@@ -75,16 +75,12 @@ final class ProductOptionValueCollectionType extends AbstractType
     }
 
     /**
-     * @param mixed $options
-     *
      * @throws \InvalidArgumentException
      */
-    private function assertOptionsAreValid($options)
+    private function assertOptionsAreValid($options): void
     {
-        Assert::false((
-            !isset($options['options']) ||
-            !is_array($options['options']) &&
-            !($options['options'] instanceof \Traversable && $options['options'] instanceof \ArrayAccess)),
+        Assert::true(
+            isset($options['options']) && is_iterable($options['options']),
             'array or (\Traversable and \ArrayAccess) of "Sylius\Component\Variation\Model\OptionInterface" must be passed to collection'
         );
     }

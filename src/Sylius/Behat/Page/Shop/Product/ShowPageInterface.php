@@ -14,14 +14,10 @@ declare(strict_types=1);
 namespace Sylius\Behat\Page\Shop\Product;
 
 use Behat\Mink\Exception\ElementNotFoundException;
-use Sylius\Behat\Page\PageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\PageInterface;
 use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface ShowPageInterface extends PageInterface
 {
     /**
@@ -44,7 +40,6 @@ interface ShowPageInterface extends PageInterface
     public function addToCartWithVariant($variant);
 
     /**
-     * @param ProductOptionInterface $option
      * @param string $optionValue
      *
      * @throws ElementNotFoundException
@@ -66,12 +61,7 @@ interface ShowPageInterface extends PageInterface
      */
     public function visit($url);
 
-    /**
-     * @param string $attributeName
-     *
-     * @return string
-     */
-    public function getAttributeByName($attributeName);
+    public function getAttributeByName(string $name): ?string;
 
     /**
      * @return array
@@ -79,8 +69,6 @@ interface ShowPageInterface extends PageInterface
     public function getAttributes();
 
     /**
-     * @param ProductInterface $product
-     *
      * @return bool
      */
     public function hasProductOutOfStockValidationMessage(ProductInterface $product);

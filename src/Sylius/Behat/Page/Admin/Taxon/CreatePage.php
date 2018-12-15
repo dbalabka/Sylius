@@ -22,9 +22,6 @@ use Sylius\Behat\Service\SlugGenerationHelper;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use SpecifiesItsCode;
@@ -46,7 +43,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         $leaves = $this->getLeaves();
         foreach ($leaves as $leaf) {
             if (strpos($leaf->getText(), $name) !== false) {
-                $matchedLeavesCounter++;
+                ++$matchedLeavesCounter;
             }
         }
 
@@ -121,7 +118,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
 
         $imageForm = $this->getLastImageElement();
         $imageForm->fillField('Type', $type);
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -165,7 +162,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getElement($name, array $parameters = [])
+    protected function getElement(string $name, array $parameters = []): NodeElement
     {
         if (!isset($parameters['%language%'])) {
             $parameters['%language%'] = 'en_US';
@@ -177,7 +174,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_taxon_code',

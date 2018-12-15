@@ -24,41 +24,23 @@ use Sylius\Component\User\Repository\UserRepositoryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class ApiAccessTokenExampleFactory extends AbstractExampleFactory
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $accessTokenFactory;
 
-    /**
-     * @var UserRepositoryInterface
-     */
+    /** @var UserRepositoryInterface */
     private $userRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $clientRepository;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param FactoryInterface $accessTokenFactory
-     * @param UserRepositoryInterface $userRepository
-     * @param RepositoryInterface $clientRepository
-     */
     public function __construct(
         FactoryInterface $accessTokenFactory,
         UserRepositoryInterface $userRepository,

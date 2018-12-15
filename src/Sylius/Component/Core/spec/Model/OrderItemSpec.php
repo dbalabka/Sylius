@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace spec\Sylius\Component\Core\Model;
@@ -100,5 +109,10 @@ final class OrderItemSpec extends ObjectBehavior
         $this->addUnit($secondUnit);
 
         $this->getSubtotal()->shouldReturn(19000);
+    }
+
+    function it_has_no_variant_by_default(): void
+    {
+        $this->getVariant()->shouldReturn(null);
     }
 }

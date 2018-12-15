@@ -17,19 +17,11 @@ use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
-/**
- * @author Stefan Doorn <stefan@efectos.nl>
- */
 final class PaymentDescriptionProvider implements PaymentDescriptionProviderInterface
 {
-    /**
-     * @var TranslatorInterface
-     */
+    /** @var TranslatorInterface */
     private $translator;
 
-    /**
-     * @param TranslatorInterface $translator
-     */
     public function __construct(TranslatorInterface $translator)
     {
         $this->translator = $translator;

@@ -17,11 +17,10 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ListenerRegistryPass implements CompilerPassInterface
 {
+    public const LISTENER_SERVICE_TAG = 'sylius_fixtures.listener';
+
     /**
      * {@inheritdoc}
      */
@@ -33,7 +32,7 @@ final class ListenerRegistryPass implements CompilerPassInterface
 
         $listenerRegistry = $container->findDefinition('sylius_fixtures.listener_registry');
 
-        $taggedServices = $container->findTaggedServiceIds('sylius_fixtures.listener');
+        $taggedServices = $container->findTaggedServiceIds(self::LISTENER_SERVICE_TAG);
         foreach (array_keys($taggedServices) as $id) {
             $listenerRegistry->addMethodCall('addListener', [new Reference($id)]);
         }

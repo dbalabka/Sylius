@@ -13,15 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\Country;
 
-use Behat\Mink\Element\Element;
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\Toggles;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
     use Toggles;
@@ -43,7 +40,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     {
         $provinces = $this->getElement('provinces');
 
-        return $provinces->has('css', '[value = "'.$provinceName.'"]');
+        return $provinces->has('css', '[value = "' . $provinceName . '"]');
     }
 
     /**
@@ -53,7 +50,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     {
         $provinces = $this->getElement('provinces');
 
-        return $provinces->has('css', '[value = "'.$provinceCode.'"]');
+        return $provinces->has('css', '[value = "' . $provinceCode . '"]');
     }
 
     /**
@@ -120,7 +117,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         if ($this->isThereProvince($provinceName)) {
             $provinces = $this->getElement('provinces');
 
-            $item = $provinces->find('css', 'div[data-form-collection="item"] input[value="'.$provinceName.'"]')->getParent();
+            $item = $provinces->find('css', 'div[data-form-collection="item"] input[value="' . $provinceName . '"]')->getParent();
             $item->fillField('Name', '');
         }
     }
@@ -161,7 +158,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_country_code',
@@ -170,10 +167,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         ]);
     }
 
-    /**
-     * @return Element
-     */
-    private function getLastProvinceElement()
+    private function getLastProvinceElement(): NodeElement
     {
         $provinces = $this->getElement('provinces');
         $items = $provinces->findAll('css', 'div[data-form-collection="item"]');

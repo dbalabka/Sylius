@@ -16,25 +16,14 @@ namespace Sylius\Bundle\ThemeBundle\Configuration;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SymfonyConfigurationProcessor implements ConfigurationProcessorInterface
 {
-    /**
-     * @var ConfigurationInterface
-     */
+    /** @var ConfigurationInterface */
     private $configuration;
 
-    /**
-     * @var Processor
-     */
+    /** @var Processor */
     private $processor;
 
-    /**
-     * @param ConfigurationInterface $configuration
-     * @param Processor $processor
-     */
     public function __construct(ConfigurationInterface $configuration, Processor $processor)
     {
         $this->configuration = $configuration;

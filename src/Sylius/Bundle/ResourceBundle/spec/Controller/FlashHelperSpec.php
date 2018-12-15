@@ -26,10 +26,6 @@ use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Component\Translation\TranslatorInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class FlashHelperSpec extends ObjectBehavior
 {
     function let(SessionInterface $session, TranslatorInterface $translator): void
@@ -232,7 +228,7 @@ final class FlashHelperSpec extends ObjectBehavior
         $flashBag->add(ResourceControllerEvent::TYPE_WARNING,
             [
                 'message' => 'sylius.channel.cannot_be_deleted',
-                'parameters' => ['%name%' => 'Germany Sylius Webshop']
+                'parameters' => ['%name%' => 'Germany Sylius Webshop'],
             ]
         )->shouldBeCalled();
 

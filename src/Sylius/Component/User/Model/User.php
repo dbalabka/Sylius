@@ -18,23 +18,14 @@ use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class User implements UserInterface
 {
     use TimestampableTrait, ToggleableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $username;
 
     /**
@@ -65,9 +56,7 @@ class User implements UserInterface
      */
     protected $plainPassword;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
+    /** @var \DateTimeInterface|null */
     protected $lastLogin;
 
     /**
@@ -84,29 +73,19 @@ class User implements UserInterface
      */
     protected $passwordResetToken;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
+    /** @var \DateTimeInterface|null */
     protected $passwordRequestedAt;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
+    /** @var \DateTimeInterface|null */
     protected $verifiedAt;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $locked = false;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
+    /** @var \DateTimeInterface|null */
     protected $expiresAt;
 
-    /**
-     * @var \DateTimeInterface|null
-     */
+    /** @var \DateTimeInterface|null */
     protected $credentialsExpireAt;
 
     /**
@@ -116,24 +95,18 @@ class User implements UserInterface
      */
     protected $roles = [UserInterface::DEFAULT_ROLE];
 
-    /**
-     * @var Collection|UserOAuth[]
-     */
+    /** @var Collection|UserOAuth[] */
     protected $oauthAccounts;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $email;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $emailCanonical;
 
     public function __construct()
     {
-        $this->salt = base_convert(sha1(uniqid((string) mt_rand(), true)), 16, 36);
+        $this->salt = base_convert(bin2hex(random_bytes(20)), 16, 36);
         $this->oauthAccounts = new ArrayCollection();
         $this->createdAt = new \DateTime();
 
@@ -141,9 +114,6 @@ class User implements UserInterface
         $this->enabled = false;
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return (string) $this->getUsername();
@@ -422,6 +392,7 @@ class User implements UserInterface
 
         $threshold = new \DateTime();
         $threshold->sub($ttl);
+
         return $threshold <= $this->passwordRequestedAt;
     }
 
@@ -514,8 +485,6 @@ class User implements UserInterface
 
     /**
      * The serialized data have to contain the fields used by the equals method and the username.
-     *
-     * @return string
      */
     public function serialize(): string
     {
@@ -551,11 +520,6 @@ class User implements UserInterface
         ] = $data;
     }
 
-    /**
-     * @param \DateTimeInterface|null $date
-     *
-     * @return bool
-     */
     protected function hasExpired(?\DateTimeInterface $date): bool
     {
         return null !== $date && new \DateTime() >= $date;

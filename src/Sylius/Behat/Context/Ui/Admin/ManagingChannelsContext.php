@@ -24,43 +24,23 @@ use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ManagingChannelsContext implements Context
 {
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param IndexPageInterface $indexPage
-     * @param CreatePageInterface $createPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         IndexPageInterface $indexPage,
         CreatePageInterface $createPage,
@@ -147,10 +127,11 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
+     * @Then I should see the channel :channelName in the list
      * @Then the channel :channelName should appear in the registry
      * @Then the channel :channelName should be in the registry
      */
-    public function theChannelShouldAppearInTheRegistry($channelName)
+    public function theChannelShouldAppearInTheRegistry(string $channelName): void
     {
         $this->iWantToBrowseChannels();
 
@@ -210,6 +191,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iDisableIt()
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->disable();
@@ -301,19 +283,37 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @When /^I want to browse channels$/
+     * @When I browse channels
+     * @When I want to browse channels
      */
-    public function iWantToBrowseChannels()
+    public function iWantToBrowseChannels(): void
     {
         $this->indexPage->open();
     }
 
     /**
+     * @When I check (also) the :channelName channel
+     */
+    public function iCheckTheChannel(string $channelName): void
+    {
+        $this->indexPage->checkResourceOnPage(['nameAndDescription' => $channelName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
+    }
+
+    /**
+     * @Then I should see a single channel in the list
      * @Then I should see :numberOfChannels channels in the list
      */
-    public function iShouldSeeChannelsInTheList($numberOfChannels)
+    public function iShouldSeeChannelsInTheList(int $numberOfChannels = 1): void
     {
-        Assert::same($this->indexPage->countItems(), (int) $numberOfChannels);
+        Assert::same($this->indexPage->countItems(), $numberOfChannels);
     }
 
     /**
@@ -374,6 +374,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iMakeItAvailableIn($locale)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->chooseLocale($locale);
@@ -394,6 +395,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iAllowToPayingForThisChannel($currencyCode)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->chooseCurrency($currencyCode);
@@ -414,6 +416,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iSelectDefaultTaxZone($taxZone)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->chooseDefaultTaxZone($taxZone);
@@ -432,6 +435,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iSelectTaxCalculationStrategy($taxCalculationStrategy)
     {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         $currentPage->chooseTaxCalculationStrategy($taxCalculationStrategy);
@@ -476,7 +480,6 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @param ChannelInterface $channel
      * @param bool $state
      */
     private function assertChannelState(ChannelInterface $channel, $state)

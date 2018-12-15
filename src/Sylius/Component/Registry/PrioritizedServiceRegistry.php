@@ -16,14 +16,9 @@ namespace Sylius\Component\Registry;
 use Webmozart\Assert\Assert;
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 final class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInterface
 {
-    /**
-     * @var PriorityQueue
-     */
+    /** @var PriorityQueue */
     private $services;
 
     /**
@@ -40,10 +35,6 @@ final class PrioritizedServiceRegistry implements PrioritizedServiceRegistryInte
      */
     private $context;
 
-    /**
-     * @param string $interface
-     * @param string $context
-     */
     public function __construct(string $interface, string $context = 'service')
     {
         $this->interface = $interface;

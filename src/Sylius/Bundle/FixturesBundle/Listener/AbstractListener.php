@@ -16,9 +16,6 @@ namespace Sylius\Bundle\FixturesBundle\Listener;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 abstract class AbstractListener implements ListenerInterface
 {
     /**
@@ -34,9 +31,6 @@ abstract class AbstractListener implements ListenerInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $optionsNode
-     */
     protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         // empty

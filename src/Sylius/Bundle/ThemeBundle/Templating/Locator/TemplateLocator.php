@@ -17,19 +17,11 @@ use Sylius\Bundle\ThemeBundle\Locator\ResourceLocatorInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Symfony\Component\Templating\TemplateReferenceInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TemplateLocator implements TemplateLocatorInterface
 {
-    /**
-     * @var ResourceLocatorInterface
-     */
+    /** @var ResourceLocatorInterface */
     private $resourceLocator;
 
-    /**
-     * @param ResourceLocatorInterface $resourceLocator
-     */
     public function __construct(ResourceLocatorInterface $resourceLocator)
     {
         $this->resourceLocator = $resourceLocator;

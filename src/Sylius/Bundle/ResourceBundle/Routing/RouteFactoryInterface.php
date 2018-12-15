@@ -16,9 +16,6 @@ namespace Sylius\Bundle\ResourceBundle\Routing;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface RouteFactoryInterface
 {
     /**
@@ -35,8 +32,6 @@ interface RouteFactoryInterface
      * @param array $schemes An array of restricted URI schemes
      * @param array $methods An array of restricted HTTP methods
      * @param string $condition A condition that should evaluate to true for the route to match
-     *
-     * @return Route
      */
     public function createRoute(
         string $path,

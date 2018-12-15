@@ -13,11 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\ProductAttribute;
 
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
     /**
@@ -36,8 +34,16 @@ interface CreatePageInterface extends BaseCreatePageInterface
      */
     public function isTypeDisabled();
 
+    public function addAttributeValue(string $value, string $localeCode): void;
+
+    public function specifyMinValue(int $min): void;
+
+    public function specifyMaxValue(int $max): void;
+
+    public function checkMultiple(): void;
+
     /**
-     * @param string $value
+     * @throws ElementNotFoundException
      */
-    public function addAttributeValue($value);
+    public function getValidationErrors(): string;
 }

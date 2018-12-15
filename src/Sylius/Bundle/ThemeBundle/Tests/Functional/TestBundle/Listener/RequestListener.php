@@ -14,39 +14,24 @@ declare(strict_types=1);
 namespace Sylius\Bundle\ThemeBundle\Tests\Functional\TestBundle\Listener;
 
 use Sylius\Bundle\ThemeBundle\Context\SettableThemeContext;
-use Sylius\Bundle\ThemeBundle\Context\ThemeContextInterface;
 use Sylius\Bundle\ThemeBundle\Repository\ThemeRepositoryInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class RequestListener
 {
-    /**
-     * @var ThemeRepositoryInterface
-     */
+    /** @var ThemeRepositoryInterface */
     private $themeRepository;
 
-    /**
-     * @var ThemeContextInterface
-     */
+    /** @var SettableThemeContext */
     private $themeContext;
 
-    /**
-     * @param ThemeRepositoryInterface $themeRepository
-     * @param SettableThemeContext $themeContext
-     */
     public function __construct(ThemeRepositoryInterface $themeRepository, SettableThemeContext $themeContext)
     {
         $this->themeRepository = $themeRepository;
         $this->themeContext = $themeContext;
     }
 
-    /**
-     * @param GetResponseEvent $event
-     */
     public function onKernelRequest(GetResponseEvent $event)
     {
         if (HttpKernelInterface::MASTER_REQUEST !== $event->getRequestType()) {

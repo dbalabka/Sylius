@@ -16,29 +16,17 @@ namespace Sylius\Bundle\ThemeBundle\Translation\Provider\Resource;
 use Sylius\Bundle\ThemeBundle\Translation\Resource\TranslationResource;
 use Sylius\Bundle\ThemeBundle\Translation\Resource\TranslationResourceInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TranslatorResourceProvider implements TranslatorResourceProviderInterface
 {
-    /**
-     * @var TranslationResourceInterface[]
-     */
+    /** @var TranslationResourceInterface[] */
     private $resources = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $resourcesLocales = [];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $filepaths;
 
-    /**
-     * @param array $filepaths
-     */
     public function __construct(array $filepaths = [])
     {
         $this->filepaths = $filepaths;

@@ -47,9 +47,6 @@ Don't worry, everything was automatically installed via Composer.
         );
     }
 
-.. note::
-
-    Please register the bundle before *DoctrineBundle*. This is important as we use listeners which have to be processed first.
 
 Promotion Subject configuration
 -------------------------------
@@ -70,7 +67,7 @@ Put its configuration inside your ``app/config/config.yml``.
         resources:
             promotion_subject:
                 classes:
-                    model: AppBundle\Entity\CarRentalOrder
+                    model: App\Entity\CarRentalOrder
 
 And configure doctrine extensions which are used by the bundle.
 

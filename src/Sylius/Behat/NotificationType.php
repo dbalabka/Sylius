@@ -13,19 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Behat;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class NotificationType
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $value;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $types = [];
 
     /**

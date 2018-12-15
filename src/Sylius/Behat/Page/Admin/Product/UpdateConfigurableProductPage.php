@@ -20,9 +20,6 @@ use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Sylius\Component\Taxonomy\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConfigurableProductPageInterface
 {
     use ChecksCodeImmutability;
@@ -128,7 +125,7 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
             $imageForm->fillField('Type', $type);
         }
 
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -139,7 +136,7 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
         $filesPath = $this->getParameter('files_path');
 
         $imageForm = $this->getImageElementByType($type);
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -207,7 +204,7 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'channel_checkbox' => '.checkbox:contains("%channel%") input',
@@ -248,7 +245,7 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
     private function getImageElementByType($type)
     {
         $images = $this->getElement('images');
-        $typeInput = $images->find('css', 'input[value="'.$type.'"]');
+        $typeInput = $images->find('css', 'input[value="' . $type . '"]');
 
         if (null === $typeInput) {
             return null;
@@ -292,7 +289,6 @@ class UpdateConfigurableProductPage extends BaseUpdatePage implements UpdateConf
     }
 
     /**
-     * @param NodeElement $imageElement
      * @param string $type
      */
     private function setImageType(NodeElement $imageElement, $type)

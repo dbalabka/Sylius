@@ -13,12 +13,8 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Shop\Order;
 
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class ThankYouPage extends SymfonyPage implements ThankYouPageInterface
 {
     /**
@@ -63,10 +59,17 @@ class ThankYouPage extends SymfonyPage implements ThankYouPageInterface
         return null !== $this->getDocument()->find('css', '#sylius-show-order');
     }
 
-    /**
-     * @return string
-     */
-    public function getRouteName()
+    public function hasRegistrationButton(): bool
+    {
+        return $this->getDocument()->hasLink('Create an account');
+    }
+
+    public function createAccount(): void
+    {
+        $this->getDocument()->clickLink('Create an account');
+    }
+
+    public function getRouteName(): string
     {
         return 'sylius_shop_thank_you';
     }
@@ -74,7 +77,7 @@ class ThankYouPage extends SymfonyPage implements ThankYouPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'order_details' => '#sylius-show-order',

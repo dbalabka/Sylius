@@ -16,18 +16,17 @@ namespace Sylius\Behat\Page\Admin\Order;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 use Sylius\Component\Addressing\Model\AddressInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
-    /**
-     * @param AddressInterface $address
-     */
     public function specifyShippingAddress(AddressInterface $address);
 
-    /**
-     * @param AddressInterface $address
-     */
     public function specifyBillingAddress(AddressInterface $address);
+
+    /**
+     * @param string $element
+     * @param string $message
+     *
+     * @return bool
+     */
+    public function checkValidationMessageFor($element, $message);
 }

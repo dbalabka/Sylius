@@ -13,11 +13,8 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Shop;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface HomePageInterface extends SymfonyPageInterface
 {
     /**

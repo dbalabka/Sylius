@@ -15,15 +15,7 @@ namespace Sylius\Component\Mailer\Provider;
 
 use Sylius\Component\Mailer\Model\EmailInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface EmailProviderInterface
 {
-    /**
-     * @param string $code
-     *
-     * @return EmailInterface
-     */
     public function getEmail(string $code): EmailInterface;
 }

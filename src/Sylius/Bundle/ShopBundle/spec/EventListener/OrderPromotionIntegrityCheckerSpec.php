@@ -19,22 +19,21 @@ use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PromotionInterface;
+use Sylius\Component\Promotion\Action\PromotionApplicatorInterface;
 use Sylius\Component\Promotion\Checker\Eligibility\PromotionEligibilityCheckerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class OrderPromotionIntegrityCheckerSpec extends ObjectBehavior
 {
     function let(
         PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
         EventDispatcherInterface $dispatcher,
-        RouterInterface $router
+        RouterInterface $router,
+        PromotionApplicatorInterface $promotionApplicator
     ): void {
-        $this->beConstructedWith($promotionEligibilityChecker, $dispatcher, $router);
+        $this->beConstructedWith($promotionEligibilityChecker, $dispatcher, $router, $promotionApplicator);
     }
 
     function it_does_nothing_if_given_order_has_valid_promotion_applied(
@@ -46,6 +45,7 @@ final class OrderPromotionIntegrityCheckerSpec extends ObjectBehavior
     ): void {
         $event->getSubject()->willReturn($order);
         $order->getPromotions()->willReturn(new ArrayCollection([$promotion->getWrappedObject()]));
+        $order->removePromotion($promotion)->shouldBeCalled();
         $promotionEligibilityChecker->isEligible($order, $promotion)->willReturn(true);
         $event->stop(Argument::any())->shouldNotBeCalled();
         $event->setResponse(Argument::any())->shouldNotBeCalled();
@@ -66,6 +66,7 @@ final class OrderPromotionIntegrityCheckerSpec extends ObjectBehavior
         $promotion->getName()->willReturn('Christmas');
         $event->getSubject()->willReturn($order);
         $order->getPromotions()->willReturn(new ArrayCollection([$promotion->getWrappedObject()]));
+        $order->removePromotion($promotion)->shouldBeCalled();
         $promotionEligibilityChecker->isEligible($order, $promotion)->willReturn(false);
 
         $event->stop(

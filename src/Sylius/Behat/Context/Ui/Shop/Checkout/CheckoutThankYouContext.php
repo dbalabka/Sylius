@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Ui\Shop\Checkout;
@@ -9,19 +18,11 @@ use Sylius\Behat\Page\Shop\Order\ThankYouPageInterface;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CheckoutThankYouContext implements Context
 {
-    /**
-     * @var ThankYouPageInterface
-     */
+    /** @var ThankYouPageInterface */
     private $thankYouPage;
 
-    /**
-     * @param ThankYouPageInterface $thankYouPage
-     */
     public function __construct(ThankYouPageInterface $thankYouPage)
     {
         $this->thankYouPage = $thankYouPage;
@@ -33,6 +34,14 @@ final class CheckoutThankYouContext implements Context
     public function iGoToOrderDetails()
     {
         $this->thankYouPage->goToOrderDetails();
+    }
+
+    /**
+     * @When I proceed to the registration
+     */
+    public function iProceedToTheRegistration(): void
+    {
+        $this->thankYouPage->createAccount();
     }
 
     /**
@@ -81,5 +90,21 @@ final class CheckoutThankYouContext implements Context
     public function iShouldNotBeAbleToChangeMyPaymentMethod()
     {
         Assert::false($this->thankYouPage->hasChangePaymentMethodButton());
+    }
+
+    /**
+     * @Then I should be able to proceed to the registration
+     */
+    public function iShouldBeAbleToProceedToTheRegistration(): void
+    {
+        Assert::true($this->thankYouPage->hasRegistrationButton());
+    }
+
+    /**
+     * @Then I should not be able to proceed to the registration
+     */
+    public function iShouldNotBeAbleToProceedToTheRegistration(): void
+    {
+        Assert::false($this->thankYouPage->hasRegistrationButton());
     }
 }

@@ -18,17 +18,8 @@ use Sylius\Component\Resource\Metadata\Metadata;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 abstract class AbstractResourceExtension extends Extension
 {
-    /**
-     * @param string $applicationName
-     * @param string $driver
-     * @param array $resources
-     * @param ContainerBuilder $container
-     */
     protected function registerResources(
         string $applicationName,
         string $driver,
@@ -39,7 +30,7 @@ abstract class AbstractResourceExtension extends Extension
         $container->setParameter(sprintf('%s.driver', $this->getAlias()), $driver);
 
         foreach ($resources as $resourceName => $resourceConfig) {
-            $alias = $applicationName.'.'.$resourceName;
+            $alias = $applicationName . '.' . $resourceName;
             $resourceConfig = array_merge(['driver' => $driver], $resourceConfig);
 
             $resources = $container->hasParameter('sylius.resources') ? $container->getParameter('sylius.resources') : [];

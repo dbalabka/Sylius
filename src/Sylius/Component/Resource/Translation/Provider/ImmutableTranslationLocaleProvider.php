@@ -13,25 +13,14 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Translation\Provider;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ImmutableTranslationLocaleProvider implements TranslationLocaleProviderInterface
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $definedLocalesCodes;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $defaultLocaleCode;
 
-    /**
-     * @param array $definedLocalesCodes
-     * @param string $defaultLocaleCode
-     */
     public function __construct(array $definedLocalesCodes, string $defaultLocaleCode)
     {
         $this->definedLocalesCodes = $definedLocalesCodes;

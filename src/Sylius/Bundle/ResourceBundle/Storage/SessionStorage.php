@@ -16,19 +16,11 @@ namespace Sylius\Bundle\ResourceBundle\Storage;
 use Sylius\Component\Resource\Storage\StorageInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SessionStorage implements StorageInterface
 {
-    /**
-     * @var SessionInterface
-     */
+    /** @var SessionInterface */
     private $session;
 
-    /**
-     * @param SessionInterface $session
-     */
     public function __construct(SessionInterface $session)
     {
         $this->session = $session;

@@ -34,7 +34,7 @@ persist some entities in the database, upload some files, dispatch some events o
                         priority: 0 # The higher priority is, the sooner the fixture will be executed
                         options: ~ # Fixture options
 
-They implement the ``Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface`` and need to be registered under
+They implement the ``Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface`` and are auto-configured with
 the ``sylius_fixtures.fixture`` tag in order to be used in suite configuration.
 
 .. note::
@@ -94,4 +94,45 @@ They implement at least one of four interfaces:
     The former interface extends the ``ConfigurationInterface``, which is widely known from ``Configuration`` classes
     placed under ``DependencyInjection`` directory in Symfony bundles.
 
-In order to be used in suite configuration, they need to be registered under the ``sylius_fixtures.listener``.
+In order to be used in suite configuration, they need to be registered under the ``sylius_fixtures.listener`` (if service auto-configuration is not enabled).
+
+Disabling listeners / fixtures in consecutive configurations
+------------------------------------------------------------
+
+Given the following configuration coming from a third party (like Sylius if you're developing an application based on it):
+
+.. code-block:: yaml
+
+    sylius_fixtures:
+        suites:
+            my_suite_name:
+                listeners:
+                    first_listener: ~
+                    second_listener: ~
+                fixtures:
+                    first_fixture: ~
+                    second_fixture: ~
+
+It is possible to disable a listener or a fixture in a consecutive configuration by providing ``false`` as its value:
+
+.. code-block:: yaml
+
+    sylius_fixtures:
+        suites:
+            my_suite_name:
+                listeners:
+                    second_listener: false
+                fixtures:
+                    second_fixture: false
+
+These two configurations combined will be treated as a single configuration like:
+
+.. code-block:: yaml
+
+    sylius_fixtures:
+        suites:
+            my_suite_name:
+                listeners:
+                    first_listener: ~
+                fixtures:
+                    first_fixture: ~

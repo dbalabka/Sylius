@@ -23,14 +23,9 @@ use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SyliusThemeExtension extends Extension implements PrependExtensionInterface
 {
-    /**
-     * @var ConfigurationSourceFactoryInterface[]
-     */
+    /** @var ConfigurationSourceFactoryInterface[] */
     private $configurationSourceFactories = [];
 
     /**
@@ -41,7 +36,7 @@ final class SyliusThemeExtension extends Extension implements PrependExtensionIn
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.xml');
 
         if ($config['assets']['enabled']) {
@@ -68,16 +63,11 @@ final class SyliusThemeExtension extends Extension implements PrependExtensionIn
      */
     public function prepend(ContainerBuilder $container): void
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->prependTwig($container, $loader);
     }
 
-    /**
-     * @api
-     *
-     * @param ConfigurationSourceFactoryInterface $configurationSourceFactory
-     */
     public function addConfigurationSourceFactory(ConfigurationSourceFactoryInterface $configurationSourceFactory): void
     {
         $this->configurationSourceFactories[$configurationSourceFactory->getName()] = $configurationSourceFactory;
@@ -95,10 +85,6 @@ final class SyliusThemeExtension extends Extension implements PrependExtensionIn
         return $configuration;
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param LoaderInterface $loader
-     */
     private function prependTwig(ContainerBuilder $container, LoaderInterface $loader): void
     {
         if (!$container->hasExtension('twig')) {
@@ -108,10 +94,6 @@ final class SyliusThemeExtension extends Extension implements PrependExtensionIn
         $loader->load('services/integrations/twig.xml');
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param array $config
-     */
     private function resolveConfigurationSources(ContainerBuilder $container, array $config): void
     {
         $configurationProviders = [];

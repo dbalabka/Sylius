@@ -28,56 +28,29 @@ use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class ManagingOrdersContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var ShowPageInterface
-     */
+    /** @var ShowPageInterface */
     private $showPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var HistoryPageInterface
-     */
+    /** @var HistoryPageInterface */
     private $historyPage;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @var SharedSecurityServiceInterface
-     */
+    /** @var SharedSecurityServiceInterface */
     private $sharedSecurityService;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param IndexPageInterface $indexPage
-     * @param ShowPageInterface $showPage
-     * @param UpdatePageInterface $updatePage
-     * @param HistoryPageInterface $historyPage
-     * @param NotificationCheckerInterface $notificationChecker
-     * @param SharedSecurityServiceInterface $sharedSecurityService
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         IndexPageInterface $indexPage,
@@ -168,7 +141,7 @@ final class ManagingOrdersContext implements Context
      */
     public function iSpecifyFilterDateFromAs($dateTime)
     {
-        $this->indexPage->specifyFilterDateFrom(new \DateTime($dateTime));
+        $this->indexPage->specifyFilterDateFrom($dateTime);
     }
 
     /**
@@ -176,7 +149,7 @@ final class ManagingOrdersContext implements Context
      */
     public function iSpecifyFilterDateToAs($dateTime)
     {
-        $this->indexPage->specifyFilterDateTo(new \DateTime($dateTime));
+        $this->indexPage->specifyFilterDateTo($dateTime);
     }
 
     /**
@@ -852,7 +825,7 @@ final class ManagingOrdersContext implements Context
      */
     private function assertElementValidationMessage($type, $element, $expectedMessage)
     {
-        $element = sprintf('%s_%s', $type, implode('_', explode(' ', $element)));
+        $element = sprintf('%s_%s', $type, str_replace(' ', '_', $element));
         Assert::true($this->updatePage->checkValidationMessageFor($element, $expectedMessage));
     }
 }

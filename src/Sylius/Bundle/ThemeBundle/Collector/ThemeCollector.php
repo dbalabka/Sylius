@@ -21,31 +21,17 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ThemeCollector extends DataCollector
 {
-    /**
-     * @var ThemeRepositoryInterface
-     */
+    /** @var ThemeRepositoryInterface */
     private $themeRepository;
 
-    /**
-     * @var ThemeContextInterface
-     */
+    /** @var ThemeContextInterface */
     private $themeContext;
 
-    /**
-     * @var ThemeHierarchyProviderInterface
-     */
+    /** @var ThemeHierarchyProviderInterface */
     private $themeHierarchyProvider;
 
-    /**
-     * @param ThemeRepositoryInterface $themeRepository
-     * @param ThemeContextInterface $themeContext
-     * @param ThemeHierarchyProviderInterface $themeHierarchyProvider
-     */
     public function __construct(
         ThemeRepositoryInterface $themeRepository,
         ThemeContextInterface $themeContext,
@@ -62,9 +48,6 @@ final class ThemeCollector extends DataCollector
         ];
     }
 
-    /**
-     * @return ThemeInterface|null
-     */
     public function getUsedTheme(): ?ThemeInterface
     {
         return $this->data['used_theme'];
@@ -96,6 +79,16 @@ final class ThemeCollector extends DataCollector
         $this->data['used_theme'] = $usedTheme;
         $this->data['used_themes'] = null !== $usedTheme ? $this->themeHierarchyProvider->getThemeHierarchy($usedTheme) : [];
         $this->data['themes'] = $this->themeRepository->findAll();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reset(): void
+    {
+        $this->data['used_theme'] = null;
+        $this->data['used_themes'] = [];
+        $this->data['themes'] = [];
     }
 
     /**

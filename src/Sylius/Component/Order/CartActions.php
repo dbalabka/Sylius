@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the Sylius package.
+ * This file is part of the Sylius package.
  *
  * (c) Paweł Jędrzejewski
  *
@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Order;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class CartActions
 {
     public const ADD = 'add';

@@ -21,19 +21,12 @@ use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CookieStorage implements StorageInterface, EventSubscriberInterface
 {
-    /**
-     * @var ParameterBag
-     */
+    /** @var ParameterBag */
     private $requestCookies;
 
-    /**
-     * @var ParameterBag
-     */
+    /** @var ParameterBag */
     private $responseCookies;
 
     public function __construct()
@@ -53,9 +46,6 @@ final class CookieStorage implements StorageInterface, EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param GetResponseEvent $event
-     */
     public function onKernelRequest(GetResponseEvent $event): void
     {
         if (!$event->isMasterRequest()) {
@@ -66,9 +56,6 @@ final class CookieStorage implements StorageInterface, EventSubscriberInterface
         $this->responseCookies = new ParameterBag();
     }
 
-    /**
-     * @param FilterResponseEvent $event
-     */
     public function onKernelResponse(FilterResponseEvent $event): void
     {
         if (!$event->isMasterRequest()) {

@@ -17,24 +17,14 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class OutputAwareAssetsInstaller implements AssetsInstallerInterface, OutputAwareInterface
 {
-    /**
-     * @var AssetsInstallerInterface
-     */
+    /** @var AssetsInstallerInterface */
     private $assetsInstaller;
 
-    /**
-     * @var OutputInterface
-     */
+    /** @var OutputInterface */
     private $output;
 
-    /**
-     * @param AssetsInstallerInterface $assetsInstaller
-     */
     public function __construct(AssetsInstallerInterface $assetsInstaller)
     {
         $this->assetsInstaller = $assetsInstaller;
@@ -77,12 +67,6 @@ final class OutputAwareAssetsInstaller implements AssetsInstallerInterface, Outp
         return $effectiveSymlinkMask;
     }
 
-    /**
-     * @param int $symlinkMask
-     * @param int $effectiveSymlinkMask
-     *
-     * @return string
-     */
     private function provideResultComment(int $symlinkMask, int $effectiveSymlinkMask): string
     {
         if ($effectiveSymlinkMask === $symlinkMask) {
@@ -107,11 +91,6 @@ final class OutputAwareAssetsInstaller implements AssetsInstallerInterface, Outp
         return 'Something gone bad, can\'t provide the result of assets installing!';
     }
 
-    /**
-     * @param int $symlinkMask
-     *
-     * @return string
-     */
     private function provideExpectationComment(int $symlinkMask): string
     {
         if (AssetsInstallerInterface::HARD_COPY === $symlinkMask) {

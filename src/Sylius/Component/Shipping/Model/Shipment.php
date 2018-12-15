@@ -17,36 +17,23 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class Shipment implements ShipmentInterface
 {
     use TimestampableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $state = ShipmentInterface::STATE_CART;
 
-    /**
-     * @var ShippingMethodInterface
-     */
+    /** @var ShippingMethodInterface */
     protected $method;
 
-    /**
-     * @var Collection|ShipmentUnitInterface[]
-     */
+    /** @var Collection|ShipmentUnitInterface[] */
     protected $units;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $tracking;
 
     public function __construct()
@@ -55,9 +42,6 @@ class Shipment implements ShipmentInterface
         $this->createdAt = new \DateTime();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return (string) $this->getId();

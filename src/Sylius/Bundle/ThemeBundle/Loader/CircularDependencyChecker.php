@@ -15,9 +15,6 @@ namespace Sylius\Bundle\ThemeBundle\Loader;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CircularDependencyChecker implements CircularDependencyCheckerInterface
 {
     /**
@@ -29,7 +26,7 @@ final class CircularDependencyChecker implements CircularDependencyCheckerInterf
             return;
         }
 
-        $previousThemes = array_merge($previousThemes, [$theme]);
+        $previousThemes[] = $theme;
         foreach ($theme->getParents() as $parent) {
             if (in_array($parent, $previousThemes, true)) {
                 throw new CircularDependencyFoundException(array_merge($previousThemes, [$parent]));

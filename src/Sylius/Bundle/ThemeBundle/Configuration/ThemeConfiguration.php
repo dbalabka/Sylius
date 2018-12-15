@@ -17,9 +17,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ThemeConfiguration implements ConfigurationInterface
 {
     /**
@@ -28,8 +25,9 @@ final class ThemeConfiguration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
-        $rootNodeDefinition = $treeBuilder->root('sylius_theme');
 
+        /** @var ArrayNodeDefinition $rootNodeDefinition */
+        $rootNodeDefinition = $treeBuilder->root('sylius_theme');
         $rootNodeDefinition->ignoreExtraKeys();
 
         $this->addRequiredNameField($rootNodeDefinition);
@@ -43,55 +41,37 @@ final class ThemeConfiguration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addRequiredNameField(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $rootNodeDefinition->children()->scalarNode('name')->isRequired()->cannotBeEmpty();
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addOptionalTitleField(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $rootNodeDefinition->children()->scalarNode('title')->cannotBeEmpty();
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addOptionalDescriptionField(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $rootNodeDefinition->children()->scalarNode('description')->cannotBeEmpty();
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addOptionalPathField(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $rootNodeDefinition->children()->scalarNode('path')->cannotBeEmpty();
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addOptionalParentsList(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $parentsNodeDefinition = $rootNodeDefinition->children()->arrayNode('parents');
         $parentsNodeDefinition
             ->requiresAtLeastOneElement()
             ->performNoDeepMerging()
-                ->prototype('scalar')
+                ->scalarPrototype()
                 ->cannotBeEmpty()
         ;
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addOptionalScreenshotsList(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $screenshotsNodeDefinition = $rootNodeDefinition->children()->arrayNode('screenshots');
@@ -101,7 +81,7 @@ final class ThemeConfiguration implements ConfigurationInterface
         ;
 
         /** @var ArrayNodeDefinition $screenshotNodeDefinition */
-        $screenshotNodeDefinition = $screenshotsNodeDefinition->prototype('array');
+        $screenshotNodeDefinition = $screenshotsNodeDefinition->arrayPrototype();
 
         $screenshotNodeDefinition
             ->validate()
@@ -124,9 +104,6 @@ final class ThemeConfiguration implements ConfigurationInterface
         $screenshotNodeBuilder->scalarNode('description')->cannotBeEmpty();
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNodeDefinition
-     */
     private function addOptionalAuthorsList(ArrayNodeDefinition $rootNodeDefinition): void
     {
         $authorsNodeDefinition = $rootNodeDefinition->children()->arrayNode('authors');
@@ -136,7 +113,7 @@ final class ThemeConfiguration implements ConfigurationInterface
         ;
 
         /** @var ArrayNodeDefinition $authorNodeDefinition */
-        $authorNodeDefinition = $authorsNodeDefinition->prototype('array');
+        $authorNodeDefinition = $authorsNodeDefinition->arrayPrototype();
         $authorNodeDefinition
             ->validate()
                 ->ifTrue(function ($author) {

@@ -13,19 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Generator;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class RandomnessGenerator implements RandomnessGeneratorInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $uriSafeAlphabet;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $digits;
 
     public function __construct()
@@ -34,9 +27,9 @@ final class RandomnessGenerator implements RandomnessGeneratorInterface
 
         $this->uriSafeAlphabet =
             implode(range(0, 9))
-            .implode(range('a', 'z'))
-            .implode(range('A', 'Z'))
-            .implode(['-', '_', '~'])
+            . implode(range('a', 'z'))
+            . implode(range('A', 'Z'))
+            . implode(['-', '_', '~'])
         ;
     }
 
@@ -64,12 +57,6 @@ final class RandomnessGenerator implements RandomnessGeneratorInterface
         return random_int($min, $max);
     }
 
-    /**
-     * @param int $length
-     * @param string $alphabet
-     *
-     * @return string
-     */
     private function generateStringOfLength(int $length, string $alphabet): string
     {
         $alphabetMaxIndex = strlen($alphabet) - 1;

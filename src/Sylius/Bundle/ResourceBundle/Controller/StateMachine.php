@@ -16,19 +16,11 @@ namespace Sylius\Bundle\ResourceBundle\Controller;
 use SM\Factory\FactoryInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class StateMachine implements StateMachineInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $stateMachineFactory;
 
-    /**
-     * @param FactoryInterface $stateMachineFactory
-     */
     public function __construct(FactoryInterface $stateMachineFactory)
     {
         $this->stateMachineFactory = $stateMachineFactory;

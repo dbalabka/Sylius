@@ -25,16 +25,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class ProvinceController extends ResourceController
 {
     /**
-     * @param Request $request
-     *
-     * @return Response
-     *
      * @throws AccessDeniedException
      * @throws NotFoundHttpException
      */
@@ -46,7 +39,7 @@ class ProvinceController extends ResourceController
             throw new AccessDeniedException();
         }
 
-        /* @var CountryInterface $country */
+        /** @var CountryInterface $country */
         if (!$country = $this->get('sylius.repository.country')->findOneBy(['code' => $countryCode])) {
             throw new NotFoundHttpException('Requested country does not exist.');
         }
@@ -82,11 +75,6 @@ class ProvinceController extends ResourceController
         ]);
     }
 
-    /**
-     * @param CountryInterface $country
-     *
-     * @return FormInterface
-     */
     protected function createProvinceChoiceForm(CountryInterface $country): FormInterface
     {
         return $this->get('form.factory')->createNamed('sylius_address_province', ProvinceCodeChoiceType::class, null, [
@@ -96,9 +84,6 @@ class ProvinceController extends ResourceController
         ]);
     }
 
-    /**
-     * @return FormInterface
-     */
     protected function createProvinceTextForm(): FormInterface
     {
         return $this->get('form.factory')->createNamed('sylius_address_province', TextType::class, null, [

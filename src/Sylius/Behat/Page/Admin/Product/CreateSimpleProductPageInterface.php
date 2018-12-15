@@ -14,14 +14,8 @@ declare(strict_types=1);
 namespace Sylius\Behat\Page\Admin\Product;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
-use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Gorka Laucirica <gorka.lauzirika@gmail.com>
- */
 interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
 {
     /**
@@ -45,13 +39,6 @@ interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
      * @param string $channelName
      */
     public function checkChannel($channelName);
-
-    /**
-     * @param int $price
-     * @param ChannelInterface $channel
-     * @param CurrencyInterface $currency
-     */
-    public function specifyPriceForChannelAndCurrency($price, ChannelInterface $channel, CurrencyInterface $currency);
 
     /**
      * @param string $code
@@ -78,8 +65,8 @@ interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
     public function addAttribute($attributeName, $value, $localeCode);
 
     /**
-     * @param $attributeName
-     * @param $localeCode
+     * @param string $attributeName
+     * @param string $localeCode
      *
      * @return string
      */
@@ -98,14 +85,12 @@ interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
     public function attachImage($path, $type = null);
 
     /**
-     * @param ProductAssociationTypeInterface $productAssociationType
      * @param string[] $productsNames
      */
     public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames);
 
     /**
      * @param string $productName
-     * @param ProductAssociationTypeInterface $productAssociationType
      */
     public function removeAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType);
 

@@ -19,6 +19,8 @@
     </parameters>
 
     <services>
+        <defaults public="true" />
+
         <service id="sylius.form.type.locale" class="Sylius\Bundle\LocaleBundle\Form\Type\LocaleType">
             <argument>%sylius.model.locale.class%</argument>
             <argument>%sylius.form.type.locale.validation_groups%</argument>
@@ -51,6 +53,7 @@
 
         <service id="sylius.templating.helper.locale" class="Sylius\Bundle\LocaleBundle\Templating\Helper\LocaleHelper">
             <argument type="service" id="sylius.locale_converter" />
+            <argument type="service" id="sylius.context.locale" />
             <tag name="templating.helper" alias="sylius_locale" />
         </service>
 

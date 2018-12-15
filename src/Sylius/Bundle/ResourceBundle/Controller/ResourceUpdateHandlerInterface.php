@@ -16,16 +16,8 @@ namespace Sylius\Bundle\ResourceBundle\Controller;
 use Doctrine\Common\Persistence\ObjectManager;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface ResourceUpdateHandlerInterface
 {
-    /**
-     * @param ResourceInterface $resource
-     * @param RequestConfiguration $requestConfiguration
-     * @param ObjectManager $manager
-     */
     public function handle(
         ResourceInterface $resource,
         RequestConfiguration $requestConfiguration,

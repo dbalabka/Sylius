@@ -21,9 +21,6 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class CheckoutStateUrlGeneratorSpec extends ObjectBehavior
 {
     function let(RouterInterface $router): void
@@ -33,7 +30,7 @@ final class CheckoutStateUrlGeneratorSpec extends ObjectBehavior
                 'route' => 'sylius_shop_checkout_select_shipping',
             ],
             'empty_order' => [
-                'route' => 'sylius_shop_cart_summary'
+                'route' => 'sylius_shop_cart_summary',
             ],
         ];
 

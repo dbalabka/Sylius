@@ -19,19 +19,11 @@ use Sylius\Bundle\FixturesBundle\Listener\BeforeFixtureListenerInterface;
 use Sylius\Bundle\FixturesBundle\Listener\FixtureEvent;
 use Sylius\Bundle\FixturesBundle\Suite\SuiteInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class HookableFixtureLoader implements FixtureLoaderInterface
 {
-    /**
-     * @var FixtureLoaderInterface
-     */
+    /** @var FixtureLoaderInterface */
     private $decoratedFixtureLoader;
 
-    /**
-     * @param FixtureLoaderInterface $decoratedFixtureLoader
-     */
     public function __construct(FixtureLoaderInterface $decoratedFixtureLoader)
     {
         $this->decoratedFixtureLoader = $decoratedFixtureLoader;
@@ -51,11 +43,7 @@ final class HookableFixtureLoader implements FixtureLoaderInterface
         $this->executeAfterFixtureListeners($suite, $fixtureEvent);
     }
 
-    /**
-     * @param SuiteInterface $suite
-     * @param FixtureEvent $fixtureEvent
-     */
-    private function executeBeforeFixtureListeners(SuiteInterface $suite, FixtureEvent $fixtureEvent)
+    private function executeBeforeFixtureListeners(SuiteInterface $suite, FixtureEvent $fixtureEvent): void
     {
         foreach ($suite->getListeners() as $listener => $listenerOptions) {
             if (!$listener instanceof BeforeFixtureListenerInterface) {
@@ -66,10 +54,6 @@ final class HookableFixtureLoader implements FixtureLoaderInterface
         }
     }
 
-    /**
-     * @param SuiteInterface $suite
-     * @param FixtureEvent $fixtureEvent
-     */
     private function executeAfterFixtureListeners(SuiteInterface $suite, FixtureEvent $fixtureEvent): void
     {
         foreach ($suite->getListeners() as $listener => $listenerOptions) {

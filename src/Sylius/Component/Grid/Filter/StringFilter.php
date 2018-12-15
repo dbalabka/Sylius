@@ -17,9 +17,6 @@ use Sylius\Component\Grid\Data\DataSourceInterface;
 use Sylius\Component\Grid\Data\ExpressionBuilderInterface;
 use Sylius\Component\Grid\Filtering\FilterInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class StringFilter implements FilterInterface
 {
     public const NAME = 'string';
@@ -43,7 +40,7 @@ final class StringFilter implements FilterInterface
         $expressionBuilder = $dataSource->getExpressionBuilder();
 
         if (is_array($data) && !isset($data['type'])) {
-            $data['type'] = isset($options['type']) ? $options['type'] : self::TYPE_CONTAINS;
+            $data['type'] = $options['type'] ?? self::TYPE_CONTAINS;
         }
 
         if (!is_array($data)) {
@@ -80,13 +77,6 @@ final class StringFilter implements FilterInterface
     }
 
     /**
-     * @param ExpressionBuilderInterface $expressionBuilder
-     * @param string $type
-     * @param string $field
-     * @param mixed $value
-     *
-     * @return mixed
-     *
      * @throws \InvalidArgumentException
      */
     private function getExpression(
@@ -105,13 +95,13 @@ final class StringFilter implements FilterInterface
             case self::TYPE_NOT_EMPTY:
                 return $expressionBuilder->isNotNull($field);
             case self::TYPE_CONTAINS:
-                return $expressionBuilder->like($field, '%'.$value.'%');
+                return $expressionBuilder->like($field, '%' . $value . '%');
             case self::TYPE_NOT_CONTAINS:
-                return $expressionBuilder->notLike($field, '%'.$value.'%');
+                return $expressionBuilder->notLike($field, '%' . $value . '%');
             case self::TYPE_STARTS_WITH:
-                return $expressionBuilder->like($field, $value.'%');
+                return $expressionBuilder->like($field, $value . '%');
             case self::TYPE_ENDS_WITH:
-                return $expressionBuilder->like($field, '%'.$value);
+                return $expressionBuilder->like($field, '%' . $value);
             case self::TYPE_IN:
                 return $expressionBuilder->in($field, array_map('trim', explode(',', $value)));
             case self::TYPE_NOT_IN:

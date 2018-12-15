@@ -30,10 +30,19 @@ To create a new project using Sylius Standard Edition, run this command:
 
     $ composer create-project sylius/sylius-standard acme
 
-This will create a new Symfony project in ``acme`` directory. When all the
-dependencies are installed, you'll be asked to fill the ``parameters.yml``
-file via interactive script. Please follow the steps. After everything is in
-place, run the following commands:
+.. note::
+
+    Make sure to use PHP ^7.2. Using an older PHP version will result in installing an older version of Sylius.
+
+This will create a new Symfony project in ``acme`` directory. When all the dependencies are installed,
+you should create `.env` file basing on provides `.env.dist` files. The most important parameter that need to be set,
+is `DATABASE_URL`.
+
+.. code-block:: text
+
+    DATABASE_URL=mysql://username:password@host/database_name_%kernel.environment%
+
+After everything is in place, run the following commands:
 
 .. code-block:: bash
 
@@ -45,7 +54,8 @@ This package has the whole ``sylius/sylius`` package in vendors, so you can easi
 .. warning::
 
     During the ``sylius:install`` command you will be asked to provide important information, but also its execution ensures
-    that the default **currency** (USD) and the default **locale** (English - US) are set they can be later on changed in the ``parameters.yml`` file.
+    that the default **currency** (USD) and the default **locale** (English - US) are set.
+    They can be changed later, respectively in the "Configuration > Channels" section of the admin and in the ``config/services.yaml`` file.
     From now on all the prices will be stored in the database in USD as integers, and all the products will have to be added with a base american english name translation.
 
 Installing assets
@@ -53,7 +63,7 @@ Installing assets
 
 In order to see a fully functional frontend you will need to install its assets.
 
-**Sylius** already has a ``Gulpfile.js``, therefore you just need to get `Gulp`_ using `Yarn`_.
+**Sylius** already has a ``gulpfile.babel.js``, therefore you just need to get `Gulp`_ using `Yarn`_.
 
 .. note::
 
@@ -69,13 +79,7 @@ And now you can use gulp for installing views, by just running a simple command:
 
 .. code-block:: bash
 
-    $ yarn run gulp
-
-Although if you have Gulp installed globally then run just:
-
-.. code-block:: bash
-
-    $ gulp
+    $ yarn build
 
 Accessing the Shop
 ------------------
@@ -83,7 +87,7 @@ Accessing the Shop
 .. tip::
 
     We strongly recommend using the Symfony built-in web server by running the
-    ``php bin/console server:start 127.0.0.1:8000``
+    ``php bin/console server:start``
     command and then accessing ``http://127.0.0.1:8000`` in your web browser to see the shop.
 
 .. note::
@@ -111,11 +115,11 @@ After you have successfully gone through the installation process of **Sylius-St
 
 In the root directory of your project you will find these important subdirectories:
 
-* ``app/config/`` - here you will be adding the yaml configuration files including routing, security, state machines configurations etc.
-* ``var/logs/`` - these are the logs of your application
+* ``config/`` - here you will be adding the yaml configuration files including routing, security, state machines configurations etc.
+* ``var/log/`` - these are the logs of your application
 * ``var/cache/`` - this is the cache of you project
-* ``src/`` - this is where you will be adding all you custom logic in the ``AppBundle``
-* ``web/`` - there you will be placing assets of your project
+* ``src/`` - this is where you will be adding all you custom logic in the ``App``
+* ``public/`` - there you will be placing assets of your project
 
 .. tip::
 

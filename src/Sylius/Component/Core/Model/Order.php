@@ -27,85 +27,51 @@ use Sylius\Component\Promotion\Model\PromotionInterface as BasePromotionInterfac
 use Sylius\Component\User\Model\UserInterface as BaseUserInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class Order extends BaseOrder implements OrderInterface
 {
-    /**
-     * @var BaseCustomerInterface
-     */
+    /** @var CustomerInterface */
     protected $customer;
 
-    /**
-     * @var ChannelInterface
-     */
+    /** @var ChannelInterface */
     protected $channel;
 
-    /**
-     * @var AddressInterface
-     */
+    /** @var AddressInterface */
     protected $shippingAddress;
 
-    /**
-     * @var AddressInterface
-     */
+    /** @var AddressInterface */
     protected $billingAddress;
 
-    /**
-     * @var Collection|BasePaymentInterface[]
-     */
+    /** @var Collection|BasePaymentInterface[] */
     protected $payments;
 
-    /**
-     * @var Collection|ShipmentInterface[]
-     */
+    /** @var Collection|ShipmentInterface[] */
     protected $shipments;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $currencyCode;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $localeCode;
 
-    /**
-     * @var BaseCouponInterface
-     */
+    /** @var BaseCouponInterface */
     protected $promotionCoupon;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $checkoutState = OrderCheckoutStates::STATE_CART;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $paymentState = OrderPaymentStates::STATE_CART;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $shippingState = OrderShippingStates::STATE_CART;
 
-    /**
-     * @var Collection|BasePromotionInterface[]
-     */
+    /** @var Collection|BasePromotionInterface[] */
     protected $promotions;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $tokenValue;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $customerIp;
 
     public function __construct()
@@ -130,6 +96,8 @@ class Order extends BaseOrder implements OrderInterface
      */
     public function setCustomer(?BaseCustomerInterface $customer): void
     {
+        Assert::nullOrisInstanceOf($customer, CustomerInterface::class);
+
         $this->customer = $customer;
     }
 
@@ -232,7 +200,7 @@ class Order extends BaseOrder implements OrderInterface
     {
         $units = new ArrayCollection();
 
-        /** @var $item OrderItem */
+        /** @var OrderItem $item */
         foreach ($this->getItems() as $item) {
             foreach ($item->getUnits() as $unit) {
                 $units->add($unit);
@@ -273,7 +241,9 @@ class Order extends BaseOrder implements OrderInterface
      */
     public function addPayment(BasePaymentInterface $payment): void
     {
-        /** @var $payment PaymentInterface */
+        /** @var PaymentInterface $payment */
+        Assert::isInstanceOf($payment, PaymentInterface::class);
+
         if (!$this->hasPayment($payment)) {
             $this->payments->add($payment);
             $payment->setOrder($this);
@@ -285,7 +255,9 @@ class Order extends BaseOrder implements OrderInterface
      */
     public function removePayment(BasePaymentInterface $payment): void
     {
-        /** @var $payment PaymentInterface */
+        /** @var PaymentInterface $payment */
+        Assert::isInstanceOf($payment, PaymentInterface::class);
+
         if ($this->hasPayment($payment)) {
             $this->payments->removeElement($payment);
             $payment->setOrder(null);
@@ -316,9 +288,6 @@ class Order extends BaseOrder implements OrderInterface
         return $payment !== false ? $payment : null;
     }
 
-    /**
-     * @return bool
-     */
     public function isShippingRequired(): bool
     {
         foreach ($this->getItems() as $orderItem) {

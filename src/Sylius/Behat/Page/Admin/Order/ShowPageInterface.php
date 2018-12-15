@@ -13,13 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\Order;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface ShowPageInterface extends SymfonyPageInterface
 {
     /**
@@ -62,15 +58,10 @@ interface ShowPageInterface extends SymfonyPageInterface
     public function specifyTrackingCode($code);
 
     /**
-     * @param OrderInterface $order
-     *
      * @return bool
      */
     public function canShipOrder(OrderInterface $order);
 
-    /**
-     * @param OrderInterface $order
-     */
     public function shipOrder(OrderInterface $order);
 
     /**
@@ -81,20 +72,12 @@ interface ShowPageInterface extends SymfonyPageInterface
     public function hasPayment($paymentMethodName);
 
     /**
-     * @param OrderInterface $order
-     *
      * @return bool
      */
     public function canCompleteOrderLastPayment(OrderInterface $order);
 
-    /**
-     * @param OrderInterface $order
-     */
     public function completeOrderLastPayment(OrderInterface $order);
 
-    /**
-     * @param OrderInterface $order
-     */
     public function refundOrderLastPayment(OrderInterface $order);
 
     /**
@@ -102,12 +85,7 @@ interface ShowPageInterface extends SymfonyPageInterface
      */
     public function countItems();
 
-    /**
-     * @param string $productName
-     *
-     * @return bool
-     */
-    public function isProductInTheList($productName);
+    public function isProductInTheList(string $productName): bool;
 
     /**
      * @return string

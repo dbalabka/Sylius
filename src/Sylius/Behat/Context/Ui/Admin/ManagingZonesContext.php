@@ -25,43 +25,23 @@ use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Addressing\Model\ZoneMemberInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ManagingZonesContext implements Context
 {
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param CreatePageInterface $createPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdatePageInterface $updatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         CreatePageInterface $createPage,
         IndexPageInterface $indexPage,
@@ -85,6 +65,7 @@ final class ManagingZonesContext implements Context
     }
 
     /**
+     * @When I browse zones
      * @When I want to see all zones in store
      */
     public function iWantToSeeAllZonesInStore()
@@ -197,6 +178,22 @@ final class ManagingZonesContext implements Context
     public function iSaveMyChanges()
     {
         $this->updatePage->saveChanges();
+    }
+
+    /**
+     * @When I check (also) the :zoneName zone
+     */
+    public function iCheckTheZone(string $zoneName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $zoneName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
     }
 
     /**
@@ -316,11 +313,12 @@ final class ManagingZonesContext implements Context
     }
 
     /**
-     * @Then /^I should see (\d+) zones in the list$/
+     * @Then I should see a single zone in the list
+     * @Then I should see :amount zones in the list
      */
-    public function iShouldSeeZonesInTheList($number)
+    public function iShouldSeeZonesInTheList(int $amount = 1): void
     {
-        Assert::same($this->indexPage->countItems(), (int) $number);
+        Assert::same($this->indexPage->countItems(), $amount);
     }
 
     /**
@@ -332,6 +330,14 @@ final class ManagingZonesContext implements Context
     }
 
     /**
+     * @Then I should see the zone :zoneName in the list
+     */
+    public function iShouldSeeTheZoneInTheList(string $zoneName): void
+    {
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $zoneName]));
+    }
+
+    /**
      * @Then I should be notified that this zone cannot be deleted
      */
     public function iShouldBeNotifiedThatThisZoneCannotBeDeleted()
@@ -340,9 +346,6 @@ final class ManagingZonesContext implements Context
     }
 
     /**
-     * @param ZoneInterface $zone
-     * @param ZoneMemberInterface $zoneMember
-     *
      * @throws \InvalidArgumentException
      */
     private function assertZoneAndItsMember(ZoneInterface $zone, ZoneMemberInterface $zoneMember)
@@ -364,6 +367,7 @@ final class ManagingZonesContext implements Context
     public function iCanNotAddAZoneMember($name)
     {
         $member = null;
+
         try {
             $member = $this->createPage->chooseMember($name);
         } catch (ElementNotFoundException $exception) {

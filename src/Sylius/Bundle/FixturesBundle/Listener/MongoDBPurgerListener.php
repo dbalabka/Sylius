@@ -18,19 +18,11 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ODM\MongoDB\DocumentManager;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class MongoDBPurgerListener extends AbstractListener implements BeforeSuiteListenerInterface
 {
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var ManagerRegistry */
     private $managerRegistry;
 
-    /**
-     * @param ManagerRegistry $managerRegistry
-     */
     public function __construct(ManagerRegistry $managerRegistry)
     {
         $this->managerRegistry = $managerRegistry;
@@ -67,7 +59,7 @@ final class MongoDBPurgerListener extends AbstractListener implements BeforeSuit
             ->children()
                 ->arrayNode('managers')
                     ->defaultValue([null])
-                    ->prototype('scalar')
+                    ->scalarPrototype()
         ;
     }
 }

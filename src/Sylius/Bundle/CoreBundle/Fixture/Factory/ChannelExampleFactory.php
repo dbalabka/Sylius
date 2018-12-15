@@ -24,47 +24,26 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 class ChannelExampleFactory extends AbstractExampleFactory implements ExampleFactoryInterface
 {
-    /**
-     * @var ChannelFactoryInterface
-     */
+    /** @var ChannelFactoryInterface */
     private $channelFactory;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $localeRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $currencyRepository;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $zoneRepository;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param ChannelFactoryInterface $channelFactory
-     * @param RepositoryInterface $localeRepository
-     * @param RepositoryInterface $currencyRepository
-     * @param RepositoryInterface $zoneRepository
-     */
     public function __construct(
         ChannelFactoryInterface $channelFactory,
         RepositoryInterface $localeRepository,
@@ -73,7 +52,7 @@ class ChannelExampleFactory extends AbstractExampleFactory implements ExampleFac
     ) {
         $this->channelFactory = $channelFactory;
         $this->localeRepository = $localeRepository;
-        $this->currencyRepository= $currencyRepository;
+        $this->currencyRepository = $currencyRepository;
         $this->zoneRepository = $zoneRepository;
 
         $this->faker = \Faker\Factory::create();
@@ -101,6 +80,7 @@ class ChannelExampleFactory extends AbstractExampleFactory implements ExampleFac
         $channel->setContactEmail($options['contact_email']);
         $channel->setSkippingShippingStepAllowed($options['skipping_shipping_step_allowed']);
         $channel->setSkippingPaymentStepAllowed($options['skipping_payment_step_allowed']);
+        $channel->setAccountVerificationRequired($options['account_verification_required']);
 
         $channel->setDefaultLocale($options['default_locale']);
         foreach ($options['locales'] as $locale) {
@@ -141,6 +121,8 @@ class ChannelExampleFactory extends AbstractExampleFactory implements ExampleFac
             ->setAllowedTypes('skipping_shipping_step_allowed', 'bool')
             ->setDefault('skipping_payment_step_allowed', false)
             ->setAllowedTypes('skipping_payment_step_allowed', 'bool')
+            ->setDefault('account_verification_required', true)
+            ->setAllowedTypes('account_verification_required', 'bool')
             ->setDefault('default_tax_zone', LazyOption::randomOne($this->zoneRepository))
             ->setAllowedTypes('default_tax_zone', ['null', 'string', ZoneInterface::class])
             ->setNormalizer('default_tax_zone', LazyOption::findOneBy($this->zoneRepository, 'code'))

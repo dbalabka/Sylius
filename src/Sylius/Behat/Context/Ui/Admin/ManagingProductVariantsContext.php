@@ -26,56 +26,29 @@ use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Gorka Laucirica <gorka.lauzirika@gmail.com>
- */
 final class ManagingProductVariantsContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var CreatePageInterface
-     */
+    /** @var CreatePageInterface */
     private $createPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdatePageInterface
-     */
+    /** @var UpdatePageInterface */
     private $updatePage;
 
-    /**
-     * @var GeneratePageInterface
-     */
+    /** @var GeneratePageInterface */
     private $generatePage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param CreatePageInterface $createPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdatePageInterface $updatePage
-     * @param GeneratePageInterface $generatePage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         CreatePageInterface $createPage,
@@ -120,14 +93,6 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @When I rename it to :name
-     */
-    public function iRenameItTo($name)
-    {
-        $this->updatePage->nameIt($name);
-    }
-
-    /**
      * @When I add it
      * @When I try to add it
      */
@@ -158,7 +123,7 @@ final class ManagingProductVariantsContext implements Context
      */
     public function iSetItsPriceTo($price = null, $channelName = null)
     {
-        $this->createPage->specifyPrice($price, (null === $channelName) ? $this->sharedStorage->get('channel') :$channelName);
+        $this->createPage->specifyPrice($price, $channelName ?? $this->sharedStorage->get('channel'));
     }
 
     /**
@@ -223,6 +188,22 @@ final class ManagingProductVariantsContext implements Context
     public function iDoNotWantToHaveShippingRequiredForThisProduct()
     {
         $this->createPage->setShippingRequired(false);
+    }
+
+    /**
+     * @When I check (also) the :productVariantName product variant
+     */
+    public function iCheckTheProductVariantName(string $productVariantName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $productVariantName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
     }
 
     /**
@@ -407,14 +388,6 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @When I remove its name
-     */
-    public function iRemoveItsNameFromTranslation()
-    {
-        $this->updatePage->nameIt('');
-    }
-
-    /**
      * @Then /^inventory of (this variant) should not be tracked$/
      */
     public function thisProductVariantShouldNotBeTracked(ProductVariantInterface $productVariant)
@@ -521,7 +494,7 @@ final class ManagingProductVariantsContext implements Context
      */
     public function theVariantWithCodeShouldNotHaveShippingRequired(ProductVariantInterface $productVariant)
     {
-        $this->updatePage->open(['productId' => $productVariant->getProduct()->getId(),'id' => $productVariant->getId()]);
+        $this->updatePage->open(['productId' => $productVariant->getProduct()->getId(), 'id' => $productVariant->getId()]);
 
         Assert::false($this->updatePage->isShippingRequired());
     }
@@ -539,7 +512,7 @@ final class ManagingProductVariantsContext implements Context
 
     /**
      * @param string $element
-     * @param $message
+     * @param string $message
      */
     private function assertValidationMessage($element, $message)
     {

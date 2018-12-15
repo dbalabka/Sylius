@@ -17,31 +17,17 @@ use Sylius\Component\Grid\Definition\Grid;
 use Sylius\Component\Grid\Parameters;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class GridView implements GridViewInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     private $data;
 
-    /**
-     * @var Grid
-     */
+    /** @var Grid */
     private $definition;
 
-    /**
-     * @var Parameters
-     */
+    /** @var Parameters */
     private $parameters;
 
-    /**
-     * @param mixed $data
-     * @param Grid $definition
-     * @param Parameters $parameters
-     */
     public function __construct($data, Grid $definition, Parameters $parameters)
     {
         $this->data = $data;
@@ -108,9 +94,6 @@ class GridView implements GridViewInterface
         return $fieldName === array_shift($sortedFields);
     }
 
-    /**
-     * @return array
-     */
     private function getCurrentlySortedBy(): array
     {
         return $this->parameters->has('sorting')
@@ -120,8 +103,6 @@ class GridView implements GridViewInterface
     }
 
     /**
-     * @param string $fieldName
-     *
      * @throws \InvalidArgumentException
      */
     private function assertFieldIsSortable(string $fieldName): void

@@ -14,12 +14,10 @@ declare(strict_types=1);
 namespace Sylius\Bundle\ShopBundle\Tests\DependencyInjection;
 
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\ShopBundle\DependencyInjection\Configuration;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
-final class ConfigurationTest extends \PHPUnit_Framework_TestCase
+final class ConfigurationTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
@@ -135,7 +133,7 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
                         'route' => 'sylius_shop_checkout_select_shipping',
                     ],
                 ],
-            ]]],
+            ]], ],
             ['checkout_resolver' => [
                 'enabled' => true,
                 'pattern' => '/checkout/.+',
@@ -159,7 +157,7 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 'route_map' => [
                     'addressed' => [],
                 ],
-            ]
+            ],
         ]]);
     }
 

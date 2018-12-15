@@ -21,10 +21,6 @@ use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 use Sylius\Behat\Service\AutocompleteHelper;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Łuksaz Zalewski <mateusz.zalewski@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use NamesIt;
@@ -219,7 +215,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return [
             'actions' => '#sylius_promotion_actions',

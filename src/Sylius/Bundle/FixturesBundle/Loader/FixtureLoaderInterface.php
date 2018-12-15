@@ -16,15 +16,7 @@ namespace Sylius\Bundle\FixturesBundle\Loader;
 use Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface;
 use Sylius\Bundle\FixturesBundle\Suite\SuiteInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface FixtureLoaderInterface
 {
-    /**
-     * @param SuiteInterface $suite
-     * @param FixtureInterface $fixture
-     * @param array $options
-     */
     public function load(SuiteInterface $suite, FixtureInterface $fixture, array $options): void;
 }

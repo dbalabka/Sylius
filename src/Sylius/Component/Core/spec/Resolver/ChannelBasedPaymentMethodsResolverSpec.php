@@ -22,9 +22,6 @@ use Sylius\Component\Payment\Model\PaymentInterface as BasePaymentInterface;
 use Sylius\Component\Payment\Model\PaymentMethodInterface;
 use Sylius\Component\Payment\Resolver\PaymentMethodsResolverInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ChannelBasedPaymentMethodsResolverSpec extends ObjectBehavior
 {
     function let(PaymentMethodRepositoryInterface $paymentMethodRepository): void
@@ -87,7 +84,6 @@ final class ChannelBasedPaymentMethodsResolverSpec extends ObjectBehavior
     function it_does_not_support_payments_for_order_with_not_assigned_channel(
         PaymentInterface $payment,
         OrderInterface $order
-
     ): void {
         $payment->getOrder()->willReturn($order);
         $order->getChannel()->willReturn(null);

@@ -19,9 +19,6 @@ use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 use Sylius\Component\Core\Formatter\StringInflector;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use SpecifiesItsCode;
@@ -73,7 +70,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function chooseCalculator($name)
     {
-        $this->getDocument()->selectFieldOption(\Calculator::class, $name);
+        $this->getDocument()->selectFieldOption('Calculator', $name);
     }
 
     /**
@@ -116,7 +113,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'amount' => '#sylius_shipping_method_configuration_%channelCode%_amount',
@@ -130,7 +127,6 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
 
     /**
      * @param string $element
-     * @param array $parameters
      *
      * @return \Behat\Mink\Element\NodeElement|null
      *

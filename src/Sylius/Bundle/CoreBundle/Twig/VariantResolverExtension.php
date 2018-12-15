@@ -15,19 +15,11 @@ namespace Sylius\Bundle\CoreBundle\Twig;
 
 use Symfony\Component\Templating\Helper\Helper;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class VariantResolverExtension extends \Twig_Extension
 {
-    /**
-     * @var Helper
-     */
+    /** @var Helper */
     private $helper;
 
-    /**
-     * @param Helper $helper
-     */
     public function __construct(Helper $helper)
     {
         $this->helper = $helper;

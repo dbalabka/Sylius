@@ -17,14 +17,9 @@ use Sylius\Component\Channel\Model\ChannelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Zend\Stdlib\PriorityQueue;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CompositeRequestResolver implements RequestResolverInterface
 {
-    /**
-     * @var PriorityQueue|RequestResolverInterface[]
-     */
+    /** @var PriorityQueue|RequestResolverInterface[] */
     private $requestResolvers;
 
     public function __construct()
@@ -32,10 +27,6 @@ final class CompositeRequestResolver implements RequestResolverInterface
         $this->requestResolvers = new PriorityQueue();
     }
 
-    /**
-     * @param RequestResolverInterface $requestResolver
-     * @param int $priority
-     */
     public function addResolver(RequestResolverInterface $requestResolver, int $priority = 0): void
     {
         $this->requestResolvers->insert($requestResolver, $priority);

@@ -17,17 +17,9 @@ use Sylius\Bundle\ThemeBundle\Locator\ResourceNotFoundException;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Symfony\Component\Templating\TemplateReferenceInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface TemplateLocatorInterface
 {
     /**
-     * @param TemplateReferenceInterface $template
-     * @param ThemeInterface $theme
-     *
-     * @return string
-     *
      * @throws ResourceNotFoundException
      */
     public function locateTemplate(TemplateReferenceInterface $template, ThemeInterface $theme): string;

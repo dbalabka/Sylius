@@ -25,9 +25,6 @@ use Sylius\Component\Core\Promotion\Applicator\UnitsPromotionAdjustmentsApplicat
 use Sylius\Component\Order\Factory\AdjustmentFactoryInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class UnitsPromotionAdjustmentsApplicatorSpec extends ObjectBehavior
 {
     function let(
@@ -239,7 +236,7 @@ final class UnitsPromotionAdjustmentsApplicatorSpec extends ObjectBehavior
             ->willReturn(new ArrayCollection([
                 $firstColtUnit->getWrappedObject(),
                 $secondColtUnit->getWrappedObject(),
-                $thirdColtUnit->getWrappedObject()
+                $thirdColtUnit->getWrappedObject(),
             ]))
         ;
 

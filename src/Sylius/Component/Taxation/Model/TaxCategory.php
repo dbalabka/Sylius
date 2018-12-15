@@ -17,35 +17,22 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class TaxCategory implements TaxCategoryInterface
 {
     use TimestampableTrait;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $code;
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $name;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $description;
 
-    /**
-     * @var Collection|TaxRateInterface[]
-     */
+    /** @var Collection|TaxRateInterface[] */
     protected $rates;
 
     public function __construct()
@@ -54,9 +41,6 @@ class TaxCategory implements TaxCategoryInterface
         $this->createdAt = new \DateTime();
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return (string) $this->getName();

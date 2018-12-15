@@ -15,17 +15,9 @@ namespace Sylius\Bundle\ThemeBundle\Locator;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ResourceLocatorInterface
 {
     /**
-     * @param string $resourceName
-     * @param ThemeInterface $theme
-     *
-     * @return string
-     *
      * @throws ResourceNotFoundException
      */
     public function locateResource(string $resourceName, ThemeInterface $theme): string;

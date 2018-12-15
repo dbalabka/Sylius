@@ -13,19 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Model;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 class AbstractTranslation implements TranslationInterface
 {
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     protected $locale;
 
-    /**
-     * @var TranslatableInterface|null
-     */
+    /** @var TranslatableInterface|null */
     protected $translatable;
 
     /**

@@ -17,9 +17,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
@@ -35,9 +32,6 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $rootNode
-     */
     private function buildSuitesNode(ArrayNodeDefinition $rootNode): void
     {
         /** @var ArrayNodeDefinition $suitesNode */
@@ -45,7 +39,7 @@ final class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('suites')
                     ->useAttributeAsKey('name')
-                    ->prototype('array')
+                    ->arrayPrototype()
         ;
 
         $suitesNode
@@ -70,9 +64,6 @@ final class Configuration implements ConfigurationInterface
         $this->buildListenersNode($suitesNode);
     }
 
-    /**
-     * @param ArrayNodeDefinition $suitesNode
-     */
     private function buildFixturesNode(ArrayNodeDefinition $suitesNode): void
     {
         /** @var ArrayNodeDefinition $fixturesNode */
@@ -80,7 +71,7 @@ final class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('fixtures')
                     ->useAttributeAsKey('alias')
-                    ->prototype('array')
+                    ->arrayPrototype()
         ;
 
         $fixturesNode->children()->scalarNode('name')->cannotBeEmpty();
@@ -88,9 +79,6 @@ final class Configuration implements ConfigurationInterface
         $this->buildAttributesNode($fixturesNode);
     }
 
-    /**
-     * @param ArrayNodeDefinition $suitesNode
-     */
     private function buildListenersNode(ArrayNodeDefinition $suitesNode): void
     {
         /** @var ArrayNodeDefinition $listenersNode */
@@ -98,15 +86,12 @@ final class Configuration implements ConfigurationInterface
             ->children()
                 ->arrayNode('listeners')
                     ->useAttributeAsKey('name')
-                    ->prototype('array')
+                    ->arrayPrototype()
         ;
 
         $this->buildAttributesNode($listenersNode);
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function buildAttributesNode(ArrayNodeDefinition $node): void
     {
         $attributesNodeBuilder = $node->canBeUnset()->children();
@@ -137,6 +122,6 @@ final class Configuration implements ConfigurationInterface
                 })
         ;
 
-        $optionsNode->prototype('variable')->cannotBeEmpty()->defaultValue([]);
+        $optionsNode->variablePrototype()->cannotBeEmpty()->defaultValue([]);
     }
 }

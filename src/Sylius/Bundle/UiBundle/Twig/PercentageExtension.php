@@ -13,9 +13,6 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\UiBundle\Twig;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class PercentageExtension extends \Twig_Extension
 {
     /**
@@ -28,15 +25,10 @@ class PercentageExtension extends \Twig_Extension
         ];
     }
 
-    /**
-     * @param float $number
-     *
-     * @return string
-     */
     public function getPercentage(float $number): string
     {
         $percentage = $number * 100;
 
-        return $percentage.' %';
+        return $percentage . ' %';
     }
 }

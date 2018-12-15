@@ -15,9 +15,6 @@ namespace Sylius\Behat\Page\Admin\PromotionCoupon;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
     /**
@@ -30,9 +27,6 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
      */
     public function setCustomerUsageLimit($limit);
 
-    /**
-     * @param \DateTimeInterface $date
-     */
     public function setExpiresAt(\DateTimeInterface $date);
 
     /**

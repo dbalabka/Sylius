@@ -13,14 +13,11 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\ProductOption;
 
-use Behat\Mink\Element\Element;
+use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
     use ChecksCodeImmutability;
@@ -88,7 +85,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_product_option_code',
@@ -97,10 +94,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         ]);
     }
 
-    /**
-     * @return Element
-     */
-    private function getLastOptionValueElement()
+    private function getLastOptionValueElement(): NodeElement
     {
         $optionValues = $this->getElement('values');
         $items = $optionValues->findAll('css', 'div[data-form-collection="item"]');

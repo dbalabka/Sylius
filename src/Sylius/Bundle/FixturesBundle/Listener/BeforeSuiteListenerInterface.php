@@ -13,14 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\FixturesBundle\Listener;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface BeforeSuiteListenerInterface extends ListenerInterface
 {
-    /**
-     * @param SuiteEvent $suiteEvent
-     * @param array $options
-     */
     public function beforeSuite(SuiteEvent $suiteEvent, array $options): void;
 }

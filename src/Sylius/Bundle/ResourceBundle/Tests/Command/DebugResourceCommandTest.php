@@ -13,25 +13,20 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ResourceBundle\Tests\Command;
 
+use PHPUnit\Framework\TestCase;
+use Prophecy\Prophecy\ObjectProphecy;
 use Sylius\Bundle\ResourceBundle\Command\DebugResourceCommand;
 use Sylius\Component\Resource\Metadata\Metadata;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Sylius\Component\Resource\Metadata\RegistryInterface;
 use Symfony\Component\Console\Tester\CommandTester;
 
-/**
- * @author Daniel Leech <daniel@dantleech.com>
- */
-final class DebugResourceCommandTest extends \PHPUnit_Framework_TestCase
+final class DebugResourceCommandTest extends TestCase
 {
-    /**
-     * @var RegistryInterface
-     */
+    /** @var ObjectProphecy|RegistryInterface */
     private $registry;
 
-    /**
-     * @var CommandTester
-     */
+    /** @var CommandTester */
     private $tester;
 
     public function setUp(): void
@@ -89,11 +84,6 @@ EOT
         , $display);
     }
 
-    /**
-     * @param string $suffix
-     *
-     * @return MetadataInterface
-     */
     private function createMetadata(string $suffix): MetadataInterface
     {
         $metadata = Metadata::fromAliasAndConfiguration(sprintf('sylius.%s', $suffix), [

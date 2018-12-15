@@ -15,15 +15,8 @@ namespace Sylius\Bundle\ThemeBundle\Locator;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ResourceNotFoundException extends \RuntimeException
 {
-    /**
-     * @param string $resourceName
-     * @param ThemeInterface $theme
-     */
     public function __construct(string $resourceName, ThemeInterface $theme)
     {
         parent::__construct(sprintf(

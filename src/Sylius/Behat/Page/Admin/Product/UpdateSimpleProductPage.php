@@ -25,10 +25,6 @@ use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Gorka Laucirica <gorka.lauzirika@gmail.com>
- */
 class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProductPageInterface
 {
     use ChecksCodeImmutability;
@@ -216,7 +212,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
             $imageForm->fillField('Type', $type);
         }
 
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -227,7 +223,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $filesPath = $this->getParameter('files_path');
 
         $imageForm = $this->getImageElementByType($type);
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -304,7 +300,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         Assert::isInstanceOf($this->getDriver(), Selenium2Driver::class);
 
         $dropdown = $this->getElement('association_dropdown', [
-            '%association%' => $productAssociationType->getName()
+            '%association%' => $productAssociationType->getName(),
         ]);
         $dropdown->click();
 
@@ -433,7 +429,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     /**
      * {@inheritdoc}
      */
-    protected function getElement($name, array $parameters = [])
+    protected function getElement(string $name, array $parameters = []): NodeElement
     {
         if (!isset($parameters['%locale%'])) {
             $parameters['%locale%'] = 'en_US';
@@ -445,7 +441,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'association_dropdown' => '.field > label:contains("%association%") ~ .product-select',
@@ -516,7 +512,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     private function getImageElementByType($type)
     {
         $images = $this->getElement('images');
-        $typeInput = $images->find('css', 'input[value="'.$type.'"]');
+        $typeInput = $images->find('css', 'input[value="' . $type . '"]');
 
         if (null === $typeInput) {
             return null;
@@ -560,7 +556,6 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     }
 
     /**
-     * @param NodeElement $imageElement
      * @param string $type
      */
     private function setImageType(NodeElement $imageElement, $type)
@@ -576,6 +571,10 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
 
     private function saveImageUrlForType(string $type, string $imageUrl): void
     {
+        if (false !== strpos($imageUrl, 'data:image/jpeg')) {
+            return;
+        }
+
         $this->imageUrls[$type] = $imageUrl;
     }
 }

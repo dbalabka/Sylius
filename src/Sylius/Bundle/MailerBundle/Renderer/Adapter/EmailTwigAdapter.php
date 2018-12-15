@@ -19,21 +19,11 @@ use Sylius\Component\Mailer\Renderer\Adapter\AbstractAdapter;
 use Sylius\Component\Mailer\Renderer\RenderedEmail;
 use Sylius\Component\Mailer\SyliusMailerEvents;
 
-/**
- * @author Daniel Richter <nexyz9@gmail.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
- */
 class EmailTwigAdapter extends AbstractAdapter
 {
-    /**
-     * @var \Twig_Environment
-     */
+    /** @var \Twig_Environment */
     protected $twig;
 
-    /**
-     * @param \Twig_Environment $twig
-     */
     public function __construct(\Twig_Environment $twig)
     {
         $this->twig = $twig;
@@ -55,12 +45,6 @@ class EmailTwigAdapter extends AbstractAdapter
         return $event->getRenderedEmail();
     }
 
-    /**
-     * @param EmailInterface $email
-     * @param array $data
-     *
-     * @return RenderedEmail
-     */
     private function getRenderedEmail(EmailInterface $email, array $data): RenderedEmail
     {
         if (null !== $email->getTemplate()) {
@@ -70,12 +54,6 @@ class EmailTwigAdapter extends AbstractAdapter
         return $this->provideEmailWithoutTemplate($email, $data);
     }
 
-    /**
-     * @param EmailInterface $email
-     * @param array $data
-     *
-     * @return RenderedEmail
-     */
     private function provideEmailWithTemplate(EmailInterface $email, array $data): RenderedEmail
     {
         $data = $this->twig->mergeGlobals($data);
@@ -89,12 +67,6 @@ class EmailTwigAdapter extends AbstractAdapter
         return new RenderedEmail($subject, $body);
     }
 
-    /**
-     * @param EmailInterface $email
-     * @param array $data
-     *
-     * @return RenderedEmail
-     */
     private function provideEmailWithoutTemplate(EmailInterface $email, array $data): RenderedEmail
     {
         $twig = new \Twig_Environment(new \Twig_Loader_Array([]));

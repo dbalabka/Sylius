@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the Sylius package.
+ * This file is part of the Sylius package.
  *
  * (c) Paweł Jędrzejewski
  *
@@ -19,25 +19,14 @@ use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Product\Resolver\ProductVariantResolverInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class CartItemFactory implements CartItemFactoryInterface
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $decoratedFactory;
 
-    /**
-     * @var ProductVariantResolverInterface
-     */
+    /** @var ProductVariantResolverInterface */
     private $variantResolver;
 
-    /**
-     * @param FactoryInterface $decoratedFactory
-     * @param ProductVariantResolverInterface $variantResolver
-     */
     public function __construct(FactoryInterface $decoratedFactory, ProductVariantResolverInterface $variantResolver)
     {
         $this->decoratedFactory = $decoratedFactory;

@@ -14,86 +14,59 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Ui\Shop;
 
 use Behat\Behat\Context\Context;
+use FriendsOfBehat\PageObjectExtension\Page\UnexpectedPageException;
 use Sylius\Behat\Context\Ui\Shop\Checkout\CheckoutAddressingContext;
 use Sylius\Behat\Context\Ui\Shop\Checkout\CheckoutPaymentContext;
 use Sylius\Behat\Context\Ui\Shop\Checkout\CheckoutShippingContext;
+use Sylius\Behat\Element\Shop\Account\RegisterElementInterface;
 use Sylius\Behat\Page\Shop\Account\RegisterPageInterface;
 use Sylius\Behat\Page\Shop\Checkout\AddressPageInterface;
 use Sylius\Behat\Page\Shop\Checkout\CompletePageInterface;
 use Sylius\Behat\Page\Shop\Checkout\SelectPaymentPageInterface;
 use Sylius\Behat\Page\Shop\Checkout\SelectShippingPageInterface;
-use Sylius\Behat\Page\UnexpectedPageException;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class CheckoutContext implements Context
 {
-    /**
-     * @var AddressPageInterface
-     */
+    /** @var AddressPageInterface */
     private $addressPage;
 
-    /**
-     * @var SelectPaymentPageInterface
-     */
+    /** @var SelectPaymentPageInterface */
     private $selectPaymentPage;
 
-    /**
-     * @var SelectShippingPageInterface
-     */
+    /** @var SelectShippingPageInterface */
     private $selectShippingPage;
 
-    /**
-     * @var CompletePageInterface
-     */
+    /** @var CompletePageInterface */
     private $completePage;
 
-    /**
-     * @var RegisterPageInterface
-     */
+    /** @var RegisterPageInterface */
     private $registerPage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var RegisterElementInterface */
+    private $registerElement;
+
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var CheckoutAddressingContext
-     */
+    /** @var CheckoutAddressingContext */
     private $addressingContext;
 
-    /**
-     * @var CheckoutShippingContext
-     */
+    /** @var CheckoutShippingContext */
     private $shippingContext;
 
-    /**
-     * @var CheckoutPaymentContext
-     */
+    /** @var CheckoutPaymentContext */
     private $paymentContext;
 
-    /**
-     * @param AddressPageInterface $addressPage
-     * @param SelectPaymentPageInterface $selectPaymentPage
-     * @param SelectShippingPageInterface $selectShippingPage
-     * @param CompletePageInterface $completePage
-     * @param RegisterPageInterface $registerPage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param CheckoutAddressingContext $addressingContext
-     * @param CheckoutShippingContext $shippingContext
-     * @param CheckoutPaymentContext $paymentContext
-     */
     public function __construct(
         AddressPageInterface $addressPage,
         SelectPaymentPageInterface $selectPaymentPage,
         SelectShippingPageInterface $selectShippingPage,
         CompletePageInterface $completePage,
         RegisterPageInterface $registerPage,
+        RegisterElementInterface $registerElement,
         CurrentPageResolverInterface $currentPageResolver,
         CheckoutAddressingContext $addressingContext,
         CheckoutShippingContext $shippingContext,
@@ -104,6 +77,7 @@ final class CheckoutContext implements Context
         $this->selectShippingPage = $selectShippingPage;
         $this->completePage = $completePage;
         $this->registerPage = $registerPage;
+        $this->registerElement = $registerElement;
         $this->currentPageResolver = $currentPageResolver;
         $this->addressingContext = $addressingContext;
         $this->shippingContext = $shippingContext;
@@ -245,11 +219,11 @@ final class CheckoutContext implements Context
     public function iRegisterWithPreviouslyUsedEmailAndPassword(string $email, string $password): void
     {
         $this->registerPage->open();
-        $this->registerPage->specifyEmail($email);
-        $this->registerPage->specifyPassword($password);
-        $this->registerPage->verifyPassword($password);
-        $this->registerPage->specifyFirstName('Carrot');
-        $this->registerPage->specifyLastName('Ironfoundersson');
-        $this->registerPage->register();
+        $this->registerElement->specifyEmail($email);
+        $this->registerElement->specifyPassword($password);
+        $this->registerElement->verifyPassword($password);
+        $this->registerElement->specifyFirstName('Carrot');
+        $this->registerElement->specifyLastName('Ironfoundersson');
+        $this->registerElement->register();
     }
 }

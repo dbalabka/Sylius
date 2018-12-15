@@ -13,25 +13,14 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ThemeBundle\Locator;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface FileLocatorInterface
 {
     /**
-     * @param string $name
-     *
-     * @return string
-     *
      * @throws \InvalidArgumentException If name is not valid or file was not found
      */
     public function locateFileNamed(string $name): string;
 
     /**
-     * @param string $name
-     *
-     * @return array
-     *
      * @throws \InvalidArgumentException If name is not valid or files were not found
      */
     public function locateFilesNamed(string $name): array;

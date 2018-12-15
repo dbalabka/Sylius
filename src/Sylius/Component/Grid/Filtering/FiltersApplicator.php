@@ -18,25 +18,14 @@ use Sylius\Component\Grid\Definition\Grid;
 use Sylius\Component\Grid\Parameters;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class FiltersApplicator implements FiltersApplicatorInterface
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     private $filtersRegistry;
 
-    /**
-     * @var FiltersCriteriaResolverInterface
-     */
+    /** @var FiltersCriteriaResolverInterface */
     private $criteriaResolver;
 
-    /**
-     * @param ServiceRegistryInterface $filtersRegistry
-     * @param FiltersCriteriaResolverInterface $criteriaResolver
-     */
     public function __construct(
         ServiceRegistryInterface $filtersRegistry,
         FiltersCriteriaResolverInterface $criteriaResolver

@@ -17,22 +17,15 @@ use Lakion\ApiTestCase\JsonApiTestCase;
 use Sylius\Component\Core\Model\AdminUserInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class AdminUserApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithAccept = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'ACCEPT' => 'application/json',
@@ -73,7 +66,7 @@ class AdminUserApiTest extends JsonApiTestCase
         $data =
 <<<EOT
         {
-            "username": "Barlog",
+            "username": "Balrog",
             "email": "teamEvil@middleearth.com",
             "plainPassword": "youShallNotPass",
             "localeCode": "en_US"
@@ -342,12 +335,10 @@ EOT;
         $this->client->request('DELETE', $this->getAdminUserUrl($user['admin']), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
-        $this->assertResponse($response, 'admin_user/deletion_fail_response',  Response::HTTP_UNPROCESSABLE_ENTITY);
+        $this->assertResponse($response, 'admin_user/deletion_fail_response', Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     /**
-     * @param AdminUserInterface $user
-     *
      * @return string
      */
     private function getAdminUserUrl(AdminUserInterface $user)

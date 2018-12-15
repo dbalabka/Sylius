@@ -23,24 +23,15 @@ use Sylius\Component\Resource\Repository\Exception\ExistingResourceException;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use Symfony\Component\PropertyAccess\PropertyAccessor;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class InMemoryRepository implements RepositoryInterface
 {
-    /**
-     * @var PropertyAccessor
-     */
+    /** @var PropertyAccessor */
     protected $accessor;
 
-    /**
-     * @var ArrayObject
-     */
+    /** @var ArrayObject */
     protected $arrayObject;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $interface;
 
     /**
@@ -177,7 +168,6 @@ class InMemoryRepository implements RepositoryInterface
 
     /**
      * @param ResourceInterface[] $resources
-     * @param array               $criteria
      *
      * @return ResourceInterface[]|array
      */
@@ -197,7 +187,6 @@ class InMemoryRepository implements RepositoryInterface
 
     /**
      * @param ResourceInterface[] $resources
-     * @param array               $orderBy
      *
      * @return ResourceInterface[]
      */

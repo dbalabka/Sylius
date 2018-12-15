@@ -16,9 +16,6 @@ namespace Sylius\Bundle\ShopBundle\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
@@ -50,7 +47,7 @@ final class Configuration implements ConfigurationInterface
                         ->end()
                         ->arrayNode('route_map')
                             ->useAttributeAsKey('name')
-                            ->prototype('array')
+                            ->arrayPrototype()
                                 ->children()
                                     ->scalarNode('route')
                                         ->cannotBeEmpty()
@@ -58,6 +55,14 @@ final class Configuration implements ConfigurationInterface
                                     ->end()
                                 ->end()
                             ->end()
+                        ->end()
+                    ->end()
+                ->end()
+                ->arrayNode('product_grid')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('include_all_descendants')
+                            ->defaultFalse()
                         ->end()
                     ->end()
                 ->end()

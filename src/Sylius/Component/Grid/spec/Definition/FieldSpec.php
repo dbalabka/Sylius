@@ -15,9 +15,6 @@ namespace spec\Sylius\Component\Grid\Definition;
 
 use PhpSpec\ObjectBehavior;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class FieldSpec extends ObjectBehavior
 {
     function let(): void
@@ -84,8 +81,8 @@ final class FieldSpec extends ObjectBehavior
 
     function it_can_have_options(): void
     {
-        $this->setOptions(['template' => 'SyliusUiBundle:Grid/Field:_status.html.twig']);
-        $this->getOptions()->shouldReturn(['template' => 'SyliusUiBundle:Grid/Field:_status.html.twig']);
+        $this->setOptions(['template' => '@SyliusUi/Grid/Field/_status.html.twig']);
+        $this->getOptions()->shouldReturn(['template' => '@SyliusUi/Grid/Field/_status.html.twig']);
     }
 
     function it_has_last_position_by_default(): void

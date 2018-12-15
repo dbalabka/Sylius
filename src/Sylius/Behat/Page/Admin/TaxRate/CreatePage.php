@@ -17,9 +17,6 @@ use Sylius\Behat\Behaviour\NamesIt;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use NamesIt;
@@ -46,7 +43,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function chooseCalculator($name)
     {
-        $this->getDocument()->selectFieldOption(\Calculator::class, $name);
+        $this->getDocument()->selectFieldOption('Calculator', $name);
     }
 
     /**
@@ -65,7 +62,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'amount' => '#sylius_tax_rate_amount',

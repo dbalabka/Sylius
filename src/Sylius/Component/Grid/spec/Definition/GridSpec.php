@@ -19,9 +19,6 @@ use Sylius\Component\Grid\Definition\ActionGroup;
 use Sylius\Component\Grid\Definition\Field;
 use Sylius\Component\Grid\Definition\Filter;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class GridSpec extends ObjectBehavior
 {
     function let(): void
@@ -29,7 +26,7 @@ final class GridSpec extends ObjectBehavior
         $this->beConstructedThrough('fromCodeAndDriverConfiguration', ['sylius_admin_tax_category', 'doctrine/orm', [
             'resource' => 'sylius.tax_category',
             'method' => 'createByCodeQueryBuilder',
-            'arguments' => ['$code']
+            'arguments' => ['$code'],
         ]]);
     }
 
@@ -48,7 +45,7 @@ final class GridSpec extends ObjectBehavior
         $this->getDriverConfiguration()->shouldReturn([
             'resource' => 'sylius.tax_category',
             'method' => 'createByCodeQueryBuilder',
-            'arguments' => ['$code']
+            'arguments' => ['$code'],
         ]);
     }
 
@@ -208,6 +205,26 @@ final class GridSpec extends ObjectBehavior
 
         $this->setActionGroup($secondActionGroup);
         $this->getActionGroup('row')->shouldReturn($secondActionGroup);
+    }
+
+    function it_can_return_action_groups(ActionGroup $firstActionGroup, ActionGroup $secondActionGroup): void
+    {
+        $firstActionGroup->getName()->willReturn('first');
+        $secondActionGroup->getName()->willReturn('second');
+        $this->addActionGroup($firstActionGroup);
+        $this->addActionGroup($secondActionGroup);
+
+        $this->getActionGroups()->shouldHaveCount(2);
+    }
+
+    function it_can_return_only_enabled_action_groups(ActionGroup $firstActionGroup, ActionGroup $secondActionGroup): void
+    {
+        $firstActionGroup->getName()->willReturn('first');
+        $secondActionGroup->getName()->willReturn('second');
+        $this->addActionGroup($firstActionGroup);
+        $this->addActionGroup($secondActionGroup);
+
+        $this->getEnabledActionGroups()->shouldHaveCount(2);
     }
 
     function it_returns_actions_for_given_group(ActionGroup $actionGroup, Action $action): void

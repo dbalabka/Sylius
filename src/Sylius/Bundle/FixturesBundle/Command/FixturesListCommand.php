@@ -19,9 +19,6 @@ use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class FixturesListCommand extends ContainerAwareCommand
 {
     /**
@@ -44,9 +41,6 @@ final class FixturesListCommand extends ContainerAwareCommand
         $this->listFixtures($output);
     }
 
-    /**
-     * @param OutputInterface $output
-     */
     private function listSuites(OutputInterface $output): void
     {
         $suites = $this->getSuiteRegistry()->getSuites();
@@ -58,9 +52,6 @@ final class FixturesListCommand extends ContainerAwareCommand
         }
     }
 
-    /**
-     * @param OutputInterface $output
-     */
     private function listFixtures(OutputInterface $output): void
     {
         $fixtures = $this->getFixtureRegistry()->getFixtures();
@@ -72,17 +63,11 @@ final class FixturesListCommand extends ContainerAwareCommand
         }
     }
 
-    /**
-     * @return SuiteRegistryInterface
-     */
     private function getSuiteRegistry(): SuiteRegistryInterface
     {
         return $this->getContainer()->get('sylius_fixtures.suite_registry');
     }
 
-    /**
-     * @return FixtureRegistryInterface
-     */
     private function getFixtureRegistry(): FixtureRegistryInterface
     {
         return $this->getContainer()->get('sylius_fixtures.fixture_registry');

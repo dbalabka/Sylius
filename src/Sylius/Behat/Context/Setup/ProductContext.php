@@ -35,117 +35,61 @@ use Sylius\Component\Product\Model\ProductOptionValueInterface;
 use Sylius\Component\Product\Model\ProductVariantTranslationInterface;
 use Sylius\Component\Product\Resolver\ProductVariantResolverInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
-use Sylius\Component\Resource\Model\TranslationInterface;
 use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- */
 final class ProductContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**
-     * @var ProductRepositoryInterface
-     */
+    /** @var ProductRepositoryInterface */
     private $productRepository;
 
-    /**
-     * @var ProductFactoryInterface
-     */
+    /** @var ProductFactoryInterface */
     private $productFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productTranslationFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productVariantFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productVariantTranslationFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $channelPricingFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productOptionFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productOptionValueFactory;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productImageFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $objectManager;
 
-    /**
-     * @var ProductVariantGeneratorInterface
-     */
+    /** @var ProductVariantGeneratorInterface */
     private $productVariantGenerator;
 
-    /**
-     * @var ProductVariantResolverInterface
-     */
+    /** @var ProductVariantResolverInterface */
     private $defaultVariantResolver;
 
-    /**
-     * @var ImageUploaderInterface
-     */
+    /** @var ImageUploaderInterface */
     private $imageUploader;
 
-    /**
-     * @var SlugGeneratorInterface
-     */
+    /** @var SlugGeneratorInterface */
     private $slugGenerator;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $minkParameters;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param ProductRepositoryInterface $productRepository
-     * @param ProductFactoryInterface $productFactory
-     * @param FactoryInterface $productTranslationFactory
-     * @param FactoryInterface $productVariantFactory
-     * @param FactoryInterface $productVariantTranslationFactory
-     * @param FactoryInterface $channelPricingFactory
-     * @param FactoryInterface $productOptionFactory
-     * @param FactoryInterface $productOptionValueFactory
-     * @param FactoryInterface $productImageFactory
-     * @param ObjectManager $objectManager
-     * @param ProductVariantGeneratorInterface $productVariantGenerator
-     * @param ProductVariantResolverInterface $defaultVariantResolver
-     * @param ImageUploaderInterface $imageUploader
-     * @param SlugGeneratorInterface $slugGenerator
-     * @param array $minkParameters
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         ProductRepositoryInterface $productRepository,
@@ -197,7 +141,7 @@ final class ProductContext implements Context
     }
 
     /**
-     * @Given /^(this product) is also priced at ("[^"]+") in ("[^"]+" channel)$/
+     * @Given /^(this product) is(?:| also) priced at ("[^"]+") in ("[^"]+" channel)$/
      */
     public function thisProductIsAlsoPricedAtInChannel(ProductInterface $product, $price, ChannelInterface $channel)
     {
@@ -208,6 +152,14 @@ final class ProductContext implements Context
         $productVariant->addChannelPricing($this->createChannelPricingForChannel($price, $channel));
 
         $this->objectManager->flush();
+    }
+
+    /**
+     * @Given /^(this product) is(?:| also) available in ("[^"]+" channel)$/
+     */
+    public function thisProductIsAlsoAvailableInChannel(ProductInterface $product, ChannelInterface $channel): void
+    {
+        $this->thisProductIsAlsoPricedAtInChannel($product, 0, $channel);
     }
 
     /**
@@ -339,7 +291,7 @@ final class ProductContext implements Context
             $productVariantName,
             $price,
             StringInflector::nameToUppercaseCode($productVariantName),
-            (null !== $channel) ? $channel : $this->sharedStorage->get('channel')
+            $channel ?? $this->sharedStorage->get('channel')
         );
     }
 
@@ -542,7 +494,9 @@ final class ProductContext implements Context
         TaxCategoryInterface $taxCategory
     ) {
         $productVariant->setTaxCategory($taxCategory);
-        $this->objectManager->flush($productVariant);
+
+        $this->objectManager->persist($productVariant);
+        $this->objectManager->flush();
     }
 
     /**
@@ -748,13 +702,14 @@ final class ProductContext implements Context
 
         /** @var ImageInterface $productImage */
         $productImage = $this->productImageFactory->createNew();
-        $productImage->setFile(new UploadedFile($filesPath.$imagePath, basename($imagePath)));
+        $productImage->setFile(new UploadedFile($filesPath . $imagePath, basename($imagePath)));
         $productImage->setType($imageType);
         $this->imageUploader->upload($productImage);
 
         $product->addImage($productImage);
 
-        $this->objectManager->flush($product);
+        $this->objectManager->persist($product);
+        $this->objectManager->flush();
     }
 
     /**
@@ -777,19 +732,23 @@ final class ProductContext implements Context
     }
 
     /**
-     * @param string $price
-     *
-     * @return int
+     * @Given the product :product was renamed to :productName
      */
-    private function getPriceFromString($price)
+    public function theProductWasRenamedTo(ProductInterface $product, string $productName): void
     {
-        return (int) round($price * 100, 2);
+        $product->setName($productName);
+
+        $this->objectManager->flush();
+    }
+
+    private function getPriceFromString(string $price): int
+    {
+        return (int) round((float) str_replace(['€', '£', '$'], '', $price) * 100, 2);
     }
 
     /**
      * @param string $productName
      * @param int $price
-     * @param ChannelInterface|null $channel
      *
      * @return ProductInterface
      */
@@ -832,7 +791,6 @@ final class ProductContext implements Context
     }
 
     /**
-     * @param ProductOptionInterface $option
      * @param string $value
      * @param string $code
      *
@@ -852,9 +810,6 @@ final class ProductContext implements Context
         return $optionValue;
     }
 
-    /**
-     * @param ProductInterface $product
-     */
     private function saveProduct(ProductInterface $product)
     {
         $this->productRepository->add($product);
@@ -868,12 +823,11 @@ final class ProductContext implements Context
      */
     private function getParameter($name)
     {
-        return isset($this->minkParameters[$name]) ? $this->minkParameters[$name] : null;
+        return $this->minkParameters[$name] ?? null;
     }
 
     /**
-     * @param ProductInterface $product
-     * @param $productVariantName
+     * @param string $productVariantName
      * @param int $price
      * @param string $code
      * @param ChannelInterface $channel
@@ -912,15 +866,15 @@ final class ProductContext implements Context
     }
 
     /**
-     * @param ProductInterface $product
      * @param string $name
      * @param string $locale
      */
     private function addProductTranslation(ProductInterface $product, $name, $locale)
     {
-        /** @var ProductTranslationInterface|TranslationInterface $translation */
+        /** @var ProductTranslationInterface $translation */
         $translation = $product->getTranslation($locale);
         if ($translation->getLocale() !== $locale) {
+            /** @var ProductTranslationInterface $translation */
             $translation = $this->productTranslationFactory->createNew();
         }
 
@@ -932,13 +886,12 @@ final class ProductContext implements Context
     }
 
     /**
-     * @param ProductVariantInterface $productVariant
      * @param string $name
      * @param string $locale
      */
     private function addProductVariantTranslation(ProductVariantInterface $productVariant, $name, $locale)
     {
-        /** @var ProductVariantTranslationInterface|TranslationInterface $translation */
+        /** @var ProductVariantTranslationInterface $translation */
         $translation = $this->productVariantTranslationFactory->createNew();
         $translation->setLocale($locale);
         $translation->setName($name);
@@ -948,7 +901,6 @@ final class ProductContext implements Context
 
     /**
      * @param int $price
-     * @param ChannelInterface|null $channel
      *
      * @return ChannelPricingInterface
      */

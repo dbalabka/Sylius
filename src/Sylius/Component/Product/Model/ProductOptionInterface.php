@@ -18,10 +18,8 @@ use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\TranslatableInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ProductOptionInterface extends
     ResourceInterface,
     CodeAwareInterface,
@@ -53,20 +51,14 @@ interface ProductOptionInterface extends
      */
     public function getValues(): Collection;
 
-    /**
-     * @param ProductOptionValueInterface $optionValue
-     */
     public function addValue(ProductOptionValueInterface $optionValue): void;
 
-    /**
-     * @param ProductOptionValueInterface $optionValue
-     */
     public function removeValue(ProductOptionValueInterface $optionValue): void;
 
-    /**
-     * @param ProductOptionValueInterface $optionValue
-     *
-     * @return bool
-     */
     public function hasValue(ProductOptionValueInterface $optionValue): bool;
+
+    /**
+     * @return ProductOptionTranslationInterface
+     */
+    public function getTranslation(?string $locale = null): TranslationInterface;
 }

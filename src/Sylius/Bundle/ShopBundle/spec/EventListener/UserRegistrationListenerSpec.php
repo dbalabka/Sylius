@@ -26,9 +26,6 @@ use Sylius\Component\User\Security\Generator\GeneratorInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class UserRegistrationListenerSpec extends ObjectBehavior
 {
     function let(
@@ -96,13 +93,14 @@ final class UserRegistrationListenerSpec extends ObjectBehavior
         $channel->isAccountVerificationRequired()->willReturn(false);
 
         $user->setEnabled(true)->shouldBeCalled();
+
+        $userManager->persist($user)->shouldBeCalled();
+        $userManager->flush()->shouldBeCalled();
+
         $userLogin->login($user, 'shop')->shouldBeCalled();
 
         $tokenGenerator->generate()->shouldNotBeCalled();
         $user->setEmailVerificationToken(Argument::any())->shouldNotBeCalled();
-
-        $userManager->persist($user)->shouldNotBeCalled();
-        $userManager->flush()->shouldNotBeCalled();
 
         $eventDispatcher
             ->dispatch(UserEvents::REQUEST_VERIFICATION_TOKEN, Argument::type(GenericEvent::class))
@@ -130,13 +128,14 @@ final class UserRegistrationListenerSpec extends ObjectBehavior
         $channel->isAccountVerificationRequired()->willReturn(false);
 
         $user->setEnabled(true)->shouldBeCalled();
+
+        $userManager->persist($user)->shouldBeCalled();
+        $userManager->flush()->shouldBeCalled();
+
         $userLogin->login($user, 'shop')->shouldBeCalled();
 
         $tokenGenerator->generate()->shouldNotBeCalled();
         $user->setEmailVerificationToken(Argument::any())->shouldNotBeCalled();
-
-        $userManager->persist($user)->shouldNotBeCalled();
-        $userManager->flush()->shouldNotBeCalled();
 
         $eventDispatcher
             ->dispatch(UserEvents::REQUEST_VERIFICATION_TOKEN, Argument::type(GenericEvent::class))

@@ -20,19 +20,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class RedirectHandler implements RedirectHandlerInterface
 {
-    /**
-     * @var RouterInterface
-     */
+    /** @var RouterInterface */
     private $router;
 
-    /**
-     * @param RouterInterface $router
-     */
     public function __construct(RouterInterface $router)
     {
         $this->router = $router;
@@ -89,11 +81,11 @@ final class RedirectHandler implements RedirectHandlerInterface
     {
         if ($configuration->isHeaderRedirection()) {
             return new Response('', 200, [
-                'X-SYLIUS-LOCATION' => $url.$configuration->getRedirectHash(),
+                'X-SYLIUS-LOCATION' => $url . $configuration->getRedirectHash(),
             ]);
         }
 
-        return new RedirectResponse($url.$configuration->getRedirectHash(), $status);
+        return new RedirectResponse($url . $configuration->getRedirectHash(), $status);
     }
 
     /**

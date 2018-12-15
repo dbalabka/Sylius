@@ -16,31 +16,17 @@ namespace Sylius\Bundle\FixturesBundle\Listener;
 use Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface;
 use Sylius\Bundle\FixturesBundle\Suite\SuiteInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class FixtureEvent
 {
-    /**
-     * @var SuiteInterface
-     */
+    /** @var SuiteInterface */
     private $suite;
 
-    /**
-     * @var FixtureInterface
-     */
+    /** @var FixtureInterface */
     private $fixture;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $fixtureOptions;
 
-    /**
-     * @param SuiteInterface $suite
-     * @param FixtureInterface $fixture
-     * @param array $fixtureOptions
-     */
     public function __construct(SuiteInterface $suite, FixtureInterface $fixture, array $fixtureOptions)
     {
         $this->suite = $suite;
@@ -48,25 +34,16 @@ final class FixtureEvent
         $this->fixtureOptions = $fixtureOptions;
     }
 
-    /**
-     * @return SuiteInterface
-     */
     public function suite(): SuiteInterface
     {
         return $this->suite;
     }
 
-    /**
-     * @return FixtureInterface
-     */
     public function fixture(): FixtureInterface
     {
         return $this->fixture;
     }
 
-    /**
-     * @return array
-     */
     public function fixtureOptions(): array
     {
         return $this->fixtureOptions;

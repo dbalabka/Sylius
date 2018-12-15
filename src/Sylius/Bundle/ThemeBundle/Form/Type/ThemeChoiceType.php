@@ -20,19 +20,11 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ThemeChoiceType extends AbstractType
 {
-    /**
-     * @var ThemeRepositoryInterface
-     */
+    /** @var ThemeRepositoryInterface */
     private $themeRepository;
 
-    /**
-     * @param ThemeRepositoryInterface $themeRepository
-     */
     public function __construct(ThemeRepositoryInterface $themeRepository)
     {
         $this->themeRepository = $themeRepository;
@@ -48,7 +40,7 @@ final class ThemeChoiceType extends AbstractType
                 return $this->themeRepository->findAll();
             },
             'choice_label' => function (ThemeInterface $theme): string {
-                return (string) $theme;
+                return $theme->getTitle() ?: $theme->getName();
             },
         ]);
     }

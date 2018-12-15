@@ -16,28 +16,16 @@ namespace Sylius\Behat\Page\Admin\Order;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Behat\Service\Accessor\TableAccessorInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class ShowPage extends SymfonyPage implements ShowPageInterface
 {
-    /**
-     * @var TableAccessorInterface
-     */
+    /** @var TableAccessorInterface */
     private $tableAccessor;
 
-    /**
-     * @param Session $session
-     * @param array $parameters
-     * @param RouterInterface $router
-     * @param TableAccessorInterface $tableAccessor
-     */
     public function __construct(
         Session $session,
         array $parameters,
@@ -149,15 +137,24 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function isProductInTheList($productName)
+    public function isProductInTheList(string $productName): bool
     {
         try {
+            $table = $this->getElement('table');
             $rows = $this->tableAccessor->getRowsWithFields(
-                $this->getElement('table'),
+                $table,
                 ['item' => $productName]
             );
 
-            return 1 === count($rows);
+            foreach ($rows as $row) {
+                $field = $this->tableAccessor->getFieldFromRow($table, $row, 'item');
+                $name = $field->find('css', '.sylius-product-name');
+                if (null !== $name && $name->getText() === $productName) {
+                    return true;
+                }
+            }
+
+            return false;
         } catch (\InvalidArgumentException $exception) {
             return false;
         }
@@ -460,7 +457,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_admin_order_show';
     }
@@ -468,7 +465,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'billing_address' => '#billing-address',
@@ -519,7 +516,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             (stripos($elementText, $customerName) !== false) &&
             (stripos($elementText, $street) !== false) &&
             (stripos($elementText, $city) !== false) &&
-            (stripos($elementText, $countryName.' '.$postcode) !== false)
+            (stripos($elementText, $countryName . ' ' . $postcode) !== false)
         ;
     }
 
@@ -536,12 +533,10 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             ['item' => $itemName]
         );
 
-        return $rows[0]->find('css', '.'.$property)->getText();
+        return $rows[0]->find('css', '.' . $property)->getText();
     }
 
     /**
-     * @param OrderInterface $order
-     *
      * @return NodeElement|null
      */
     private function getLastOrderPaymentElement(OrderInterface $order)
@@ -555,8 +550,6 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     }
 
     /**
-     * @param OrderInterface $order
-     *
      * @return NodeElement|null
      */
     private function getLastOrderShipmentElement(OrderInterface $order)

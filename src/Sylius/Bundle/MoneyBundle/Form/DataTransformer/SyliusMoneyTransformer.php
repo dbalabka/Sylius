@@ -15,9 +15,6 @@ namespace Sylius\Bundle\MoneyBundle\Form\DataTransformer;
 
 use Symfony\Component\Form\Extension\Core\DataTransformer\MoneyToLocalizedStringTransformer;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 final class SyliusMoneyTransformer extends MoneyToLocalizedStringTransformer
 {
     /**
@@ -27,6 +24,6 @@ final class SyliusMoneyTransformer extends MoneyToLocalizedStringTransformer
     {
         $value = parent::reverseTransform($value);
 
-        return null === $value ? $value : (int) round($value);
+        return null === $value ? null : (int) round($value);
     }
 }

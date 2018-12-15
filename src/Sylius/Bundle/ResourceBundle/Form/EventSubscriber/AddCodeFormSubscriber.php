@@ -20,24 +20,16 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class AddCodeFormSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $type;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $options;
 
     /**
      * @param string $type
-     * @param array $options
      */
     public function __construct(?string $type = null, array $options = [])
     {
@@ -55,9 +47,6 @@ final class AddCodeFormSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param FormEvent $event
-     */
     public function preSetData(FormEvent $event): void
     {
         $resource = $event->getData();

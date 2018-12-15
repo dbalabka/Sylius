@@ -25,19 +25,11 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class ResourceAutocompleteChoiceType extends AbstractType
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ServiceRegistryInterface */
     protected $resourceRepositoryRegistry;
 
-    /**
-     * @param ServiceRegistryInterface $resourceRepositoryRegistry
-     */
     public function __construct(ServiceRegistryInterface $resourceRepositoryRegistry)
     {
         $this->resourceRepositoryRegistry = $resourceRepositoryRegistry;

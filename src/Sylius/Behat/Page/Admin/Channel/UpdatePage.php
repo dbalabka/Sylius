@@ -17,10 +17,6 @@ use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Behaviour\Toggles;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
     use ChecksCodeImmutability;
@@ -79,7 +75,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
      */
     public function chooseDefaultTaxZone($taxZone)
     {
-        $this->getDocument()->selectFieldOption('Default tax zone', (null === $taxZone) ? '' : $taxZone);
+        $this->getDocument()->selectFieldOption('Default tax zone', $taxZone ?? '');
     }
 
     /**
@@ -145,7 +141,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'base_currency' => '#sylius_channel_baseCurrency',

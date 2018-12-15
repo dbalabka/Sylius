@@ -23,25 +23,14 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ProductTaxonAutocompleteChoiceType extends AbstractType
 {
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $productTaxonFactory;
 
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $productTaxonRepository;
 
-    /**
-     * @param FactoryInterface $productTaxonFactory
-     * @param RepositoryInterface $productTaxonRepository
-     */
     public function __construct(FactoryInterface $productTaxonFactory, RepositoryInterface $productTaxonRepository)
     {
         $this->productTaxonFactory = $productTaxonFactory;
@@ -84,7 +73,7 @@ final class ProductTaxonAutocompleteChoiceType extends AbstractType
         $resolver->setDefaults([
             'resource' => 'sylius.taxon',
             'choice_name' => 'name',
-            'choice_value' => 'code'
+            'choice_value' => 'code',
         ]);
 
         $resolver

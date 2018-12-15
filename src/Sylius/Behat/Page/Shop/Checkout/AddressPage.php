@@ -17,31 +17,20 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Component\Core\Factory\AddressFactoryInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class AddressPage extends SymfonyPage implements AddressPageInterface
 {
     public const TYPE_BILLING = 'billing';
     public const TYPE_SHIPPING = 'shipping';
 
-    /**
-     * @var AddressFactoryInterface
-     */
+    /** @var AddressFactoryInterface */
     private $addressFactory;
 
-    /**
-     * @param Session $session
-     * @param array $parameters
-     * @param RouterInterface $router
-     * @param AddressFactoryInterface $addressFactory
-     */
     public function __construct(
         Session $session,
         array $parameters,
@@ -56,7 +45,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_shop_checkout_address';
     }
@@ -186,6 +175,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     public function signIn()
     {
         $this->waitForElement(5, 'login_button');
+
         try {
             $this->getElement('login_button')->press();
         } catch (ElementNotFoundException $elementNotFoundException) {
@@ -330,7 +320,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'billing_address_book' => '#sylius-billing-address .ui.dropdown',
@@ -380,6 +370,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
         $address->setCity($this->getElement(sprintf('%s_city', $type))->getValue());
         $address->setPostcode($this->getElement(sprintf('%s_postcode', $type))->getValue());
         $this->waitForElement(5, sprintf('%s_province', $type));
+
         try {
             $address->setProvinceName($this->getElement(sprintf('%s_province', $type))->getValue());
         } catch (ElementNotFoundException $exception) {
@@ -390,7 +381,6 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     }
 
     /**
-     * @param AddressInterface $address
      * @param string $type
      */
     private function specifyAddress(AddressInterface $address, $type)

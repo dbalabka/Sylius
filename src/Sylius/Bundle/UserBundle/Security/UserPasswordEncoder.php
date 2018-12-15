@@ -17,19 +17,11 @@ use Sylius\Component\User\Model\CredentialsHolderInterface;
 use Sylius\Component\User\Security\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
-/**
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 class UserPasswordEncoder implements UserPasswordEncoderInterface
 {
-    /**
-     * @var EncoderFactoryInterface
-     */
+    /** @var EncoderFactoryInterface */
     private $encoderFactory;
 
-    /**
-     * @param EncoderFactoryInterface $encoderFactory
-     */
     public function __construct(EncoderFactoryInterface $encoderFactory)
     {
         $this->encoderFactory = $encoderFactory;

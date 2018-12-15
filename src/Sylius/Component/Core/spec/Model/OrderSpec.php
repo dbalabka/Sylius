@@ -18,20 +18,17 @@ use PhpSpec\ObjectBehavior;
 use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Model\AddressInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
+use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
 use Sylius\Component\Core\Model\PromotionInterface;
 use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Core\OrderCheckoutStates;
 use Sylius\Component\Core\OrderShippingStates;
-use Sylius\Component\Customer\Model\CustomerInterface;
 use Sylius\Component\Order\Model\Order as BaseOrder;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Promotion\Model\PromotionCouponInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class OrderSpec extends ObjectBehavior
 {
     function it_implements_an_order_interface(): void
@@ -53,6 +50,12 @@ final class OrderSpec extends ObjectBehavior
     {
         $this->setCustomer($customer);
         $this->getCustomer()->shouldReturn($customer);
+    }
+
+    function its_customer_can_be_nullable(): void
+    {
+        $this->setCustomer(null);
+        $this->getCustomer()->shouldReturn(null);
     }
 
     function its_channel_is_mutable(ChannelInterface $channel): void

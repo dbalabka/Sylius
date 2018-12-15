@@ -16,9 +16,6 @@ namespace Sylius\Bundle\ResourceBundle\Controller;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class NewResourceFactory implements NewResourceFactoryInterface
 {
     /**
@@ -28,6 +25,11 @@ final class NewResourceFactory implements NewResourceFactoryInterface
     {
         if (null === $method = $requestConfiguration->getFactoryMethod()) {
             return $factory->createNew();
+        }
+
+        if (is_array($method) && 2 === count($method)) {
+            $factory = $method[0];
+            $method = $method[1];
         }
 
         $arguments = array_values($requestConfiguration->getFactoryArguments());

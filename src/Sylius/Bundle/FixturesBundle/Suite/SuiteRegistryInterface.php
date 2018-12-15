@@ -13,16 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\FixturesBundle\Suite;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface SuiteRegistryInterface
 {
     /**
-     * @param string $name
-     *
-     * @return SuiteInterface
-     *
      * @throws SuiteNotFoundException
      */
     public function getSuite(string $name): SuiteInterface;

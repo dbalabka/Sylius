@@ -13,19 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Registry;
 
-/**
- * @author Mark McKelvie <mark.mckelvie@reiss.com>
- */
 interface PrioritizedServiceRegistryInterface
 {
-    /**
-     * @return iterable
-     */
     public function all(): iterable;
 
     /**
      * @param object $service
-     * @param int $priority
      *
      * @throws ExistingServiceException
      * @throws \InvalidArgumentException
@@ -41,8 +34,6 @@ interface PrioritizedServiceRegistryInterface
 
     /**
      * @param object $service
-     *
-     * @return bool
      */
     public function has($service): bool;
 }

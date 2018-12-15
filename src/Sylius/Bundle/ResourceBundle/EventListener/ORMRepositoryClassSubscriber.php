@@ -17,14 +17,8 @@ use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
-/**
- * @author Ben Davies <ben.davies@gmail.com>
- */
 final class ORMRepositoryClassSubscriber extends AbstractDoctrineSubscriber
 {
-    /**
-     * @return array
-     */
     public function getSubscribedEvents(): array
     {
         return [
@@ -32,17 +26,11 @@ final class ORMRepositoryClassSubscriber extends AbstractDoctrineSubscriber
         ];
     }
 
-    /**
-     * @param LoadClassMetadataEventArgs $eventArgs
-     */
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void
     {
         $this->setCustomRepositoryClass($eventArgs->getClassMetadata());
     }
 
-    /**
-     * @param ClassMetadata $metadata
-     */
     private function setCustomRepositoryClass(ClassMetadata $metadata): void
     {
         try {

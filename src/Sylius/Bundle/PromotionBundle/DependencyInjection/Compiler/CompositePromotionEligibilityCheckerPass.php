@@ -17,9 +17,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CompositePromotionEligibilityCheckerPass implements CompilerPassInterface
 {
     /**
@@ -37,7 +34,7 @@ final class CompositePromotionEligibilityCheckerPass implements CompilerPassInte
                     return new Reference($id);
                 },
                 array_keys($container->findTaggedServiceIds('sylius.promotion_eligibility_checker'))
-            )
+            ),
         ]);
     }
 }

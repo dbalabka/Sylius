@@ -20,9 +20,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Parameter;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TestConfigurationSourceFactory implements ConfigurationSourceFactoryInterface
 {
     /**
@@ -44,11 +41,11 @@ final class TestConfigurationSourceFactory implements ConfigurationSourceFactory
                 new Reference('sylius.theme.configuration.processor'),
                 new Parameter('kernel.cache_dir'),
             ])
-        );
+        )->setPublic(true);
 
-        return new Definition(TestConfigurationProvider::class, [
+        return (new Definition(TestConfigurationProvider::class, [
             new Reference('sylius.theme.test_theme_configuration_manager'),
-        ]);
+        ]))->setPublic(true);
     }
 
     /**

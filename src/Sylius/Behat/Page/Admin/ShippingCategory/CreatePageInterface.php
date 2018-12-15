@@ -15,11 +15,18 @@ namespace Sylius\Behat\Page\Admin\ShippingCategory;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInteface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInteface
 {
+    /**
+     * @param string $code
+     */
+    public function specifyCode($code);
+
+    /**
+     * @param string $name
+     */
+    public function nameIt($name);
+
     /**
      * @param string $description
      */

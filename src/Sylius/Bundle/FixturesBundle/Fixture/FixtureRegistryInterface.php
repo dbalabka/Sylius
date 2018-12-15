@@ -13,16 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\FixturesBundle\Fixture;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface FixtureRegistryInterface
 {
     /**
-     * @param string $name
-     *
-     * @return FixtureInterface
-     *
      * @throws FixtureNotFoundException
      */
     public function getFixture(string $name): FixtureInterface;

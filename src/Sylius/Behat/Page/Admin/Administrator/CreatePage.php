@@ -15,9 +15,6 @@ namespace Sylius\Behat\Page\Admin\Administrator;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     public function enable()
@@ -60,7 +57,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'email' => '#sylius_admin_user_email',

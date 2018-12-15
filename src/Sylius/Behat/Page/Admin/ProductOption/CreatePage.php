@@ -13,15 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\ProductOption;
 
-use Behat\Mink\Element\Element;
+use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class CreatePage extends BaseCreatePage implements CreatePageInterface
 {
     use SpecifiesItsCode;
@@ -65,7 +62,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_product_option_code',
@@ -75,10 +72,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         ]);
     }
 
-    /**
-     * @return Element
-     */
-    private function getLastOptionValueElement()
+    private function getLastOptionValueElement(): NodeElement
     {
         $optionValues = $this->getElement('values');
         $items = $optionValues->findAll('css', 'div[data-form-collection="item"]');

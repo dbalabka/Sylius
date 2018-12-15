@@ -16,19 +16,12 @@ namespace Sylius\Bundle\ResourceBundle\Form\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- */
 abstract class AbstractResourceType extends AbstractType
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $dataClass;
 
-    /**
-     * @var string[]
-     */
+    /** @var string[] */
     protected $validationGroups = [];
 
     /**

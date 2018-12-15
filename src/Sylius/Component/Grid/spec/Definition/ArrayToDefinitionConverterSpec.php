@@ -24,9 +24,6 @@ use Sylius\Component\Grid\Definition\Grid;
 use Sylius\Component\Grid\Event\GridDefinitionConverterEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ArrayToDefinitionConverterSpec extends ObjectBehavior
 {
     function let(EventDispatcherInterface $eventDispatcher): void
@@ -117,7 +114,7 @@ final class ArrayToDefinitionConverterSpec extends ObjectBehavior
                     'path' => 'method.code',
                     'sortable' => 'code',
                     'options' => [
-                        'template' => 'bar.html.twig'
+                        'template' => 'bar.html.twig',
                     ],
                 ],
                 'enabled' => [
@@ -146,10 +143,10 @@ final class ArrayToDefinitionConverterSpec extends ObjectBehavior
                 'enabled' => [
                     'type' => 'boolean',
                     'options' => [
-                        'fields' => ['firstName', 'lastName']
+                        'fields' => ['firstName', 'lastName'],
                     ],
                     'default_value' => 'true',
-                ]
+                ],
             ],
             'actions' => [
                 'default' => [
@@ -159,9 +156,9 @@ final class ArrayToDefinitionConverterSpec extends ObjectBehavior
                         'options' => [
                             'foo' => 'bar',
                         ],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $this->convert('sylius_admin_tax_category', $definitionArray)->shouldBeLike($grid);

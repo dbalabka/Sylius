@@ -13,16 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Grid\Definition;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ArrayToDefinitionConverterInterface
 {
-    /**
-     * @param string $code
-     * @param array $configuration
-     *
-     * @return Grid
-     */
     public function convert(string $code, array $configuration): Grid;
 }

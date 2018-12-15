@@ -19,6 +19,8 @@ sylius:
         promotion_action:
             add_product_configuration:
                 product: Produto
+        promotion_coupon:
+            per_customer_usage_limit: Limite de uso por cliente
         group:
             name: Nome
             roles: Funções
@@ -124,6 +126,8 @@ sylius:
         promotion_rule:
             customer_group:
                 group: Grupo de clientes
+            has_taxon:
+                taxons: Táxons
             product:
                 products: Produtos
             total_of_items_from_taxon:
@@ -150,8 +154,8 @@ sylius:
             exif: Exif
             icu: ICU
             json_encode: JSON
-            "off": false
-            "on": true
+            off: false
+            on: true
             pcre: PCRE
             pdo: PDO
             php_xml: PHP-XML
@@ -174,8 +178,8 @@ sylius:
             any: qualquer
             detect_unicode: detect_unicode
             magic_quotes_gpc: magic_quotes_gpc
-            "off": false
-            "on": true
+            off: false
+            on: true
             register_globals: register_globals
             session:
                 auto_start: session.auto_start

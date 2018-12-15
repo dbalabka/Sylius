@@ -15,20 +15,11 @@ namespace Sylius\Component\User\Security;
 
 use Sylius\Component\User\Model\CredentialsHolderInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
- */
 final class PasswordUpdater implements PasswordUpdaterInterface
 {
-    /**
-     * @var UserPasswordEncoderInterface
-     */
+    /** @var UserPasswordEncoderInterface */
     private $userPasswordEncoder;
 
-    /**
-     * @param UserPasswordEncoderInterface $passwordEncoder
-     */
     public function __construct(UserPasswordEncoderInterface $passwordEncoder)
     {
         $this->userPasswordEncoder = $passwordEncoder;

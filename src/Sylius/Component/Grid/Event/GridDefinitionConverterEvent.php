@@ -16,27 +16,16 @@ namespace Sylius\Component\Grid\Event;
 use Sylius\Component\Grid\Definition\Grid;
 use Symfony\Component\EventDispatcher\Event;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class GridDefinitionConverterEvent extends Event
 {
-    /**
-     * @var Grid
-     */
+    /** @var Grid */
     private $grid;
 
-    /**
-     * @param Grid $grid
-     */
     public function __construct(Grid $grid)
     {
         $this->grid = $grid;
     }
 
-    /**
-     * @return Grid
-     */
     public function getGrid(): Grid
     {
         return $this->grid;

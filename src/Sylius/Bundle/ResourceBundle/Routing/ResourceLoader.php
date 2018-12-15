@@ -23,25 +23,14 @@ use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ResourceLoader implements LoaderInterface
 {
-    /**
-     * @var RegistryInterface
-     */
+    /** @var RegistryInterface */
     private $resourceRegistry;
 
-    /**
-     * @var RouteFactoryInterface
-     */
+    /** @var RouteFactoryInterface */
     private $routeFactory;
 
-    /**
-     * @param RegistryInterface $resourceRegistry
-     * @param RouteFactoryInterface $routeFactory
-     */
     public function __construct(RegistryInterface $resourceRegistry, RouteFactoryInterface $routeFactory)
     {
         $this->resourceRegistry = $resourceRegistry;
@@ -63,7 +52,7 @@ final class ResourceLoader implements LoaderInterface
             throw new \InvalidArgumentException('You can configure only one of "except" & "only" options.');
         }
 
-        $routesToGenerate = ['show', 'index', 'create', 'update', 'delete'];
+        $routesToGenerate = ['show', 'index', 'create', 'update', 'delete', 'bulkDelete'];
 
         if (!empty($configuration['only'])) {
             $routesToGenerate = $configuration['only'];
@@ -101,6 +90,11 @@ final class ResourceLoader implements LoaderInterface
             $routes->add($this->getRouteName($metadata, $configuration, 'show'), $showRoute);
         }
 
+        if (!$isApi && in_array('bulkDelete', $routesToGenerate, true)) {
+            $bulkDeleteRoute = $this->createRoute($metadata, $configuration, $rootPath . 'bulk-delete', 'bulkDelete', ['DELETE'], $isApi);
+            $routes->add($this->getRouteName($metadata, $configuration, 'bulk_delete'), $bulkDeleteRoute);
+        }
+
         if (in_array('delete', $routesToGenerate, true)) {
             $deleteRoute = $this->createRoute($metadata, $configuration, $rootPath . $identifier, 'delete', ['DELETE'], $isApi);
             $routes->add($this->getRouteName($metadata, $configuration, 'delete'), $deleteRoute);
@@ -133,16 +127,6 @@ final class ResourceLoader implements LoaderInterface
         // Intentionally left blank.
     }
 
-    /**
-     * @param MetadataInterface $metadata
-     * @param array $configuration
-     * @param string $path
-     * @param string $actionName
-     * @param array $methods
-     * @param bool $isApi
-     *
-     * @return Route
-     */
     private function createRoute(
         MetadataInterface $metadata,
         array $configuration,
@@ -152,7 +136,7 @@ final class ResourceLoader implements LoaderInterface
         bool $isApi = false
     ): Route {
         $defaults = [
-            '_controller' => $metadata->getServiceId('controller').sprintf(':%sAction', $actionName),
+            '_controller' => $metadata->getServiceId('controller') . sprintf(':%sAction', $actionName),
         ];
 
         if ($isApi && 'index' === $actionName) {
@@ -183,7 +167,11 @@ final class ResourceLoader implements LoaderInterface
             $defaults['_sylius']['filterable'] = $configuration['filterable'];
         }
         if (isset($configuration['templates']) && in_array($actionName, ['show', 'index', 'create', 'update'], true)) {
-            $defaults['_sylius']['template'] = sprintf('%s:%s.html.twig', $configuration['templates'], $actionName);
+            $defaults['_sylius']['template'] = sprintf(
+                false === strpos($configuration['templates'], ':') ? '%s/%s.html.twig' : '%s:%s.html.twig',
+                $configuration['templates'],
+                $actionName
+            );
         }
         if (isset($configuration['redirect']) && in_array($actionName, ['create', 'update'], true)) {
             $defaults['_sylius']['redirect'] = $this->getRouteName($metadata, $configuration, $configuration['redirect']);
@@ -194,24 +182,26 @@ final class ResourceLoader implements LoaderInterface
         if (isset($configuration['vars']['all'])) {
             $defaults['_sylius']['vars'] = $configuration['vars']['all'];
         }
+
         if (isset($configuration['vars'][$actionName])) {
             $vars = $configuration['vars']['all'] ?? [];
             $defaults['_sylius']['vars'] = array_merge($vars, $configuration['vars'][$actionName]);
         }
 
+        if ($actionName === 'bulkDelete') {
+            $defaults['_sylius']['paginate'] = false;
+            $defaults['_sylius']['repository'] = [
+                'method' => 'findById',
+                'arguments' => ['$ids'],
+            ];
+        }
+
         return $this->routeFactory->createRoute($path, $defaults, [], [], '', [], $methods);
     }
 
-    /**
-     * @param MetadataInterface $metadata
-     * @param array $configuration
-     * @param string $actionName
-     *
-     * @return string
-     */
     private function getRouteName(MetadataInterface $metadata, array $configuration, string $actionName): string
     {
-        $sectionPrefix = isset($configuration['section']) ? $configuration['section'].'_' : '';
+        $sectionPrefix = isset($configuration['section']) ? $configuration['section'] . '_' : '';
 
         return sprintf('%s_%s%s_%s', $metadata->getApplicationName(), $sectionPrefix, $metadata->getName(), $actionName);
     }

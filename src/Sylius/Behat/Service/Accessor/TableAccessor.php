@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\Behat\Service\Accessor;
@@ -7,9 +16,6 @@ namespace Sylius\Behat\Service\Accessor;
 use Behat\Mink\Element\NodeElement;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TableAccessor implements TableAccessorInterface
 {
     /**
@@ -99,9 +105,6 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     /**
-     * @param NodeElement $table
-     * @param array $fields
-     *
      * @return NodeElement[]
      *
      * @throws \InvalidArgumentException If rows were not found
@@ -128,9 +131,6 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     /**
-     * @param array $columns
-     * @param array $fields
-     *
      * @return bool
      */
     private function hasRowFields(array $columns, array $fields)
@@ -140,7 +140,7 @@ final class TableAccessor implements TableAccessorInterface
                 return false;
             }
 
-            $searchedValue = (string)$searchedValue;
+            $searchedValue = (string) $searchedValue;
             $searchedValue = trim($searchedValue);
 
             if (0 === strpos($searchedValue, '%') && (strlen($searchedValue) - 1) === strrpos($searchedValue, '%')) {
@@ -156,7 +156,6 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     /**
-     * @param NodeElement $table
      * @param string[] $fields
      *
      * @return string[]
@@ -176,7 +175,6 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     /**
-     * @param NodeElement $table
      * @param string $fieldName
      *
      * @return int
@@ -215,8 +213,6 @@ final class TableAccessor implements TableAccessorInterface
     }
 
     /**
-     * @param NodeElement $column
-     *
      * @return string
      */
     private function getColumnFieldName(NodeElement $column)

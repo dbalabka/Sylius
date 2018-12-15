@@ -17,10 +17,6 @@ use Lakion\ApiTestCase\JsonApiTestCase;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class TaxCategoryApiTest extends JsonApiTestCase
 {
     /**
@@ -184,7 +180,7 @@ EOT;
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $taxCategories = $this->loadFixturesFromFile('resources/tax_categories.yml');
-        $taxCategory  = $taxCategories['tax_category_1'];
+        $taxCategory = $taxCategories['tax_category_1'];
 
         $this->client->request('GET', $this->getTaxCategoryUrl($taxCategory), [], [], [
             'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
@@ -335,7 +331,7 @@ EOT;
         $this->client->request('DELETE', $this->getTaxCategoryUrl($taxCategory), [], [], [
             'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
             'CONTENT_TYPE' => 'application/json',
-        ], []);
+        ]);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
@@ -350,8 +346,6 @@ EOT;
     }
 
     /**
-     * @param TaxCategoryInterface $taxCategory
-     *
      * @return string
      */
     private function getTaxCategoryUrl(TaxCategoryInterface $taxCategory)

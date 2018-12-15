@@ -18,19 +18,11 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\TransformationFailedException;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class CollectionToStringTransformer implements DataTransformerInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     private $delimiter;
 
-    /**
-     * @param string $delimiter
-     */
     public function __construct(string $delimiter)
     {
         $this->delimiter = $delimiter;

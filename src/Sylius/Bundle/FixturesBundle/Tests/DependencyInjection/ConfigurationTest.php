@@ -14,13 +14,11 @@ declare(strict_types=1);
 namespace Sylius\Bundle\FixturesBundle\Tests\DependencyInjection;
 
 use Matthias\SymfonyConfigTest\PhpUnit\ConfigurationTestCaseTrait;
+use PHPUnit\Framework\TestCase;
 use Sylius\Bundle\FixturesBundle\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
-final class ConfigurationTest extends \PHPUnit_Framework_TestCase
+final class ConfigurationTest extends TestCase
 {
     use ConfigurationTestCaseTrait;
 
@@ -194,6 +192,23 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function fixtures_options_may_contain_nested_arrays(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [['suites' => ['suite' => ['fixtures' => ['fixture' => [
+                'options' => ['nested' => ['key' => 'value']],
+            ]]]]]],
+            ['suites' => ['suite' => ['fixtures' => ['fixture' => [
+                'options' => [['nested' => ['key' => 'value']]],
+                'name' => 'fixture', // FIXME: something is wrong inside the test library and it's not excluded
+            ]]]]],
+            'suites.*.fixtures.*.options'
+        );
+    }
+
+    /**
+     * @test
+     */
     public function listeners_options_are_an_array(): void
     {
         $this->assertPartialConfigurationIsInvalid(
@@ -214,23 +229,6 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function fixtures_options_may_contain_nested_arrays(): void
-    {
-        $this->assertProcessedConfigurationEquals(
-            [['suites' => ['suite' => ['fixtures' => ['fixture' => [
-                'options' => ['nested' => ['key' => 'value']],
-            ]]]]]],
-            ['suites' => ['suite' => ['fixtures' => ['fixture' => [
-                'options' => [['nested' => ['key' => 'value']]],
-                'name' => 'fixture', // FIXME: something is wrong inside the test library and it's not excluded
-            ]]]]],
-            'suites.*.fixtures.*.options'
-        );
-    }
-
-    /**
-     * @test
-     */
     public function listeners_options_may_contain_nested_arrays(): void
     {
         $this->assertProcessedConfigurationEquals(
@@ -241,6 +239,50 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 'options' => [['nested' => ['key' => 'value']]],
             ]]]]],
             'suites.*.listeners.*.options'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function consecutive_configurations_can_remove_a_listener_from_the_suite(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [
+                ['suites' => ['suite' => ['listeners' => [
+                    'first_listener' => null,
+                    'second_listener' => null,
+                ]]]],
+                ['suites' => ['suite' => ['listeners' => [
+                    'second_listener' => false,
+                ]]]],
+            ],
+            ['suites' => ['suite' => ['listeners' => [
+                'first_listener' => ['options' => [[]], 'priority' => 0],
+            ]]]],
+            'suites.*.listeners'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function consecutive_configurations_can_add_a_listener_to_the_suite(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [
+                ['suites' => ['suite' => ['listeners' => [
+                    'first_listener' => null,
+                ]]]],
+                ['suites' => ['suite' => ['listeners' => [
+                    'second_listener' => null,
+                ]]]],
+            ],
+            ['suites' => ['suite' => ['listeners' => [
+                'first_listener' => ['options' => [[]], 'priority' => 0],
+                'second_listener' => ['options' => [[]], 'priority' => 0],
+            ]]]],
+            'suites.*.listeners'
         );
     }
 

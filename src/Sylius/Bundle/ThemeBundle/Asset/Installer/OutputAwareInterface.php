@@ -15,13 +15,7 @@ namespace Sylius\Bundle\ThemeBundle\Asset\Installer;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface OutputAwareInterface
 {
-    /**
-     * @param OutputInterface $output
-     */
     public function setOutput(OutputInterface $output): void;
 }

@@ -15,24 +15,15 @@ namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\User\Model\User;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class AdminUser extends User implements AdminUserInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $firstName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $lastName;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $localeCode;
 
     public function __construct()

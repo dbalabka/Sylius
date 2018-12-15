@@ -18,22 +18,15 @@ use Sylius\Component\Product\Model\ProductInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 final class ProductApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithAccept = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'ACCEPT' => 'application/json',
@@ -117,7 +110,7 @@ final class ProductApiTest extends JsonApiTestCase
         $products = $this->loadFixturesFromFile('resources/products.yml');
         $product = $products['product1'];
 
-        $this->client->request('DELETE', $this->getProductUrl($product), [], [], static::$authorizedHeaderWithContentType, []);
+        $this->client->request('DELETE', $this->getProductUrl($product), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
@@ -167,7 +160,7 @@ EOT;
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
-        $this->client->request('POST', '/api/v1/products/', [], [], static::$authorizedHeaderWithContentType, []);
+        $this->client->request('POST', '/api/v1/products/', [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'product/create_validation_fail_response', Response::HTTP_BAD_REQUEST);
@@ -181,7 +174,7 @@ EOT;
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $products = $this->loadFixturesFromFile('resources/products.yml');
         $this->loadFixturesFromFile('resources/locales.yml');
-        $product = $products["product3"];
+        $product = $products['product3'];
 
         $data =
 <<<EOT
@@ -208,7 +201,7 @@ EOT;
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $products = $this->loadFixturesFromFile('resources/products.yml');
         $this->loadFixturesFromFile('resources/locales.yml');
-        $product = $products["product1"];
+        $product = $products['product1'];
 
         $data =
 <<<EOT
@@ -429,8 +422,8 @@ EOT;
                     "attribute": "mug_color",
                     "localeCode": "en_US",
                     "value": [
-                        "green", 
-                        "yellow"
+                        "7a968ac4-a1e3-4a37-a707-f22a839130c4", 
+                        "ff62a939-d946-4d6b-b742-b7115875ae75"
                     ]
                 }
             ],
@@ -483,8 +476,8 @@ EOT;
             '/api/v1/products/',
             [],
             ['images' => [
-                ['file' => new UploadedFile(sprintf('%s/../Resources/fixtures/ford.jpg', __DIR__), "ford")],
-                ['file' => new UploadedFile(sprintf('%s/../Resources/fixtures/mugs.jpg', __DIR__), "mugs")],
+                ['file' => new UploadedFile(sprintf('%s/../Resources/fixtures/ford.jpg', __DIR__), 'ford')],
+                ['file' => new UploadedFile(sprintf('%s/../Resources/fixtures/mugs.jpg', __DIR__), 'mugs')],
             ]],
             static::$authorizedHeaderWithContentType,
             $data
@@ -528,8 +521,6 @@ EOT;
     }
 
     /**
-     * @param ProductInterface $product
-     *
      * @return string
      */
     private function getProductUrl(ProductInterface $product)

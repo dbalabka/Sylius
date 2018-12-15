@@ -19,9 +19,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ListenerRegistryPassTest extends AbstractCompilerPassTestCase
 {
     /**
@@ -30,7 +27,7 @@ final class ListenerRegistryPassTest extends AbstractCompilerPassTestCase
     public function it_registers_listeners(): void
     {
         $this->setDefinition('sylius_fixtures.listener_registry', new Definition());
-        $this->setDefinition('acme.listener', (new Definition())->addTag('sylius_fixtures.listener'));
+        $this->setDefinition('acme.listener', (new Definition())->addTag(ListenerRegistryPass::LISTENER_SERVICE_TAG));
 
         $this->compile();
 

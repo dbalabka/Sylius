@@ -20,31 +20,17 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class UserImpersonator implements UserImpersonatorInterface
 {
-    /**
-     * @var Session
-     */
+    /** @var Session */
     private $session;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $sessionTokenParameter;
 
-    /**
-     * @var EventDispatcherInterface
-     */
+    /** @var EventDispatcherInterface */
     private $eventDispatcher;
 
-    /**
-     * @param Session $session
-     * @param string $firewallContextName
-     * @param EventDispatcherInterface $eventDispatcher
-     */
     public function __construct(Session $session, string $firewallContextName, EventDispatcherInterface $eventDispatcher)
     {
         $this->session = $session;

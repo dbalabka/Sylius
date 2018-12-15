@@ -1,8 +1,11 @@
 Sylius Documentation
 ====================
 
-.. image:: /_images/logo.png
+.. image:: /_images/logo_big.png
    :alt:   Sylius Welcome Page
+   :width: 300px
+
+|
 
 `Sylius`_ is a modern e-commerce solution for PHP, based on
 `Symfony Framework`_.
@@ -102,8 +105,6 @@ The Cookbook
 
    cookbook/index
 
-.. include:: /cookbook/map.rst.inc
-
 The REST API Reference
 ----------------------
 
@@ -150,8 +151,6 @@ Support
 
    support/index
 
-.. include:: /support/map.rst.inc
-
 Components & Bundles
 --------------------
 
@@ -164,14 +163,14 @@ Components & Bundles
 
 .. include:: /components_and_bundles/map.rst.inc
 
-.. _Sylius: http://sylius.org
+.. _Sylius: http://sylius.com
 .. _`Symfony Framework`: http://symfony.com
 .. _`Quick Tour`: http://symfony.com/doc/current/quick_tour
-.. _`Introduction`: http://docs.sylius.org/en/latest/book/introduction/index.html
-.. _`Installation`: http://docs.sylius.org/en/latest/book/installation/index.html
-.. _`Architecture`: http://docs.sylius.org/en/latest/book/architecture/index.html
-.. _`Configuration`: http://docs.sylius.org/en/latest/book/configuration/index.html
-.. _`Customers`: http://docs.sylius.org/en/latest/book/customers/index.html
-.. _`Products`: http://docs.sylius.org/en/latest/book/products/index.html
-.. _`Carts & Orders`: http://docs.sylius.org/en/latest/book/orders/index.html
-.. _`Themes`: http://docs.sylius.org/en/latest/book/themes/index.html
+.. _`Introduction`: http://docs.sylius.com/en/latest/book/introduction/index.html
+.. _`Installation`: http://docs.sylius.com/en/latest/book/installation/index.html
+.. _`Architecture`: http://docs.sylius.com/en/latest/book/architecture/index.html
+.. _`Configuration`: http://docs.sylius.com/en/latest/book/configuration/index.html
+.. _`Customers`: http://docs.sylius.com/en/latest/book/customers/index.html
+.. _`Products`: http://docs.sylius.com/en/latest/book/products/index.html
+.. _`Carts & Orders`: http://docs.sylius.com/en/latest/book/orders/index.html
+.. _`Themes`: http://docs.sylius.com/en/latest/book/themes/index.html

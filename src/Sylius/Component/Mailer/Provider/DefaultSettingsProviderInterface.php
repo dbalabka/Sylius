@@ -13,18 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Mailer\Provider;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface DefaultSettingsProviderInterface
 {
-    /**
-     * @return string
-     */
     public function getSenderName(): string;
 
-    /**
-     * @return string
-     */
     public function getSenderAddress(): string;
 }

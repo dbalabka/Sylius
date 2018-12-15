@@ -13,28 +13,13 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ThemeBundle\Translation\Resource;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface TranslationResourceInterface
 {
-    /**
-     * @return string
-     */
     public function getName(): string;
 
-    /**
-     * @return string
-     */
     public function getLocale(): string;
 
-    /**
-     * @return string
-     */
     public function getFormat(): string;
 
-    /**
-     * @return string
-     */
     public function getDomain(): string;
 }

@@ -15,19 +15,11 @@ namespace Sylius\Bundle\CoreBundle\Twig;
 
 use Sylius\Bundle\CoreBundle\Templating\Helper\CheckoutStepsHelper;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class CheckoutStepsExtension extends \Twig_Extension
 {
-    /**
-     * @var CheckoutStepsHelper
-     */
+    /** @var CheckoutStepsHelper */
     private $checkoutStepsHelper;
 
-    /**
-     * @param CheckoutStepsHelper $checkoutStepsHelper
-     */
     public function __construct(CheckoutStepsHelper $checkoutStepsHelper)
     {
         $this->checkoutStepsHelper = $checkoutStepsHelper;

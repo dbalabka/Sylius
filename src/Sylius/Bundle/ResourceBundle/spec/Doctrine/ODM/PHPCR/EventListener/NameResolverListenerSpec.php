@@ -21,8 +21,6 @@ use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 
 /**
  * @require Doctrine\ODM\PHPCR\DocumentManagerInterface
- *
- * @author Daniel Leech <daniel@dantleech.com>
  */
 final class NameResolverListenerSpec extends ObjectBehavior
 {
@@ -42,7 +40,7 @@ final class NameResolverListenerSpec extends ObjectBehavior
         $metadata->idGenerator = 'foo';
 
         $this->shouldThrow(new \RuntimeException('Document of class "stdClass" must be using the GENERATOR_TYPE_PARENT identificatio strategy (value 3), it is current using "foo" (this may be an automatic configuration: be sure to map both the `nodename` and the `parentDocument`).'))->during(
-            'onEvent', [ $event ]
+            'onEvent', [$event]
         );
     }
 

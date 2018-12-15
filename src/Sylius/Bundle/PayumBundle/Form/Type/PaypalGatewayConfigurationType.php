@@ -21,9 +21,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class PaypalGatewayConfigurationType extends AbstractType
 {
     /**
@@ -38,7 +35,7 @@ final class PaypalGatewayConfigurationType extends AbstractType
                     new NotBlank([
                         'message' => 'sylius.gateway_config.paypal.username.not_blank',
                         'groups' => 'sylius',
-                    ])
+                    ]),
                 ],
             ])
             ->add('password', TextType::class, [
@@ -47,7 +44,7 @@ final class PaypalGatewayConfigurationType extends AbstractType
                     new NotBlank([
                         'message' => 'sylius.gateway_config.paypal.password.not_blank',
                         'groups' => 'sylius',
-                    ])
+                    ]),
                 ],
             ])
             ->add('signature', TextType::class, [
@@ -56,11 +53,11 @@ final class PaypalGatewayConfigurationType extends AbstractType
                     new NotBlank([
                         'message' => 'sylius.gateway_config.paypal.signature.not_blank',
                         'groups' => 'sylius',
-                    ])
+                    ]),
                 ],
             ])
             ->add('sandbox', CheckboxType::class, [
-                'label' => 'sylius.form.gateway_configuration.paypal.sandbox'
+                'label' => 'sylius.form.gateway_configuration.paypal.sandbox',
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $data = $event->getData();

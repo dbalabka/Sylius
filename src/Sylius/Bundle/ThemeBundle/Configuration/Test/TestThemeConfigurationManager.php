@@ -16,30 +16,17 @@ namespace Sylius\Bundle\ThemeBundle\Configuration\Test;
 use Sylius\Bundle\ThemeBundle\Configuration\ConfigurationProcessorInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TestThemeConfigurationManager implements TestThemeConfigurationManagerInterface
 {
-    /**
-     * @var ConfigurationProcessorInterface
-     */
+    /** @var ConfigurationProcessorInterface */
     private $configurationProcessor;
 
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private $filesystem;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $configurationsFile;
 
-    /**
-     * @param ConfigurationProcessorInterface $configurationProcessor
-     * @param string $cacheDir
-     */
     public function __construct(ConfigurationProcessorInterface $configurationProcessor, string $cacheDir)
     {
         $this->configurationProcessor = $configurationProcessor;
@@ -102,17 +89,11 @@ final class TestThemeConfigurationManager implements TestThemeConfigurationManag
         }
     }
 
-    /**
-     * @return array
-     */
     private function load(): array
     {
         return unserialize(file_get_contents($this->configurationsFile));
     }
 
-    /**
-     * @param array $configurations
-     */
     private function save(array $configurations): void
     {
         file_put_contents($this->configurationsFile, serialize($configurations));
@@ -136,9 +117,6 @@ final class TestThemeConfigurationManager implements TestThemeConfigurationManag
         $this->save([]);
     }
 
-    /**
-     * @param string $themeName
-     */
     private function initializeTheme(string $themeName): void
     {
         $themeDirectory = $this->getThemeDirectory($themeName);
@@ -146,9 +124,6 @@ final class TestThemeConfigurationManager implements TestThemeConfigurationManag
         $this->filesystem->mkdir($themeDirectory);
     }
 
-    /**
-     * @param string $themeName
-     */
     private function clearTheme(string $themeName): void
     {
         $themeDirectory = $this->getThemeDirectory($themeName);
@@ -160,11 +135,6 @@ final class TestThemeConfigurationManager implements TestThemeConfigurationManag
         $this->filesystem->remove($themeDirectory);
     }
 
-    /**
-     * @param string $themeName
-     *
-     * @return string
-     */
     private function getThemeDirectory(string $themeName): string
     {
         return rtrim(dirname($this->configurationsFile), '/') . '/' . $themeName;

@@ -15,14 +15,9 @@ namespace Sylius\Bundle\ThemeBundle\Loader;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface CircularDependencyCheckerInterface
 {
     /**
-     * @param ThemeInterface $theme
-     *
      * @throws CircularDependencyFoundException
      */
     public function check(ThemeInterface $theme): void;

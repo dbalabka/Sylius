@@ -23,9 +23,6 @@ use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 final class CustomerStatisticsProviderSpec extends ObjectBehavior
 {
     function let(OrderRepositoryInterface $orderRepository, RepositoryInterface $channelRepository): void
@@ -68,7 +65,7 @@ final class CustomerStatisticsProviderSpec extends ObjectBehavior
         $secondOrder->getTotal()->willReturn(23000);
 
         $expectedStatistics = new CustomerStatistics([
-            new PerChannelCustomerStatistics(2, 33000, $channel->getWrappedObject())
+            new PerChannelCustomerStatistics(2, 33000, $channel->getWrappedObject()),
         ]);
 
         $channelRepository->findAll()->willReturn([$channel, $channelWithoutOrders]);
@@ -107,7 +104,7 @@ final class CustomerStatisticsProviderSpec extends ObjectBehavior
 
         $expectedStatistics = new CustomerStatistics([
             new PerChannelCustomerStatistics(2, 33000, $firstChannel->getWrappedObject()),
-            new PerChannelCustomerStatistics(3, 11000, $secondChannel->getWrappedObject())
+            new PerChannelCustomerStatistics(3, 11000, $secondChannel->getWrappedObject()),
         ]);
 
         $channelRepository->findAll()->willReturn([$firstChannel, $secondChannel]);

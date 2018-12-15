@@ -21,9 +21,6 @@ use Sylius\Component\Mailer\Renderer\Adapter\AdapterInterface as RendererAdapter
 use Sylius\Component\Mailer\Renderer\RenderedEmail;
 use Sylius\Component\Mailer\Sender\Adapter\AdapterInterface as SenderAdapterInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class SenderSpec extends ObjectBehavior
 {
     function let(
@@ -65,7 +62,7 @@ final class SenderSpec extends ObjectBehavior
         $email->isEnabled()->willReturn(false);
 
         $rendererAdapter->render($email, ['foo' => 2])->shouldNotBeCalled();
-        $senderAdapter->send(['john@example.com'], 'mail@sylius.org', 'Sylius Mailer', null, $email, [], [], [])->shouldNotBeCalled();
+        $senderAdapter->send(['john@example.com'], 'mail@sylius.com', 'Sylius Mailer', null, $email, [], [], [])->shouldNotBeCalled();
 
         $this->send('bar', ['john@example.com'], ['foo' => 2], []);
     }

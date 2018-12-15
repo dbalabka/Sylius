@@ -14,11 +14,13 @@ declare(strict_types=1);
 namespace Sylius\Bundle\FixturesBundle\Tests\DependencyInjection;
 
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
+use Sylius\Bundle\FixturesBundle\DependencyInjection\Compiler\FixtureRegistryPass;
+use Sylius\Bundle\FixturesBundle\DependencyInjection\Compiler\ListenerRegistryPass;
 use Sylius\Bundle\FixturesBundle\DependencyInjection\SyliusFixturesExtension;
+use Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface;
+use Sylius\Bundle\FixturesBundle\Listener\ListenerInterface;
+use Symfony\Component\DependencyInjection\Definition;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SyliusFixturesExtensionTest extends AbstractExtensionTestCase
 {
     /**
@@ -43,6 +45,39 @@ final class SyliusFixturesExtensionTest extends AbstractExtensionTestCase
 
         static::assertSame('addSuite', $suiteMethodCall[0]);
         static::assertSame('suite_name', $suiteMethodCall[1][0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_autoconfigures_fixtures_and_listeners(): void
+    {
+        $this->container->setDefinition(
+            'acme.fixture_autoconfigured',
+            (new Definition())
+                ->setClass(self::getMockClass(FixtureInterface::class))
+                ->setAutoconfigured(true)
+        );
+
+        $this->container->setDefinition(
+            'acme.listener_autoconfigured',
+            (new Definition())
+                ->setClass(self::getMockClass(ListenerInterface::class))
+                ->setAutoconfigured(true)
+        );
+
+        $this->load();
+        $this->compile();
+
+        $this->assertContainerBuilderHasServiceDefinitionWithTag(
+            'acme.fixture_autoconfigured',
+            FixtureRegistryPass::FIXTURE_SERVICE_TAG
+        );
+
+        $this->assertContainerBuilderHasServiceDefinitionWithTag(
+            'acme.listener_autoconfigured',
+            ListenerRegistryPass::LISTENER_SERVICE_TAG
+        );
     }
 
     /**

@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Ui\Shop\Checkout;
@@ -9,19 +18,11 @@ use Sylius\Behat\Page\Shop\Order\ShowPageInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CheckoutOrderDetailsContext implements Context
 {
-    /**
-     * @var ShowPageInterface
-     */
+    /** @var ShowPageInterface */
     private $orderDetails;
 
-    /**
-     * @param ShowPageInterface $orderDetails
-     */
     public function __construct(ShowPageInterface $orderDetails)
     {
         $this->orderDetails = $orderDetails;
@@ -58,5 +59,13 @@ final class CheckoutOrderDetailsContext implements Context
     public function iShouldNotBeAbleToPay()
     {
         Assert::false($this->orderDetails->hasPayAction());
+    }
+
+    /**
+     * @Then I should see :quantity as number of items
+     */
+    public function iShouldSeeAsNumberOfItems(int $quantity): void
+    {
+        Assert::same($this->orderDetails->getNumberOfItems(), $quantity);
     }
 }

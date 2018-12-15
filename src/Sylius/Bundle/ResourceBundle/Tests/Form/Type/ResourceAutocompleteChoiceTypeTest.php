@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\Bundle\ResourceBundle\Tests\Form\Type;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Prophecy\Prophecy\ObjectProphecy;
 use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
@@ -23,14 +24,9 @@ use Symfony\Component\Form\Test\TypeTestCase;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Exception\MissingOptionsException;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
 {
-    /**
-     * @var ServiceRegistryInterface
-     */
+    /** @var ObjectProphecy|ServiceRegistryInterface */
     private $resourceRepositoryRegistry;
 
     protected function setUp(): void
@@ -54,6 +50,7 @@ final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
      */
     public function it_returns_resource_from_its_code(): void
     {
+        /** @var ObjectProphecy|RepositoryInterface $resourceRepository */
         $resourceRepository = $this->prophesize(RepositoryInterface::class);
         $resource = $this->prophesize(ResourceInterface::class);
 
@@ -76,6 +73,7 @@ final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
      */
     public function it_returns_resource_from_its_id(): void
     {
+        /** @var ObjectProphecy|RepositoryInterface $resourceRepository */
         $resourceRepository = $this->prophesize(RepositoryInterface::class);
         $resource = $this->prophesize(ResourceInterface::class);
 
@@ -98,6 +96,7 @@ final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
      */
     public function it_returns_different_resource_from_its_identifier(): void
     {
+        /** @var ObjectProphecy|RepositoryInterface $resourceRepository */
         $resourceRepository = $this->prophesize(RepositoryInterface::class);
         $resource = $this->prophesize(ResourceInterface::class);
 
@@ -120,6 +119,7 @@ final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
      */
     public function it_has_identifier_as_view_value(): void
     {
+        /** @var ObjectProphecy|RepositoryInterface $resourceRepository */
         $resourceRepository = $this->prophesize(RepositoryInterface::class);
         $resource = $this->prophesize(ResourceInterface::class);
 
@@ -142,6 +142,7 @@ final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
      */
     public function it_has_different_view_based_on_passed_configuration(): void
     {
+        /** @var ObjectProphecy|RepositoryInterface $resourceRepository */
         $resourceRepository = $this->prophesize(RepositoryInterface::class);
         $resource = $this->prophesize(ResourceInterface::class);
 
@@ -165,6 +166,7 @@ final class ResourceAutocompleteChoiceTypeTest extends TypeTestCase
      */
     public function it_returns_collection_of_resources_from_identifiers(): void
     {
+        /** @var ObjectProphecy|RepositoryInterface $resourceRepository */
         $resourceRepository = $this->prophesize(RepositoryInterface::class);
         $mug = $this->prophesize(ResourceInterface::class);
         $book = $this->prophesize(ResourceInterface::class);

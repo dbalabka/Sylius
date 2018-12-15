@@ -13,16 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\FixturesBundle\Suite;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface SuiteFactoryInterface
 {
-    /**
-     * @param string $name
-     * @param array $configuration
-     *
-     * @return SuiteInterface
-     */
     public function createSuite(string $name, array $configuration): SuiteInterface;
 }

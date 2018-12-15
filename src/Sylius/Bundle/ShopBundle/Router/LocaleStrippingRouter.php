@@ -1,5 +1,16 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
 namespace Sylius\Bundle\ShopBundle\Router;
 
 use Sylius\Component\Locale\Context\LocaleContextInterface;
@@ -11,20 +22,12 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class LocaleStrippingRouter implements RouterInterface, WarmableInterface
 {
-    /**
-     * @var RouterInterface
-     */
+    /** @var RouterInterface */
     private $router;
 
-    /**
-     * @var LocaleContextInterface
-     */
+    /** @var LocaleContextInterface */
     private $localeContext;
 
-    /**
-     * @param RouterInterface $router
-     * @param LocaleContextInterface $localeContext
-     */
     public function __construct(RouterInterface $router, LocaleContextInterface $localeContext)
     {
         $this->router = $router;
@@ -87,13 +90,6 @@ final class LocaleStrippingRouter implements RouterInterface, WarmableInterface
         }
     }
 
-    /**
-     * @param string $url
-     * @param string $key
-     * @param string $value
-     *
-     * @return string
-     */
     private function removeUnusedQueryArgument(string $url, string $key, string $value): string
     {
         $replace = [
@@ -102,6 +98,6 @@ final class LocaleStrippingRouter implements RouterInterface, WarmableInterface
             sprintf('?%s=%s', $key, $value) => '',
         ];
 
-        return str_replace(array_keys($replace), array_values($replace), $url);
+        return str_replace(array_keys($replace), $replace, $url);
     }
 }

@@ -19,9 +19,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @author Loïc Frémont <loic@mobizel.com>
- */
 class DemoteUserCommand extends AbstractRoleCommand
 {
     /**
@@ -55,13 +52,14 @@ EOT
 
         foreach ($securityRoles as $securityRole) {
             if (!$user->hasRole($securityRole)) {
-                $output->writeln(sprintf('<error>User "%s" didn\'t have "%s" Security role.</error>', (string)$user, $securityRole));
+                $output->writeln(sprintf('<error>User "%s" didn\'t have "%s" Security role.</error>', $user->getEmail(), $securityRole));
                 $error = true;
+
                 continue;
             }
 
             $user->removeRole($securityRole);
-            $output->writeln(sprintf('Security role <comment>%s</comment> has been removed from user <comment>%s</comment>', $securityRole, (string)$user));
+            $output->writeln(sprintf('Security role <comment>%s</comment> has been removed from user <comment>%s</comment>', $securityRole, $user->getEmail()));
         }
 
         if (!$error) {

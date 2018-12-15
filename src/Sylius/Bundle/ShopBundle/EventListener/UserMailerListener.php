@@ -24,21 +24,11 @@ use Sylius\Component\User\Model\UserInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class UserMailerListener extends MailerListener
 {
-    /**
-     * @var ChannelContextInterface
-     */
+    /** @var ChannelContextInterface */
     private $channelContext;
 
-    /**
-     * @param SenderInterface $emailSender
-     * @param ChannelContextInterface $channelContext
-     */
     public function __construct(SenderInterface $emailSender, ChannelContextInterface $channelContext)
     {
         parent::__construct($emailSender);
@@ -47,8 +37,6 @@ final class UserMailerListener extends MailerListener
     }
 
     /**
-     * @param GenericEvent $event
-     *
      * @throws UnexpectedTypeException
      */
     public function sendUserRegistrationEmail(GenericEvent $event): void

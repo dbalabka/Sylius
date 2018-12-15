@@ -15,19 +15,11 @@ namespace Sylius\Bundle\AddressingBundle\Twig;
 
 use Sylius\Component\Addressing\Provider\ProvinceNamingProviderInterface;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 class ProvinceNamingExtension extends \Twig_Extension
 {
-    /**
-     * @var ProvinceNamingProviderInterface
-     */
+    /** @var ProvinceNamingProviderInterface */
     private $provinceNamingProvider;
 
-    /**
-     * @param ProvinceNamingProviderInterface $provinceNamingProvider
-     */
     public function __construct(ProvinceNamingProviderInterface $provinceNamingProvider)
     {
         $this->provinceNamingProvider = $provinceNamingProvider;

@@ -21,10 +21,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Arnaud Langlade <aRn0D.dev@gmail.com>
- */
 abstract class AbstractDriver implements DriverInterface
 {
     /**
@@ -46,10 +42,6 @@ abstract class AbstractDriver implements DriverInterface
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
     protected function setClassesParameters(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         if ($metadata->hasClass('model')) {
@@ -66,14 +58,11 @@ abstract class AbstractDriver implements DriverInterface
         }
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
     protected function addController(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $definition = new Definition($metadata->getClass('controller'));
         $definition
+            ->setPublic(true)
             ->setArguments([
                 $this->getMetadataDefinition($metadata),
                 new Reference('sylius.resource_controller.request_configuration_factory'),
@@ -94,21 +83,19 @@ abstract class AbstractDriver implements DriverInterface
                 new Reference('sylius.resource_controller.resource_delete_handler'),
             ])
             ->addMethodCall('setContainer', [new Reference('service_container')])
+            ->addTag('controller.service_arguments')
         ;
 
         $container->setDefinition($metadata->getServiceId('controller'), $definition);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
     protected function addFactory(ContainerBuilder $container, MetadataInterface $metadata): void
     {
         $factoryClass = $metadata->getClass('factory');
         $modelClass = $metadata->getClass('model');
 
         $definition = new Definition($factoryClass);
+        $definition->setPublic(true);
 
         $definitionArgs = [$modelClass];
         if (in_array(TranslatableFactoryInterface::class, class_implements($factoryClass), true)) {
@@ -123,11 +110,6 @@ abstract class AbstractDriver implements DriverInterface
         $container->setDefinition($metadata->getServiceId('factory'), $definition);
     }
 
-    /**
-     * @param MetadataInterface $metadata
-     *
-     * @return Definition
-     */
     protected function getMetadataDefinition(MetadataInterface $metadata): Definition
     {
         $definition = new Definition(Metadata::class);
@@ -139,15 +121,7 @@ abstract class AbstractDriver implements DriverInterface
         return $definition;
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
     abstract protected function addManager(ContainerBuilder $container, MetadataInterface $metadata): void;
 
-    /**
-     * @param ContainerBuilder $container
-     * @param MetadataInterface $metadata
-     */
     abstract protected function addRepository(ContainerBuilder $container, MetadataInterface $metadata): void;
 }

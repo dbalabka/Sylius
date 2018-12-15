@@ -13,19 +13,11 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ThemeBundle\Translation\Finder;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class OrderingTranslationFilesFinder implements TranslationFilesFinderInterface
 {
-    /**
-     * @var TranslationFilesFinderInterface
-     */
+    /** @var TranslationFilesFinderInterface */
     private $translationFilesFinder;
 
-    /**
-     * @param TranslationFilesFinderInterface $translationFilesFinder
-     */
     public function __construct(TranslationFilesFinderInterface $translationFilesFinder)
     {
         $this->translationFilesFinder = $translationFilesFinder;

@@ -22,10 +22,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class SyliusReviewExtension extends AbstractResourceExtension
 {
     /**
@@ -34,7 +30,7 @@ final class SyliusReviewExtension extends AbstractResourceExtension
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $this->resolveResources($config['resources'], $container), $container);
 
@@ -43,12 +39,6 @@ final class SyliusReviewExtension extends AbstractResourceExtension
         $loader->load(sprintf('integrations/%s.xml', $config['driver']));
     }
 
-    /**
-     * @param array $resources
-     * @param ContainerBuilder $container
-     *
-     * @return array
-     */
     private function resolveResources(array $resources, ContainerBuilder $container): array
     {
         $container->setParameter('sylius.review.subjects', $resources);
@@ -59,7 +49,7 @@ final class SyliusReviewExtension extends AbstractResourceExtension
         foreach ($resources as $subjectName => $subjectConfig) {
             foreach ($subjectConfig as $resourceName => $resourceConfig) {
                 if (is_array($resourceConfig)) {
-                    $resolvedResources[$subjectName.'_'.$resourceName] = $resourceConfig;
+                    $resolvedResources[$subjectName . '_' . $resourceName] = $resourceConfig;
                 }
             }
         }
@@ -67,10 +57,6 @@ final class SyliusReviewExtension extends AbstractResourceExtension
         return $resolvedResources;
     }
 
-    /**
-     * @param array $reviewSubjects
-     * @param ContainerBuilder $container
-     */
     private function createReviewListeners(array $reviewSubjects, ContainerBuilder $container): void
     {
         foreach ($reviewSubjects as $reviewSubject) {
@@ -78,20 +64,27 @@ final class SyliusReviewExtension extends AbstractResourceExtension
                 new Reference(sprintf('sylius.%s_review.average_rating_updater', $reviewSubject)),
             ]);
 
-            $reviewChangeListener->addTag('kernel.event_listener', [
-                'event' => sprintf('sylius.%s_review.post_update', $reviewSubject),
-                'method' => 'recalculateSubjectRating',
-            ]);
-            $reviewChangeListener->addTag('kernel.event_listener', [
-                'event' => sprintf('sylius.%s_review.post_delete', $reviewSubject),
-                'method' => 'recalculateSubjectRating',
-            ]);
+            $reviewChangeListener
+                ->setPublic(true)
+                ->addTag('doctrine.event_listener', [
+                    'event' => 'postPersist',
+                    'lazy' => true,
+                ])
+                ->addTag('doctrine.event_listener', [
+                    'event' => 'postUpdate',
+                    'lazy' => true,
+                ])
+                ->addTag('doctrine.event_listener', [
+                    'event' => 'postRemove',
+                    'lazy' => true,
+                ])
+            ;
 
             $container->addDefinitions([
-                sprintf('sylius.%s_review.average_rating_updater', $reviewSubject) => new Definition(AverageRatingUpdater::class, [
+                sprintf('sylius.%s_review.average_rating_updater', $reviewSubject) => (new Definition(AverageRatingUpdater::class, [
                     new Reference('sylius.average_rating_calculator'),
                     new Reference(sprintf('sylius.manager.%s_review', $reviewSubject)),
-                ]),
+                ]))->setPublic(true),
                 sprintf('sylius.listener.%s_review_change', $reviewSubject) => $reviewChangeListener,
             ]);
         }

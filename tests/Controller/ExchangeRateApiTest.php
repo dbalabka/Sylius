@@ -17,22 +17,15 @@ use Lakion\ApiTestCase\JsonApiTestCase;
 use Sylius\Component\Currency\Model\ExchangeRateInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 final class ExchangeRateApiTest extends JsonApiTestCase
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithContentType = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'CONTENT_TYPE' => 'application/json',
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $authorizedHeaderWithAccept = [
         'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
         'Accept' => 'application/json',
@@ -244,7 +237,6 @@ EOT;
         $this->assertResponse($response, 'exchange_rate/update_response', Response::HTTP_OK);
     }
 
-
     /**
      * @test
      */
@@ -324,7 +316,7 @@ EOT;
         /** @var ExchangeRateInterface $exchangeRate */
         $exchangeRate = $exchangeRates['eur_gbp_exchange_rate'];
 
-        $this->client->request('DELETE', $this->getExchangeRateUrl($exchangeRate), [], [], static::$authorizedHeaderWithContentType, []);
+        $this->client->request('DELETE', $this->getExchangeRateUrl($exchangeRate), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
@@ -336,8 +328,6 @@ EOT;
     }
 
     /**
-     * @param ExchangeRateInterface $exchangeRate
-     *
      * @return string
      */
     private function getExchangeRateUrl(ExchangeRateInterface $exchangeRate)

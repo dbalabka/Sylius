@@ -18,9 +18,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class IntegerAttributeType implements AttributeTypeInterface
 {
     public const TYPE = 'integer';
@@ -64,12 +61,6 @@ final class IntegerAttributeType implements AttributeTypeInterface
         }
     }
 
-    /**
-     * @param ExecutionContextInterface $context
-     * @param int|null $value
-     *
-     * @return ConstraintViolationListInterface
-     */
     private function getValidationErrors(ExecutionContextInterface $context, ?int $value): ConstraintViolationListInterface
     {
         return $context->getValidator()->validate($value, [new NotBlank([])]);

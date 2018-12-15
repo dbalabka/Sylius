@@ -18,9 +18,6 @@ use AppBundle\Entity\BookTranslation;
 use Matthias\SymfonyDependencyInjectionTest\PhpUnit\AbstractExtensionTestCase;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\SyliusResourceExtension;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class SyliusResourceExtensionTest extends AbstractExtensionTestCase
 {
     /**
@@ -78,8 +75,8 @@ class SyliusResourceExtensionTest extends AbstractExtensionTestCase
 
         $this->load([
              'translation' => [
-                 'locale_provider' => 'test.custom_locale_provider'
-             ]
+                 'locale_provider' => 'test.custom_locale_provider',
+             ],
          ]);
 
         $this->assertContainerBuilderHasAlias('sylius.translation_locale_provider', 'test.custom_locale_provider');

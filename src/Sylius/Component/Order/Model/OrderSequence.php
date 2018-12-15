@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the Sylius package.
+ * This file is part of the Sylius package.
  *
  * (c) Paweł Jędrzejewski
  *
@@ -13,19 +13,12 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Order\Model;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 class OrderSequence implements OrderSequenceInterface
 {
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $id;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $index = 0;
 
     /**
@@ -39,7 +32,7 @@ class OrderSequence implements OrderSequenceInterface
     /**
      * {@inheritdoc}
      */
-    public function getIndex():int
+    public function getIndex(): int
     {
         return $this->index;
     }

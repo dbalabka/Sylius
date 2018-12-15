@@ -18,19 +18,11 @@ use Sylius\Component\Grid\Definition\Field;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class DatetimeFieldType implements FieldTypeInterface
 {
-    /**
-     * @var DataExtractorInterface
-     */
+    /** @var DataExtractorInterface */
     private $dataExtractor;
 
-    /**
-     * @param DataExtractorInterface $dataExtractor
-     */
     public function __construct(DataExtractorInterface $dataExtractor)
     {
         $this->dataExtractor = $dataExtractor;

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\DriverProvider;
+use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Metadata\Metadata;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -22,10 +23,6 @@ use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- */
 final class SyliusResourceExtension extends Extension
 {
     /**
@@ -34,7 +31,7 @@ final class SyliusResourceExtension extends Extension
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $loader->load('services.xml');
 
@@ -46,7 +43,7 @@ final class SyliusResourceExtension extends Extension
         if ($config['translation']['enabled']) {
             $loader->load('services/integrations/translation.xml');
 
-            $container->setAlias('sylius.translation_locale_provider', $config['translation']['locale_provider']);
+            $container->setAlias('sylius.translation_locale_provider', $config['translation']['locale_provider'])->setPublic(true);
         }
 
         $container->setParameter('sylius.resource.settings', $config['settings']);
@@ -69,6 +66,13 @@ final class SyliusResourceExtension extends Extension
         }
 
         foreach ($drivers as $driver) {
+            if (in_array($driver, [SyliusResourceBundle::DRIVER_DOCTRINE_PHPCR_ODM, SyliusResourceBundle::DRIVER_DOCTRINE_MONGODB_ODM], true)) {
+                @trigger_error(sprintf(
+                    'The "%s" driver is deprecated in Sylius 1.3. Doctrine MongoDB and PHPCR will no longer be supported in Sylius 2.0.',
+                    $driver
+                ), \E_USER_DEPRECATED);
+            }
+
             $loader->load(sprintf('services/integrations/%s.xml', $driver));
         }
     }

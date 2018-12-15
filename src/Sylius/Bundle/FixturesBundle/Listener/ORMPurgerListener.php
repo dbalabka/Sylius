@@ -18,27 +18,17 @@ use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class ORMPurgerListener extends AbstractListener implements BeforeSuiteListenerInterface
 {
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var ManagerRegistry */
     private $managerRegistry;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private static $purgeModes = [
         'delete' => ORMPurger::PURGE_MODE_DELETE,
         'truncate' => ORMPurger::PURGE_MODE_TRUNCATE,
     ];
 
-    /**
-     * @param ManagerRegistry $managerRegistry
-     */
     public function __construct(ManagerRegistry $managerRegistry)
     {
         $this->managerRegistry = $managerRegistry;
@@ -83,13 +73,13 @@ final class ORMPurgerListener extends AbstractListener implements BeforeSuiteLis
         $optionsNodeBuilder
             ->arrayNode('managers')
                 ->defaultValue([null])
-                ->prototype('scalar')
+                ->scalarPrototype()
         ;
 
         $optionsNodeBuilder
             ->arrayNode('exclude')
                 ->defaultValue([])
-                ->prototype('scalar')
+                ->scalarPrototype()
         ;
     }
 }

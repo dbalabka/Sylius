@@ -23,9 +23,6 @@ use Sylius\Behat\Service\SlugGenerationHelper;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 {
     use ChecksCodeImmutability;
@@ -87,7 +84,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
             $imageForm->fillField('Type', $type);
         }
 
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -179,7 +176,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         $filesPath = $this->getParameter('files_path');
 
         $imageForm = $this->getImageElementByType($type);
-        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+        $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
     /**
@@ -261,7 +258,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getElement($name, array $parameters = [])
+    protected function getElement(string $name, array $parameters = []): NodeElement
     {
         if (!isset($parameters['%language%'])) {
             $parameters['%language%'] = 'en_US';
@@ -281,7 +278,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_taxon_code',
@@ -337,7 +334,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     private function getImageElementByType($type)
     {
         $images = $this->getElement('images');
-        $typeInput = $images->find('css', 'input[value="'.$type.'"]');
+        $typeInput = $images->find('css', 'input[value="' . $type . '"]');
 
         if (null === $typeInput) {
             return null;
@@ -353,6 +350,10 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 
     private function saveImageUrlForType(string $type, string $imageUrl): void
     {
+        if (false !== strpos($imageUrl, 'data:image/jpeg')) {
+            return;
+        }
+
         $this->imageUrls[$type] = $imageUrl;
     }
 }

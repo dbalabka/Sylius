@@ -16,9 +16,6 @@ namespace Sylius\Behat\Page\Admin\Zone;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 use Sylius\Component\Addressing\Model\ZoneMemberInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
     /**
@@ -37,8 +34,6 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
     public function getScope();
 
     /**
-     * @param ZoneMemberInterface $zoneMember
-     *
      * @return bool
      */
     public function hasMember(ZoneMemberInterface $zoneMember);
@@ -48,8 +43,5 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
      */
     public function isCodeDisabled();
 
-    /**
-     * @param ZoneMemberInterface $zoneMember
-     */
     public function removeMember(ZoneMemberInterface $zoneMember);
 }

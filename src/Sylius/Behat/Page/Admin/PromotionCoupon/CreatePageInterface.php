@@ -15,9 +15,6 @@ namespace Sylius\Behat\Page\Admin\PromotionCoupon;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
     /**
@@ -25,9 +22,6 @@ interface CreatePageInterface extends BaseCreatePageInterface
      */
     public function setCustomerUsageLimit($limit);
 
-    /**
-     * @param \DateTimeInterface $date
-     */
     public function setExpiresAt(\DateTimeInterface $date);
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is a part of the Sylius package.
+ * This file is part of the Sylius package.
  *
  * (c) Paweł Jędrzejewski
  *
@@ -15,14 +15,8 @@ namespace Sylius\Component\Order\Model;
 
 use Sylius\Component\Resource\Model\ResourceInterface;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 interface OrderSequenceInterface extends ResourceInterface
 {
-    /**
-     * @return int
-     */
     public function getIndex(): int;
 
     public function incrementIndex(): void;

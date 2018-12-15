@@ -1,9 +1,9 @@
 {
     "name": "sylius/theme-bundle",
     "type": "symfony-bundle",
-    "description": "Themes management for Symfony2 projects.",
+    "description": "Themes management for Symfony projects.",
     "keywords": ["themes", "theming"],
-    "homepage": "http://sylius.org",
+    "homepage": "http://sylius.com",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
         },
         {
             "name": "Sylius project",
-            "homepage": "http://sylius.org"
+            "homepage": "http://sylius.com"
         },
         {
             "name": "Community contributions",
@@ -20,21 +20,38 @@
         }
     ],
     "require": {
-        "php": "^7.1",
+        "php": "^7.2",
 
         "doctrine/common": "^2.5",
-        "symfony/symfony": "^3.2",
+        "symfony/asset": "^3.4|^4.1.1",
+        "symfony/config": "^3.4|^4.1.1",
+        "symfony/console": "^3.4|^4.1.1",
+        "symfony/dependency-injection": "^3.4|^4.1.1",
+        "symfony/filesystem": "^3.4|^4.1.1",
+        "symfony/finder": "^3.4|^4.1.1",
+        "symfony/form": "^3.4|^4.1.1",
+        "symfony/framework-bundle": "^3.4|^4.1.1",
+        "symfony/http-foundation": "^3.4|^4.1.1",
+        "symfony/http-kernel": "^3.4|^4.1.1",
+        "symfony/options-resolver": "^3.4|^4.1.1",
+        "symfony/templating": "^3.4|^4.1.1",
+        "symfony/translation": "^3.4|^4.1.1",
         "zendframework/zend-hydrator": "^2.2"
     },
     "require-dev": {
-        "matthiasnoback/symfony-config-test": "^2.0",
-        "matthiasnoback/symfony-dependency-injection-test": "^1.0",
+        "matthiasnoback/symfony-config-test": "^3.0",
+        "matthiasnoback/symfony-dependency-injection-test": "^2.0",
         "mikey179/vfsStream": "^1.6",
         "phpspec/phpspec": "^4.0",
-        "phpunit/phpunit": "^5.6",
-        "sylius/registry": "^1.0",
-        "twig/twig": "^2.0",
-        "symfony/twig-bundle": "^3.2"
+        "phpunit/phpunit": "^6.5",
+        "sylius/registry": "^1.1",
+        "symfony/browser-kit": "^3.4|^4.1.1",
+        "symfony/security-csrf": "^3.4|^4.1.1",
+        "symfony/twig-bundle": "^3.4|^4.1.1",
+        "twig/twig": "^2.0"
+    },
+    "conflict": {
+        "twig/twig": "^1.0"
     },
     "config": {
         "bin-dir": "bin"
@@ -67,7 +84,7 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.0-dev"
+            "dev-master": "1.4-dev"
         }
     }
 }

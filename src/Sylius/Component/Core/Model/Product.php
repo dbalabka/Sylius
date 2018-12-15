@@ -18,50 +18,32 @@ use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
 use Sylius\Component\Product\Model\Product as BaseProduct;
 use Sylius\Component\Product\Model\ProductTranslationInterface as BaseProductTranslationInterface;
+use Sylius\Component\Resource\Model\TranslationInterface;
 use Sylius\Component\Review\Model\ReviewInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface as BaseTaxonInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 class Product extends BaseProduct implements ProductInterface, ReviewableProductInterface
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $variantSelectionMethod = self::VARIANT_SELECTION_CHOICE;
 
-    /**
-     * @var Collection|ProductTaxonInterface[]
-     */
+    /** @var Collection|ProductTaxonInterface[] */
     protected $productTaxons;
 
-    /**
-     * @var Collection|ChannelInterface[]
-     */
+    /** @var Collection|ChannelInterface[] */
     protected $channels;
 
-    /**
-     * @var BaseTaxonInterface
-     */
+    /** @var BaseTaxonInterface */
     protected $mainTaxon;
 
-    /**
-     * @var Collection|ReviewInterface[]
-     */
+    /** @var Collection|ReviewInterface[] */
     protected $reviews;
 
-    /**
-     * @var float
-     */
+    /** @var float */
     protected $averageRating = 0;
 
-    /**
-     * @var Collection|ImageInterface[]
-     */
+    /** @var Collection|ImageInterface[] */
     protected $images;
 
     public function __construct()
@@ -268,7 +250,7 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
      */
     public function removeReview(ReviewInterface $review): void
     {
-        $this->reviews->remove($review);
+        $this->reviews->removeElement($review);
     }
 
     /**
@@ -350,6 +332,14 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
             self::VARIANT_SELECTION_CHOICE => 'sylius.ui.variant_choice',
             self::VARIANT_SELECTION_MATCH => 'sylius.ui.options_matching',
         ];
+    }
+
+    /**
+     * @return ProductTranslationInterface
+     */
+    public function getTranslation(?string $locale = null): TranslationInterface
+    {
+        return parent::getTranslation($locale);
     }
 
     /**

@@ -24,9 +24,6 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\RequestMatcher;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class SyliusShopExtension extends Extension
 {
     /**
@@ -35,19 +32,19 @@ final class SyliusShopExtension extends Extension
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $loader->load('services.xml');
         $loader->load(sprintf('services/integrations/locale/%s.xml', $config['locale_switcher']));
 
         $container->setParameter('sylius_shop.firewall_context_name', $config['firewall_context_name']);
+        $container->setParameter(
+            'sylius_shop.product_grid.include_all_descendants',
+            $config['product_grid']['include_all_descendants']
+        );
         $this->configureCheckoutResolverIfNeeded($config['checkout_resolver'], $container);
     }
 
-    /**
-     * @param array $config
-     * @param ContainerBuilder $container
-     */
     private function configureCheckoutResolverIfNeeded(array $config, ContainerBuilder $container): void
     {
         if (!$config['enabled']) {
@@ -77,17 +74,12 @@ final class SyliusShopExtension extends Extension
         $container->setDefinition('sylius.router.checkout_state', $checkoutStateUrlGeneratorDefinition);
     }
 
-    /**
-     * @param array $config
-     *
-     * @return Definition
-     */
     private function registerCheckoutRedirectListener(array $config): Definition
     {
         $checkoutRedirectListener = new Definition(CheckoutRedirectListener::class, [
             new Reference('request_stack'),
             new Reference('sylius.router.checkout_state'),
-            new Definition(RequestMatcher::class, [$config['pattern']])
+            new Definition(RequestMatcher::class, [$config['pattern']]),
         ]);
 
         $checkoutRedirectListener

@@ -8,7 +8,7 @@ Sylius installation via Vagrant
 
     This article assumes you're familiar with `Composer`_, a dependency manager
     for PHP. It also assumes you have `Composer installed globally`_.
-    Basic knowledgle about `Vagrant <https://www.vagrantup.com/about.html>`_ is also required,
+    Basic knowledge about `Vagrant <https://www.vagrantup.com/about.html>`_ is also required,
     and of course `installed Vagrant <https://www.vagrantup.com/docs/installation/>`_.
 
 What's Vagrant?
@@ -38,14 +38,14 @@ How to install Sylius using Vagrant?
     $ cd sylius
     $ vagrant up
 
-4. Add an entry for sylius.dev to the ``etc/hosts`` file:
+4. Add an entry for sylius.test to the ``etc/hosts`` file:
 
 .. code-block:: bash
 
     # etc/hosts
-    10.0.0.200      sylius.dev www.sylius.dev
+    10.0.0.200      sylius.test www.sylius.test
 
-From now on you will be able to access running Sylius application at ``http://sylius.dev/app_dev.php``.
+From now on you will be able to access running Sylius application at ``http://sylius.test/index.php``.
 
 .. _Composer: http://packagist.org
 .. _`Composer installed globally`: http://getcomposer.org/doc/00-intro.md#globally

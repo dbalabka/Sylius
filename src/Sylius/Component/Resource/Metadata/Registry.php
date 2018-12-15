@@ -13,14 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Metadata;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Registry implements RegistryInterface
 {
-    /**
-     * @var array|MetadataInterface[]
-     */
+    /** @var array|MetadataInterface[] */
     private $metadata = [];
 
     /**

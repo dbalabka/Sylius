@@ -13,29 +13,18 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Promotion\Generator;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class PromotionCouponGeneratorInstruction implements PromotionCouponGeneratorInstructionInterface
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $amount = 5;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $codeLength = 6;
 
-    /**
-     * @var \DateTimeInterface
-     */
+    /** @var \DateTimeInterface */
     private $expiresAt;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     private $usageLimit;
 
     /**

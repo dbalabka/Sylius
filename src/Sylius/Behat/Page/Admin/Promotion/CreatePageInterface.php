@@ -16,10 +16,6 @@ namespace Sylius\Behat\Page\Admin\Promotion;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
     /**
@@ -103,14 +99,8 @@ interface CreatePageInterface extends BaseCreatePageInterface
      */
     public function checkChannel($name);
 
-    /**
-     * @param \DateTimeInterface $dateTime
-     */
     public function setStartsAt(\DateTimeInterface $dateTime);
 
-    /**
-     * @param \DateTimeInterface $dateTime
-     */
     public function setEndsAt(\DateTimeInterface $dateTime);
 
     /**

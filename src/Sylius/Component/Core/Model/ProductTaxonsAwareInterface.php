@@ -15,9 +15,6 @@ namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\Collection;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface ProductTaxonsAwareInterface
 {
     /**
@@ -25,21 +22,10 @@ interface ProductTaxonsAwareInterface
      */
     public function getProductTaxons(): Collection;
 
-    /**
-     * @param ProductTaxonInterface $productTaxon
-     *
-     * @return bool
-     */
     public function hasProductTaxon(ProductTaxonInterface $productTaxon): bool;
 
-    /**
-     * @param ProductTaxonInterface $productTaxon
-     */
     public function addProductTaxon(ProductTaxonInterface $productTaxon): void;
 
-    /**
-     * @param ProductTaxonInterface $productTaxon
-     */
     public function removeProductTaxon(ProductTaxonInterface $productTaxon): void;
 
     /**
@@ -47,10 +33,5 @@ interface ProductTaxonsAwareInterface
      */
     public function getTaxons(): Collection;
 
-    /**
-     * @param TaxonInterface $taxon
-     *
-     * @return bool
-     */
     public function hasTaxon(TaxonInterface $taxon): bool;
 }

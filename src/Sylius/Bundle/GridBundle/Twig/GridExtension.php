@@ -15,19 +15,11 @@ namespace Sylius\Bundle\GridBundle\Twig;
 
 use Sylius\Bundle\GridBundle\Templating\Helper\GridHelper;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class GridExtension extends \Twig_Extension
 {
-    /**
-     * @var GridHelper
-     */
+    /** @var GridHelper */
     private $gridHelper;
 
-    /**
-     * @param GridHelper $gridHelper
-     */
     public function __construct(GridHelper $gridHelper)
     {
         $this->gridHelper = $gridHelper;

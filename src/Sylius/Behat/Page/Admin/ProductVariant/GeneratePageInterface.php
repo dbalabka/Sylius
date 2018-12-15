@@ -13,11 +13,8 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\ProductVariant;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- */
 interface GeneratePageInterface extends SymfonyPageInterface
 {
     public function generate();

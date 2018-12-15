@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\Behat\Context\Ui\Shop\Checkout;
@@ -10,31 +19,17 @@ use Sylius\Behat\Page\Shop\Checkout\SelectPaymentPageInterface;
 use Sylius\Behat\Page\Shop\Checkout\SelectShippingPageInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class CheckoutShippingContext implements Context
 {
-    /**
-     * @var SelectShippingPageInterface
-     */
+    /** @var SelectShippingPageInterface */
     private $selectShippingPage;
 
-    /**
-     * @var SelectPaymentPageInterface
-     */
+    /** @var SelectPaymentPageInterface */
     private $selectPaymentPage;
 
-    /**
-     * @var CompletePageInterface
-     */
+    /** @var CompletePageInterface */
     private $completePage;
 
-    /**
-     * @param SelectShippingPageInterface $selectShippingPage
-     * @param SelectPaymentPageInterface $selectPaymentPage
-     * @param CompletePageInterface $completePage
-     */
     public function __construct(
         SelectShippingPageInterface $selectShippingPage,
         SelectPaymentPageInterface $selectPaymentPage,
@@ -186,6 +181,14 @@ final class CheckoutShippingContext implements Context
     }
 
     /**
+     * @Then I should see selected :shippingMethodName shipping method
+     */
+    public function iShouldSeeSelectedShippingMethod($shippingMethodName)
+    {
+        Assert::same($this->selectShippingPage->getSelectedShippingMethodName(), $shippingMethodName);
+    }
+
+    /**
      * @Then I should not see :shippingMethodName shipping method
      */
     public function iShouldNotSeeShippingMethod($shippingMethodName)
@@ -198,6 +201,6 @@ final class CheckoutShippingContext implements Context
      */
     public function iShouldBeCheckingOutAs($email)
     {
-        Assert::same($this->selectShippingPage->getPurchaserEmail(), 'Checking out as '.$email.'.');
+        Assert::same($this->selectShippingPage->getPurchaserEmail(), 'Checking out as ' . $email . '.');
     }
 }

@@ -17,9 +17,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class RegisterRuleCheckersPass implements CompilerPassInterface
 {
     /**
@@ -37,7 +34,7 @@ final class RegisterRuleCheckersPass implements CompilerPassInterface
         $promotionRuleCheckerTypeToLabelMap = [];
         foreach ($container->findTaggedServiceIds('sylius.promotion_rule_checker') as $id => $attributes) {
             if (!isset($attributes[0]['type'], $attributes[0]['label'], $attributes[0]['form_type'])) {
-                throw new \InvalidArgumentException('Tagged rule checker `'.$id.'` needs to have `type`, `form_type` and `label` attributes.');
+                throw new \InvalidArgumentException('Tagged rule checker `' . $id . '` needs to have `type`, `form_type` and `label` attributes.');
             }
 
             $promotionRuleCheckerTypeToLabelMap[$attributes[0]['type']] = $attributes[0]['label'];

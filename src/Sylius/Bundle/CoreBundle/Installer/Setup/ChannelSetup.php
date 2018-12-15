@@ -20,31 +20,17 @@ use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class ChannelSetup implements ChannelSetupInterface
 {
-    /**
-     * @var RepositoryInterface
-     */
+    /** @var RepositoryInterface */
     private $channelRepository;
 
-    /**
-     * @var FactoryInterface
-     */
+    /** @var FactoryInterface */
     private $channelFactory;
 
-    /**
-     * @var ObjectManager
-     */
+    /** @var ObjectManager */
     private $channelManager;
 
-    /**
-     * @param RepositoryInterface $channelRepository
-     * @param FactoryInterface $channelFactory
-     * @param ObjectManager $channelManager
-     */
     public function __construct(
         RepositoryInterface $channelRepository,
         FactoryInterface $channelFactory,
@@ -64,6 +50,7 @@ final class ChannelSetup implements ChannelSetupInterface
         $channel = $this->channelRepository->findOneBy([]);
 
         if (null === $channel) {
+            /** @var ChannelInterface $channel */
             $channel = $this->channelFactory->createNew();
             $channel->setCode('default');
             $channel->setName('Default');

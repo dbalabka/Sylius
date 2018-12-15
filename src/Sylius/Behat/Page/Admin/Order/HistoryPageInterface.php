@@ -13,11 +13,8 @@ declare(strict_types=1);
 
 namespace Sylius\Behat\Page\Admin\Order;
 
-use Sylius\Behat\Page\SymfonyPageInterface;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPageInterface;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 interface HistoryPageInterface extends SymfonyPageInterface
 {
     /**

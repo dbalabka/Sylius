@@ -15,9 +15,6 @@ namespace Sylius\Behat\Page\Admin\ProductAttribute;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Anna Walasek <anna.walasek@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
     /**
@@ -35,4 +32,12 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
      * @return bool
      */
     public function isTypeDisabled();
+
+    public function changeAttributeValue(string $oldValue, string $newValue): void;
+
+    public function hasAttributeValue(string $value): bool;
+
+    public function addAttributeValue(string $value, string $localeCode): void;
+
+    public function deleteAttributeValue(string $value): void;
 }

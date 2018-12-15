@@ -6,7 +6,7 @@ framework:
     translator: { fallbacks: ["%locale%"] }
     secret: "%secret%"
     router:
-        resource: "%kernel.root_dir%/config/routing.yml"
+        resource: "%kernel.project_dir%/app/config/routing.yml"
     form: ~
     csrf_protection: true
     templating:
@@ -14,17 +14,18 @@ framework:
     default_locale: "%locale%"
     session:
         handler_id: ~
+        storage_id: session.storage.mock_file
     http_method_override: true
     test: ~
-    session:
-        storage_id: session.storage.mock_file
 
 twig:
+    paths: ['%kernel.project_dir%/templates']
     debug: "%kernel.debug%"
     strict_variables: "%kernel.debug%"
 
 sylius_theme:
     sources:
         filesystem:
+            scan_depth: 1
             directories:
-                - "%kernel.root_dir%/../../Fixtures/themes"
+                - "%kernel.project_dir%/../Fixtures/themes"

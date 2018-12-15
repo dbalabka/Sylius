@@ -50,9 +50,6 @@ Don't worry, everything was automatically installed via Composer.
         );
     }
 
-.. note::
-
-    Please register the bundle before *DoctrineBundle*. This is important as we use listeners which have to be processed first.
 
 Container configuration
 -----------------------
@@ -66,6 +63,7 @@ Configure doctrine extensions which are used in the taxonomy bundle:
             default:
                 tree: true
                 sluggable: true
+                sortable: true
 
 Updating database schema
 ------------------------

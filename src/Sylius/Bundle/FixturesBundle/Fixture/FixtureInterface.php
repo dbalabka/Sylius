@@ -15,18 +15,9 @@ namespace Sylius\Bundle\FixturesBundle\Fixture;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface FixtureInterface extends ConfigurationInterface
 {
-    /**
-     * @param array $options
-     */
     public function load(array $options): void;
 
-    /**
-     * @return string
-     */
     public function getName(): string;
 }

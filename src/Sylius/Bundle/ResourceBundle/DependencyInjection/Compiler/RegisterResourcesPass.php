@@ -18,9 +18,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class RegisterResourcesPass implements CompilerPassInterface
 {
     /**
@@ -41,9 +38,6 @@ final class RegisterResourcesPass implements CompilerPassInterface
         }
     }
 
-    /**
-     * @param string $class
-     */
     private function validateSyliusResource(string $class): void
     {
         if (!in_array(ResourceInterface::class, class_implements($class), true)) {

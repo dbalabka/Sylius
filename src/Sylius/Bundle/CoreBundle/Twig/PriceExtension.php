@@ -15,19 +15,11 @@ namespace Sylius\Bundle\CoreBundle\Twig;
 
 use Symfony\Component\Templating\Helper\Helper;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- */
 final class PriceExtension extends \Twig_Extension
 {
-    /**
-     * @var Helper
-     */
+    /** @var Helper */
     private $helper;
 
-    /**
-     * @param Helper $helper
-     */
     public function __construct(Helper $helper)
     {
         $this->helper = $helper;

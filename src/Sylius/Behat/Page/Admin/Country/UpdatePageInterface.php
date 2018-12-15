@@ -15,12 +15,10 @@ namespace Sylius\Behat\Page\Admin\Country;
 
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
     public function enable();
+
     public function disable();
 
     /**

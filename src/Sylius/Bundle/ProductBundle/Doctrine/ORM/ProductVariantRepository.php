@@ -19,9 +19,6 @@ use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductVariantInterface;
 use Sylius\Component\Product\Repository\ProductVariantRepositoryInterface;
 
-/**
- * @author Alexandre Bacco <alexandre.bacco@gmail.com>
- */
 class ProductVariantRepository extends EntityRepository implements ProductVariantRepositoryInterface
 {
     /**
@@ -149,7 +146,7 @@ class ProductVariantRepository extends EntityRepository implements ProductVarian
                 'translation.name LIKE :phrase',
                 'o.code LIKE :phrase'
             ))
-            ->setParameter('phrase', '%'.$phrase.'%')
+            ->setParameter('phrase', '%' . $phrase . '%')
             ->setParameter('locale', $locale)
             ->setParameter('productCode', $productCode)
             ->getQuery()

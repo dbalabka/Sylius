@@ -18,9 +18,6 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-/**
- * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
- */
 final class RegisterReviewFactoryPass implements CompilerPassInterface
 {
     /**
@@ -29,11 +26,12 @@ final class RegisterReviewFactoryPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         foreach ($container->getParameter('sylius.review.subjects') as $subject => $configuration) {
-            $factory = $container->findDefinition('sylius.factory.'.$subject.'_review');
-            $reviewFactoryDefinition = new Definition(ReviewFactory::class);
+            $factory = $container->findDefinition('sylius.factory.' . $subject . '_review');
 
-            $reviewFactory = $container->setDefinition(sprintf('sylius.factory.'.$subject.'_review'), $reviewFactoryDefinition);
-            $reviewFactory->addArgument($factory);
+            $reviewFactoryDefinition = new Definition(ReviewFactory::class, [$factory]);
+            $reviewFactoryDefinition->setPublic(true);
+
+            $container->setDefinition(sprintf('sylius.factory.' . $subject . '_review'), $reviewFactoryDefinition);
         }
     }
 }

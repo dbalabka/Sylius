@@ -17,19 +17,11 @@ use Sylius\Bundle\CoreBundle\Mailer\Emails;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Mailer\Sender\SenderInterface;
 
-/**
- * @author Hussein Jafferjee <hussein@jafferjee.ca>
- */
 final class OrderEmailManager implements OrderEmailManagerInterface
 {
-    /**
-     * @var SenderInterface
-     */
+    /** @var SenderInterface */
     private $emailSender;
 
-    /**
-     * @param SenderInterface $emailSender
-     */
     public function __construct(SenderInterface $emailSender)
     {
         $this->emailSender = $emailSender;

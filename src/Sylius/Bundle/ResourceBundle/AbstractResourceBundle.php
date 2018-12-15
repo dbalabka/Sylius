@@ -22,10 +22,6 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-/**
- * @author Arnaud Langlade <arn0d.dev@gmail.com>
- * @author Gustavo Perdomo <gperdomor@gmail.com>
- */
 abstract class AbstractResourceBundle extends Bundle implements ResourceBundleInterface
 {
     /**
@@ -59,8 +55,8 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
                                 [$this->getObjectManagerParameter()],
                                 sprintf('%s.driver.%s', $this->getBundlePrefix(), $driver)
                             ));
-                            break;
 
+                            break;
                         case ResourceBundleInterface::MAPPING_ANNOTATION:
                             $container->addCompilerPass($compilerPassClassName::$compilerPassMethod(
                                 [$this->getModelNamespace()],
@@ -78,8 +74,6 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
 
     /**
      * Return the prefix of the bundle.
-     *
-     * @return string
      */
     protected function getBundlePrefix(): string
     {
@@ -88,8 +82,6 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
 
     /**
      * Return the directory where are stored the doctrine mapping.
-     *
-     * @return string
      */
     protected function getDoctrineMappingDirectory(): string
     {
@@ -103,15 +95,13 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
      */
     protected function getModelNamespace(): ?string
     {
-        return null;
+        return (new \ReflectionClass($this))->getNamespaceName() . '\\Model';
     }
 
     /**
      * Return mapping compiler pass class depending on driver.
      *
-     * @param string $driverType
      *
-     * @return array
      *
      * @throws UnknownDriverException
      */
@@ -119,13 +109,26 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
     {
         switch ($driverType) {
             case SyliusResourceBundle::DRIVER_DOCTRINE_MONGODB_ODM:
+                @trigger_error(sprintf(
+                    'The "%s" driver is deprecated in Sylius 1.3. Doctrine MongoDB and PHPCR will no longer be supported in Sylius 2.0.',
+                    $driverType
+                ), \E_USER_DEPRECATED);
+
                 $mappingsPassClassname = DoctrineMongoDBMappingsPass::class;
+
                 break;
             case SyliusResourceBundle::DRIVER_DOCTRINE_ORM:
                 $mappingsPassClassname = DoctrineOrmMappingsPass::class;
+
                 break;
             case SyliusResourceBundle::DRIVER_DOCTRINE_PHPCR_ODM:
+                @trigger_error(sprintf(
+                    'The "%s" driver is deprecated in Sylius 1.3. Doctrine MongoDB and PHPCR will no longer be supported in Sylius 2.0.',
+                    $driverType
+                ), \E_USER_DEPRECATED);
+
                 $mappingsPassClassname = DoctrinePhpcrMappingsPass::class;
+
                 break;
             default:
                 throw new UnknownDriverException($driverType);
@@ -138,8 +141,6 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
 
     /**
      * Return the absolute path where are stored the doctrine mapping.
-     *
-     * @return string
      */
     protected function getConfigFilesPath(): string
     {
@@ -150,9 +151,6 @@ abstract class AbstractResourceBundle extends Bundle implements ResourceBundleIn
         );
     }
 
-    /**
-     * @return string
-     */
     protected function getObjectManagerParameter(): string
     {
         return sprintf('%s.object_manager', $this->getBundlePrefix());

@@ -23,8 +23,6 @@ use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 
 /**
  * @require Doctrine\ODM\PHPCR\DocumentManagerInterface
- *
- * @author Daniel Leech <daniel@dantleech.com>
  */
 final class DefaultParentListenerSpec extends ObjectBehavior
 {
@@ -48,7 +46,7 @@ final class DefaultParentListenerSpec extends ObjectBehavior
             'A default parent path has been specified, but no parent mapping has been applied to document "stdClass"'
         ))->during(
             'onPreCreate',
-            [ $event ]
+            [$event]
         );
     }
 
@@ -73,7 +71,7 @@ final class DefaultParentListenerSpec extends ObjectBehavior
             'Document at default parent path "/path/to" does not exist. `autocreate` was set to "false"'
         ))->during(
             'onPreCreate',
-            [ $event ]
+            [$event]
         );
     }
 
@@ -128,7 +126,6 @@ final class DefaultParentListenerSpec extends ObjectBehavior
         $node->getNode(Argument::cetera())
             ->willReturn($node)
             ->shouldBeCalledTimes(2);
-
 
         $documentMetadata->setFieldValue($subjectDocument, 'parent', $parentDocument);
         $this->onPreCreate($event);

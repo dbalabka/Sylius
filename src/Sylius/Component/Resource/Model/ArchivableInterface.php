@@ -13,18 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Resource\Model;
 
-/**
- * @author Jan Góralski <jan.goralski@lakion.com>
- */
 interface ArchivableInterface
 {
-    /**
-     * @return \DateTimeInterface|null
-     */
     public function getArchivedAt(): ?\DateTimeInterface;
 
-    /**
-     * @param \DateTimeInterface|null $archivedAt
-     */
     public function setArchivedAt(?\DateTimeInterface $archivedAt): void;
 }

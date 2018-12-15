@@ -14,23 +14,15 @@ declare(strict_types=1);
 namespace Sylius\Behat\Page\Admin;
 
 use Behat\Mink\Session;
-use Sylius\Behat\Page\SymfonyPage;
+use FriendsOfBehat\PageObjectExtension\Page\SymfonyPage;
 use Sylius\Behat\Service\Accessor\TableAccessorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 class DashboardPage extends SymfonyPage implements DashboardPageInterface
 {
-    /**
-     * @var TableAccessorInterface
-     */
+    /** @var TableAccessorInterface */
     private $tableAccessor;
 
-    /**
-     * @param TableAccessorInterface $tableAccessor
-     */
     public function __construct(
         Session $session,
         array $parameters,
@@ -117,7 +109,7 @@ class DashboardPage extends SymfonyPage implements DashboardPageInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getRouteName(): string
     {
         return 'sylius_admin_dashboard';
     }
@@ -125,7 +117,7 @@ class DashboardPage extends SymfonyPage implements DashboardPageInterface
     /**
      * {@inheritdoc}
      */
-    protected function getDefinedElements()
+    protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
             'average_order_value' => '#average-order-value',
@@ -137,7 +129,7 @@ class DashboardPage extends SymfonyPage implements DashboardPageInterface
             'order_list' => '#orders',
             'total_sales' => '#total-sales',
             'sub_header' => '.ui.header .content .sub.header',
-            'channel_choosing_link' => 'a:contains("%channelName%")'
+            'channel_choosing_link' => 'a:contains("%channelName%")',
         ]);
     }
 }

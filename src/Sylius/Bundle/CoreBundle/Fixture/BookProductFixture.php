@@ -20,49 +20,36 @@ use Sylius\Component\Attribute\AttributeType\TextAttributeType;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 class BookProductFixture extends AbstractFixture
 {
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $taxonFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productAttributeFixture;
 
-    /**
-     * @var AbstractResourceFixture
-     */
+    /** @var AbstractResourceFixture */
     private $productFixture;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var string */
+    private $baseLocaleCode;
+
+    /** @var \Faker\Generator */
     private $faker;
 
-    /**
-     * @var OptionsResolver
-     */
+    /** @var OptionsResolver */
     private $optionsResolver;
 
-    /**
-     * @param AbstractResourceFixture $taxonFixture
-     * @param AbstractResourceFixture $productAttributeFixture
-     * @param AbstractResourceFixture $productFixture
-     */
     public function __construct(
         AbstractResourceFixture $taxonFixture,
         AbstractResourceFixture $productAttributeFixture,
-        AbstractResourceFixture $productFixture
+        AbstractResourceFixture $productFixture,
+        string $baseLocaleCode
     ) {
         $this->taxonFixture = $taxonFixture;
         $this->productAttributeFixture = $productAttributeFixture;
         $this->productFixture = $productFixture;
+        $this->baseLocaleCode = $baseLocaleCode;
 
         $this->faker = \Faker\Factory::create();
         $this->optionsResolver =
@@ -93,12 +80,24 @@ class BookProductFixture extends AbstractFixture
             'children' => [
                 [
                     'code' => 'books',
-                    'name' => 'Books',
-                ]
-            ]
+                    'translations' => [
+                        'en_US' => [
+                            'name' => 'Books',
+                        ],
+                        'fr_FR' => [
+                            'name' => 'Livres',
+                        ]
+                    ],
+                ],
+            ],
         ]]]);
 
-        $bookGenres = ['science_fiction' => 'Science Fiction', 'romance' => 'Romance', 'thriller' => 'Thriller', 'sports' => 'Sports'];
+        $bookGenres = [
+            $this->faker->uuid => [$this->baseLocaleCode => 'Science Fiction'],
+            $this->faker->uuid => [$this->baseLocaleCode => 'Romance'],
+            $this->faker->uuid => [$this->baseLocaleCode => 'Thriller'],
+            $this->faker->uuid => [$this->baseLocaleCode => 'Sports'],
+        ];
         $this->productAttributeFixture->load(['custom' => [
             ['name' => 'Book author', 'code' => 'book_author', 'type' => TextAttributeType::TYPE],
             ['name' => 'Book ISBN', 'code' => 'book_isbn', 'type' => TextAttributeType::TYPE],
@@ -110,7 +109,7 @@ class BookProductFixture extends AbstractFixture
                 'configuration' => [
                     'multiple' => true,
                     'choices' => $bookGenres,
-                ]
+                ],
             ],
         ]]);
 
@@ -131,8 +130,14 @@ class BookProductFixture extends AbstractFixture
                     'book_genre' => $this->faker->randomElements(array_keys($bookGenres), $this->faker->numberBetween(1, count($bookGenres))),
                 ],
                 'images' => [
-                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'), 'main'],
-                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'), 'thumbnail'],
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'),
+                        'type' => 'main',
+                    ],
+                    [
+                        'path' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'),
+                        'type' => 'thumbnail',
+                    ],
                 ],
             ];
         }
@@ -151,11 +156,6 @@ class BookProductFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * @param int $amount
-     *
-     * @return array
-     */
     private function getUniqueNames(int $amount): array
     {
         $productsNames = [];

@@ -26,33 +26,20 @@ use Sylius\Component\Resource\Model\TranslationInterface;
 use Sylius\Component\Resource\Translation\TranslatableEntityLocaleAssignerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
- * @author Prezent Internet B.V. <info@prezent.nl>
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class ORMTranslatableListener implements EventSubscriber
 {
-    /**
-     * @var RegistryInterface
-     */
+    /** @var RegistryInterface */
     private $resourceMetadataRegistry;
 
-    /**
-     * @var TranslatableEntityLocaleAssignerInterface
-     */
+    /** @var TranslatableEntityLocaleAssignerInterface */
     private $translatableEntityLocaleAssigner;
 
-    /**
-     * @param RegistryInterface $resourceMetadataRegistry
-     * @param ContainerInterface $container
-     */
     public function __construct(
         RegistryInterface $resourceMetadataRegistry,
-        ContainerInterface $container
+        object $translatableEntityLocaleAssigner
     ) {
         $this->resourceMetadataRegistry = $resourceMetadataRegistry;
-        $this->translatableEntityLocaleAssigner = $container->get('sylius.translatable_entity_locale_assigner');
+        $this->translatableEntityLocaleAssigner = $this->processTranslatableEntityLocaleAssigner($translatableEntityLocaleAssigner);
     }
 
     /**
@@ -68,8 +55,6 @@ final class ORMTranslatableListener implements EventSubscriber
 
     /**
      * Add mapping to translatable entities
-     *
-     * @param LoadClassMetadataEventArgs $eventArgs
      */
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void
     {
@@ -89,9 +74,6 @@ final class ORMTranslatableListener implements EventSubscriber
         }
     }
 
-    /**
-     * @param LifecycleEventArgs $args
-     */
     public function postLoad(LifecycleEventArgs $args): void
     {
         $entity = $args->getEntity();
@@ -105,8 +87,6 @@ final class ORMTranslatableListener implements EventSubscriber
 
     /**
      * Add mapping data to a translatable entity.
-     *
-     * @param ClassMetadata $metadata
      */
     private function mapTranslatable(ClassMetadata $metadata): void
     {
@@ -123,7 +103,7 @@ final class ORMTranslatableListener implements EventSubscriber
         }
 
         /** @var MetadataInterface $translationResourceMetadata */
-        $translationResourceMetadata = $this->resourceMetadataRegistry->get($resourceMetadata->getAlias().'_translation');
+        $translationResourceMetadata = $this->resourceMetadataRegistry->get($resourceMetadata->getAlias() . '_translation');
 
         if (!$metadata->hasAssociation('translations')) {
             $metadata->mapOneToMany([
@@ -140,8 +120,6 @@ final class ORMTranslatableListener implements EventSubscriber
 
     /**
      * Add mapping data to a translation entity.
-     *
-     * @param ClassMetadata $metadata
      */
     private function mapTranslation(ClassMetadata $metadata): void
     {
@@ -187,7 +165,7 @@ final class ORMTranslatableListener implements EventSubscriber
         if (!$this->hasUniqueConstraint($metadata, $columns)) {
             $constraints = $metadata->table['uniqueConstraints'] ?? [];
 
-            $constraints[$metadata->getTableName().'_uniq_trans'] = [
+            $constraints[$metadata->getTableName() . '_uniq_trans'] = [
                 'columns' => $columns,
             ];
 
@@ -199,11 +177,6 @@ final class ORMTranslatableListener implements EventSubscriber
 
     /**
      * Check if a unique constraint has been defined.
-     *
-     * @param ClassMetadata $metadata
-     * @param array         $columns
-     *
-     * @return bool
      */
     private function hasUniqueConstraint(ClassMetadata $metadata, array $columns): bool
     {
@@ -218,5 +191,26 @@ final class ORMTranslatableListener implements EventSubscriber
         }
 
         return false;
+    }
+
+    private function processTranslatableEntityLocaleAssigner(object $translatableEntityLocaleAssigner): TranslatableEntityLocaleAssignerInterface
+    {
+        if ($translatableEntityLocaleAssigner instanceof ContainerInterface) {
+            @trigger_error(
+                sprintf('Passing an instance of "%s" is deprecated since 1.4. Use "%s" instead.',
+                    ContainerInterface::class, TranslatableEntityLocaleAssignerInterface::class), \E_USER_DEPRECATED
+            );
+            $translatableEntityLocaleAssigner = $translatableEntityLocaleAssigner->get('sylius.translatable_entity_locale_assigner');
+        }
+
+        if (!$translatableEntityLocaleAssigner instanceof TranslatableEntityLocaleAssignerInterface) {
+            throw new \InvalidArgumentException(sprintf(
+                '`$translatableEntityLocaleAssigner` was expected to return an instance of "%s" , "%s" found',
+                TranslatableEntityLocaleAssignerInterface::class,
+                get_class($translatableEntityLocaleAssigner)
+            ));
+        }
+
+        return $translatableEntityLocaleAssigner;
     }
 }

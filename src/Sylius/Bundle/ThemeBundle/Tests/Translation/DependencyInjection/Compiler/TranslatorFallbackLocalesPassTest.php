@@ -18,9 +18,6 @@ use Sylius\Bundle\ThemeBundle\Translation\DependencyInjection\Compiler\Translato
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class TranslatorFallbackLocalesPassTest extends AbstractCompilerPassTestCase
 {
     /**
@@ -101,6 +98,9 @@ final class TranslatorFallbackLocalesPassTest extends AbstractCompilerPassTestCa
         $this->setDefinition('sylius.theme.translation.translator', new Definition());
 
         $this->compile();
+
+        $this->assertContainerBuilderHasService('translator.default');
+        $this->assertContainerBuilderHasService('sylius.theme.translation.translator');
     }
 
     /**

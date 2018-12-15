@@ -15,19 +15,11 @@ namespace Sylius\Bundle\FixturesBundle\Fixture;
 
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class FixtureRegistry implements FixtureRegistryInterface
 {
-    /**
-     * @var array
-     */
+    /** @var array */
     private $fixtures = [];
 
-    /**
-     * @param FixtureInterface $fixture
-     */
     public function addFixture(FixtureInterface $fixture): void
     {
         Assert::keyNotExists($this->fixtures, $fixture->getName(), 'Fixture with name "%s" is already registered.');

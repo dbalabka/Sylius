@@ -18,9 +18,6 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
     /**
@@ -77,8 +74,6 @@ interface CreatePageInterface extends BaseCreatePageInterface
     public function attachImage($path, $type = null);
 
     /**
-     * @param TaxonInterface|null $parentTaxon
-     *
      * @return NodeElement[]
      *
      * @throws ElementNotFoundException

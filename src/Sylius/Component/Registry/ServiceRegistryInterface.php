@@ -13,18 +13,11 @@ declare(strict_types=1);
 
 namespace Sylius\Component\Registry;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface ServiceRegistryInterface
 {
-    /**
-     * @return array
-     */
     public function all(): array;
 
     /**
-     * @param string $identifier
      * @param object $service
      *
      * @throws ExistingServiceException
@@ -33,22 +26,13 @@ interface ServiceRegistryInterface
     public function register(string $identifier, $service): void;
 
     /**
-     * @param string $identifier
-     *
      * @throws NonExistingServiceException
      */
     public function unregister(string $identifier): void;
 
-    /**
-     * @param string $identifier
-     *
-     * @return bool
-     */
     public function has(string $identifier): bool;
 
     /**
-     * @param string $identifier
-     *
      * @return object
      *
      * @throws NonExistingServiceException

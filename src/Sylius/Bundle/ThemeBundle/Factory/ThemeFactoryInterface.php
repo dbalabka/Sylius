@@ -15,16 +15,7 @@ namespace Sylius\Bundle\ThemeBundle\Factory;
 
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 interface ThemeFactoryInterface
 {
-    /**
-     * @param string $name
-     * @param string $path
-     *
-     * @return ThemeInterface
-     */
     public function create(string $name, string $path): ThemeInterface;
 }

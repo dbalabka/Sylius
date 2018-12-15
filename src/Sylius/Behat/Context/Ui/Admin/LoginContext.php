@@ -19,25 +19,14 @@ use Sylius\Behat\Page\Admin\DashboardPageInterface;
 use Sylius\Component\Core\Model\AdminUserInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 final class LoginContext implements Context
 {
-    /**
-     * @var DashboardPageInterface
-     */
+    /** @var DashboardPageInterface */
     private $dashboardPage;
 
-    /**
-     * @var LoginPageInterface
-     */
+    /** @var LoginPageInterface */
     private $loginPage;
 
-    /**
-     * @param DashboardPageInterface $dashboardPage
-     * @param LoginPageInterface $loginPage
-     */
     public function __construct(DashboardPageInterface $dashboardPage, LoginPageInterface $loginPage)
     {
         $this->dashboardPage = $dashboardPage;
@@ -91,6 +80,14 @@ final class LoginContext implements Context
     public function iShouldNotBeLoggedIn()
     {
         Assert::false($this->dashboardPage->isOpen());
+    }
+
+    /**
+     * @Given I should be on login page
+     */
+    public function iShouldBeOnLoginPage()
+    {
+        Assert::true($this->loginPage->isOpen());
     }
 
     /**

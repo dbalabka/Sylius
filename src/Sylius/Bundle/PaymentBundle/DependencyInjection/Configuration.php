@@ -30,9 +30,6 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class Configuration implements ConfigurationInterface
 {
     /**
@@ -49,7 +46,7 @@ final class Configuration implements ConfigurationInterface
                 ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
                 ->arrayNode('gateways')
                     ->useAttributeAsKey('name')
-                    ->prototype('scalar')
+                    ->scalarPrototype()
                 ->end()
             ->end()
         ;
@@ -59,9 +56,6 @@ final class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param ArrayNodeDefinition $node
-     */
     private function addResourcesSection(ArrayNodeDefinition $node): void
     {
         $node

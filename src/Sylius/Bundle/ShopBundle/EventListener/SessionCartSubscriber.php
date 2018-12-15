@@ -13,32 +13,23 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ShopBundle\EventListener;
 
+use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Storage\CartStorageInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Webmozart\Assert\Assert;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class SessionCartSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var CartContextInterface
-     */
+    /** @var CartContextInterface */
     private $cartContext;
 
-    /**
-     * @var CartStorageInterface
-     */
+    /** @var CartStorageInterface */
     private $cartStorage;
 
-    /**
-     * @param CartContextInterface $cartContext
-     * @param CartStorageInterface $cartStorage
-     */
     public function __construct(CartContextInterface $cartContext, CartStorageInterface $cartStorage)
     {
         $this->cartContext = $cartContext;
@@ -55,17 +46,21 @@ final class SessionCartSubscriber implements EventSubscriberInterface
         ];
     }
 
-    /**
-     * @param FilterResponseEvent $event
-     */
     public function onKernelResponse(FilterResponseEvent $event): void
     {
         if (!$event->isMasterRequest()) {
             return;
         }
 
+        $session = $event->getRequest()->getSession();
+        if ($session && !$session->isStarted()) {
+            return;
+        }
+
         try {
+            /** @var OrderInterface $cart */
             $cart = $this->cartContext->getCart();
+            Assert::isInstanceOf($cart, OrderInterface::class);
         } catch (CartNotFoundException $exception) {
             return;
         }

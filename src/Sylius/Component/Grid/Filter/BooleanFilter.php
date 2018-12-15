@@ -16,12 +16,9 @@ namespace Sylius\Component\Grid\Filter;
 use Sylius\Component\Grid\Data\DataSourceInterface;
 use Sylius\Component\Grid\Filtering\FilterInterface;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 final class BooleanFilter implements FilterInterface
 {
-    public const TRUE  = 'true';
+    public const TRUE = 'true';
     public const FALSE = 'false';
 
     /**
@@ -33,7 +30,7 @@ final class BooleanFilter implements FilterInterface
             return;
         }
 
-        $field = isset($options['field']) ? $options['field'] : $name;
+        $field = $options['field'] ?? $name;
 
         $data = self::TRUE === $data;
 

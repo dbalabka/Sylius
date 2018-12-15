@@ -15,9 +15,6 @@ namespace Sylius\Component\Currency\Model;
 
 use Doctrine\Common\Collections\Collection;
 
-/**
- * @author Paweł Jędrzejewski <pawel@sylius.org>
- */
 interface CurrenciesAwareInterface
 {
     /**
@@ -25,20 +22,9 @@ interface CurrenciesAwareInterface
      */
     public function getCurrencies(): Collection;
 
-    /**
-     * @param CurrencyInterface $currency
-     *
-     * @return bool
-     */
     public function hasCurrency(CurrencyInterface $currency): bool;
 
-    /**
-     * @param CurrencyInterface $currency
-     */
     public function addCurrency(CurrencyInterface $currency): void;
 
-    /**
-     * @param CurrencyInterface $currency
-     */
     public function removeCurrency(CurrencyInterface $currency): void;
 }

@@ -17,9 +17,6 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 
-/**
- * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
- */
 interface UpdatePageInterface extends BaseUpdatePageInterface
 {
     /**
@@ -28,9 +25,6 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
      */
     public function describeItAs($description, $languageCode);
 
-    /**
-     * @param TaxonInterface $taxon
-     */
     public function chooseParent(TaxonInterface $taxon);
 
     /**

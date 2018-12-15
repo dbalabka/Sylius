@@ -21,10 +21,6 @@ use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 
-/**
- * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
- * @author Saša Stamenković <umpirsky@gmail.com>
- */
 final class NthOrderRuleCheckerSpec extends ObjectBehavior
 {
     function let(OrderRepositoryInterface $ordersRepository): void
@@ -102,7 +98,6 @@ final class NthOrderRuleCheckerSpec extends ObjectBehavior
     ): void {
         $subject->getCustomer()->willReturn($customer);
         $customer->getId()->willReturn(null);
-
 
         $this->isEligible($subject, ['nth' => 1])->shouldReturn(true);
     }

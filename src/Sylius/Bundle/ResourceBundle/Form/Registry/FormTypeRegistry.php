@@ -13,14 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ResourceBundle\Form\Registry;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class FormTypeRegistry implements FormTypeRegistryInterface
 {
-    /**
-     * @var array|string[]
-     */
+    /** @var array|string[] */
     private $formTypes = [];
 
     /**

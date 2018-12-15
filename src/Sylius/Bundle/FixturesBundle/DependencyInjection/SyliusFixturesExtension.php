@@ -13,15 +13,16 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\FixturesBundle\DependencyInjection;
 
+use Sylius\Bundle\FixturesBundle\DependencyInjection\Compiler\FixtureRegistryPass;
+use Sylius\Bundle\FixturesBundle\DependencyInjection\Compiler\ListenerRegistryPass;
+use Sylius\Bundle\FixturesBundle\Fixture\FixtureInterface;
+use Sylius\Bundle\FixturesBundle\Listener\ListenerInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- */
 final class SyliusFixturesExtension extends Extension implements PrependExtensionInterface
 {
     /**
@@ -30,11 +31,20 @@ final class SyliusFixturesExtension extends Extension implements PrependExtensio
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $loader->load('services.xml');
 
         $this->registerSuites($config, $container);
+
+        $container
+            ->registerForAutoconfiguration(FixtureInterface::class)
+            ->addTag(FixtureRegistryPass::FIXTURE_SERVICE_TAG)
+        ;
+        $container
+            ->registerForAutoconfiguration(ListenerInterface::class)
+            ->addTag(ListenerRegistryPass::LISTENER_SERVICE_TAG)
+        ;
     }
 
     /**
@@ -42,7 +52,7 @@ final class SyliusFixturesExtension extends Extension implements PrependExtensio
      */
     public function prepend(ContainerBuilder $container): void
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
 
         $extensionsNamesToConfigurationFiles = [
             'doctrine' => 'doctrine/orm.xml',
@@ -59,10 +69,6 @@ final class SyliusFixturesExtension extends Extension implements PrependExtensio
         }
     }
 
-    /**
-     * @param array $config
-     * @param ContainerBuilder $container
-     */
     private function registerSuites(array $config, ContainerBuilder $container): void
     {
         $suiteRegistry = $container->findDefinition('sylius_fixtures.suite_registry');

@@ -25,7 +25,6 @@ use Sylius\Behat\Page\Admin\Product\IndexPerTaxonPageInterface;
 use Sylius\Behat\Page\Admin\Product\UpdateConfigurableProductPageInterface;
 use Sylius\Behat\Page\Admin\Product\UpdateSimpleProductPageInterface;
 use Sylius\Behat\Page\Admin\ProductReview\IndexPageInterface as ProductReviewIndexPageInterface;
-use Sylius\Behat\Page\SymfonyPageInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -34,76 +33,38 @@ use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * @author Kamil Kokot <kamil@kokot.me>
- * @author Magdalena Banasiak <magdalena.banasiak@lakion.com>
- * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
- * @author Gorka Laucirica <gorka.lauzirika@gmail.com>
- */
 final class ManagingProductsContext implements Context
 {
-    /**
-     * @var SharedStorageInterface
-     */
+    /** @var SharedStorageInterface */
     private $sharedStorage;
 
-    /**x
-     * @var CreateSimpleProductPageInterface
-     */
+    /** @var CreateSimpleProductPageInterface */
     private $createSimpleProductPage;
 
-    /**
-     * @var CreateConfigurableProductPageInterface
-     */
+    /** @var CreateConfigurableProductPageInterface */
     private $createConfigurableProductPage;
 
-    /**
-     * @var IndexPageInterface
-     */
+    /** @var IndexPageInterface */
     private $indexPage;
 
-    /**
-     * @var UpdateSimpleProductPageInterface
-     */
+    /** @var UpdateSimpleProductPageInterface */
     private $updateSimpleProductPage;
 
-    /**
-     * @var UpdateConfigurableProductPageInterface
-     */
+    /** @var UpdateConfigurableProductPageInterface */
     private $updateConfigurableProductPage;
 
-    /**
-     * @var ProductReviewIndexPageInterface
-     */
+    /** @var ProductReviewIndexPageInterface */
     private $productReviewIndexPage;
 
-    /**
-     * @var IndexPerTaxonPageInterface
-     */
+    /** @var IndexPerTaxonPageInterface */
     private $indexPerTaxonPage;
 
-    /**
-     * @var CurrentPageResolverInterface
-     */
+    /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
-    /**
-     * @var NotificationCheckerInterface
-     */
+    /** @var NotificationCheckerInterface */
     private $notificationChecker;
 
-    /**
-     * @param SharedStorageInterface $sharedStorage
-     * @param CreateSimpleProductPageInterface $createSimpleProductPage
-     * @param CreateConfigurableProductPageInterface $createConfigurableProductPage
-     * @param IndexPageInterface $indexPage
-     * @param UpdateSimpleProductPageInterface $updateSimpleProductPage
-     * @param UpdateConfigurableProductPageInterface $updateConfigurableProductPage
-     * @param ProductReviewIndexPageInterface $productReviewIndexPage
-     * @param IndexPerTaxonPageInterface $indexPerTaxonPage
-     * @param CurrentPageResolverInterface $currentPageResolver
-     * @param NotificationCheckerInterface $notificationChecker
-     */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         CreateSimpleProductPageInterface $createSimpleProductPage,
@@ -256,11 +217,12 @@ final class ManagingProductsContext implements Context
     }
 
     /**
+     * @Then I should see the product :productName in the list
      * @Then the product :productName should appear in the store
      * @Then the product :productName should be in the shop
      * @Then this product should still be named :productName
      */
-    public function theProductShouldAppearInTheShop($productName)
+    public function theProductShouldAppearInTheShop(string $productName): void
     {
         $this->iWantToBrowseProducts();
 
@@ -269,6 +231,7 @@ final class ManagingProductsContext implements Context
 
     /**
      * @Given I am browsing products
+     * @When I browse products
      * @When I want to browse products
      */
     public function iWantToBrowseProducts()
@@ -290,6 +253,22 @@ final class ManagingProductsContext implements Context
     public function iFilterThemByTaxon($taxonName)
     {
         $this->indexPage->filterByTaxon($taxonName);
+    }
+
+    /**
+     * @When I check (also) the :productName product
+     */
+    public function iCheckTheProduct(string $productName): void
+    {
+        $this->indexPage->checkResourceOnPage(['name' => $productName]);
+    }
+
+    /**
+     * @When I delete them
+     */
+    public function iDeleteThem(): void
+    {
+        $this->indexPage->bulkDelete();
     }
 
     /**
@@ -339,9 +318,10 @@ final class ManagingProductsContext implements Context
     }
 
     /**
+     * @Then I should see a single product in the list
      * @Then I should see :numberOfProducts products in the list
      */
-    public function iShouldSeeProductsInTheList($numberOfProducts)
+    public function iShouldSeeProductsInTheList(int $numberOfProducts = 1): void
     {
         Assert::same($this->indexPage->countItems(), (int) $numberOfProducts);
     }
@@ -397,6 +377,7 @@ final class ManagingProductsContext implements Context
 
         if ($product->isSimple()) {
             $this->updateSimpleProductPage->open(['id' => $product->getId()]);
+
             return;
         }
 
@@ -673,6 +654,14 @@ final class ManagingProductsContext implements Context
     }
 
     /**
+     * @Then /^the (product "[^"]+") should still have an accessible image$/
+     */
+    public function productShouldStillHaveAnAccessibleImage(ProductInterface $product): void
+    {
+        Assert::true($this->indexPage->hasProductAccessibleImage($product->getCode()));
+    }
+
+    /**
      * @Then /^(?:this product|it)(?:| also) should not have any images with "([^"]*)" type$/
      */
     public function thisProductShouldNotHaveAnyImagesWithType($code)
@@ -923,7 +912,6 @@ final class ManagingProductsContext implements Context
 
     /**
      * @Then I should be notified that I have to define the :attribute attribute in :language
-     *
      */
     public function iShouldBeNotifiedThatIHaveToDefineTheAttributeIn($attribute, $language)
     {
@@ -974,7 +962,7 @@ final class ManagingProductsContext implements Context
     }
 
     /**
-     * @return SymfonyPageInterface|IndexPageInterface|IndexPerTaxonPageInterface|CreateSimpleProductPageInterface|CreateConfigurableProductPageInterface|UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface
+     * @return IndexPageInterface|IndexPerTaxonPageInterface|CreateSimpleProductPageInterface|CreateConfigurableProductPageInterface|UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface
      */
     private function resolveCurrentPage()
     {
