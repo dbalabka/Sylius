@@ -28,9 +28,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
     /** @var AssociationHydrator */
     private $associationHydrator;
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct(EntityManager $entityManager, Mapping\ClassMetadata $class)
     {
         parent::__construct($entityManager, $class);
@@ -38,9 +35,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         $this->associationHydrator = new AssociationHydrator($entityManager, $class);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createListQueryBuilder(string $locale, $taxonId = null): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('o')
@@ -60,9 +54,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         return $queryBuilder;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createShopListQueryBuilder(
         ChannelInterface $channel,
         TaxonInterface $taxon,
@@ -71,7 +62,9 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         bool $includeAllDescendants = false
     ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('o')
+            ->distinct()
             ->addSelect('translation')
+            ->addSelect('productTaxon')
             ->innerJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
             ->innerJoin('o.productTaxons', 'productTaxon');
 
@@ -106,9 +99,12 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
                  ->select('min(v.position)')
                  ->innerJoin('m.variants', 'v')
                  ->andWhere('m.id = :product_id')
+                 ->andWhere('v.enabled = :enabled')
              ;
 
             $queryBuilder
+                ->addSelect('variant')
+                ->addSelect('channelPricing')
                 ->innerJoin('o.variants', 'variant')
                 ->innerJoin('variant.channelPricings', 'channelPricing')
                 ->andWhere('channelPricing.channelCode = :channelCode')
@@ -119,15 +115,13 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
                     )
                 )
                 ->setParameter('channelCode', $channel->getCode())
+                ->setParameter('enabled', true)
             ;
         }
 
         return $queryBuilder;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function findLatestByChannel(ChannelInterface $channel, string $locale, int $count): array
     {
         return $this->createQueryBuilder('o')
@@ -144,9 +138,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function findOneByChannelAndSlug(ChannelInterface $channel, string $locale, string $slug): ?ProductInterface
     {
         $product = $this->createQueryBuilder('o')
@@ -175,9 +166,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         return $product;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function findOneByCode(string $code): ?ProductInterface
     {
         return $this->createQueryBuilder('o')

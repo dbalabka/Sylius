@@ -100,7 +100,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function iSpecifyItsCodeAs($shippingCategoryCode = null)
     {
-        $this->createPage->specifyCode($shippingCategoryCode);
+        $this->createPage->specifyCode($shippingCategoryCode ?? '');
     }
 
     /**
@@ -109,7 +109,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function iNameIt($shippingCategoryName = null)
     {
-        $this->createPage->nameIt($shippingCategoryName);
+        $this->createPage->nameIt($shippingCategoryName ?? '');
     }
 
     /**
@@ -170,7 +170,7 @@ class ManagingShippingCategoriesContext implements Context
      */
     public function iNameItIn($name)
     {
-        $this->createPage->nameIt($name);
+        $this->createPage->nameIt($name ?? '');
     }
 
     /**
@@ -198,9 +198,9 @@ class ManagingShippingCategoriesContext implements Context
     }
 
     /**
-     * @Then the code field should be disabled
+     * @Then I should not be able to edit its code
      */
-    public function theCodeFieldShouldBeDisabled()
+    public function iShouldNotBeAbleToEditItsCode(): void
     {
         Assert::true($this->updatePage->isCodeDisabled());
     }

@@ -15,6 +15,7 @@ namespace Sylius\Behat\Page\Admin\Product;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
+use DMore\ChromeDriver\ChromeDriver;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Sylius\Behat\Service\AutocompleteHelper;
@@ -32,15 +33,12 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     /** @var array */
     private $imageUrls = [];
 
-    /**
-     * {@inheritdoc}
-     */
-    public function nameItIn($name, $localeCode)
+    public function nameItIn(string $name, string $localeCode): void
     {
         $this->activateLanguageTab($localeCode);
         $this->getElement('name', ['%locale%' => $localeCode])->setValue($name);
 
-        if ($this->getDriver() instanceof Selenium2Driver) {
+        if ($this->getDriver() instanceof Selenium2Driver || $this->getDriver() instanceof ChromeDriver) {
             SlugGenerationHelper::waitForSlugGeneration(
                 $this->getSession(),
                 $this->getElement('slug', ['%locale%' => $localeCode])
@@ -48,23 +46,17 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function specifyPrice($channelName, $price)
+    public function specifyPrice(ChannelInterface $channel, string $price): void
     {
-        $this->getElement('price', ['%channelName%' => $channelName])->setValue($price);
+        $this->getElement('price', ['%channelCode%' => $channel->getCode()])->setValue($price);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function specifyOriginalPrice($channelName, $originalPrice)
+    public function specifyOriginalPrice(ChannelInterface $channel, string $originalPrice): void
     {
-        $this->getElement('original_price', ['%channelName%' => $channelName])->setValue($originalPrice);
+        $this->getElement('original_price', ['%channelCode%' => $channel->getCode()])->setValue($originalPrice);
     }
 
-    public function addSelectedAttributes()
+    public function addSelectedAttributes(): void
     {
         $this->clickTabIfItsNotActive('attributes');
         $this->getDocument()->pressButton('Add attributes');
@@ -76,20 +68,14 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeAttribute($attributeName, $localeCode)
+    public function removeAttribute(string $attributeName, string $localeCode): void
     {
         $this->clickTabIfItsNotActive('attributes');
 
         $this->getElement('attribute_delete_button', ['%attributeName%' => $attributeName, '$localeCode%' => $localeCode])->press();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAttributeValue($attribute, $localeCode)
+    public function getAttributeValue(string $attribute, string $localeCode): string
     {
         $this->clickTabIfItsNotActive('attributes');
         $this->clickLocaleTabIfItsNotActive($localeCode);
@@ -97,10 +83,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return $this->getElement('attribute', ['%attributeName%' => $attribute, '%localeCode%' => $localeCode])->getValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getAttributeValidationErrors($attributeName, $localeCode)
+    public function getAttributeValidationErrors(string $attributeName, string $localeCode): string
     {
         $this->clickTabIfItsNotActive('attributes');
         $this->clickLocaleTabIfItsNotActive($localeCode);
@@ -110,26 +93,17 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return $validationError->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getNumberOfAttributes()
+    public function getNumberOfAttributes(): int
     {
         return count($this->getDocument()->findAll('css', '.attribute'));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasAttribute($attributeName)
+    public function hasAttribute(string $attributeName): bool
     {
         return null !== $this->getDocument()->find('css', sprintf('.attribute .label:contains("%s")', $attributeName));
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function selectMainTaxon(TaxonInterface $taxon)
+    public function selectMainTaxon(TaxonInterface $taxon): void
     {
         $this->openTaxonBookmarks();
 
@@ -138,38 +112,29 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         AutocompleteHelper::chooseValue($this->getSession(), $mainTaxonElement, $taxon->getName());
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isMainTaxonChosen($taxonName)
+    public function isMainTaxonChosen(string $taxonName): bool
     {
         $this->openTaxonBookmarks();
 
         return $taxonName === $this->getDocument()->find('css', '.search > .text')->getText();
     }
 
-    public function disableTracking()
+    public function disableTracking(): void
     {
         $this->getElement('tracked')->uncheck();
     }
 
-    public function enableTracking()
+    public function enableTracking(): void
     {
         $this->getElement('tracked')->check();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isTracked()
+    public function isTracked(): bool
     {
         return $this->getElement('tracked')->isChecked();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function enableSlugModification($locale)
+    public function enableSlugModification(string $locale): void
     {
         SlugGenerationHelper::enableSlugModification(
             $this->getSession(),
@@ -177,10 +142,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isImageWithTypeDisplayed($type)
+    public function isImageWithTypeDisplayed(string $type): bool
     {
         $imageElement = $this->getImageElementByType($type);
 
@@ -196,10 +158,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return false === stripos($pageText, '404 Not Found');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function attachImage($path, $type = null)
+    public function attachImage(string $path, string $type = null): void
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -215,10 +174,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function changeImageWithType($type, $path)
+    public function changeImageWithType(string $type, string $path): void
     {
         $filesPath = $this->getParameter('files_path');
 
@@ -226,10 +182,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath . $path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeImageWithType($type)
+    public function removeImageWithType(string $type): void
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -242,7 +195,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $imageElement->clickLink('Delete');
     }
 
-    public function removeFirstImage()
+    public function removeFirstImage(): void
     {
         $this->clickTabIfItsNotActive('media');
         $imageElement = $this->getFirstImageElement();
@@ -258,10 +211,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $imageElement->clickLink('Delete');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function modifyFirstImageType($type)
+    public function modifyFirstImageType(string $type): void
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -269,20 +219,14 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $this->setImageType($firstImage, $type);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function countImages()
+    public function countImages(): int
     {
         $imageElements = $this->getImageElements();
 
         return count($imageElements);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isSlugReadonlyIn($locale)
+    public function isSlugReadonlyIn(string $locale): bool
     {
         return SlugGenerationHelper::isSlugReadonly(
             $this->getSession(),
@@ -290,14 +234,9 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames)
+    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames): void
     {
         $this->clickTab('associations');
-
-        Assert::isInstanceOf($this->getDriver(), Selenium2Driver::class);
 
         $dropdown = $this->getElement('association_dropdown', [
             '%association%' => $productAssociationType->getName(),
@@ -320,10 +259,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function hasAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType)
+    public function hasAssociatedProduct(string $productName, ProductAssociationTypeInterface $productAssociationType): bool
     {
         $this->clickTabIfItsNotActive('associations');
 
@@ -333,10 +269,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         ]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function removeAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType)
+    public function removeAssociatedProduct(string $productName, ProductAssociationTypeInterface $productAssociationType): void
     {
         $this->clickTabIfItsNotActive('associations');
 
@@ -350,10 +283,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         $deleteIcon->click();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getPricingConfigurationForChannelAndCurrencyCalculator(ChannelInterface $channel, CurrencyInterface $currency)
+    public function getPricingConfigurationForChannelAndCurrencyCalculator(ChannelInterface $channel, CurrencyInterface $currency): string
     {
         $priceConfigurationElement = $this->getElement('pricing_configuration');
         $priceElement = $priceConfigurationElement
@@ -362,32 +292,23 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return $priceElement->find('css', 'input')->getValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSlug($locale)
+    public function getSlug(string $locale): string
     {
         $this->activateLanguageTab($locale);
 
         return $this->getElement('slug', ['%locale%' => $locale])->getValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function specifySlugIn($slug, $locale)
+    public function specifySlugIn(string $slug, string $locale): void
     {
         $this->activateLanguageTab($locale);
 
         $this->getElement('slug', ['%locale%' => $locale])->setValue($slug);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function activateLanguageTab($locale)
+    public function activateLanguageTab(string $locale): void
     {
-        if (!$this->getDriver() instanceof Selenium2Driver) {
+        if (!$this->getDriver() instanceof Selenium2Driver && !$this->getDriver() instanceof ChromeDriver) {
             return;
         }
 
@@ -397,38 +318,81 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         }
     }
 
-    public function getPriceForChannel($channelName)
+    public function getPriceForChannel(ChannelInterface $channel): string
     {
-        return $this->getElement('price', ['%channelName%' => $channelName])->getValue();
+        return $this->getElement('price', ['%channelCode%' => $channel->getCode()])->getValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getOriginalPriceForChannel($channelName)
+    public function getOriginalPriceForChannel(ChannelInterface $channel): string
     {
-        return $this->getElement('original_price', ['%channelName%' => $channelName])->getValue();
+        return $this->getElement('original_price', ['%channelCode%' => $channel->getCode()])->getValue();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isShippingRequired()
+    public function isShippingRequired(): bool
     {
         return $this->getElement('shipping_required')->isChecked();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getCodeElement()
+    public function goToVariantsList(): void
+    {
+        $this->getDocument()->clickLink('List variants');
+    }
+
+    public function goToVariantCreation(): void
+    {
+        $this->getDocument()->clickLink('Create');
+    }
+
+    public function goToVariantGeneration(): void
+    {
+        $this->getDocument()->clickLink('Generate');
+    }
+
+    public function hasInventoryTab(): bool
+    {
+        return null !== $this->getDocument()->find('css', '.tab > h3:contains("Inventory")');
+    }
+
+    public function isShowInShopButtonDisabled(): bool
+    {
+        return $this->getElement('show_product_single_button')->hasClass('disabled');
+    }
+
+    public function showProductInChannel(string $channel): void
+    {
+        $this->getElement('show_product_dropdown')->clickLink($channel);
+    }
+
+    public function showProductInSingleChannel(): void
+    {
+        $this->getElement('show_product_single_button')->click();
+    }
+
+    public function disable(): void
+    {
+        $this->getElement('enabled')->uncheck();
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->getElement('enabled')->isChecked();
+    }
+
+    public function enable(): void
+    {
+        $this->getElement('enabled')->check();
+    }
+
+    public function hasNoPriceForChannel(string $channelName): bool
+    {
+        return strpos($this->getElement('prices')->getHtml(), $channelName) === false;
+    }
+
+    protected function getCodeElement(): NodeElement
     {
         return $this->getElement('code');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getElement(string $name, array $parameters = []): NodeElement
     {
         if (!isset($parameters['%locale%'])) {
@@ -438,9 +402,6 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return parent::getElement($name, $parameters);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getDefinedElements(): array
     {
         return array_merge(parent::getDefinedElements(), [
@@ -455,28 +416,29 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
             'language_tab' => '[data-locale="%locale%"] .title',
             'locale_tab' => '#attributesContainer .menu [data-tab="%localeCode%"]',
             'name' => '#sylius_product_translations_%locale%_name',
-            'original_price' => '#sylius_product_variant_channelPricings > .field:contains("%channelName%") input[name$="[originalPrice]"]',
-            'price' => '#sylius_product_variant_channelPricings > .field:contains("%channelName%") input[name$="[price]"]',
+            'prices' => '#sylius_product_variant_channelPricings',
+            'original_price' => '#sylius_product_variant_channelPricings input[name$="[originalPrice]"][id*="%channelCode%"]',
+            'price' => '#sylius_product_variant_channelPricings input[id*="%channelCode%"]',
             'pricing_configuration' => '#sylius_calculator_container',
             'main_taxon' => '#sylius_product_mainTaxon',
             'shipping_required' => '#sylius_product_variant_shippingRequired',
+            'show_product_dropdown' => '.scrolling.menu',
+            'show_product_single_button' => 'a:contains("Show product in shop page")',
             'slug' => '#sylius_product_translations_%locale%_slug',
             'tab' => '.menu [data-tab="%name%"]',
             'taxonomy' => 'a[data-tab="taxonomy"]',
             'tracked' => '#sylius_product_variant_tracked',
             'toggle_slug_modification_button' => '[data-locale="%locale%"] .toggle-product-slug-modification',
+            'enabled' => '#sylius_product_enabled',
         ]);
     }
 
-    private function openTaxonBookmarks()
+    private function openTaxonBookmarks(): void
     {
         $this->getElement('taxonomy')->click();
     }
 
-    /**
-     * @param string $tabName
-     */
-    private function clickTabIfItsNotActive($tabName)
+    private function clickTabIfItsNotActive(string $tabName): void
     {
         $attributesTab = $this->getElement('tab', ['%name%' => $tabName]);
         if (!$attributesTab->hasClass('active')) {
@@ -484,19 +446,13 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         }
     }
 
-    /**
-     * @param string $tabName
-     */
-    private function clickTab($tabName)
+    private function clickTab(string $tabName): void
     {
         $attributesTab = $this->getElement('tab', ['%name%' => $tabName]);
         $attributesTab->click();
     }
 
-    /**
-     * @param string $localeCode
-     */
-    private function clickLocaleTabIfItsNotActive($localeCode)
+    private function clickLocaleTabIfItsNotActive(string $localeCode): void
     {
         $localeTab = $this->getElement('locale_tab', ['%localeCode%' => $localeCode]);
         if (!$localeTab->hasClass('active')) {
@@ -504,12 +460,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         }
     }
 
-    /**
-     * @param string $type
-     *
-     * @return NodeElement
-     */
-    private function getImageElementByType($type)
+    private function getImageElementByType(string $type): ?NodeElement
     {
         $images = $this->getElement('images');
         $typeInput = $images->find('css', 'input[value="' . $type . '"]');
@@ -524,17 +475,14 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     /**
      * @return NodeElement[]
      */
-    private function getImageElements()
+    private function getImageElements(): array
     {
         $images = $this->getElement('images');
 
         return $images->findAll('css', 'div[data-form-collection="item"]');
     }
 
-    /**
-     * @return NodeElement
-     */
-    private function getLastImageElement()
+    private function getLastImageElement(): NodeElement
     {
         $imageElements = $this->getImageElements();
 
@@ -543,10 +491,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return end($imageElements);
     }
 
-    /**
-     * @return NodeElement
-     */
-    private function getFirstImageElement()
+    private function getFirstImageElement(): NodeElement
     {
         $imageElements = $this->getImageElements();
 
@@ -555,10 +500,7 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
         return reset($imageElements);
     }
 
-    /**
-     * @param string $type
-     */
-    private function setImageType(NodeElement $imageElement, $type)
+    private function setImageType(NodeElement $imageElement, string $type): void
     {
         $typeField = $imageElement->findField('Type');
         $typeField->setValue($type);

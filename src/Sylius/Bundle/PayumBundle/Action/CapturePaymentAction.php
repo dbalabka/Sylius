@@ -35,8 +35,6 @@ final class CapturePaymentAction extends GatewayAwareAction
     }
 
     /**
-     * {@inheritdoc}
-     *
      * @param Capture $request
      */
     public function execute($request): void
@@ -55,10 +53,9 @@ final class CapturePaymentAction extends GatewayAwareAction
                 $this->gateway->execute($convert = new Convert($payment, 'array', $request->getToken()));
                 $payment->setDetails($convert->getResult());
             } catch (RequestNotSupportedException $e) {
-                $totalAmount = $order->getTotal();
                 $payumPayment = new PayumPayment();
                 $payumPayment->setNumber($order->getNumber());
-                $payumPayment->setTotalAmount($totalAmount);
+                $payumPayment->setTotalAmount($payment->getAmount());
                 $payumPayment->setCurrencyCode($order->getCurrencyCode());
                 $payumPayment->setClientEmail($order->getCustomer()->getEmail());
                 $payumPayment->setClientId($order->getCustomer()->getId());
@@ -80,9 +77,6 @@ final class CapturePaymentAction extends GatewayAwareAction
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports($request): bool
     {
         return

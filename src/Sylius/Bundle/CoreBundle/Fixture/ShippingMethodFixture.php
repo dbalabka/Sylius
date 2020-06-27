@@ -17,17 +17,11 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
 class ShippingMethodFixture extends AbstractResourceFixture
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return 'shipping_method';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureResourceNode(ArrayNodeDefinition $resourceNode): void
     {
         $resourceNode
@@ -45,6 +39,7 @@ class ShippingMethodFixture extends AbstractResourceFixture
                         ->variableNode('configuration')->end()
                     ->end()
                 ->end()
+                ->scalarNode('tax_category')->end()
         ;
     }
 }

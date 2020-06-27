@@ -15,6 +15,7 @@ namespace Sylius\Behat\Service\Setter;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Session;
+use DMore\ChromeDriver\ChromeDriver;
 use FriendsOfBehat\SymfonyExtension\Driver\SymfonyDriver;
 use Symfony\Component\BrowserKit\Cookie;
 
@@ -26,20 +27,31 @@ final class CookieSetter implements CookieSetterInterface
     /** @var array */
     private $minkParameters;
 
-    public function __construct(Session $minkSession, array $minkParameters)
+    public function __construct(Session $minkSession, $minkParameters)
     {
+        if (!is_array($minkParameters) && !$minkParameters instanceof \ArrayAccess) {
+            throw new \InvalidArgumentException(sprintf(
+                '"$minkParameters" passed to "%s" has to be an array or implement "%s".',
+                self::class,
+                \ArrayAccess::class
+            ));
+        }
+
         $this->minkSession = $minkSession;
         $this->minkParameters = $minkParameters;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setCookie($name, $value)
     {
-        $this->prepareMinkSessionIfNeeded($this->minkSession);
-
         $driver = $this->minkSession->getDriver();
+
+        if ($driver instanceof ChromeDriver) {
+            if (!$driver->isStarted()) {
+                $driver->start();
+            }
+        }
+
+        $this->prepareMinkSessionIfNeeded($this->minkSession);
 
         if ($driver instanceof SymfonyDriver) {
             $driver->getClient()->getCookieJar()->set(
@@ -68,6 +80,10 @@ final class CookieSetter implements CookieSetterInterface
         }
 
         if ($driver instanceof Selenium2Driver && $driver->getWebDriverSession() === null) {
+            return true;
+        }
+
+        if ($driver instanceof ChromeDriver && $driver->isStarted() === false) {
             return true;
         }
 

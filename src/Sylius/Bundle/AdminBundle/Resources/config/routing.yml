@@ -11,6 +11,11 @@ sylius_admin_dashboard:
     defaults:
         _controller: sylius.controller.admin.dashboard:indexAction
 
+sylius_admin_dashboard_statistics:
+    path: /statistics
+    defaults:
+        _controller: sylius.controller.admin.dashboard:getRawData
+        
 sylius_admin_impersonate_user:
     path: /impersonate/{username}
     defaults:
@@ -48,6 +53,9 @@ sylius_admin_locale:
 sylius_admin_order:
     resource: "@SyliusAdminBundle/Resources/config/routing/order.yml"
 
+sylius_admin_payment:
+    resource: "@SyliusAdminBundle/Resources/config/routing/payment.yml"
+
 sylius_admin_payment_method:
     resource: "@SyliusAdminBundle/Resources/config/routing/payment_method.yml"
 
@@ -66,6 +74,10 @@ sylius_admin_product_option:
 sylius_admin_product_review:
     resource: "@SyliusAdminBundle/Resources/config/routing/product_review.yml"
 
+sylius_admin_product_taxon:
+    resource: "@SyliusAdminBundle/Resources/config/routing/product_taxon.yml"
+    prefix: /product-taxons
+
 sylius_admin_product_variant:
     resource: "@SyliusAdminBundle/Resources/config/routing/product_variant.yml"
     prefix: /products/{productId}/variants/
@@ -79,6 +91,9 @@ sylius_admin_promotion_coupon:
 
 sylius_admin_security:
     resource: "@SyliusAdminBundle/Resources/config/routing/security.yml"
+
+sylius_admin_shipment:
+    resource: "@SyliusAdminBundle/Resources/config/routing/shipment.yml"
 
 sylius_admin_shipping_category:
     resource: "@SyliusAdminBundle/Resources/config/routing/shipping_category.yml"

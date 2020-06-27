@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Sylius Components Documentation
 ===============================
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 We provide a set of well-tested and decoupled PHP libraries.
 
@@ -18,16 +25,12 @@ We recommend checking out :doc:`/components_and_bundles/components/general/index
     Attribute/index
     Channel/index
     Currency/index
-    Grid/index
     Inventory/index
     Locale/index
-    Mailer/index
     Order/index
     Payment/index
     Product/index
     Promotion/index
-    Registry/index
-    Resource/index
     Shipping/index
     Taxation/index
     Taxonomy/index

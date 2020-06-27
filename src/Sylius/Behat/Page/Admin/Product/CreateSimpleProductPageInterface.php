@@ -14,98 +14,50 @@ declare(strict_types=1);
 namespace Sylius\Behat\Page\Admin\Product;
 
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface as BaseCreatePageInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 
 interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
 {
-    /**
-     * @param string $channelName
-     * @param int $price
-     */
-    public function specifyPrice($channelName, $price);
+    public function specifyPrice(ChannelInterface $channel, string $price): void;
 
-    /**
-     * @param string $channelName
-     * @param int $originalPrice
-     */
-    public function specifyOriginalPrice($channelName, $originalPrice);
+    public function specifyOriginalPrice(ChannelInterface $channel, int $originalPrice): void;
 
-    /**
-     * @param string $name
-     */
-    public function choosePricingCalculator($name);
+    public function choosePricingCalculator(string $name): void;
 
-    /**
-     * @param string $channelName
-     */
-    public function checkChannel($channelName);
+    public function checkChannel(string $channelName): void;
 
-    /**
-     * @param string $code
-     */
-    public function specifyCode($code);
+    public function specifyCode(string $code): void;
 
-    /**
-     * @param string $name
-     * @param string $localeCode
-     */
-    public function nameItIn($name, $localeCode);
+    public function nameItIn(string $name, string $localeCode): void;
 
-    /**
-     * @param string $slug
-     * @param string $locale
-     */
-    public function specifySlugIn($slug, $locale);
+    public function specifySlugIn(?string $slug, string $locale): void;
 
-    /**
-     * @param string $attributeName
-     * @param string $value
-     * @param string $localeCode
-     */
-    public function addAttribute($attributeName, $value, $localeCode);
+    public function addAttribute(string $attributeName, string $value, string $localeCode): void;
 
-    /**
-     * @param string $attributeName
-     * @param string $localeCode
-     *
-     * @return string
-     */
-    public function getAttributeValidationErrors($attributeName, $localeCode);
+    public function getAttributeValidationErrors(string $attributeName, string $localeCode): string;
 
-    /**
-     * @param string $attributeName
-     * @param string $localeCode
-     */
-    public function removeAttribute($attributeName, $localeCode);
+    public function removeAttribute(string $attributeName, string $localeCode): void;
 
-    /**
-     * @param string $path
-     * @param string $type
-     */
-    public function attachImage($path, $type = null);
+    public function isMainTaxonChosen(string $taxonName): bool;
+
+    public function selectMainTaxon(TaxonInterface $taxon): void;
+
+    public function attachImage(string $path, ?string $type = null): void;
 
     /**
      * @param string[] $productsNames
      */
-    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames);
+    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames): void;
 
-    /**
-     * @param string $productName
-     */
-    public function removeAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType);
+    public function removeAssociatedProduct(string $productName, ProductAssociationTypeInterface $productAssociationType): void;
 
-    /**
-     * @param string $locale
-     */
-    public function activateLanguageTab($locale);
+    public function activateLanguageTab(string $locale): void;
 
-    /**
-     * @param string $shippingCategoryName
-     */
-    public function selectShippingCategory($shippingCategoryName);
+    public function selectShippingCategory(string $shippingCategoryName): void;
 
-    /**
-     * @param bool $isShippingRequired
-     */
-    public function setShippingRequired($isShippingRequired);
+    public function setShippingRequired(bool $isShippingRequired): void;
+
+    public function getChannelPricingValidationMessage(): string;
 }

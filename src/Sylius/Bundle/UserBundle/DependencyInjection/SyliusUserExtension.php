@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace Sylius\Bundle\UserBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Sylius\Bundle\UserBundle\EventListener\UpdateUserEncoderListener;
 use Sylius\Bundle\UserBundle\EventListener\UserDeleteListener;
 use Sylius\Bundle\UserBundle\EventListener\UserLastLoginSubscriber;
 use Sylius\Bundle\UserBundle\EventListener\UserReloaderListener;
+use Sylius\Bundle\UserBundle\Factory\UserWithEncoderFactory;
 use Sylius\Bundle\UserBundle\Provider\AbstractUserProvider;
 use Sylius\Bundle\UserBundle\Provider\EmailProvider;
 use Sylius\Bundle\UserBundle\Provider\UsernameOrEmailProvider;
@@ -31,12 +33,10 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 final class SyliusUserExtension extends AbstractResourceExtension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
@@ -49,6 +49,7 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $loader->load('services.xml');
 
         $this->createServices($config['resources'], $container);
+        $this->loadEncodersAwareServices($config['encoder'], $config['resources'], $container);
     }
 
     private function resolveResources(array $resources, ContainerBuilder $container): array
@@ -77,6 +78,20 @@ final class SyliusUserExtension extends AbstractResourceExtension
             $this->createLastLoginListeners($userType, $userClass, $container);
             $this->createProviders($userType, $userClass, $container);
             $this->createUserDeleteListeners($userType, $container);
+        }
+    }
+
+    private function loadEncodersAwareServices(?string $globalEncoder, array $resources, ContainerBuilder $container): void
+    {
+        foreach ($resources as $userType => $config) {
+            $encoder = $config['user']['encoder'] ?? $globalEncoder;
+
+            if (null === $encoder || false === $encoder) {
+                continue;
+            }
+
+            $this->overwriteResourceFactoryWithEncoderAwareFactory($container, $userType, $encoder);
+            $this->registerUpdateUserEncoderListener($container, $userType, $encoder, $config);
         }
     }
 
@@ -225,5 +240,38 @@ final class SyliusUserExtension extends AbstractResourceExtension
         $emailOrNameBasedProviderDefinition = new ChildDefinition($abstractProviderServiceId);
         $emailOrNameBasedProviderDefinition->setClass(UsernameOrEmailProvider::class);
         $container->setDefinition($providerEmailOrNameBasedServiceId, $emailOrNameBasedProviderDefinition);
+    }
+
+    private function overwriteResourceFactoryWithEncoderAwareFactory(ContainerBuilder $container, string $userType, string $encoder): void
+    {
+        $factoryServiceId = sprintf('sylius.factory.%s_user', $userType);
+
+        $factoryDefinition = new Definition(
+            UserWithEncoderFactory::class,
+            [
+                $container->getDefinition($factoryServiceId),
+                $encoder,
+            ]
+        );
+        $factoryDefinition->setPublic(true);
+
+        $container->setDefinition($factoryServiceId, $factoryDefinition);
+    }
+
+    private function registerUpdateUserEncoderListener(ContainerBuilder $container, string $userType, string $encoder, array $resourceConfig): void
+    {
+        $updateUserEncoderListenerDefinition = new Definition(UpdateUserEncoderListener::class, [
+            new Reference(sprintf('sylius.manager.%s_user', $userType)),
+            $encoder,
+            $resourceConfig['user']['classes']['model'],
+            $resourceConfig['user']['classes']['interface'],
+            '_password',
+        ]);
+        $updateUserEncoderListenerDefinition->addTag('kernel.event_listener', ['event' => SecurityEvents::INTERACTIVE_LOGIN]);
+
+        $container->setDefinition(
+            sprintf('sylius.%s_user.listener.update_user_encoder', $userType),
+            $updateUserEncoderListenerDefinition
+        );
     }
 }

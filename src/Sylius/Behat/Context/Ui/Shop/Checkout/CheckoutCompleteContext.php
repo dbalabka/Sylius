@@ -21,6 +21,7 @@ use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\PaymentMethodInterface;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\PromotionInterface;
 use Sylius\Component\Core\Model\ShippingMethodInterface;
 use Webmozart\Assert\Assert;
@@ -138,15 +139,23 @@ final class CheckoutCompleteContext implements Context
     /**
      * @Then my order shipping should be :price
      */
-    public function myOrderShippingShouldBe($price)
+    public function myOrderShippingShouldBe(string $price): void
     {
-        Assert::true($this->completePage->hasShippingTotal($price));
+        Assert::contains($this->completePage->getShippingTotal(), $price);
+    }
+
+    /**
+     * @Then I should not see shipping total
+     */
+    public function iShouldNotSeeShippingTotal(): void
+    {
+        Assert::false($this->completePage->hasShippingTotal());
     }
 
     /**
      * @Then /^the ("[^"]+" product) should have unit price discounted by ("\$\d+")$/
      */
-    public function theShouldHaveUnitPriceDiscountedFor(ProductInterface $product, $amount)
+    public function theShouldHaveUnitPriceDiscountedFor(ProductInterface $product, int $amount): void
     {
         Assert::true($this->completePage->hasProductDiscountedUnitPriceBy($product, $amount));
     }
@@ -154,7 +163,7 @@ final class CheckoutCompleteContext implements Context
     /**
      * @Then /^my order total should be ("(?:\£|\$)\d+(?:\.\d+)?")$/
      */
-    public function myOrderTotalShouldBe($total)
+    public function myOrderTotalShouldBe(int $total): void
     {
         Assert::true($this->completePage->hasOrderTotal($total));
     }
@@ -172,7 +181,7 @@ final class CheckoutCompleteContext implements Context
      */
     public function shouldBeAppliedToMyOrder($promotionName)
     {
-        Assert::true($this->completePage->hasPromotion($promotionName));
+        Assert::true($this->completePage->hasOrderPromotion($promotionName));
     }
 
     /**
@@ -186,9 +195,9 @@ final class CheckoutCompleteContext implements Context
     /**
      * @Given my tax total should be :taxTotal
      */
-    public function myTaxTotalShouldBe($taxTotal)
+    public function myTaxTotalShouldBe(string $taxTotal): void
     {
-        Assert::true($this->completePage->hasTaxTotal($taxTotal));
+        Assert::same($this->completePage->getTaxTotal(), $taxTotal);
     }
 
     /**
@@ -264,14 +273,6 @@ final class CheckoutCompleteContext implements Context
     }
 
     /**
-     * @Then /^(this promotion) should give "([^"]+)" discount$/
-     */
-    public function thisPromotionShouldGiveDiscount(PromotionInterface $promotion, $discount)
-    {
-        Assert::same($this->completePage->getShippingPromotionDiscount($promotion->getName()), $discount);
-    }
-
-    /**
      * @Then I should not be able to confirm order because products does not fit :shippingMethod requirements
      */
     public function iShouldNotBeAbleToConfirmOrderBecauseDoesNotBelongsToShippingCategory(ShippingMethodInterface $shippingMethod)
@@ -334,6 +335,28 @@ final class CheckoutCompleteContext implements Context
         $this->notificationChecker->checkNotification(
             'Your order total has been changed, check your order information and confirm it again.',
             NotificationType::failure()
+        );
+    }
+
+    /**
+     * @Then /^(this promotion) should give "([^"]+)" discount on shipping$/
+     */
+    public function thisPromotionShouldGiveDiscountOnShipping(PromotionInterface $promotion, string $discount): void
+    {
+        Assert::true($this->completePage->hasShippingPromotionWithDiscount($promotion->getName(), $discount));
+    }
+
+    /**
+     * @Then /^I should be informed that (this variant) has been disabled$/
+     */
+    public function iShouldBeInformedThatThisVariantHasBeenDisabled(ProductVariantInterface $productVariant)
+    {
+        Assert::same(
+            $this->completePage->getValidationErrors(),
+            sprintf(
+                'This product %s has been disabled.',
+                $productVariant->getName()
+            )
         );
     }
 }

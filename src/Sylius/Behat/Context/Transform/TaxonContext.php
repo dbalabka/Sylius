@@ -34,6 +34,7 @@ final class TaxonContext implements Context
      * @Transform /^"([^"]+)" as a parent taxon$/
      * @Transform /^"([^"]+)" parent taxon$/
      * @Transform /^parent taxon to "([^"]+)"$/
+     * @Transform /^taxon should be "([^"]+)"$/
      * @Transform /^taxon with "([^"]+)" name/
      * @Transform /^taxon "([^"]+)"$/
      * @Transform :taxon
@@ -64,12 +65,13 @@ final class TaxonContext implements Context
 
     /**
      * @Transform /^classified as "([^"]+)" or "([^"]+)"$/
+     * @Transform /^configured with "([^"]+)" and "([^"]+)"$/
      */
-    public function getTaxonsByNames($firstTaxon, $secondTaxon)
+    public function getTaxonsByNames(string $firstTaxonName, string $secondTaxonName): array
     {
         return [
-            $this->getTaxonByName($firstTaxon),
-            $this->getTaxonByName($secondTaxon),
+            $this->getTaxonByName($firstTaxonName),
+            $this->getTaxonByName($secondTaxonName),
         ];
     }
 }

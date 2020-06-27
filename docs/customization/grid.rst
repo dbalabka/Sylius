@@ -3,8 +3,12 @@ Customizing Grids
 
 .. note::
 
-    We assume that you are familiar with grids. If not check the documentation of the :doc:`Grid Bundle </components_and_bundles/bundles/SyliusGridBundle/index>`
-    and :doc:`Grid Component </components_and_bundles/components/Grid/index>` first.
+    We assume that you are familiar with grids. If not check the documentation of the `GridBundle <https://github.com/Sylius/SyliusGridBundle/blob/master/docs/index.md>`_ first.
+
+.. tip::
+
+    You can browse the full implementation of these examples on `this GitHub Pull Request.
+    <https://github.com/Sylius/Customizations/pull/19>`_
 
 Why would you customize grids?
 ------------------------------
@@ -22,7 +26,7 @@ How to customize grids?
 
 .. tip::
 
-    One way to change anything in any grid in **Sylius** is to create a special file in the ``config/`` directory: ``config/_sylius.yaml``.
+    One way to change anything in any grid in **Sylius** is to modify a special file in the ``config/packages/`` directory: ``config/packages/_sylius.yaml``.
 
 How to customize fields of a grid?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30,13 +34,13 @@ How to customize fields of a grid?
 How to remove a field from a grid?
 ''''''''''''''''''''''''''''''''''
 
-If you would like to remove a field from an existing Sylius grid, you will need to disable it in the ``config/_sylius.yaml``.
+If you would like to remove a field from an existing Sylius grid, you will need to disable it in the ``config/packages/_sylius.yaml``.
 
 Let's imagine that we would like to hide the **title of product review** field on the ``sylius_admin_product_review`` grid.
 
 .. code-block:: yaml
 
-    # config/_sylius.yaml
+    # config/packages/_sylius.yaml
     sylius_grid:
         grids:
             sylius_admin_product_review:
@@ -53,7 +57,7 @@ If you would like to modify for instance a label of any field from a grid, that'
 
 .. code-block:: yaml
 
-    # config/_sylius.yaml
+    # config/packages/_sylius.yaml
     sylius_grid:
         grids:
             sylius_admin_product_review:
@@ -61,19 +65,21 @@ If you would like to modify for instance a label of any field from a grid, that'
                     date:
                         label: "When was it added?"
 
+Good practices is translate labels, look :doc:`here </customization/grid>`. how to do that
+
 How to customize filters of a grid?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 How to remove a filter from a grid?
 '''''''''''''''''''''''''''''''''''
 
-If you would like to remove a filter from an existing Sylius grid, you will need to disable it in the ``app/config/grids.yml``.
+If you would like to remove a filter from an existing Sylius grid, you will need to disable it in the ``config/packages/_sylius.yaml``.
 
 Let's imagine that we would like to hide the **titles filter of product reviews** on the ``sylius_admin_product_review`` grid.
 
 .. code-block:: yaml
 
-    # config/_sylius.yaml
+    # config/packages/_sylius.yaml
     sylius_grid:
         grids:
             sylius_admin_product_review:
@@ -93,7 +99,7 @@ If you would like to disable some actions in any grid, you just need to set its 
 
 .. code-block:: yaml
 
-    # config/_sylius.yaml
+    # config/packages/_sylius.yaml
     sylius_grid:
         grids:
             sylius_admin_product_review:
@@ -115,7 +121,7 @@ If you would like to change the link to which an action button is redirecting, t
 
 .. code-block:: yaml
 
-    # config/_sylius.yaml
+    # config/packages/_sylius.yaml
     sylius_grid:
         grids:
             sylius_admin_product:
@@ -142,7 +148,7 @@ See an example of fields order modification on the ``sylius_admin_product_review
 
 .. code-block:: yaml
 
-    # config/_sylius.yaml
+    # config/packages/_sylius.yaml
     sylius_grid:
         grids:
             sylius_admin_product_review:
@@ -189,10 +195,7 @@ In the example below we are removing the ``images`` field from the ``sylius_admi
 
     final class AdminProductsGridListener
     {
-        /**
-         * @param GridDefinitionConverterEvent $event
-         */
-        public function removeImageField(GridDefinitionConverterEvent $event)
+        public function removeImageField(GridDefinitionConverterEvent $event): void
         {
             $grid = $event->getGrid();
 
@@ -201,7 +204,7 @@ In the example below we are removing the ``images`` field from the ``sylius_admi
     }
 
 **2.** After creating your class with a proper method for the grid customizations you need, subscribe your
-listener to the ``sylius.grid.admin_product`` event in the ``App/Resources/config/services.yml``.
+listener to the ``sylius.grid.admin_product`` event in the ``config/services.yaml``.
 
 .. code-block:: yaml
 
@@ -220,5 +223,4 @@ After these two steps your admin product grid should not have the image field.
 Learn more
 ----------
 
-* :doc:`Grid - Component Documentation </components_and_bundles/components/Grid/index>`
-* :doc:`Grid - Bundle Documentation </components_and_bundles/bundles/SyliusGridBundle/index>`
+* `GridBundle documentation <https://github.com/Sylius/SyliusGridBundle/blob/master/docs/index.md>`_

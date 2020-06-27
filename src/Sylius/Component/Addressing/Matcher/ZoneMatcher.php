@@ -38,21 +38,18 @@ final class ZoneMatcher implements ZoneMatcherInterface
         $this->zoneRepository = $zoneRepository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function match(AddressInterface $address, ?string $scope = null): ?ZoneInterface
     {
         $zones = [];
 
         /** @var ZoneInterface $zone */
-        foreach ($availableZones = $this->getZones($scope) as $zone) {
+        foreach ($this->getZones($scope) as $zone) {
             if ($this->addressBelongsToZone($address, $zone)) {
                 $zones[$zone->getType()] = $zone;
             }
         }
 
-        foreach (static::PRIORITIES as $priority) {
+        foreach (self::PRIORITIES as $priority) {
             if (isset($zones[$priority])) {
                 return $zones[$priority];
             }
@@ -61,9 +58,6 @@ final class ZoneMatcher implements ZoneMatcherInterface
         return null;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function matchAll(AddressInterface $address, ?string $scope = null): array
     {
         $zones = [];

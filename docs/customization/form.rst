@@ -19,10 +19,15 @@ You can:
 How to customize a Form?
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. tip::
+
+    You can browse the full implementation of this example on `this GitHub Pull Request.
+    <https://github.com/Sylius/Customizations/pull/8>`__
+
 If you want to modify the form for the ``Customer Profile`` in your system there are a few steps that you should take.
 Assuming that you would like to (for example):
 
-* Add a ``contactHours`` field,
+* Add a ``secondaryPhoneNumber`` field,
 * Remove the ``gender`` field,
 * Change the label for the ``lastName`` from ``sylius.form.customer.last_name`` to ``app.form.customer.surname``
 
@@ -30,7 +35,7 @@ These will be the steps that you will have to take to achieve that:
 
 **1.** If you are planning to add new fields remember that beforehand they need to be added on the model that the form type is based on.
 
-    In case of our example if you need to have the ``contactHours`` on the model and the entity mapping for the ``Customer`` resource.
+    In case of our example if you need to have the ``secondaryPhoneNumber`` on the model and the entity mapping for the ``Customer`` resource.
     To get to know how to prepare that go :doc:`there </customization/model>`.
 
 **2.** Create a **Form Extension**.
@@ -41,13 +46,15 @@ For the ``CustomerProfileType`` run:
 
 .. code-block:: bash
 
-    $ php bin/console debug:container sylius.form.type.customer_profile
+    php bin/console debug:container sylius.form.type.customer_profile
 
 As a result you will get the ``Sylius\Bundle\CustomerBundle\Form\Type\CustomerProfileType`` - this is the class that you need to be extending.
 
 .. code-block:: php
 
     <?php
+
+    declare(strict_types=1);
 
     namespace App\Form\Extension;
 
@@ -58,38 +65,31 @@ As a result you will get the ``Sylius\Bundle\CustomerBundle\Form\Type\CustomerPr
 
     final class CustomerProfileTypeExtension extends AbstractTypeExtension
     {
-        /**
-         * {@inheritdoc}
-         */
         public function buildForm(FormBuilderInterface $builder, array $options): void
         {
-            // Adding new fields works just like in the parent form type.
-            $builder->add('contactHours', TextType::class, [
-                'required' => false,
-                'label' => 'app.form.customer.contact_hours',
-            ]);
-
-            // To remove a field from a form simply call ->remove(`fieldName`).
-            $builder->remove('gender');
-
-            // You can change the label by adding again the same field with a changed `label` parameter.
-            $builder->add('lastName', TextType::class, [
-                'label' => 'app.form.customer.surname',
-            ]);
+            $builder
+                // Adding new fields works just like in the parent form type.
+                ->add('secondaryPhoneNumber', TextType::class, [
+                    'required' => false,
+                    'label' => 'app.form.customer.secondary_phone_number',
+                ])
+                // To remove a field from a form simply call ->remove(`fieldName`).
+                ->remove('gender')
+                // You can change the label by adding again the same field with a changed `label` parameter.
+                ->add('lastName', TextType::class, [
+                    'label' => 'app.form.customer.surname',
+                ]);
         }
 
-        /**
-         * {@inheritdoc}
-         */
-        public function getExtendedType(): string
+        public static function getExtendedTypes(): iterable
         {
-            return CustomerProfileType::class;
+            return [CustomerProfileType::class];
         }
     }
 
 .. note::
     Of course remember that you need to define new labels for your fields
-    in the ``translations\messages.en.yml`` for english contents of your messages.
+    in the ``translations\messages.en.yaml`` for english contents of your messages.
 
 **3.** After creating your class, register this extension as a service in the ``config/services.yaml``:
 
@@ -105,8 +105,8 @@ As a result you will get the ``Sylius\Bundle\CustomerBundle\Form\Type\CustomerPr
     Of course remember that you need to render the new fields you have created,
     and remove the rendering of the fields that you have removed **in your views**.
 
-In our case you will need to copy the original template from `vendor/sylius/sylius/src/Sylius/Bundle/ShopBundle/Resources/views/Account/profileUpdate.html.twig`
-to `templates/bundles/SyliusShopBundle/Account/` and add the fields inside the copy
+In our case you will need to copy the original template from ``vendor/sylius/sylius/src/Sylius/Bundle/ShopBundle/Resources/views/Account/profileUpdate.html.twig``
+to ``templates/bundles/SyliusShopBundle/Account/`` and add the fields inside the copy.
 
 .. code-block:: html
 
@@ -115,7 +115,7 @@ to `templates/bundles/SyliusShopBundle/Account/` and add the fields inside the c
 
     <!-- your fields -->
     {{ form_row(form.birthday) }}
-    {{ form_row(form.contactHours) }}
+    {{ form_row(form.secondaryPhoneNumber) }}
 
     {{ sonata_block_render_event('sylius.shop.account.profile.update.form', {'customer': customer, 'form': form}) }}
 
@@ -124,7 +124,7 @@ Need more information?
 
 .. warning::
 
-    Some of the forms already have extensions in Sylius. Learn more about Extensions `here <http://symfony.com/doc/current/form/create_form_type_extension.html>`_.
+    Some of the forms already have extensions in Sylius. Learn more about Extensions `here <https://symfony.com/doc/current/form/create_form_type_extension.html>`_.
 
 For instance the ``ProductVariant`` admin form is defined under ``Sylius/Bundle/ProductBundle/Form/Type/ProductVariantType.php`` and later extended in
 ``Sylius/Bundle/CoreBundle/Form/Extension/ProductVariantTypeExtension.php``. If you again extend the base type form like this:
@@ -139,6 +139,14 @@ For instance the ``ProductVariant`` admin form is defined under ``Sylius/Bundle/
 
 your form extension will also be executed. Whether before or after the other extensions depends on priority tag set.
 
+`How to customize forms that are already extended in Core?`
+-----------------------------------------------------------
+
+.. tip::
+
+    You can browse the full implementation of this example on `this GitHub Pull Request.
+    <https://github.com/Sylius/Customizations/pull/9>`__
+
 Having a look at the extensions and possible additionally defined event handlers can also be useful when form elements are embedded dynamically,
 as is done in the ``ProductVariantTypeExtension`` by the ``CoreBundle``:
 
@@ -150,9 +158,6 @@ as is done in the ``ProductVariantTypeExtension`` by the ``CoreBundle``:
 
     final class ProductVariantTypeExtension extends AbstractTypeExtension
     {
-        /**
-         * {@inheritdoc}
-         */
         public function buildForm(FormBuilderInterface $builder, array $options): void
         {
             ...
@@ -175,6 +180,7 @@ as is done in the ``ProductVariantTypeExtension`` by the ``CoreBundle``:
         }
 
         ...
+
     }
 
 The ``channelPricings`` get added on ``FormEvents::PRE_SET_DATA``, so when you wish to remove or alter this form definition,
@@ -217,6 +223,11 @@ Although it is advised to follow the :doc:`Validation Customization Guide </cust
 want to define the form constraints from inside the form extension. They will not be used unless the correct validation group(s)
 has been added. The example below shows how to add the default `sylius` group to a constraint.
 
+.. tip::
+
+    You can browse the full implementation of this example on `this GitHub Pull Request.
+    <https://github.com/Sylius/Customizations/pull/8>`__
+
 .. code-block:: php
 
     <?php
@@ -232,22 +243,24 @@ has been added. The example below shows how to add the default `sylius` group to
             ...
 
             // Adding new fields works just like in the parent form type.
-            $builder->add('contactHours', TextType::class, [
+            ->add('secondaryPhoneNumber', TextType::class, [
                 'required' => false,
-                'label' => 'app.form.customer.contact_hours',
+                'label' => 'app.form.customer.secondary_phone_number',
                 'constraints' => [
-                    new Range([
-                        'min' => 8,
-                        'max' => 17,
+                    new Length([
+                        'min' => 6,
+                        'max' => 10,
                         'groups' => ['sylius'],
                     ]),
                 ],
             ]);
 
             ...
+
         }
 
         ...
+
     }
 
 Overriding forms completely
@@ -256,6 +269,6 @@ Overriding forms completely
 .. tip::
 
     If you need to create a new form type on top of an existing one -  create this new alternative form type and define `getParent()`
-    to the old one. `See details in the Symfony docs <http://symfony.com/doc/current/form/create_custom_field_type.html>`_.
+    to the old one. `See details in the Symfony docs <https://symfony.com/doc/current/form/create_custom_field_type.html>`_.
 
 .. include:: /customization/plugins.rst.inc

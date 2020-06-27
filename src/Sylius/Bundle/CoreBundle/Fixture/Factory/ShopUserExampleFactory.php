@@ -17,6 +17,7 @@ use Sylius\Bundle\CoreBundle\Fixture\OptionsResolver\LazyOption;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\ShopUserInterface;
 use Sylius\Component\Customer\Model\CustomerGroupInterface;
+use Sylius\Component\Customer\Model\CustomerInterface as CustotmerComponent;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\OptionsResolver\Options;
@@ -25,7 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class ShopUserExampleFactory extends AbstractExampleFactory implements ExampleFactoryInterface
 {
     /** @var FactoryInterface */
-    private $userFactory;
+    private $shopUserFactory;
 
     /** @var FactoryInterface */
     private $customerFactory;
@@ -40,11 +41,11 @@ class ShopUserExampleFactory extends AbstractExampleFactory implements ExampleFa
     private $optionsResolver;
 
     public function __construct(
-        FactoryInterface $userFactory,
+        FactoryInterface $shopUserFactory,
         FactoryInterface $customerFactory,
         RepositoryInterface $customerGroupRepository
     ) {
-        $this->userFactory = $userFactory;
+        $this->shopUserFactory = $shopUserFactory;
         $this->customerFactory = $customerFactory;
         $this->customerGroupRepository = $customerGroupRepository;
 
@@ -54,9 +55,6 @@ class ShopUserExampleFactory extends AbstractExampleFactory implements ExampleFa
         $this->configureOptions($this->optionsResolver);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function create(array $options = []): ShopUserInterface
     {
         $options = $this->optionsResolver->resolve($options);
@@ -67,9 +65,12 @@ class ShopUserExampleFactory extends AbstractExampleFactory implements ExampleFa
         $customer->setFirstName($options['first_name']);
         $customer->setLastName($options['last_name']);
         $customer->setGroup($options['customer_group']);
+        $customer->setGender($options['gender']);
+        $customer->setPhoneNumber($options['phone_number']);
+        $customer->setBirthday($options['birthday']);
 
         /** @var ShopUserInterface $user */
-        $user = $this->userFactory->createNew();
+        $user = $this->shopUserFactory->createNew();
         $user->setPlainPassword($options['password']);
         $user->setEnabled($options['enabled']);
         $user->addRole('ROLE_USER');
@@ -78,9 +79,6 @@ class ShopUserExampleFactory extends AbstractExampleFactory implements ExampleFa
         return $user;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
@@ -99,6 +97,29 @@ class ShopUserExampleFactory extends AbstractExampleFactory implements ExampleFa
             ->setDefault('customer_group', LazyOption::randomOneOrNull($this->customerGroupRepository, 100))
             ->setAllowedTypes('customer_group', ['null', 'string', CustomerGroupInterface::class])
             ->setNormalizer('customer_group', LazyOption::findOneBy($this->customerGroupRepository, 'code'))
+            ->setDefault('gender', CustotmerComponent::UNKNOWN_GENDER)
+            ->setAllowedValues(
+                'gender',
+                [CustotmerComponent::UNKNOWN_GENDER, CustotmerComponent::MALE_GENDER, CustotmerComponent::FEMALE_GENDER]
+            )
+            ->setDefault('phone_number', function (Options $options): string {
+                return $this->faker->phoneNumber;
+            })
+            ->setDefault('birthday', function (Options $options): \DateTime {
+                return $this->faker->dateTimeThisCentury();
+            })
+            ->setAllowedTypes('birthday', ['null', 'string', \DateTimeInterface::class])
+            ->setNormalizer(
+                'birthday',
+                /** @param string|\DateTimeInterface|null $value */
+                function (Options $options, $value) {
+                    if (is_string($value)) {
+                        return \DateTime::createFromFormat('Y-m-d H:i:s', $value);
+                    }
+
+                    return $value;
+                }
+            )
         ;
     }
 }

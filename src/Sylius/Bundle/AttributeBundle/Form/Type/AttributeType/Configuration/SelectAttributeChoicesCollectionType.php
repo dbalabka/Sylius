@@ -32,11 +32,11 @@ class SelectAttributeChoicesCollectionType extends AbstractType
     }
 
     /**
-     * {@inheritdoc}
+     * @psalm-suppress InvalidScalarArgument Some weird magic going on here, not sure about refactor
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) {
             $data = $event->getData();
             $form = $event->getForm();
 
@@ -57,8 +57,11 @@ class SelectAttributeChoicesCollectionType extends AbstractType
                     $fixedData[$newKey] = $this->resolveValues($values);
 
                     if ($form->offsetExists($key)) {
-                        $form->offsetUnset($key);
-                        $form->offsetSet(null, $newKey);
+                        $type = get_class($form->get($key)->getConfig()->getType()->getInnerType());
+                        $options = $form->get($key)->getConfig()->getOptions();
+
+                        $form->remove($key);
+                        $form->add($newKey, $type, $options);
                     }
                 }
 
@@ -67,17 +70,11 @@ class SelectAttributeChoicesCollectionType extends AbstractType
         });
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getParent(): string
     {
         return CollectionType::class;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix(): string
     {
         return 'sylius_select_attribute_choices_collection';

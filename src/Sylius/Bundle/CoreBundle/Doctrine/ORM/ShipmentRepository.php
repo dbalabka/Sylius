@@ -20,17 +20,14 @@ use Sylius\Component\Core\Repository\ShipmentRepositoryInterface;
 
 class ShipmentRepository extends EntityRepository implements ShipmentRepositoryInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createListQueryBuilder(): QueryBuilder
     {
-        return $this->createQueryBuilder('o');
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
+            ->setParameter('state', ShipmentInterface::STATE_CART)
+        ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function findOneByOrderId($shipmentId, $orderId): ?ShipmentInterface
     {
         return $this->createQueryBuilder('o')
@@ -43,9 +40,6 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function findByName(string $name, string $locale): array
     {
         return $this->createQueryBuilder('o')

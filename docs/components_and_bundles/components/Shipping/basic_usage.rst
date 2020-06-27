@@ -1,7 +1,14 @@
+.. rst-class:: outdated
+
 .. _basic_usage:
 
 Basic Usage
 ===========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 In all examples is used an exemplary class implementing **ShippableInterface**, which looks like:
 
@@ -10,7 +17,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
     <?php
 
     declare(strict_types=1);
-    
+
     use Sylius\Component\Shipping\Model\ShippableInterface;
     use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 
@@ -94,7 +101,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
         {
             $this->width = $width;
         }
-        
+
         /**
          * {@inheritdoc}
          */
@@ -102,7 +109,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
         {
             return $this->height;
         }
-        
+
         /**
          * {@inheritdoc}
          */
@@ -110,7 +117,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
         {
             $this->height = $height;
         }
-        
+
         /**
          * {@inheritdoc}
          */
@@ -118,7 +125,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
         {
             return $this->depth;
         }
-        
+
         /**
          * {@inheritdoc}
          */
@@ -126,7 +133,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
         {
             $this->depth = $depth;
         }
-        
+
         /**
          * {@inheritdoc}
          */
@@ -134,7 +141,7 @@ In all examples is used an exemplary class implementing **ShippableInterface**, 
         {
             return $this->category;
         }
-        
+
         /**
          * {@inheritdoc}
          */
@@ -181,7 +188,7 @@ Every shipping method can have shipping category. You can simply set or unset it
 Shipping Method Translation
 ---------------------------
 
-**ShippingMethodTranslation** allows shipping method's name translation according to given locales. To see how to use translation please go to :ref:`component_resource_translations_usage`.
+**ShippingMethodTranslation** allows shipping method's name translation according to given locales. To see how to use translation please go to `ResourceBundle documentation <https://github.com/Sylius/SyliusResourceBundle/blob/master/docs/index.md>`_.
 
 
 Shipment Item
@@ -366,7 +373,7 @@ container. The calculators are retrieved by name.
 .. hint::
     You can read more about each of the available calculators in the :doc:`calculators` chapter.
 
-.. _InvalidArgumentException: http://php.net/manual/en/class.invalidargumentexception.php
+.. _InvalidArgumentException: https://php.net/manual/en/class.invalidargumentexception.php
 .. _UndefinedShippingMethodException: http://api.sylius.com/Sylius/Component/Shipping/Calculator/UndefinedShippingMethodException.html
 
 Resolvers

@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Interfaces
 ==========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 Model Interfaces
 ----------------
@@ -22,7 +29,7 @@ To create object which provides information about tax category, the object class
 **TaxCategoryInterface**.
 
 .. note::
-    This interface extends :ref:`component_resource_model_code-aware-interface` and :ref:`component_resource_model_timestampable-interface`.
+    This interface extends `CodeAwareInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/CodeAwareInterface.php>`_ and `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_.
 
     For more detailed information go to `Sylius API Tax Category Interface`_.
 
@@ -35,7 +42,7 @@ To create object which provides information about tax rate, the object class nee
 **TaxCategoryInterface**.
 
 .. note::
-    This interface extends :ref:`component_resource_model_code-aware-interface` and :ref:`component_resource_model_timestampable-interface`.
+    This interface extends `CodeAwareInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/CodeAwareInterface.php>`_ and `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_.
 
     For more detailed information go to `Sylius API Tax Rate Interface`_.
 

@@ -20,9 +20,6 @@ use Webmozart\Assert\Assert;
 
 final class HasAllPricesDefinedValidator extends ConstraintValidator
 {
-    /**
-     * {@inheritdoc}
-     */
     public function validate($productVariant, Constraint $constraint): void
     {
         Assert::isInstanceOf($constraint, HasAllPricesDefined::class);
@@ -30,7 +27,7 @@ final class HasAllPricesDefinedValidator extends ConstraintValidator
         $channels = $productVariant->getProduct()->getChannels();
 
         foreach ($channels as $channel) {
-            /** @var ChannelPricingInterface $channelPricing */
+            /** @var ChannelPricingInterface|null $channelPricing */
             $channelPricing = $productVariant->getChannelPricingForChannel($channel);
             if (null === $channelPricing || null === $channelPricing->getPrice()) {
                 $this->context->buildViolation($constraint->message)

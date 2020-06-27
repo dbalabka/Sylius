@@ -44,8 +44,7 @@ final class SyliusShopExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasService('sylius.listener.order_customer_ip');
         $this->assertContainerBuilderHasService('sylius.listener.order_complete');
         $this->assertContainerBuilderHasService('sylius.listener.user_registration');
-        $this->assertContainerBuilderHasService('sylius.listener.order_promotion_integrity_checker');
-        $this->assertContainerBuilderHasService('sylius.listener.order_total_integrity_checker');
+        $this->assertContainerBuilderHasService('sylius.listener.order_integrity_checker');
         $this->assertContainerBuilderHasService('sylius.order_locale_assigner');
     }
 
@@ -135,9 +134,6 @@ final class SyliusShopExtensionTest extends AbstractExtensionTestCase
         $this->assertContainerBuilderHasParameter('sylius_shop.firewall_context_name', 'myshopfirewall');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getContainerExtensions(): array
     {
         return [

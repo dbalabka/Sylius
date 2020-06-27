@@ -24,6 +24,7 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Sylius\Component\Shipping\Calculator\DefaultCalculators;
 use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
+use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -44,6 +45,9 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
     /** @var ChannelRepositoryInterface */
     private $channelRepository;
 
+    /** @var RepositoryInterface|null */
+    private $taxCategoryRepository;
+
     /** @var \Faker\Generator */
     private $faker;
 
@@ -55,13 +59,18 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
         RepositoryInterface $zoneRepository,
         RepositoryInterface $shippingCategoryRepository,
         RepositoryInterface $localeRepository,
-        ChannelRepositoryInterface $channelRepository
+        ChannelRepositoryInterface $channelRepository,
+        ?RepositoryInterface $taxCategoryRepository = null
     ) {
         $this->shippingMethodFactory = $shippingMethodFactory;
         $this->zoneRepository = $zoneRepository;
         $this->shippingCategoryRepository = $shippingCategoryRepository;
         $this->localeRepository = $localeRepository;
         $this->channelRepository = $channelRepository;
+        $this->taxCategoryRepository = $taxCategoryRepository;
+        if ($this->taxCategoryRepository === null) {
+            @trigger_error(sprintf('Not passing a $taxCategoryRepository to %s constructor is deprecated since Sylius 1.4 and will be removed in Sylius 2.0.', self::class), \E_USER_DEPRECATED);
+        }
 
         $this->faker = \Faker\Factory::create();
         $this->optionsResolver = new OptionsResolver();
@@ -69,9 +78,6 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
         $this->configureOptions($this->optionsResolver);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function create(array $options = []): ShippingMethodInterface
     {
         $options = $this->optionsResolver->resolve($options);
@@ -89,6 +95,10 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
             $shippingMethod->setCategory($options['category']);
         }
 
+        if (array_key_exists('tax_category', $options) && ($options['tax_category'] instanceof TaxCategoryInterface)) {
+            $shippingMethod->setTaxCategory($options['tax_category']);
+        }
+
         foreach ($this->getLocales() as $localeCode) {
             $shippingMethod->setCurrentLocale($localeCode);
             $shippingMethod->setFallbackLocale($localeCode);
@@ -104,9 +114,6 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
         return $shippingMethod;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
@@ -114,7 +121,10 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
                 return StringInflector::nameToCode($options['name']);
             })
             ->setDefault('name', function (Options $options): string {
-                return $this->faker->words(3, true);
+                /** @var string $words */
+                $words = $this->faker->words(3, true);
+
+                return $words;
             })
             ->setDefault('description', function (Options $options): string {
                 return $this->faker->sentence();
@@ -126,6 +136,8 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
             ->setDefault('zone', LazyOption::randomOne($this->zoneRepository))
             ->setAllowedTypes('zone', ['null', 'string', ZoneInterface::class])
             ->setNormalizer('zone', LazyOption::findOneBy($this->zoneRepository, 'code'))
+            ->setDefined('tax_category')
+            ->setAllowedTypes('tax_category', ['null', 'string', TaxCategoryInterface::class])
             ->setDefined('category')
             ->setAllowedTypes('category', ['null', 'string', ShippingCategoryInterface::class])
             ->setNormalizer('category', LazyOption::findOneBy($this->shippingCategoryRepository, 'code'))
@@ -133,7 +145,7 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
                 $configuration = [];
                 /** @var ChannelInterface $channel */
                 foreach ($options['channels'] as $channel) {
-                    $configuration[$channel->getCode()] = ['amount' => $this->faker->randomNumber(4)];
+                    $configuration[$channel->getCode()] = ['amount' => $this->faker->numberBetween(100, 1000)];
                 }
 
                 return [
@@ -147,6 +159,10 @@ class ShippingMethodExampleFactory extends AbstractExampleFactory implements Exa
             ->setDefault('archived_at', null)
             ->setAllowedTypes('archived_at', ['null', \DateTimeInterface::class])
         ;
+
+        if ($this->taxCategoryRepository !== null) {
+            $resolver->setNormalizer('tax_category', LazyOption::findOneBy($this->taxCategoryRepository, 'code'));
+        }
     }
 
     private function getLocales(): iterable

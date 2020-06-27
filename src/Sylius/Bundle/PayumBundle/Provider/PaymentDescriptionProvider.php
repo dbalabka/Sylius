@@ -27,20 +27,16 @@ final class PaymentDescriptionProvider implements PaymentDescriptionProviderInte
         $this->translator = $translator;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getPaymentDescription(PaymentInterface $payment): string
     {
         /** @var OrderInterface $order */
         $order = $payment->getOrder();
 
-        return $this->translator->transChoice(
+        return $this->translator->trans(
             'sylius.payum_action.payment.description',
-            $order->getItems()->count(),
             [
                 '%items%' => $order->getItems()->count(),
-                '%total%' => round($order->getTotal() / 100, 2),
+                '%total%' => round($payment->getAmount() / 100, 2),
             ]
         );
     }

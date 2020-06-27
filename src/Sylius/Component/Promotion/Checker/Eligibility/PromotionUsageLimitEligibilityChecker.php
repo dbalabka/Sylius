@@ -18,19 +18,12 @@ use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
 final class PromotionUsageLimitEligibilityChecker implements PromotionEligibilityCheckerInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionInterface $promotion): bool
     {
         if (null === $usageLimit = $promotion->getUsageLimit()) {
             return true;
         }
 
-        if ($promotion->getUsed() < $usageLimit) {
-            return true;
-        }
-
-        return false;
+        return $promotion->getUsed() < $usageLimit;
     }
 }

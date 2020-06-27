@@ -22,6 +22,7 @@ use Sylius\Behat\Page\Admin\ProductVariant\UpdatePageInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Webmozart\Assert\Assert;
@@ -81,7 +82,7 @@ final class ManagingProductVariantsContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -102,6 +103,14 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
+     * @When I change its :optionName option to :optionValue
+     */
+    public function iChangeItsOptionTo(string $optionName, string $optionValue): void
+    {
+        $this->updatePage->selectOption(strtoupper($optionName), $optionValue);
+    }
+
+    /**
      * @When I disable its inventory tracking
      */
     public function iDisableItsTracking()
@@ -118,20 +127,20 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @When /^I set its(?:| default) price to "(?:€|£|\$)([^"]+)" for "([^"]+)" channel$/
+     * @When /^I set its(?:| default) price to "(?:€|£|\$)([^"]+)" for ("([^"]+)" channel)$/
      * @When I do not set its price
      */
-    public function iSetItsPriceTo($price = null, $channelName = null)
+    public function iSetItsPriceTo(?string $price = null, ?ChannelInterface $channel = null)
     {
-        $this->createPage->specifyPrice($price, $channelName ?? $this->sharedStorage->get('channel'));
+        $this->createPage->specifyPrice($price ?? '', $channel ?? $this->sharedStorage->get('channel'));
     }
 
     /**
-     * @When /^I set its original price to "(?:€|£|\$)([^"]+)" for "([^"]+)" channel$/
+     * @When /^I set its original price to "(?:€|£|\$)([^"]+)" for ("([^"]+)" channel)$/
      */
-    public function iSetItsOriginalPriceTo($originalPrice, $channelName)
+    public function iSetItsOriginalPriceTo($originalPrice, ChannelInterface $channel)
     {
-        $this->createPage->specifyOriginalPrice($originalPrice, $channelName);
+        $this->createPage->specifyOriginalPrice($originalPrice, $channel);
     }
 
     /**
@@ -169,7 +178,7 @@ final class ManagingProductVariantsContext implements Context
     /**
      * @When I set the position of :name to :position
      */
-    public function iSetThePositionOfTo($name, $position)
+    public function iSetThePositionOfTo($name, int $position)
     {
         $this->indexPage->setPosition($name, $position);
     }
@@ -207,13 +216,13 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @Then /^the (variant with code "[^"]+") should be priced at (?:€|£|\$)([^"]+) for channel "([^"]+)"$/
+     * @Then /^the (variant with code "[^"]+") should be priced at (?:€|£|\$)([^"]+) for (channel "([^"]+)")$/
      */
-    public function theVariantWithCodeShouldBePricedAtForChannel(ProductVariantInterface $productVariant, $price, $channelName)
+    public function theVariantWithCodeShouldBePricedAtForChannel(ProductVariantInterface $productVariant, string $price, ChannelInterface $channel)
     {
         $this->updatePage->open(['id' => $productVariant->getId(), 'productId' => $productVariant->getProduct()->getId()]);
 
-        Assert::same($this->updatePage->getPriceForChannel($channelName), $price);
+        Assert::same($this->updatePage->getPriceForChannel($channel), $price);
     }
 
     /**
@@ -227,14 +236,14 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @Then /^the (variant with code "[^"]+") should have an original price of (?:€|£|\$)([^"]+) for channel "([^"]+)"$/
+     * @Then /^the (variant with code "[^"]+") should have an original price of (?:€|£|\$)([^"]+) for (channel "([^"]+)")$/
      */
-    public function theVariantWithCodeShouldHaveAnOriginalPriceOfForChannel(ProductVariantInterface $productVariant, $originalPrice, $channelName)
+    public function theVariantWithCodeShouldHaveAnOriginalPriceOfForChannel(ProductVariantInterface $productVariant, $originalPrice, ChannelInterface $channel)
     {
         $this->updatePage->open(['id' => $productVariant->getId(), 'productId' => $productVariant->getProduct()->getId()]);
 
         Assert::same(
-            $this->updatePage->getOriginalPriceForChannel($channelName),
+            $this->updatePage->getOriginalPriceForChannel($channel),
             $originalPrice
         );
     }
@@ -313,14 +322,14 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @Then I should be notified that price cannot be lower than 0.01
+     * @Then I should be notified that price cannot be lower than 0
      */
-    public function iShouldBeNotifiedThatPriceCannotBeLowerThen()
+    public function iShouldBeNotifiedThatPriceCannotBeLowerThen(): void
     {
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
-        Assert::contains($currentPage->getPricesValidationMessage(), 'Price must be at least 0.01.');
+        Assert::contains($currentPage->getPricesValidationMessage(), 'Price cannot be lower than 0.');
     }
 
     /**
@@ -379,6 +388,22 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
+     * @When I choose to show this product in the :channel channel
+     */
+    public function iChooseToShowThisProductInTheChannel(string $channel): void
+    {
+        $this->updatePage->showProductInChannel($channel);
+    }
+
+    /**
+     * @When I choose to show this product in this channel
+     */
+    public function iChooseToShowThisProductInThisChannel(): void
+    {
+        $this->updatePage->showProductInSingleChannel();
+    }
+
+    /**
      * @When I save my changes
      * @When I try to save my changes
      */
@@ -408,14 +433,6 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @When /^I want to generate new variants for (this product)$/
-     */
-    public function iWantToGenerateNewVariantsForThisProduct(ProductInterface $product)
-    {
-        $this->generatePage->open(['productId' => $product->getId()]);
-    }
-
-    /**
      * @When I generate it
      * @When I try to generate it
      */
@@ -425,12 +442,12 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @When /^I specify that the (\d)(?:st|nd|rd|th) variant is identified by "([^"]+)" code and costs "(?:€|£|\$)([^"]+)" in ("[^"]+") channel$/
+     * @When /^I specify that the (\d)(?:st|nd|rd|th) variant is identified by "([^"]+)" code and costs "(?:€|£|\$)([^"]+)" in (("[^"]+") channel)$/
      */
-    public function iSpecifyThereAreVariantsIdentifiedByCodeWithCost($nthVariant, $code, $price, $channelName)
+    public function iSpecifyThereAreVariantsIdentifiedByCodeWithCost($nthVariant, $code, int $price, ChannelInterface $channel)
     {
         $this->generatePage->specifyCode($nthVariant - 1, $code);
-        $this->generatePage->specifyPrice($nthVariant - 1, $price, $channelName);
+        $this->generatePage->specifyPrice($nthVariant - 1, $price, $channel);
     }
 
     /**
@@ -442,11 +459,11 @@ final class ManagingProductVariantsContext implements Context
     }
 
     /**
-     * @When /^I specify that the (\d)(?:st|nd|rd|th) variant costs "(?:€|£|\$)([^"]+)" in ("[^"]+") channel$/
+     * @When /^I specify that the (\d)(?:st|nd|rd|th) variant costs "(?:€|£|\$)([^"]+)" in (("[^"]+") channel)$/
      */
-    public function iSpecifyThereAreVariantsWithCost($nthVariant, $price, $channelName)
+    public function iSpecifyThereAreVariantsWithCost($nthVariant, int $price, ChannelInterface $channel)
     {
-        $this->generatePage->specifyPrice($nthVariant - 1, $price, $channelName);
+        $this->generatePage->specifyPrice($nthVariant - 1, $price, $channel);
     }
 
     /**
@@ -463,6 +480,14 @@ final class ManagingProductVariantsContext implements Context
     public function iShouldBeNotifiedThatItHasBeenSuccessfullyGenerated()
     {
         $this->notificationChecker->checkNotification('Success Product variants have been successfully generated.', NotificationType::success());
+    }
+
+    /**
+     * @Then I should not be able to generate any variants
+     */
+    public function iShouldNotBeAbleToGenerateAnyVariants(): void
+    {
+        Assert::false($this->generatePage->isGenerationPossible());
     }
 
     /**
@@ -484,7 +509,7 @@ final class ManagingProductVariantsContext implements Context
     /**
      * @When I change its quantity of inventory to :amount
      */
-    public function iChangeItsQuantityOfInventoryTo($amount)
+    public function iChangeItsQuantityOfInventoryTo(int $amount)
     {
         $this->updatePage->specifyCurrentStock($amount);
     }
@@ -508,6 +533,75 @@ final class ManagingProductVariantsContext implements Context
             $this->updatePage->getValidationMessage('on_hand'),
             'On hand must be greater than the number of on hold units'
         );
+    }
+
+    /**
+     * @Then I should be notified that variants cannot be generated from options without any values
+     */
+    public function iShouldBeNotifiedThatVariantsCannotBeGeneratedFromOptionsWithoutAnyValues(): void
+    {
+        $this->notificationChecker->checkNotification('Cannot generate variants for a product without options values', NotificationType::failure());
+    }
+
+    /**
+     * @Then I should see the :optionName option as :valueName
+     */
+    public function iShouldSeeTheOptionAs(string $optionName, string $valueName): void
+    {
+        Assert::true($this->updatePage->isSelectedOptionValueOnPage($optionName, $valueName));
+    }
+
+    /**
+     * @When /^I want to generate new variants for (this product)$/
+     * @When /^I try to generate new variants for (this product)$/
+     */
+    public function iTryToGenerateNewVariantsForThisProduct(ProductInterface $product): void
+    {
+        $this->generatePage->open(['productId' => $product->getId()]);
+    }
+
+    /**
+     * @Then I should not be able to show this product in shop
+     */
+    public function iShouldNotBeAbleToShowThisProductInShop(): void
+    {
+        Assert::true($this->updatePage->isShowInShopButtonDisabled());
+    }
+
+    /**
+     * @When /^I disable it$/
+     */
+    public function iDisableIt(): void
+    {
+        $this->updatePage->disable();
+    }
+
+    /**
+     * @Then /^(this variant) should be disabled$/
+     */
+    public function thisVariantShouldBeDisabled(ProductVariantInterface $productVariant): void
+    {
+        $this->iWantToModifyAProduct($productVariant);
+
+        Assert::false($this->updatePage->isEnabled());
+    }
+
+    /**
+     * @When /^I enable it$/
+     */
+    public function iEnableIt(): void
+    {
+        $this->updatePage->enable();
+    }
+
+    /**
+     * @Then /^(this variant) should be enabled$/
+     */
+    public function thisVariantShouldBeEnabled(ProductVariantInterface $productVariant): void
+    {
+        $this->iWantToModifyAProduct($productVariant);
+
+        Assert::true($this->updatePage->isEnabled());
     }
 
     /**

@@ -24,18 +24,17 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('sylius_user');
+        $treeBuilder = new TreeBuilder('sylius_user');
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
                 ->scalarNode('driver')->defaultValue(SyliusResourceBundle::DRIVER_DOCTRINE_ORM)->end()
+                ->scalarNode('encoder')->defaultNull()->end()
             ->end()
         ;
 
@@ -56,6 +55,7 @@ final class Configuration implements ConfigurationInterface
                                 ->addDefaultsIfNotSet()
                                 ->children()
                                     ->scalarNode('templates')->defaultValue('SyliusUserBundle:User')->end()
+                                    ->scalarNode('encoder')->defaultNull()->end()
                                     ->variableNode('options')->end()
                                     ->arrayNode('resetting')
                                         ->addDefaultsIfNotSet()
@@ -71,9 +71,12 @@ final class Configuration implements ConfigurationInterface
                                                     ->scalarNode('field_name')
                                                         ->defaultValue('passwordResetToken')
                                                         ->validate()
-                                                        ->ifTrue(function ($tokenFieldName) {
-                                                            return !is_string($tokenFieldName);
-                                                        })
+                                                        ->ifTrue(
+                                                            /** @param mixed $tokenFieldName */
+                                                            function ($tokenFieldName) {
+                                                                return !is_string($tokenFieldName);
+                                                            }
+                                                        )
                                                             ->thenInvalid('Invalid resetting token field "%s"')
                                                         ->end()
                                                     ->end()
@@ -89,9 +92,12 @@ final class Configuration implements ConfigurationInterface
                                                     ->scalarNode('field_name')
                                                         ->defaultValue('passwordResetToken')
                                                         ->validate()
-                                                        ->ifTrue(function ($passwordResetToken) {
-                                                            return !is_string($passwordResetToken);
-                                                        })
+                                                        ->ifTrue(
+                                                            /** @param mixed $passwordResetToken */
+                                                            function ($passwordResetToken) {
+                                                                return !is_string($passwordResetToken);
+                                                            }
+                                                        )
                                                             ->thenInvalid('Invalid resetting pin field "%s"')
                                                         ->end()
                                                     ->end()
@@ -112,9 +118,12 @@ final class Configuration implements ConfigurationInterface
                                                     ->scalarNode('field_name')
                                                         ->defaultValue('emailVerificationToken')
                                                         ->validate()
-                                                        ->ifTrue(function ($emailVerificationToken) {
-                                                            return !is_string($emailVerificationToken);
-                                                        })
+                                                        ->ifTrue(
+                                                            /** @param mixed $emailVerificationToken */
+                                                            function ($emailVerificationToken) {
+                                                                return !is_string($emailVerificationToken);
+                                                            }
+                                                        )
                                                             ->thenInvalid('Invalid verification token field "%s"')
                                                         ->end()
                                                     ->end()

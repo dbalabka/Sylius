@@ -14,13 +14,18 @@ declare(strict_types=1);
 namespace Sylius\Bundle\CoreBundle\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Exception\RuntimeException;
 
 final class InstallCommand extends AbstractInstallCommand
 {
-    /** @var array */
+    /**
+     * @var array
+     *
+     * @psalm-var non-empty-list
+     */
     private $commands = [
         [
             'command' => 'check-requirements',
@@ -40,9 +45,6 @@ final class InstallCommand extends AbstractInstallCommand
         ],
     ];
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure(): void
     {
         $this
@@ -52,14 +54,14 @@ final class InstallCommand extends AbstractInstallCommand
 The <info>%command.name%</info> command installs Sylius.
 EOT
             )
+            ->addOption('fixture-suite', 's', InputOption::VALUE_OPTIONAL, 'Load specified fixture suite during install', null)
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $suite = $input->getOption('fixture-suite');
+
         $outputStyle = new SymfonyStyle($input, $output);
         $outputStyle->writeln('<info>Installing Sylius...</info>');
         $outputStyle->writeln($this->getSyliusLogo());
@@ -76,7 +78,13 @@ EOT
                     count($this->commands),
                     $command['message']
                 ));
-                $this->commandExecutor->runCommand('sylius:install:' . $command['command'], [], $output);
+
+                $parameters = [];
+                if ('database' === $command['command'] && null !== $suite) {
+                    $parameters['--fixture-suite'] = $suite;
+                }
+
+                $this->commandExecutor->runCommand('sylius:install:' . $command['command'], $parameters, $output);
             } catch (RuntimeException $exception) {
                 $errored = true;
             }
@@ -85,6 +93,8 @@ EOT
         $outputStyle->newLine(2);
         $outputStyle->success($this->getProperFinalMessage($errored));
         $outputStyle->writeln('You can now open your store at the following path under the website root: /');
+
+        return $errored ? 1 : 0;
     }
 
     private function getProperFinalMessage(bool $errored): string
@@ -98,23 +108,23 @@ EOT
 
     private function getSyliusLogo(): string
     {
-        return '                                                                  
-           <info>,</info>                                                       
-         <info>,;:,</info>                                                      
-       <info>`;;;.:`</info>                                                     
-      <info>`::;`  :`</info>                                                    
-       <info>:::`   `</info>          .\'++:           \'\'.   \'.                  
-       <info>`:::</info>             :+\',;+\'          :+;  `+.                  
-        <info>::::</info>            +\'   :\'          `+;                       
+        return '
+           <info>,</info>
+         <info>,;:,</info>
+       <info>`;;;.:`</info>
+      <info>`::;`  :`</info>
+       <info>:::`   `</info>          .\'++:           \'\'.   \'.
+       <info>`:::</info>             :+\',;+\'          :+;  `+.
+        <info>::::</info>            +\'   :\'          `+;
         <info>`:::,</info>           \'+`     ++    :+.`+; `++. ;+\'    \'\'  ,++++.
          <info>,:::`</info>          `++\'.   .+:  `+\' `+;  .+,  ;+    +\'  +;  \'\'
-          <info>::::`</info>           ,+++.  \'+` :+. `+;  `+,  ;+    +\'  \'+.   
-   <info>,.     .::::</info>             .++` `+: +\'  `+;  `+,  ;+    +\'  `;++; 
+          <info>::::`</info>           ,+++.  \'+` :+. `+;  `+,  ;+    +\'  \'+.
+   <info>,.     .::::</info>             .++` `+: +\'  `+;  `+,  ;+    +\'  `;++;
 <info>`;;.:::`   :::::</info>             :+.  \'+,+.  `+;  `+,  ;+   `+\'     .++
  <info>.;;;;;;::`.::::,</info>       +\'` `++   `++\'   `+;  `+:  :+. `++\'  \'.  ;+
   <info>,;;;;;;;;;:::::</info>       .+++++`    ;+,    ++;  ++, `\'+++,\'+\' :++++,
-   <info>,;;;;;;;;;:::</info>`                  ;\'                              
-    <info>:;;;;;;;;;:,</info>                :.:+,                              
+   <info>,;;;;;;;;;:::</info>`                  ;\'
+    <info>:;;;;;;;;;:,</info>                :.:+,
      <info>;;;;;;;;;:</info>                 ;++,'
         ;
     }

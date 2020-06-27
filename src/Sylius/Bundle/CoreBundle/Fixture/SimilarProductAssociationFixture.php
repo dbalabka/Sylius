@@ -53,17 +53,11 @@ class SimilarProductAssociationFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return 'similar_product_association';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $options): void
     {
         $options = $this->optionsResolver->resolve($options);
@@ -89,9 +83,6 @@ class SimilarProductAssociationFixture extends AbstractFixture
         $this->productAssociationFixture->load(['custom' => $productAssociations]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
@@ -106,7 +97,7 @@ class SimilarProductAssociationFixture extends AbstractFixture
     private function getAssociatedProductsAsArray(ProductInterface $owner): array
     {
         $products = $this->productRepository->findBy(['mainTaxon' => $owner->getMainTaxon()]);
-        $products = $this->faker->randomElements($products, 3);
+        $products = $this->faker->randomElements($products, 2);
 
         $associatedProducts = [];
         /** @var ProductInterface $product */

@@ -9,6 +9,7 @@
 
 import 'semantic-ui-css/components/accordion';
 import $ from 'jquery';
+import 'jquery.dirtyforms/jquery.dirtyforms';
 
 import 'sylius/ui/app';
 import 'sylius/ui/sylius-auto-complete';
@@ -18,13 +19,17 @@ import 'sylius/ui/sylius-prototype-handler';
 
 import './sylius-compound-form-errors';
 import './sylius-lazy-choice-tree';
-import './sylius-move-product';
+import './sylius-menu-search';
 import './sylius-move-product-variant';
 import './sylius-move-taxon';
 import './sylius-notification';
 import './sylius-product-images-preview';
 import './sylius-product-slug';
 import './sylius-taxon-slug';
+
+import StatisticsComponent from './sylius-statistics';
+import SyliusTaxonomyTree from './sylius-taxon-tree';
+import formsList from './sylius-forms-list';
 
 $(document).ready(() => {
   $('#sylius_product_variant_pricingCalculator').handlePrototypes({
@@ -45,7 +50,6 @@ $(document).ready(() => {
     window.location = $(event.currentTarget).find('a').attr('href');
   });
 
-  $('.sylius-update-product-taxons').moveProduct($('.sylius-product-taxon-position'));
   $('.sylius-update-product-variants').moveProductVariant($('.sylius-product-variant-position'));
   $('.sylius-taxon-move-up').taxonMoveUp();
   $('.sylius-taxon-move-down').taxonMoveDown();
@@ -88,15 +92,31 @@ $(document).ready(() => {
   $(document).notification();
   $(document).productSlugGenerator();
   $(document).taxonSlugGenerator();
-
   $(document).previewUploadedImage('#sylius_product_images');
   $(document).previewUploadedImage('#sylius_taxon_images');
+
+  $(document).previewUploadedImage('#add-avatar');
 
   $('body').on('DOMNodeInserted', '[data-form-collection="item"]', (event) => {
     if ($(event.target).find('.accordion').length > 0) {
       $(event.target).find('.accordion').accordion();
     }
   });
+
+  const taxonomyTree = new SyliusTaxonomyTree();
+
+  $(`${formsList}, .check-unsaved`).dirtyForms();
+
+  $('#more-details').accordion({ exclusive: false });
+
+  $('.variants-accordion__title').on('click', '.icon.button', function(e) {
+    $(e.delegateTarget).next('.variants-accordion__content').toggle();
+    $(this).find('.dropdown.icon').toggleClass('counterclockwise rotated');
+  });
+
+  const dashboardStatistics = new StatisticsComponent(document.querySelector('.stats'));
+
+  $('.sylius-admin-menu').searchable('.sylius-admin-menu-search-input');
 });
 
 window.$ = $;

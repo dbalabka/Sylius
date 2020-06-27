@@ -1,6 +1,33 @@
 # CHANGELOG FOR `1.1.X`
 
-## v1.1.16 (2016-11-28)
+## v1.1.18 (2019-05-07)
+
+#### TL;DR
+
+- Fixed the build and extracted some packages from Sylius core.
+
+#### Details
+
+- [#10259](https://github.com/Sylius/Sylius/issues/10259) [BuildFix] Ignore psalm annotations ([@Zales0123](https://github.com/Zales0123))
+- [#10325](https://github.com/Sylius/Sylius/issues/10325) Extract Mailer component & bundle ([@pamil](https://github.com/pamil))
+- [#10326](https://github.com/Sylius/Sylius/issues/10326) [WIP] Extract Grid component & bundle ([@pamil](https://github.com/pamil))
+- [#10327](https://github.com/Sylius/Sylius/issues/10327) [WIP] Extract Resource component & bundle ([@pamil](https://github.com/pamil))
+- [#10340](https://github.com/Sylius/Sylius/issues/10340) Fix #9646 by removing lambdas in JS file ([@tchapi](https://github.com/tchapi))
+
+## v1.1.17 (2019-03-04)
+
+#### TL;DR
+
+- Fixed the build and extracted some packages from Sylius core.
+
+#### Details
+
+- [#10141](https://github.com/Sylius/Sylius/issues/10141) [1.1] Fix select attributes according to recent Symfony form changes ([@Zales0123](https://github.com/Zales0123))
+- [#10182](https://github.com/Sylius/Sylius/issues/10182) Extract FixturesBundle ([@pamil](https://github.com/pamil))
+- [#10184](https://github.com/Sylius/Sylius/issues/10184) Extract ThemeBundle ([@pamil](https://github.com/pamil))
+- [#10188](https://github.com/Sylius/Sylius/issues/10188) Extract Registry component ([@pamil](https://github.com/pamil))
+
+## v1.1.16 (2018-11-28)
 
 #### TL;DR
 
@@ -76,7 +103,7 @@
 
 #### TL;DR
 
-- There's a new [plugin development guide](http://docs.sylius.com/en/1.1/plugins/plugin-development-guide/index.html) ([#9592](https://github.com/Sylius/Sylius/pull/9592))
+- There's a new [plugin development guide](https://docs.sylius.com/en/1.1/plugins/plugin-development-guide/index.html) ([#9592](https://github.com/Sylius/Sylius/pull/9592))
 - Fixed compatibility with PHP-PM ([#9613](https://github.com/Sylius/Sylius/pull/9613), [#9608](https://github.com/Sylius/Sylius/pull/9608))
 - Fixed buggy shop user removal in the admin panel ([#9618](https://github.com/Sylius/Sylius/pull/9618))
 

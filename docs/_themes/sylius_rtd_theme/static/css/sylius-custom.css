@@ -240,3 +240,80 @@ div[class^='highlight'] {
   background: none !important;
 }
 
+/* Outdated */
+.outdated {
+  padding: 30px;
+  border: 2px dashed #f19e95;
+  background: #fdf2f1;
+  border-radius: 6px;
+  opacity: 0.7;
+}
+
+.outdated::before {
+  content: 'OUTDATED';
+  position: relative;
+  bottom: 40px;
+  right: 2px;
+  background: #f19e95;
+  color: #fdf2f1;
+  padding: 4px 10px;
+  border-radius: 60px;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+
+/* Plugin feature */
+.plugin-feature {
+  padding: 30px;
+  border: 1px dashed #1abb9c;
+  border-radius: 6px;
+}
+
+.plugin-feature::before {
+  content: 'PLUGIN FEATURE';
+  position: relative;
+  bottom: 42px;
+  right: 2px;
+  background: #1abb9c;
+  color: #fdf2f1;
+  padding: 4px 10px;
+  border-radius: 60px;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+/* Plus docs */
+.plus-doc {
+  padding: 30px;
+  border: 2px dashed #404662;
+  border-radius: 6px;
+}
+
+.plus-doc::before {
+  content: 'SYLIUS PLUS DOCUMENTATION';
+  position: relative;
+  bottom: 42px;
+  right: 2px;
+  background: #404662;
+  color: #fdf2f1;
+  padding: 4px 10px;
+  border-radius: 60px;
+  font-size: 11px;
+  letter-spacing: 2px;
+}
+
+.plus-feature::after {
+  content: 'PLUS';
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  background: #404662;
+  color: #fff;
+  padding: 0 7px;
+  border-radius: 99px;
+  transform: translateY(-1px);
+  display: inline-block;
+  line-height: 1.7;
+  margin-left: 5px;
+}

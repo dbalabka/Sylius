@@ -18,74 +18,76 @@ final class PromotionCouponGeneratorInstruction implements PromotionCouponGenera
     /** @var int */
     private $amount = 5;
 
+    /** @var string|null */
+    private $prefix;
+
     /** @var int */
     private $codeLength = 6;
 
-    /** @var \DateTimeInterface */
+    /** @var string|null */
+    private $suffix;
+
+    /** @var \DateTimeInterface|null */
     private $expiresAt;
 
-    /** @var int */
+    /** @var int|null */
     private $usageLimit;
 
-    /**
-     * {@inheritdoc}
-     */
     public function getAmount(): ?int
     {
         return $this->amount;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setAmount(?int $amount): void
     {
         $this->amount = $amount;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function getPrefix(): ?string
+    {
+        return $this->prefix;
+    }
+
+    public function setPrefix(?string $prefix): void
+    {
+        $this->prefix = $prefix;
+    }
+
     public function getCodeLength(): ?int
     {
         return $this->codeLength;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setCodeLength(?int $codeLength): void
     {
         $this->codeLength = $codeLength;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function getSuffix(): ?string
+    {
+        return $this->suffix;
+    }
+
+    public function setSuffix(?string $suffix): void
+    {
+        $this->suffix = $suffix;
+    }
+
     public function getExpiresAt(): ?\DateTimeInterface
     {
         return $this->expiresAt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setExpiresAt(?\DateTimeInterface $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getUsageLimit(): ?int
     {
         return $this->usageLimit;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setUsageLimit(int $usageLimit): void
     {
         $this->usageLimit = $usageLimit;

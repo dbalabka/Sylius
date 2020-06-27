@@ -54,9 +54,6 @@ final class ShippingMethodType extends AbstractResourceType
         $this->formTypeRegistry = $formTypeRegistry;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -128,7 +125,7 @@ final class ShippingMethodType extends AbstractResourceType
     }
 
     /**
-     * {@inheritdoc}
+     * @psalm-suppress MissingPropertyType
      */
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
@@ -140,9 +137,6 @@ final class ShippingMethodType extends AbstractResourceType
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix(): string
     {
         return 'sylius_shipping_method';

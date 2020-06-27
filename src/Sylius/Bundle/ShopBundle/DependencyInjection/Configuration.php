@@ -13,18 +13,17 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ShopBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('sylius_shop');
+        $treeBuilder = new TreeBuilder('sylius_shop');
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
@@ -39,9 +38,12 @@ final class Configuration implements ConfigurationInterface
                         ->scalarNode('pattern')
                             ->defaultValue('/checkout/.+')
                             ->validate()
-                            ->ifTrue(function ($pattern) {
-                                return !is_string($pattern);
-                            })
+                            ->ifTrue(
+                                /** @param mixed $pattern */
+                                function ($pattern) {
+                                    return !is_string($pattern);
+                                }
+                            )
                                 ->thenInvalid('Invalid pattern "%s"')
                             ->end()
                         ->end()

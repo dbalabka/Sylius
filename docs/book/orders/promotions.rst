@@ -118,7 +118,6 @@ There are a few kinds of actions in **Sylius**:
 * percentage discount on the order (for example: -10% on the whole order)
 * fixed unit discount (for example: -1$ off the order total but *distributed and applied on each order item unit*)
 * percentage unit discount (for example: -10% off the order total but *distributed and applied on each order item unit*)
-* add product (for example: gives a free bonus sticker)
 * shipping discount (for example: -6$ on the costs of shipping)
 
 .. tip::
@@ -132,7 +131,7 @@ How to create an PromotionAction programmatically?
 In order to create a new PromotionAction we can use the dedicated `PromotionActionFactory <https://github.com/Sylius/Sylius/blob/master/src/Sylius/Component/Core/Factory/PromotionActionFactory.php>`_.
 
 It has special methods for creating all types of actions available by default.
-In the example below you can how to create a simple Fixed Discount action, that reduces the total of an order by 10$.
+In the example below you can see how to create a simple Fixed Discount action, that reduces the total of an order by 10$.
 
 .. code-block:: php
 

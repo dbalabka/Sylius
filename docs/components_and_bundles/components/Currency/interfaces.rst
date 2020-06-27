@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Interfaces
 ==========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 Model Interfaces
 ----------------
@@ -13,7 +20,7 @@ This interface provides you with basic management of a currency's code,
 name, exchange rate and whether the currency should be enabled or not.
 
 .. note::
-   This interface extends :ref:`component_resource_model_code-aware-interface` and :ref:`component_resource_model_timestampable-interface`.
+   This interface extends `CodeAwareInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/CodeAwareInterface.php>`_ and `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_.
 
    For more detailed information go to `Sylius API CurrencyInterface`_.
 

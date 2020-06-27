@@ -103,7 +103,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iRenameItToInLanguage($name = null, $language)
     {
-        $this->updatePage->nameItIn($name, $language);
+        $this->updatePage->nameItIn($name ?? '', $language);
     }
 
     /**
@@ -120,7 +120,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -213,9 +213,9 @@ final class ManagingProductOptionsContext implements Context
     }
 
     /**
-     * @Then the code field should be disabled
+     * @Then I should not be able to edit its code
      */
-    public function theCodeFieldShouldBeDisabled()
+    public function iShouldNotBeAbleToEditItsCode(): void
     {
         Assert::true($this->updatePage->isCodeDisabled());
     }
@@ -247,6 +247,7 @@ final class ManagingProductOptionsContext implements Context
 
     /**
      * @Then /^(this product option) should have the "([^"]*)" option value$/
+     * @Then /^(product option "[^"]+") should have the "([^"]*)" option value$/
      */
     public function thisProductOptionShouldHaveTheOptionValue(ProductOptionInterface $productOption, $optionValue)
     {

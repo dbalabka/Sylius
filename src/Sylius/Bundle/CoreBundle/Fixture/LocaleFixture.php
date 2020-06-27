@@ -40,12 +40,15 @@ class LocaleFixture extends AbstractFixture
         $this->baseLocaleCode = $baseLocaleCode;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $options): void
     {
-        $localesCodes = array_merge([$this->baseLocaleCode], $options['locales']);
+        $localesCodes = $options['locales'];
+
+        if ($options['load_default_locale']) {
+            array_unshift($localesCodes, $this->baseLocaleCode);
+        }
+
+        $localesCodes = array_unique($localesCodes);
 
         foreach ($localesCodes as $localeCode) {
             /** @var LocaleInterface $locale */
@@ -59,23 +62,17 @@ class LocaleFixture extends AbstractFixture
         $this->localeManager->flush();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return 'locale';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode
             ->children()
-                ->arrayNode('locales')
-                    ->scalarPrototype()
+                ->scalarNode('load_default_locale')->defaultTrue()->end()
+                ->arrayNode('locales')->scalarPrototype()->end()
         ;
     }
 }

@@ -6,3 +6,7 @@
 * :doc:`/book/products/index`
 * :doc:`/book/orders/index`
 * :doc:`/book/themes/index`
+* :doc:`/book/plugins/index`
+* :doc:`/book/organization/index`
+* :doc:`/book/support/index`
+* :doc:`/book/contributing/index`

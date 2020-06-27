@@ -1,11 +1,8 @@
-/var/*
-!/var/.gitkeep
-
 /public/assets
-/public/bundles
 /public/css
 /public/js
 /public/media
+/public/build
 !/public/media/image/.gitkeep
 
 /app/config/parameters.yml
@@ -15,7 +12,6 @@
 /docs/.doctrees
 
 /composer.lock
-/vendor
 /node_modules
 
 /etc/build/*
@@ -24,15 +20,18 @@
 /behat.yml
 /phpspec.yml
 
-/.env
-/.env.prod
-/.env.staging
-/.env.test
-/.env.test_cached
+# Symfony CLI https://symfony.com/doc/current/setup/symfony_server.html#different-php-settings-per-project
+/.php-version
+/php.ini
 
-###> symfony/web-server-bundle ###
-/.web-server-pid
-###< symfony/web-server-bundle ###
+###> symfony/framework-bundle ###
+/.env.*.local
+/.env.local
+/.env.local.php
+/public/bundles
+/var/
+/vendor/
+###< symfony/framework-bundle ###
 
 ###> friendsofphp/php-cs-fixer ###
 /.php_cs
@@ -42,3 +41,8 @@
 ###> phpunit/phpunit ###
 /phpunit.xml
 ###< phpunit/phpunit ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+!/config/jwt/*-test.pem
+###< lexik/jwt-authentication-bundle ###

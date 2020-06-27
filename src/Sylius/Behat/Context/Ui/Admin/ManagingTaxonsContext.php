@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
+use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Taxon\CreateForParentPageInterface;
 use Sylius\Behat\Page\Admin\Taxon\CreatePageInterface;
 use Sylius\Behat\Page\Admin\Taxon\UpdatePageInterface;
+use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
@@ -39,18 +41,23 @@ final class ManagingTaxonsContext implements Context
     /** @var CurrentPageResolverInterface */
     private $currentPageResolver;
 
+    /** @var NotificationCheckerInterface */
+    private $notificationChecker;
+
     public function __construct(
         SharedStorageInterface $sharedStorage,
         CreatePageInterface $createPage,
         CreateForParentPageInterface $createForParentPage,
         UpdatePageInterface $updatePage,
-        CurrentPageResolverInterface $currentPageResolver
+        CurrentPageResolverInterface $currentPageResolver,
+        NotificationCheckerInterface $notificationChecker
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->createPage = $createPage;
         $this->createForParentPage = $createForParentPage;
         $this->updatePage = $updatePage;
         $this->currentPageResolver = $currentPageResolver;
+        $this->notificationChecker = $notificationChecker;
     }
 
     /**
@@ -84,9 +91,9 @@ final class ManagingTaxonsContext implements Context
      * @When I specify its code as :code
      * @When I do not specify its code
      */
-    public function iSpecifyItsCodeAs($code = null)
+    public function iSpecifyItsCodeAs(?string $code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -94,11 +101,11 @@ final class ManagingTaxonsContext implements Context
      * @When I rename it to :name in :language
      * @When I do not specify its name
      */
-    public function iNameItIn($name = null, $language = 'en_US')
+    public function iNameItIn(?string $name = null, $language = 'en_US')
     {
         $currentPage = $this->resolveCurrentPage();
 
-        $currentPage->nameIt($name, $language);
+        $currentPage->nameIt($name ?? '', $language);
     }
 
     /**
@@ -106,11 +113,11 @@ final class ManagingTaxonsContext implements Context
      * @When I do not specify its slug
      * @When I set its slug to :slug in :language
      */
-    public function iSetItsSlugToIn($slug = null, $language = 'en_US')
+    public function iSetItsSlugToIn(?string $slug = null, $language = 'en_US')
     {
         $currentPage = $this->resolveCurrentPage();
 
-        $currentPage->specifySlug($slug, $language);
+        $currentPage->specifySlug($slug ?? '', $language);
     }
 
     /**
@@ -157,15 +164,6 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
-     * @When I delete taxon named :name
-     */
-    public function iDeleteTaxonNamed($name)
-    {
-        $this->createPage->open();
-        $this->createPage->deleteTaxonOnPageByName($name);
-    }
-
-    /**
      * @When I add it
      * @When I try to add it
      */
@@ -206,10 +204,10 @@ final class ManagingTaxonsContext implements Context
     public function thisTaxonElementShouldHaveSlugIn($value, $language = null)
     {
         if (null !== $language) {
-            $this->updatePage->activateLanguageTab($language);
+            $this->updatePage->activateLanguageTab($language ?? '');
         }
 
-        Assert::same($this->updatePage->getSlug($language), $value);
+        Assert::same($this->updatePage->getSlug($language ?? ''), $value);
     }
 
     /**
@@ -387,6 +385,41 @@ final class ManagingTaxonsContext implements Context
         $this->iWantToModifyATaxon($taxon);
 
         Assert::same($this->updatePage->countImages(), (int) $count);
+    }
+
+    /**
+     * @Then I should be notified that I cannot delete a menu taxon of any channel
+     */
+    public function iShouldBeNotifiedThatICannotDeleteAMenuTaxonOfAnyChannel(): void
+    {
+        $this->notificationChecker->checkNotification(
+            'You cannot delete a menu taxon of any channel.',
+            NotificationType::failure()
+        );
+    }
+
+    /**
+     * @When I move up :taxonName taxon
+     */
+    public function iMoveUpTaxon(string $taxonName)
+    {
+        $this->createPage->moveUpTaxon($taxonName);
+    }
+
+    /**
+     * @When I move down :taxonName taxon
+     */
+    public function iMoveDownTaxon(string $taxonName)
+    {
+        $this->createPage->moveDownTaxon($taxonName);
+    }
+
+    /**
+     * @Then the first taxon on the list should be :taxonName
+     */
+    public function theFirstTaxonOnTheListShouldBe(string $taxonName)
+    {
+        Assert::same($this->createPage->getFirstTaxonOnTheList(), $taxonName);
     }
 
     /**

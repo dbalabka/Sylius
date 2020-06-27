@@ -15,7 +15,6 @@ namespace Sylius\Bundle\CoreBundle\Fixture\Factory;
 
 use Doctrine\Common\Collections\Collection;
 use Sylius\Bundle\CoreBundle\Fixture\OptionsResolver\LazyOption;
-use Sylius\Component\Addressing\Model\Country;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Addressing\Model\ProvinceInterface;
 use Sylius\Component\Core\Model\AddressInterface;
@@ -58,9 +57,6 @@ class AddressExampleFactory extends AbstractExampleFactory
         $this->configureOptions($this->optionsResolver);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
@@ -102,9 +98,6 @@ class AddressExampleFactory extends AbstractExampleFactory
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function create(array $options = []): AddressInterface
     {
         $options = $this->optionsResolver->resolve($options);
@@ -137,7 +130,7 @@ class AddressExampleFactory extends AbstractExampleFactory
     private function assertCountryCodeIsValid(string $code): void
     {
         $country = $this->countryRepository->findOneBy(['code' => $code]);
-        Assert::notNull($country);
+        Assert::notNull($country, sprintf('Trying to create address with invalid country code: "%s"', $code));
     }
 
     /**

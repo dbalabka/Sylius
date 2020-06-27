@@ -35,9 +35,6 @@ class ProvinceAddressConstraintValidator extends ConstraintValidator
         $this->provinceRepository = $provinceRepository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function validate($value, Constraint $constraint): void
     {
         if (!$value instanceof AddressInterface) {
@@ -88,10 +85,6 @@ class ProvinceAddressConstraintValidator extends ConstraintValidator
             return false;
         }
 
-        if ($country->hasProvince($province)) {
-            return true;
-        }
-
-        return false;
+        return $country->hasProvince($province);
     }
 }

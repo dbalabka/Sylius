@@ -24,40 +24,33 @@ class PaypalExpressCheckoutPage extends Page implements PaypalExpressCheckoutPag
     /** @var RepositoryInterface */
     private $securityTokenRepository;
 
-    public function __construct(Session $session, array $parameters, RepositoryInterface $securityTokenRepository)
+    public function __construct(Session $session, $minkParameters, RepositoryInterface $securityTokenRepository)
     {
-        parent::__construct($session, $parameters);
+        parent::__construct($session, $minkParameters);
 
         $this->securityTokenRepository = $securityTokenRepository;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function authorize()
+    {
+        $this->getDriver()->visit($this->findAuthorizeToken()->getTargetUrl() . '?token=EC-2d9EV13959UR209410U&PayerID=UX8WBNYWGBVMG');
+    }
+
     public function pay()
     {
         $this->getDriver()->visit($this->findCaptureToken()->getTargetUrl() . '?token=EC-2d9EV13959UR209410U&PayerID=UX8WBNYWGBVMG');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function cancel()
     {
         $this->getDriver()->visit($this->findCaptureToken()->getTargetUrl() . '?token=EC-2d9EV13959UR209410U&cancelled=1');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function getUrl(array $urlParameters = []): string
     {
         return 'https://www.sandbox.paypal.com';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function verifyUrl(array $urlParameters = []): void
     {
         $position = strpos($this->getSession()->getCurrentUrl(), $this->getUrl($urlParameters));
@@ -71,16 +64,36 @@ class PaypalExpressCheckoutPage extends Page implements PaypalExpressCheckoutPag
      *
      * @throws \RuntimeException
      */
+    private function findAuthorizeToken()
+    {
+        return $this->findToken('authorize');
+    }
+
+    /**
+     * @return TokenInterface
+     *
+     * @throws \RuntimeException
+     */
     private function findCaptureToken()
+    {
+        return $this->findToken('capture');
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return TokenInterface
+     */
+    private function findToken($name)
     {
         $tokens = $this->securityTokenRepository->findAll();
 
         foreach ($tokens as $token) {
-            if (strpos($token->getTargetUrl(), 'capture')) {
+            if (strpos($token->getTargetUrl(), $name)) {
                 return $token;
             }
         }
 
-        throw new \RuntimeException('Cannot find capture token, check if you are after proper checkout steps');
+        throw new \RuntimeException(sprintf('Cannot find "%s" token, check if you are after proper checkout steps', $name));
     }
 }

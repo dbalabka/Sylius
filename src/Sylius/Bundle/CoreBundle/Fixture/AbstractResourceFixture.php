@@ -77,15 +77,13 @@ abstract class AbstractResourceFixture implements FixtureInterface
         $this->objectManager->clear();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     final public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder($this->getName());
 
         /** @var ArrayNodeDefinition $optionsNode */
-        $optionsNode = $treeBuilder->root($this->getName());
+        $optionsNode = $treeBuilder->getRootNode();
+
         $optionsNode->children()
             ->integerNode('random')->min(0)->defaultValue(0)->end()
             ->variableNode('prototype')->end()

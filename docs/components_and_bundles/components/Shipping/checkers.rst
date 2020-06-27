@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Checkers
 ========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 ItemCountRuleChecker
 --------------------
@@ -86,4 +93,4 @@ This class checks if shipping method rules are capable of shipping given subject
     For more detailed information go to `Sylius API ShippingMethodEligibilityChecker`_.
 
 .. _Sylius API ShippingMethodEligibilityChecker: http://api.sylius.com/Sylius/Component/Shipping/Checker/ShippingMethodEligibilityChecker.html
-.. _InvalidArgumentException: http://php.net/manual/en/class.invalidargumentexception.php
+.. _InvalidArgumentException: https://php.net/manual/en/class.invalidargumentexception.php

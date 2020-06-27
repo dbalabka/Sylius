@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Basic Usage
 ===========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 .. _component_addressing_matcher_zone-matcher:
 
@@ -83,4 +90,4 @@ narrow the search only to zones with same corresponding property.
 .. caution::
    Throws `\\InvalidArgumentException`_.
 
-.. _\\InvalidArgumentException: http://php.net/manual/en/class.invalidargumentexception.php
+.. _\\InvalidArgumentException: https://php.net/manual/en/class.invalidargumentexception.php

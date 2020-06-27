@@ -36,12 +36,33 @@ final class LocaleFixtureTest extends TestCase
      */
     public function locales_can_be_set(): void
     {
-        $this->assertConfigurationIsValid([['locales' => ['en_US' => true, 'pl_PL' => false, 'es_ES' => true]]], 'locales');
+        $this->assertConfigurationIsValid([['locales' => ['en_US', 'pl_PL', 'es_ES']]], 'locales');
     }
 
     /**
-     * {@inheritdoc}
+     * @test
      */
+    public function default_locale_may_not_be_loaded(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [['load_default_locale' => false]],
+            ['load_default_locale' => false],
+            'load_default_locale'
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function default_locale_is_added_by_default(): void
+    {
+        $this->assertProcessedConfigurationEquals(
+            [[]],
+            ['load_default_locale' => true],
+            'load_default_locale'
+        );
+    }
+
     protected function getConfiguration(): LocaleFixture
     {
         return new LocaleFixture(

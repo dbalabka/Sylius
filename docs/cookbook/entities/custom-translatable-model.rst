@@ -15,7 +15,7 @@ The **name and description** fields need to be translatable.
 2. Generate the SupplierTranslation entity
 ------------------------------------------
 
-Symfony, the framework Sylius uses, provides the `SensioGeneratorBundle <http://symfony.com/doc/current/bundles/SensioGeneratorBundle/index.html>`_,
+Symfony, the framework Sylius uses, provides the `SensioGeneratorBundle <https://symfony.com/doc/current/bundles/SensioGeneratorBundle/index.html>`_,
 that simplifies the process of adding a model.
 
 .. warning::
@@ -26,7 +26,7 @@ You need to use such a command in your project directory.
 
 .. code-block:: bash
 
-    $ php bin/console generate:doctrine:entity
+    php bin/console generate:doctrine:entity
 
 The generator will ask you for the entity name and fields. See how it should look like to match our assumptions.
 
@@ -220,38 +220,14 @@ As a result you should get such a ``Supplier`` class:
         }
     }
 
-4. Update the database using migrations
----------------------------------------
-
-Assuming that your database was up-to-date before adding the new entity, run:
-
-.. code-block:: bash
-
-    $ php bin/console doctrine:migrations:diff
-
-This will generate a new migration file which adds the Supplier entity to your database.
-Then update the database using the generated migration:
-
-.. code-block:: bash
-
-    $ php bin/console doctrine:migrations:migrate
-
-5. Register your entity together with translation as a Sylius resource
+4. Register your entity together with translation as a Sylius resource
 ----------------------------------------------------------------------
 
-If you don't have it yet create a file ``config/resources.yml``, import it in the ``config/services.yaml``.
+If you don't have it yet, create a file ``config/packages/sylius_resource.yaml``.
 
 .. code-block:: yaml
 
-    # config/services.yaml
-    imports:
-        - { resource: "resources.yaml" }
-
-And add these few lines in the ``resources.yaml`` file:
-
-.. code-block:: yaml
-
-    # config/resources.yaml
+    # config/packages/sylius_resource.yaml
     sylius_resource:
         resources:
             app.supplier:
@@ -266,12 +242,28 @@ To check if the process was run correctly run such a command:
 
 .. code-block:: bash
 
-    $ php bin/console debug:container | grep supplier
+    php bin/console debug:container | grep supplier
 
 The output should be:
 
 .. image:: ../../_images/container_debug_supplier_translation.png
     :align: center
+
+5. Update the database using migrations
+---------------------------------------
+
+Assuming that your database was up-to-date before adding the new entity, run:
+
+.. code-block:: bash
+
+    php bin/console doctrine:migrations:diff
+
+This will generate a new migration file which adds the Supplier entity to your database.
+Then update the database using the generated migration:
+
+.. code-block:: bash
+
+    php bin/console doctrine:migrations:migrate
 
 6. Prepare new forms for your entity, that will be aware of its translation
 ---------------------------------------------------------------------------
@@ -451,12 +443,9 @@ To have templates for your Entity administration out of the box you can use Grid
 
 Having a grid prepared we can configure routing for the entity administration:
 
-Create the ``app/config/routing/admin/supplier.yml`` file. Include it in the ``app/config/routing/admin/admin.yml``, which
-should be also included in the ``config/routes.yaml``.
-
 .. code-block:: yaml
 
-    # config/routes/admin/supplier.yaml
+    # config/routes.yaml
     app_admin_supplier:
         resource: |
             alias: app.supplier
@@ -472,19 +461,7 @@ should be also included in the ``config/routes.yaml``.
                 index:
                     icon: 'file image outline'
         type: sylius.resource
-
-.. code-block:: yaml
-
-    # config/routes/admin.yaml
-    app_admin_supplier:
-        resource: 'admin/supplier.yaml'
-
-.. code-block:: yaml
-
-    # config/routes.yaml
-    app_admin:
-        resource: 'routes/admin.yaml'
-        prefix: /admin
+        prefix: admin
 
 12. Add entity administration to the admin menu
 -----------------------------------------------
@@ -503,6 +480,6 @@ should be also included in the ``config/routes.yaml``.
 Learn more
 ----------
 
-* :doc:`GridBundle documentation </components_and_bundles/bundles/SyliusGridBundle/index>`
-* :doc:`ResourceBundle documentation </components_and_bundles/bundles/SyliusResourceBundle/index>`
+* `GridBundle documentation <https://github.com/Sylius/SyliusGridBundle/blob/master/docs/index.md>`_
+* `ResourceBundle documentation <https://github.com/Sylius/SyliusResourceBundle/blob/master/docs/index.md>`_
 * :doc:`Customization Guide </customization/index>`

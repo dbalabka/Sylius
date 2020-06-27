@@ -48,9 +48,6 @@ final class EligibleDefaultShippingMethodResolver implements DefaultShippingMeth
         $this->zoneMatcher = $zoneMatcher;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getDefaultShippingMethod(ShipmentInterface $shipment): ShippingMethodInterface
     {
         /** @var CoreShipmentInterface $shipment */
@@ -63,7 +60,7 @@ final class EligibleDefaultShippingMethodResolver implements DefaultShippingMeth
 
         $shippingMethods = $this->getShippingMethods($channel, $order->getShippingAddress());
 
-        foreach ($shippingMethods as $key => $shippingMethod) {
+        foreach ($shippingMethods as $shippingMethod) {
             if ($this->shippingMethodEligibilityChecker->isEligible($shipment, $shippingMethod)) {
                 return $shippingMethod;
             }

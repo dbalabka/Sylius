@@ -73,8 +73,29 @@ final class ShopUserFixtureTest extends TestCase
     }
 
     /**
-     * {@inheritdoc}
+     * @test
      */
+    public function gender_is_optional(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['gender' => 'u']]]], 'custom.*.gender');
+    }
+
+    /**
+     * @test
+     */
+    public function phone_number_is_optional(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['phone_number' => '+1234567']]]], 'custom.*.phone_number');
+    }
+
+    /**
+     * @test
+     */
+    public function birthday_is_optional(): void
+    {
+        $this->assertConfigurationIsValid([['custom' => [['birthday' => '01-01-2001']]]], 'custom.*.birthday');
+    }
+
     protected function getConfiguration(): ShopUserFixture
     {
         return new ShopUserFixture(

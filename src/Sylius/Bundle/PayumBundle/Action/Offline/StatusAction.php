@@ -21,9 +21,6 @@ use Payum\Offline\Constants;
 
 final class StatusAction implements ActionInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function execute($request): void
     {
         /** @var GetStatusInterface $request */
@@ -31,31 +28,32 @@ final class StatusAction implements ActionInterface
 
         $model = ArrayObject::ensureArrayObject($request->getModel());
 
-        if (false == $model[Constants::FIELD_STATUS]) {
+        /** @psalm-suppress DocblockTypeContradiction */
+        if (false === $model[Constants::FIELD_STATUS]) {
             $request->markNew();
 
             return;
         }
 
-        if (Constants::STATUS_PENDING == $model[Constants::FIELD_STATUS]) {
+        if (Constants::STATUS_PENDING === $model[Constants::FIELD_STATUS]) {
             $request->markNew();
 
             return;
         }
 
-        if (Constants::STATUS_AUTHORIZED == $model[Constants::FIELD_STATUS]) {
+        if (Constants::STATUS_AUTHORIZED === $model[Constants::FIELD_STATUS]) {
             $request->markAuthorized();
 
             return;
         }
 
-        if (Constants::STATUS_CAPTURED == $model[Constants::FIELD_STATUS]) {
+        if (Constants::STATUS_CAPTURED === $model[Constants::FIELD_STATUS]) {
             $request->markCaptured();
 
             return;
         }
 
-        if (Constants::STATUS_CANCELED == $model[Constants::FIELD_STATUS]) {
+        if (Constants::STATUS_CANCELED === $model[Constants::FIELD_STATUS]) {
             $request->markCanceled();
 
             return;
@@ -64,9 +62,6 @@ final class StatusAction implements ActionInterface
         $request->markUnknown();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function supports($request): bool
     {
         return

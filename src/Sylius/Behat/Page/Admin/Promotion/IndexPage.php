@@ -19,47 +19,42 @@ use Sylius\Component\Promotion\Model\PromotionInterface;
 
 class IndexPage extends BaseIndexPage implements IndexPageInterface
 {
-    /**
-     * @return int
-     */
-    public function getUsageNumber(PromotionInterface $promotion)
+    public function getUsageNumber(PromotionInterface $promotion): int
     {
         $usage = $this->getPromotionFieldsWithHeader($promotion, 'usage');
 
         return (int) $usage->find('css', 'span:first-child')->getText();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isAbleToManageCouponsFor(PromotionInterface $promotion)
+    public function isAbleToManageCouponsFor(PromotionInterface $promotion): bool
     {
         $actions = $this->getPromotionFieldsWithHeader($promotion, 'actions');
 
         return $actions->hasLink('List coupons');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isCouponBasedFor(PromotionInterface $promotion)
+    public function isCouponBasedFor(PromotionInterface $promotion): bool
     {
         $coupons = $this->getPromotionFieldsWithHeader($promotion, 'couponBased');
 
         return 'Yes' === $coupons->getText();
     }
 
-    /**
-     * @param string $header
-     *
-     * @return NodeElement
-     */
-    private function getPromotionFieldsWithHeader(PromotionInterface $promotion, $header)
+    public function specifyFilterType(string $field, string $type): void
+    {
+        $this->getDocument()->fillField(sprintf('criteria_%s_type', $field), $type);
+    }
+
+    public function specifyFilterValue(string $field, string $value): void
+    {
+        $this->getDocument()->fillField(sprintf('criteria_%s_value', $field), $value);
+    }
+
+    private function getPromotionFieldsWithHeader(PromotionInterface $promotion, string $header): NodeElement
     {
         $tableAccessor = $this->getTableAccessor();
         $table = $this->getElement('table');
-        $fields = $tableAccessor->getFieldFromRow($table, $tableAccessor->getRowWithFields($table, ['code' => $promotion->getCode()]), $header);
 
-        return $fields;
+        return $tableAccessor->getFieldFromRow($table, $tableAccessor->getRowWithFields($table, ['code' => $promotion->getCode()]), $header);
     }
 }

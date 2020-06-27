@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Interfaces
 ==========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 Model Interfaces
 ----------------
@@ -15,7 +22,7 @@ This interface should be implemented by model representing a single Order.
     It also contains the default :doc:`/components_and_bundles/components/Order/state_machine`.
 
 .. note::
-    This interface extends :ref:`component_resource_model_timestampable-interface`, :ref:`component_resource_model_timestampable-interface`,
+    This interface extends `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_, `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_,
     :ref:`component_order_model_adjustable-interface` and :ref:`component_order_model_comment-aware-interface`
 
     For more detailed information go to `Sylius API OrderInterface`_.
@@ -73,7 +80,7 @@ AdjustmentInterface
 This interface should be implemented by model representing a single Adjustment.
 
 .. note::
-    This interface extends the :ref:`component_resource_model_timestampable-interface`.
+    This interface extends the `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_.
 
     For more detailed information go to `Sylius API AdjustmentInterface`_.
 
@@ -104,7 +111,7 @@ CommentInterface
 This interface should be implemented by model representing a single Comment.
 
 .. note::
-    This interface extends the :ref:`component_resource_model_timestampable-interface`
+    This interface extends the `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_
 
     For more detailed information go to `Sylius API CommentInterface`_.
 
@@ -147,7 +154,7 @@ In order to decouple from storage that provides recently completed orders or che
 you should create repository class which implements this interface.
 
 .. note::
-    This interface extends the :ref:`component_resource_repository_repository-interface`.
+    This interface extends the `RepositoryInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Repository/RepositoryInterface.php>`_.
 
     For more detailed information about the interface go to `Sylius API OrderRepositoryInterface`_.
 

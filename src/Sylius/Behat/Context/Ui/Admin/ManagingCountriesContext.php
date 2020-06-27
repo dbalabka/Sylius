@@ -162,7 +162,7 @@ final class ManagingCountriesContext implements Context
     }
 
     /**
-     * @Then the code field should be disabled
+     * @Then I should not be able to edit its code
      */
     public function theCodeFieldShouldBeDisabled()
     {
@@ -244,7 +244,7 @@ final class ManagingCountriesContext implements Context
      */
     public function iNameTheProvince($provinceName = null)
     {
-        $this->updatePage->nameProvince($provinceName);
+        $this->updatePage->nameProvince($provinceName ?? '');
     }
 
     /**
@@ -253,7 +253,7 @@ final class ManagingCountriesContext implements Context
      */
     public function iSpecifyTheProvinceCode($provinceCode = null)
     {
-        $this->updatePage->specifyProvinceCode($provinceCode);
+        $this->updatePage->specifyProvinceCode($provinceCode ?? '');
     }
 
     /**
@@ -267,16 +267,25 @@ final class ManagingCountriesContext implements Context
     /**
      * @When I remove :provinceName province name
      */
-    public function iRemoveProvinceName($provinceName)
+    public function iRemoveProvinceName(string $provinceName): void
     {
         $this->updatePage->removeProvinceName($provinceName);
+        $this->iSaveMyChanges();
     }
 
     /**
-     * @Then /^I should be notified that province code must be unique$/
+     * @Then I should be notified that province code must be unique
      */
-    public function iShouldBeNotifiedThatProvinceCodeMustBeUnique()
+    public function iShouldBeNotifiedThatProvinceCodeMustBeUnique(): void
     {
         Assert::same($this->updatePage->getValidationMessage('code'), 'Province code must be unique.');
+    }
+
+    /**
+     * @Then I should be notified that name of the province is required
+     */
+    public function iShouldBeNotifiedThatNameOfTheProvinceIsRequired(): void
+    {
+        Assert::same($this->updatePage->getValidationMessage('name'), 'Please enter province name.');
     }
 }

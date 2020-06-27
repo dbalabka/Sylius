@@ -16,6 +16,7 @@ namespace Sylius\Bundle\ShopBundle\DependencyInjection;
 use Sylius\Bundle\CoreBundle\Checkout\CheckoutRedirectListener;
 use Sylius\Bundle\CoreBundle\Checkout\CheckoutResolver;
 use Sylius\Bundle\CoreBundle\Checkout\CheckoutStateUrlGenerator;
+use Sylius\Bundle\ShopBundle\Locale\LocaleSwitcherInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -26,9 +27,6 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 final class SyliusShopExtension extends Extension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
@@ -36,6 +34,7 @@ final class SyliusShopExtension extends Extension
 
         $loader->load('services.xml');
         $loader->load(sprintf('services/integrations/locale/%s.xml', $config['locale_switcher']));
+        $container->setAlias(LocaleSwitcherInterface::class, 'sylius.shop.locale_switcher');
 
         $container->setParameter('sylius_shop.firewall_context_name', $config['firewall_context_name']);
         $container->setParameter(

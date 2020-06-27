@@ -20,9 +20,6 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 final class SyliusChannelExtension extends AbstractResourceExtension
 {
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $config, ContainerBuilder $container): void
     {
         $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
@@ -34,7 +31,7 @@ final class SyliusChannelExtension extends AbstractResourceExtension
 
         $loader->load('services.xml');
 
-        if ($config['debug']) {
+        if ($config['debug'] ?? $container->getParameter('kernel.debug')) {
             $loader->load('services/integrations/debug.xml');
 
             $container->getDefinition('sylius.channel_collector')->replaceArgument(2, true);

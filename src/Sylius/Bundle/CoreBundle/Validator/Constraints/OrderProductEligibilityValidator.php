@@ -22,8 +22,6 @@ use Webmozart\Assert\Assert;
 final class OrderProductEligibilityValidator extends ConstraintValidator
 {
     /**
-     * {@inheritdoc}
-     *
      * @throws \InvalidArgumentException
      */
     public function validate($order, Constraint $constraint): void
@@ -38,7 +36,12 @@ final class OrderProductEligibilityValidator extends ConstraintValidator
         $orderItems = $order->getItems();
 
         foreach ($orderItems as $orderItem) {
-            if (!$orderItem->getProduct()->isEnabled()) {
+            if (!$orderItem->getVariant()->isEnabled()) {
+                $this->context->addViolation(
+                    $constraint->message,
+                    ['%productName%' => $orderItem->getVariant()->getName()]
+                );
+            } elseif (!$orderItem->getProduct()->isEnabled()) {
                 $this->context->addViolation(
                     $constraint->message,
                     ['%productName%' => $orderItem->getProduct()->getName()]

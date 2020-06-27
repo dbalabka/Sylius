@@ -24,6 +24,8 @@ interface TaxonRepositoryInterface extends RepositoryInterface
      */
     public function findChildren(string $parentCode, ?string $locale = null): array;
 
+    public function findChildrenByChannelMenuTaxon(?TaxonInterface $menuTaxon = null, ?string $locale = null): array;
+
     /**
      * @return array|TaxonInterface[]
      */
@@ -39,7 +41,7 @@ interface TaxonRepositoryInterface extends RepositoryInterface
     /**
      * @return array|TaxonInterface[]
      */
-    public function findByNamePart(string $phrase, ?string $locale = null): array;
+    public function findByNamePart(string $phrase, ?string $locale = null, ?int $limit = null): array;
 
     public function createListQueryBuilder(): QueryBuilder;
 }

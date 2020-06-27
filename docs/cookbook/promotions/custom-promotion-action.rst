@@ -20,7 +20,7 @@ This class needs also a ``isConfigurationValid()`` method which was omitted in t
 
     namespace App\Promotion\Action;
 
-    use App\Promotion\Action\CheapestProductDiscountPromotionActionCommand;
+    use Sylius\Component\Core\Promotion\Action\DiscountPromotionActionCommand;
 
     class CheapestProductDiscountPromotionActionCommand extends DiscountPromotionActionCommand
     {
@@ -78,7 +78,7 @@ This class needs also a ``isConfigurationValid()`` method which was omitted in t
          */
         public function getConfigurationFormType()
         {
-            return CheapestProductDiscountPromotionActionCommand::class;
+            return CheapestProductDiscountConfigurationType::class;
         }
     }
 

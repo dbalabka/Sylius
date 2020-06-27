@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\ProductBundle\Form\Type;
 
+use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Product\Model\ProductOptionInterface;
+use Sylius\Component\Product\Model\ProductOptionValueInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Exception\InvalidConfigurationException;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -29,8 +31,6 @@ use Webmozart\Assert\Assert;
 final class ProductOptionValueCollectionType extends AbstractType
 {
     /**
-     * {@inheritdoc}
-     *
      * @throws \InvalidArgumentException
      * @throws InvalidConfigurationException
      */
@@ -48,15 +48,13 @@ final class ProductOptionValueCollectionType extends AbstractType
             $builder->add((string) $option->getCode(), ProductOptionValueChoiceType::class, [
                 'label' => $option->getName() ?: $option->getCode(),
                 'option' => $option,
+                'data' => $this->getDefaultDataOption($option, $options['data']),
                 'property_path' => '[' . $i . ']',
                 'block_name' => 'entry',
             ]);
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver
@@ -66,9 +64,6 @@ final class ProductOptionValueCollectionType extends AbstractType
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getBlockPrefix(): string
     {
         return 'sylius_product_option_value_collection';
@@ -81,7 +76,18 @@ final class ProductOptionValueCollectionType extends AbstractType
     {
         Assert::true(
             isset($options['options']) && is_iterable($options['options']),
-            'array or (\Traversable and \ArrayAccess) of "Sylius\Component\Variation\Model\OptionInterface" must be passed to collection'
+            'array or (\Traversable and \ArrayAccess) of "Sylius\Component\Product\Model\ProductOptionInterface" must be passed to collection'
         );
+    }
+
+    private function getDefaultDataOption(ProductOptionInterface $option, Collection $data): ?ProductOptionValueInterface
+    {
+        foreach ($data as $defaultOption) {
+            if ($defaultOption->getOption()->getCode() === $option->getCode()) {
+                return $defaultOption;
+            }
+        }
+
+        return null;
     }
 }

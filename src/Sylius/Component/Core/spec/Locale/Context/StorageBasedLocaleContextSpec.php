@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace spec\Sylius\Component\Core\Context;
+namespace spec\Sylius\Component\Core\Locale\Context;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Channel\Context\ChannelContextInterface;
@@ -61,7 +61,7 @@ final class StorageBasedLocaleContextSpec extends ObjectBehavior
 
         $localeStorage->get($channel)->willReturn('pl_PL');
 
-        $localeProvider->getAvailableLocalesCodes()->willReturn(['en_US', 'en_UK']);
+        $localeProvider->getAvailableLocalesCodes()->willReturn(['en_US', 'en_GB']);
 
         $this->shouldThrow(LocaleNotFoundException::class)->during('getLocaleCode');
     }

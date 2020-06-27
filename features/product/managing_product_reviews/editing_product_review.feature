@@ -5,12 +5,12 @@ Feature: Editing product reviews
     I want to edit a product review
 
     Background:
-        Given the store has customer "Mike Ross" with email "ross@teammike.com"
+        Given there is a customer "Mike Ross" with an email "ross@teammike.com" and a password "thePassword"
         And the store has a product "Lamborghini Gallardo Model"
         And this product has a review titled "Awesome" and rated 4 with a comment "Nice product" added by customer "ross@teammike.com"
         And I am logged in as an administrator
 
-    @ui
+    @ui @api
     Scenario: Changing a title of a product review
         Given this product has a review titled "Bewilderig" and rated 5 with a comment "Nice product" added by customer "ross@teammike.com"
         When I want to modify the "Bewilderig" product review
@@ -19,7 +19,7 @@ Feature: Editing product reviews
         Then I should be notified that it has been successfully edited
         And this product review title should be "Bewildering"
 
-    @ui
+    @ui @api
     Scenario: Changing a comment of a product review
         Given this product has a review titled "Bewildering" and rated 5 with a comment "Nice prodct" added by customer "ross@teammike.com"
         When I want to modify the "Bewildering" product review
@@ -28,7 +28,7 @@ Feature: Editing product reviews
         Then I should be notified that it has been successfully edited
         And this product review comment should be "Nice product"
 
-    @ui @javascript
+    @ui @api @javascript
     Scenario: Changing a rating of a product review
         When I want to modify the "Awesome" product review
         And I choose 5 as its rating

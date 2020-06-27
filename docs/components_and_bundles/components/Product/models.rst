@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Models
 ======
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 .. _component_product_model_product:
 
@@ -36,7 +43,7 @@ By default it contains the following properties:
 +-----------------+-----------------------------------------------------------------------------+
 
 .. note::
-   This model uses the :ref:`component_resource_translations_translatable-trait`
+   This model uses the `TranslatableTrait <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TranslatableTrait.php>`_
    and implements the :ref:`component_product_model_product-interface`.
 
    For more detailed information go to `Sylius API Product`_.
@@ -59,7 +66,7 @@ By default it has the following properties:
 +-----------------+--------------------------------------+
 
 .. note::
-   This model extends the :ref:`component_resource_translations_abstract-translation` class
+   This model extends the `AbstractTranslation <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/AbstractTranslation.php>`_ class
    and implements the :ref:`component_product_model_product-translation-interface`.
 
    For more detailed information go to `Sylius API ProductTranslation`_.

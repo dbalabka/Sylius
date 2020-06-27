@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Interfaces
 ==========
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 Model Interfaces
 ----------------
@@ -13,7 +20,7 @@ This interface should be implemented by models
 used for describing a product's attribute.
 
 .. note::
-   This interface extends the :ref:`component_resource_model_timestampable-interface` and
+   This interface extends the `TimestampableInterface <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TimestampableInterface.php>`_ and
    the :ref:`component_attribute_model_attribute-translation-interface`.
 
    For more detailed information go to `Sylius API AttributeInterface`_.

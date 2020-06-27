@@ -85,13 +85,22 @@ In order to change the amount of items use the **OrderItemQuantityModifier**.
 
     $this->container->get('sylius.order_item_quantity_modifier')->modify($orderItem, 3);
 
-Add the item to the order. And then call the **CompositeOrderProcessor** on the order to have everything recalculated.
+Add the item to the order. And then call the **CompositeOrderProcessor** on the order to have
+everything recalculated.
 
 .. code-block:: php
 
     $order->addItem($orderItem);
 
     $this->container->get('sylius.order_processing.order_processor')->process($order);
+
+.. note::
+
+    This **CompositeOrderProcessor** is one of the most powerful concepts. It handles whole order calculation logic and allows
+    for really granular operations over the order. It is called multiple times in the checkout process, and internally it works like this:
+
+    .. image:: ../../_images/sylius_order_processor.png
+        :align: center
 
 Finally you have to save your order using the repository.
 
@@ -124,7 +133,7 @@ Shipments of an Order
 ---------------------
 
 An **Order** in Sylius holds a collection of Shipments on it. Each shipment in that collection has its own shipping method and has its own state machine.
-This lets you to divide an order into several different shipments that have own shipping states (like sending physical objects via DHL and sending a link to downloadable files via e-mail).
+This lets you divide an order into several different shipments that have own shipping states (like sending physical objects via DHL and sending a link to downloadable files via e-mail).
 
 .. tip::
 
@@ -230,6 +239,27 @@ two transitions ``request_payment`` and ``pay``.
     $this->container->get('sylius.manager.order')->flush();
 
 **If it was the only payment assigned to that order** now the ``paymentState`` of your order will be ``paid``.
+
+.. rst-class:: plugin-feature
+
+Creating an Order via admin panel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After installing the `Sylius/AdminOrderCreationPlugin <https://github.com/Sylius/AdminOrderCreationPlugin>`_
+it is possible to create Orders for a chosen Customer from the administrator perspective.
+
+You will be able to choose any products, assign custom prices for items, choose payment and shipping methods. Moreover
+it is possible to reorder an order that has already been placed.
+
+.. rst-class:: plugin-feature
+
+Customer Order operations: reorder & cancellation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With the usage of other Sylius official plugins your Customers will be able to:
+
+* cancel unpaid Orders in the "My Account" section -> `Customer Order Cancellation Plugin <https://github.com/Sylius/CustomerOrderCancellationPlugin>`_
+* reorder one of their previously placed Orders -> `Customer Reorder Plugin <https://github.com/Sylius/CustomerReorderPlugin>`_
 
 Learn more
 ----------

@@ -20,17 +20,14 @@ use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
 
 class PaymentRepository extends EntityRepository implements PaymentRepositoryInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function createListQueryBuilder(): QueryBuilder
     {
-        return $this->createQueryBuilder('o');
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
+            ->setParameter('state', PaymentInterface::STATE_CART)
+        ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function findOneByOrderId($paymentId, $orderId): ?PaymentInterface
     {
         return $this->createQueryBuilder('o')

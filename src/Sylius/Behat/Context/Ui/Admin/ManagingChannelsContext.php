@@ -22,6 +22,7 @@ use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Currency\Model\CurrencyInterface;
 use Webmozart\Assert\Assert;
 
 final class ManagingChannelsContext implements Context
@@ -56,7 +57,7 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @Given I want to create a new channel
+     * @When I want to create a new channel
      */
     public function iWantToCreateANewChannel()
     {
@@ -69,7 +70,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iSpecifyItsCodeAs($code = null)
     {
-        $this->createPage->specifyCode($code);
+        $this->createPage->specifyCode($code ?? '');
     }
 
     /**
@@ -80,16 +81,16 @@ final class ManagingChannelsContext implements Context
      */
     public function iNameIt($name = null)
     {
-        $this->createPage->nameIt($name);
+        $this->createPage->nameIt($name ?? '');
     }
 
     /**
      * @When I choose :currency as the base currency
      * @When I do not choose base currency
      */
-    public function iChooseAsABaseCurrency($currency = null)
+    public function iChooseAsABaseCurrency(?CurrencyInterface $currency = null)
     {
-        $this->createPage->chooseBaseCurrency($currency);
+        $this->createPage->chooseBaseCurrency($currency ? $currency->getName() : null);
     }
 
     /**
@@ -99,6 +100,30 @@ final class ManagingChannelsContext implements Context
     public function iChooseAsADefaultLocale($locale = null)
     {
         $this->createPage->chooseDefaultLocale($locale);
+    }
+
+    /**
+     * @When I choose :firstCountry and :secondCountry as operating countries
+     */
+    public function iChooseOperatingCountries(string ...$countries): void
+    {
+        $this->createPage->chooseOperatingCountries($countries);
+    }
+
+    /**
+     * @When I specify menu taxon as :menuTaxon
+     */
+    public function iSpecifyMenuTaxonAs(string $menuTaxon): void
+    {
+        $this->createPage->specifyMenuTaxon($menuTaxon);
+    }
+
+    /**
+     * @When I change its menu taxon to :menuTaxon
+     */
+    public function iChangeItsMenuTaxonTo(string $menuTaxon): void
+    {
+        $this->updatePage->changeMenuTaxon($menuTaxon);
     }
 
     /**
@@ -233,10 +258,11 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @Given I want to modify a channel :channel
-     * @Given /^I want to modify (this channel)$/
+     * @Given I am modifying a channel :channel
+     * @When I want to modify a channel :channel
+     * @When /^I want to modify (this channel)$/
      */
-    public function iWantToModifyChannel(ChannelInterface $channel)
+    public function iWantToModifyChannel(ChannelInterface $channel): void
     {
         $this->updatePage->open(['id' => $channel->getId()]);
     }
@@ -370,14 +396,14 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @When I make it available in :locale
+     * @When I make it available (only) in :locale
      */
-    public function iMakeItAvailableIn($locale)
+    public function iMakeItAvailableIn(string $localeName): void
     {
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
-        $currentPage->chooseLocale($locale);
+        $currentPage->chooseLocale($localeName);
     }
 
     /**
@@ -427,7 +453,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iRemoveItsDefaultTaxZone()
     {
-        $this->updatePage->chooseDefaultTaxZone(null);
+        $this->updatePage->chooseDefaultTaxZone('');
     }
 
     /**
@@ -477,6 +503,30 @@ final class ManagingChannelsContext implements Context
     public function theBaseCurrencyFieldShouldBeDisabled()
     {
         Assert::true($this->updatePage->isBaseCurrencyDisabled());
+    }
+
+    /**
+     * @Then I should be notified that the default locale has to be enabled
+     */
+    public function iShouldBeNotifiedThatTheDefaultLocaleHasToBeEnabled(): void
+    {
+        Assert::same(
+            $this->updatePage->getValidationMessage('default_locale'),
+            'Default locale has to be enabled.'
+        );
+    }
+
+    /**
+     * @Given /^(this channel) menu taxon should be "([^"]+)"$/
+     * @Given the channel :channel should have :menuTaxon as a menu taxon
+     */
+    public function thisChannelMenuTaxonShouldBe(ChannelInterface $channel, string $menuTaxon): void
+    {
+        if (!$this->updatePage->isOpen(['id' => $channel->getId()])) {
+            $this->updatePage->open(['id' => $channel->getId()]);
+        }
+
+        Assert::same($this->updatePage->getMenuTaxon(), $menuTaxon);
     }
 
     /**

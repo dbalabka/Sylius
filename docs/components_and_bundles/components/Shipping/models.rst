@@ -1,5 +1,12 @@
+.. rst-class:: outdated
+
 Models
 ======
+
+.. danger::
+
+   We're sorry but **this documentation section is outdated**. Please have that in mind when trying to use it.
+   You can help us making documentation up to date via Sylius Github. Thank you!
 
 Shipment
 --------
@@ -137,7 +144,7 @@ It has the following properties:
 
 .. note::
     This model implements the :ref:`component_shipping_model_shipping-method-interface` and uses the
-    :ref:`component_resource_translations_translatable-trait`.
+    `TranslatableTrait <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/TranslatableTrait.php>`_.
 
     For more detailed information go to `Sylius API ShippingMethod`_.
 
@@ -163,7 +170,7 @@ It has the following properties:
 
 .. note::
     This model implements the :ref:`component_shipping_model_shipping-method-translation-interface` and extends
-    :ref:`component_resource_translations_abstract-translation` class.
+    `AbstractTranslation <https://github.com/Sylius/SyliusResourceBundle/blob/master/src/Component/Model/AbstractTranslation.php>`_ class.
 
     Form more information go to `Sylius API ShippingMethodTranslation`_.
 

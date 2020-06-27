@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
+@trigger_error('The "StickerProductFixture" class is deprecated since Sylius 1.5 Use new product fixtures class located at "src/Sylius/Bundle/CoreBundle/Fixture/" instead.', \E_USER_DEPRECATED);
+
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
 use Sylius\Component\Attribute\AttributeType\TextAttributeType;
 use Sylius\Component\Core\Model\ProductInterface;
@@ -58,17 +60,11 @@ class StickerProductFixture extends AbstractFixture
         ;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): string
     {
         return 'sticker_product';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function load(array $options): void
     {
         $options = $this->optionsResolver->resolve($options);
@@ -138,9 +134,6 @@ class StickerProductFixture extends AbstractFixture
         $this->productFixture->load(['custom' => $products]);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configureOptionsNode(ArrayNodeDefinition $optionsNode): void
     {
         $optionsNode

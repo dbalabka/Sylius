@@ -24,13 +24,11 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 final class Configuration implements ConfigurationInterface
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('sylius_inventory');
+        $treeBuilder = new TreeBuilder('sylius_inventory');
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->addDefaultsIfNotSet()
